@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8"/>
+	<title>불편을 드려 죄송합니다.</title>
+	<!-- [W15] -->
+	<!-- false -->
+	<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" media="all"/>
+	<script src="https://kit.fontawesome.com/10391356fe.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div class="container">
+	<div class="card mt-5">
+		<div class="card-header pb-0">
+			<div class="float-right"><small>404</small></div>
+			<h4 class="card-title"><i class="fa fa-warning"></i> 불편을 드려 죄송합니다.</h4>
+		</div>
+		<div class="card-body">
+			
+					찾으시는 페이지가 존재하지 않습니다.
+				<br>같은 문제가 계속되면 관리자에게 문의해주십시오.
+			<hr>
+			<a href="/index.htm" class="btn btn-info"><i class="fal fa-home"></i> 메인 화면으로 가기</a>
+		</div><!-- .panel-body -->
+	</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+	$(function () {
+		if (window.name == 'formReceiver') {
+			parent.alert("프로그램 수행중 오류가 발생했습니다.\n\n같은 문제가 계속되면\n개발사에 문의 해주십시오.");
+		}
+	});
+</script>
+
+</body>
+</html>
