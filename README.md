@@ -50,4 +50,4 @@ python3 scripts/evaluation_runner.py --limit 5
 - 챗 엔진은 `--max-distance` 기본값(`0.62`)으로 낮은 관련성 청크를 버려 환각을 억제한다.
 - 최종 답변의 출처는 모델 자유 생성에 맡기지 않고 `제목 (코드: 번호)` 형식으로 후처리해 붙인다.
 - 평가 실행기는 [evaluation_questions.jsonl](/Users/choikjun/Desktop/keepdev/졸프/data/processed/evaluation_questions.jsonl)을 읽어 질문별 판정 결과를 `reports/evaluations/`에 저장한다.
-- 일부 PDF가 이미지 기반이면 OCR 단계가 추가로 필요할 수 있다.
+- 현재 파이프라인은 `pdftotext` 기반 추출을 사용하며, OCR 고도화는 이번 범위에서 제외했다.
