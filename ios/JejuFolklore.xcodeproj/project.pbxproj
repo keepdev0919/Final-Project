@@ -1,0 +1,438 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		027C49A35BB62E3C9B535323 /* CoursePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */; };
+		0CF6CACB8348127FCA5D4145 /* FolkloreDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8DC0AEACC6D55FDF9997B9 /* FolkloreDetailView.swift */; };
+		0EC1CB2AEEC08D50A8762866 /* ExploreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8528DFE3BA78C29CA022D3 /* ExploreView.swift */; };
+		155FB05FBE57A905102D4BA4 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A562565D326C0C4C39FA4D /* HomeViewModel.swift */; };
+		174F84207B32BD1FF0089EA3 /* CoursePreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */; };
+		1EFFDAF78ADAE81D2021D06E /* SavedCourse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E81A390764D24D99F14B2DA /* SavedCourse.swift */; };
+		1F8E431CBD4FDEDB15BB328D /* CoursePlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = A744E956106F34C9C2D95F2F /* CoursePlace.swift */; };
+		2BDBCF5B8C7C61F1C9478ABC /* JejuFolkloreApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEF7C5A76ABA12369016601 /* JejuFolkloreApp.swift */; };
+		38CBEDD8EFB51E3971426554 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C903EDA776C43559F19313 /* ChatMessage.swift */; };
+		4B5F8136E4813312F1CE5976 /* CourseAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */; };
+		4BBA96123849AB365EC9B2B4 /* Pin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B2D361FC201D7B53D1D5374 /* Pin.swift */; };
+		4E5F51B91701A71F45C93812 /* PinsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E5481B0ED3479BFF321C98 /* PinsAPI.swift */; };
+		511BDB16CB99BDB74A36F7AA /* CourseRecommendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */; };
+		522757289D4B9A4C480111F5 /* ExploreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */; };
+		67157E9A54F763785AB8AAE4 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB19D914698888F9F31CB4C /* Config.swift */; };
+		74DCBD57A66368EA7F46C223 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */; };
+		88DD5A8EED77969C5A45054D /* TTSAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F6205B0B938C2482576817A /* TTSAPI.swift */; };
+		8A08DE3EE1EDECFC01390C82 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE1015A20E1B4F561042D346 /* ContentView.swift */; };
+		8E332C8B628EB5E1E42AC01C /* MyCourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */; };
+		9CE3AAF8CFE0F62B647E2B1B /* CourseRecommendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */; };
+		BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */; };
+		BF7D8FB6935D109B375EF985 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C6027A4A228CB2943AF3A93 /* ChatViewModel.swift */; };
+		C73841BC51AF0A0EC4A72670 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F529E10D83F4E5A63726E5 /* LocationService.swift */; };
+		C97C58E098FE7DDBBFA5E051 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D629F5C5C7EBC91E3B287 /* ChatView.swift */; };
+		D726750ECE035B9C28D50F72 /* Course.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3716E52689657C66A89C990A /* Course.swift */; };
+		D797ABDBD47BA2407816B9AA /* ChatAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F2F5C21FAE77807D7721C05 /* ChatAPI.swift */; };
+		F475DC455EF699B2C68D1803 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8932708010A3431E486DF98 /* APIClient.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		03E5481B0ED3479BFF321C98 /* PinsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinsAPI.swift; sourceTree = "<group>"; };
+		0C6027A4A228CB2943AF3A93 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
+		161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewViewModel.swift; sourceTree = "<group>"; };
+		2F2F5C21FAE77807D7721C05 /* ChatAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAPI.swift; sourceTree = "<group>"; };
+		3716E52689657C66A89C990A /* Course.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
+		38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRecommendView.swift; sourceTree = "<group>"; };
+		456D629F5C5C7EBC91E3B287 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JejuFolklore.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewModel.swift; sourceTree = "<group>"; };
+		6DEF7C5A76ABA12369016601 /* JejuFolkloreApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JejuFolkloreApp.swift; sourceTree = "<group>"; };
+		72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewView.swift; sourceTree = "<group>"; };
+		80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRecommendViewModel.swift; sourceTree = "<group>"; };
+		8A8DC0AEACC6D55FDF9997B9 /* FolkloreDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolkloreDetailView.swift; sourceTree = "<group>"; };
+		8E81A390764D24D99F14B2DA /* SavedCourse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCourse.swift; sourceTree = "<group>"; };
+		8F6205B0B938C2482576817A /* TTSAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSAPI.swift; sourceTree = "<group>"; };
+		94F529E10D83F4E5A63726E5 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
+		9B2D361FC201D7B53D1D5374 /* Pin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pin.swift; sourceTree = "<group>"; };
+		A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
+		A744E956106F34C9C2D95F2F /* CoursePlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePlace.swift; sourceTree = "<group>"; };
+		AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		BCB19D914698888F9F31CB4C /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		C5C903EDA776C43559F19313 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
+		C8932708010A3431E486DF98 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseAPI.swift; sourceTree = "<group>"; };
+		D0A562565D326C0C4C39FA4D /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyCourseListView.swift; sourceTree = "<group>"; };
+		FE1015A20E1B4F561042D346 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		FF8528DFE3BA78C29CA022D3 /* ExploreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		008A9C8980608A8515E098EF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2BE96A45088F306CED8D5579 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				0C6027A4A228CB2943AF3A93 /* ChatViewModel.swift */,
+				161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */,
+				80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */,
+				4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */,
+				D0A562565D326C0C4C39FA4D /* HomeViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		3077A9125BAFCC44A04384F9 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				C5C903EDA776C43559F19313 /* ChatMessage.swift */,
+				3716E52689657C66A89C990A /* Course.swift */,
+				A744E956106F34C9C2D95F2F /* CoursePlace.swift */,
+				9B2D361FC201D7B53D1D5374 /* Pin.swift */,
+				8E81A390764D24D99F14B2DA /* SavedCourse.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		496F9C74CA25FBFDEAFCED32 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				BCB19D914698888F9F31CB4C /* Config.swift */,
+				6DEF7C5A76ABA12369016601 /* JejuFolkloreApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		75D21EA6AC81E560B87E62D9 = {
+			isa = PBXGroup;
+			children = (
+				DAB3CC0431095E8DCD0B7724 /* Sources */,
+				008A9C8980608A8515E098EF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D0732435DDB78ACC43D69004 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				456D629F5C5C7EBC91E3B287 /* ChatView.swift */,
+				FE1015A20E1B4F561042D346 /* ContentView.swift */,
+				72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */,
+				38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */,
+				FF8528DFE3BA78C29CA022D3 /* ExploreView.swift */,
+				8A8DC0AEACC6D55FDF9997B9 /* FolkloreDetailView.swift */,
+				AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */,
+				EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		D23C674700CFEF396FB5DDF7 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				C8932708010A3431E486DF98 /* APIClient.swift */,
+				A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */,
+				2F2F5C21FAE77807D7721C05 /* ChatAPI.swift */,
+				CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */,
+				94F529E10D83F4E5A63726E5 /* LocationService.swift */,
+				03E5481B0ED3479BFF321C98 /* PinsAPI.swift */,
+				8F6205B0B938C2482576817A /* TTSAPI.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		DAB3CC0431095E8DCD0B7724 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				496F9C74CA25FBFDEAFCED32 /* App */,
+				3077A9125BAFCC44A04384F9 /* Models */,
+				D23C674700CFEF396FB5DDF7 /* Services */,
+				2BE96A45088F306CED8D5579 /* ViewModels */,
+				D0732435DDB78ACC43D69004 /* Views */,
+			);
+			name = Sources;
+			path = JejuFolklore/Sources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		58E5457657C3C958743B0C25 /* JejuFolklore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 83032AAC9CEDC7FAAADB0C24 /* Build configuration list for PBXNativeTarget "JejuFolklore" */;
+			buildPhases = (
+				D50DE94A51AF6A56E6264984 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JejuFolklore;
+			packageProductDependencies = (
+			);
+			productName = JejuFolklore;
+			productReference = 4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6C28E17D1C1CDB465148AC78 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					58E5457657C3C958743B0C25 = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = 695326EA143816F89BEC379B /* Build configuration list for PBXProject "JejuFolklore" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 75D21EA6AC81E560B87E62D9;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 008A9C8980608A8515E098EF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				58E5457657C3C958743B0C25 /* JejuFolklore */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D50DE94A51AF6A56E6264984 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F475DC455EF699B2C68D1803 /* APIClient.swift in Sources */,
+				BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */,
+				D797ABDBD47BA2407816B9AA /* ChatAPI.swift in Sources */,
+				38CBEDD8EFB51E3971426554 /* ChatMessage.swift in Sources */,
+				C97C58E098FE7DDBBFA5E051 /* ChatView.swift in Sources */,
+				BF7D8FB6935D109B375EF985 /* ChatViewModel.swift in Sources */,
+				67157E9A54F763785AB8AAE4 /* Config.swift in Sources */,
+				8A08DE3EE1EDECFC01390C82 /* ContentView.swift in Sources */,
+				D726750ECE035B9C28D50F72 /* Course.swift in Sources */,
+				4B5F8136E4813312F1CE5976 /* CourseAPI.swift in Sources */,
+				1F8E431CBD4FDEDB15BB328D /* CoursePlace.swift in Sources */,
+				027C49A35BB62E3C9B535323 /* CoursePreviewView.swift in Sources */,
+				174F84207B32BD1FF0089EA3 /* CoursePreviewViewModel.swift in Sources */,
+				511BDB16CB99BDB74A36F7AA /* CourseRecommendView.swift in Sources */,
+				9CE3AAF8CFE0F62B647E2B1B /* CourseRecommendViewModel.swift in Sources */,
+				0EC1CB2AEEC08D50A8762866 /* ExploreView.swift in Sources */,
+				522757289D4B9A4C480111F5 /* ExploreViewModel.swift in Sources */,
+				0CF6CACB8348127FCA5D4145 /* FolkloreDetailView.swift in Sources */,
+				74DCBD57A66368EA7F46C223 /* HomeView.swift in Sources */,
+				155FB05FBE57A905102D4BA4 /* HomeViewModel.swift in Sources */,
+				2BDBCF5B8C7C61F1C9478ABC /* JejuFolkloreApp.swift in Sources */,
+				C73841BC51AF0A0EC4A72670 /* LocationService.swift in Sources */,
+				8E332C8B628EB5E1E42AC01C /* MyCourseListView.swift in Sources */,
+				4BBA96123849AB365EC9B2B4 /* Pin.swift in Sources */,
+				4E5F51B91701A71F45C93812 /* PinsAPI.swift in Sources */,
+				1EFFDAF78ADAE81D2021D06E /* SavedCourse.swift in Sources */,
+				88DD5A8EED77969C5A45054D /* TTSAPI.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0E022E3BB2C87CC440067257 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = JejuFolklore/Resources/JejuFolklore.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = JejuFolklore/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.keepdev.jejufolklore;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		1B5FDFB8DBEA44915C1D6EC8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.10;
+			};
+			name = Debug;
+		};
+		6E2A1776790A7031DA82FFA2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = JejuFolklore/Resources/JejuFolklore.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = JejuFolklore/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.keepdev.jejufolklore;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CD7C197118ECCE8836D47174 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.10;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		695326EA143816F89BEC379B /* Build configuration list for PBXProject "JejuFolklore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1B5FDFB8DBEA44915C1D6EC8 /* Debug */,
+				CD7C197118ECCE8836D47174 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		83032AAC9CEDC7FAAADB0C24 /* Build configuration list for PBXNativeTarget "JejuFolklore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6E2A1776790A7031DA82FFA2 /* Debug */,
+				0E022E3BB2C87CC440067257 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6C28E17D1C1CDB465148AC78 /* Project object */;
+}
