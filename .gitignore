@@ -4,3 +4,20 @@ __pycache__/
 *.pyc
 .DS_Store
 .codex/
+.claude/
+
+# 대용량 DB / 벡터 스토어
+storage/metadata.db
+storage/vector_db/
+
+# 원본 데이터 파일
+*.csv
+*.CSV
+*.pdf
+*.hwp
+관광사진/
+관광정보/
+관광지오디오/
+연관관광지/
+집중률 정보/
+docs/미팅/
