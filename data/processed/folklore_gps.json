@@ -1,0 +1,2940 @@
+[
+  {
+    "code_no": "C_M_001",
+    "source_type": "legend",
+    "title": "C_M_001 각시당본풀이",
+    "primary_place": "삼도동",
+    "lat": 33.5120406,
+    "lng": 126.5215055,
+    "all_places": [
+      "제주시",
+      "삼도동",
+      "남문통"
+    ]
+  },
+  {
+    "code_no": "C_M_002",
+    "source_type": "legend",
+    "title": "C_M_002 고내본향",
+    "primary_place": "항파두리",
+    "lat": 33.4525645,
+    "lng": 126.4081369,
+    "all_places": [
+      "고내리",
+      "고내봉",
+      "납읍리",
+      "애월읍",
+      "항파두리"
+    ]
+  },
+  {
+    "code_no": "C_M_003",
+    "source_type": "legend",
+    "title": "C_M_003 고대장본풀이",
+    "primary_place": "선흘리",
+    "lat": 33.4851252,
+    "lng": 126.7078377,
+    "all_places": [
+      "제주시",
+      "무근성",
+      "조천읍",
+      "납읍리",
+      "대정현",
+      "어음리",
+      "제주성",
+      "남문통",
+      "선흘리",
+      "용담동"
+    ]
+  },
+  {
+    "code_no": "C_M_004",
+    "source_type": "legend",
+    "title": "C_M_004 고도채비본",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "시흥리",
+      "성산읍",
+      "제주성"
+    ]
+  },
+  {
+    "code_no": "C_M_005",
+    "source_type": "legend",
+    "title": "C_M_005 고성신양수산본향당본풀이",
+    "primary_place": "마라도",
+    "lat": 33.1206371,
+    "lng": 126.2671204,
+    "all_places": [
+      "마라도",
+      "고성리",
+      "송당리",
+      "성산읍",
+      "구좌읍",
+      "수산리",
+      "종달리"
+    ]
+  },
+  {
+    "code_no": "C_M_006",
+    "source_type": "legend",
+    "title": "C_M_006 고전적본",
+    "primary_place": "봉개동",
+    "lat": 33.4571323,
+    "lng": 126.6130534,
+    "all_places": [
+      "제주시",
+      "정의현",
+      "봉개동"
+    ]
+  },
+  {
+    "code_no": "C_M_007",
+    "source_type": "legend",
+    "title": "C_M_007 곤물당본풀이",
+    "primary_place": "화순리",
+    "lat": 33.252712,
+    "lng": 126.3343265,
+    "all_places": [
+      "화순리",
+      "안덕면"
+    ]
+  },
+  {
+    "code_no": "C_M_008",
+    "source_type": "legend",
+    "title": "C_M_008 광정당본풀이",
+    "primary_place": "항파두리",
+    "lat": 33.4525645,
+    "lng": 126.4081369,
+    "all_places": [
+      "제주목",
+      "정의현",
+      "안덕면",
+      "항파두리"
+    ]
+  },
+  {
+    "code_no": "C_M_009",
+    "source_type": "legend",
+    "title": "C_M_009 광청아기본풀이",
+    "primary_place": "김녕리",
+    "lat": 33.5389636,
+    "lng": 126.7494481,
+    "all_places": [
+      "구좌읍",
+      "김녕리"
+    ]
+  },
+  {
+    "code_no": "C_M_010",
+    "source_type": "legend",
+    "title": "C_M_010 구실할망본풀이(나주 김씨 집안의 조상)",
+    "primary_place": "신촌리",
+    "lat": 33.5233479,
+    "lng": 126.6200395,
+    "all_places": [
+      "조천읍",
+      "신촌리"
+    ]
+  },
+  {
+    "code_no": "C_M_011",
+    "source_type": "legend",
+    "title": "C_M_011 궤눼깃당본풀이",
+    "primary_place": "송당리",
+    "lat": 33.4564636,
+    "lng": 126.7691579,
+    "all_places": [
+      "송당리",
+      "구좌읍",
+      "김녕리"
+    ]
+  },
+  {
+    "code_no": "C_M_012",
+    "source_type": "legend",
+    "title": "C_M_012 금덕리당 종신당 유수암당",
+    "primary_place": "애월읍",
+    "lat": 33.4110784,
+    "lng": 126.3939276,
+    "all_places": [
+      "제주목",
+      "애월읍"
+    ]
+  },
+  {
+    "code_no": "C_M_013",
+    "source_type": "legend",
+    "title": "C_M_013 금덕본향 검은댁잇당",
+    "primary_place": "애월읍",
+    "lat": 33.4110784,
+    "lng": 126.3939276,
+    "all_places": [
+      "애월읍"
+    ]
+  },
+  {
+    "code_no": "C_M_014",
+    "source_type": "legend",
+    "title": "C_M_014 금악본향 오일당",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "저지리",
+      "한라산",
+      "금악리",
+      "한림읍"
+    ]
+  },
+  {
+    "code_no": "C_M_015",
+    "source_type": "legend",
+    "title": "C_M_015 나주 기민창조상본풀이",
+    "primary_place": "조천리",
+    "lat": 33.5267388,
+    "lng": 126.6435672,
+    "all_places": [
+      "조천읍",
+      "조천리",
+      "선흘리"
+    ]
+  },
+  {
+    "code_no": "C_M_016",
+    "source_type": "legend",
+    "title": "C_M_016 내왓당 천또마누라본풀이",
+    "primary_place": "용담동",
+    "lat": 33.5088456,
+    "lng": 126.509989,
+    "all_places": [
+      "제주시",
+      "용담동"
+    ]
+  },
+  {
+    "code_no": "C_M_017",
+    "source_type": "legend",
+    "title": "C_M_017 널갯당 오일본향",
+    "primary_place": "한경면",
+    "lat": 33.3227575,
+    "lng": 126.2238176,
+    "all_places": [
+      "한경면"
+    ]
+  },
+  {
+    "code_no": "C_M_018",
+    "source_type": "legend",
+    "title": "C_M_018 눈미 불돗당본풀이",
+    "primary_place": "조천읍",
+    "lat": 33.4721666,
+    "lng": 126.6674663,
+    "all_places": [
+      "조천읍"
+    ]
+  },
+  {
+    "code_no": "C_M_019",
+    "source_type": "legend",
+    "title": "C_M_019 눈미 양씨아미본풀이",
+    "primary_place": "조천읍",
+    "lat": 33.4721666,
+    "lng": 126.6674663,
+    "all_places": [
+      "조천읍"
+    ]
+  },
+  {
+    "code_no": "C_M_020",
+    "source_type": "legend",
+    "title": "C_M_020 당나미문씨아기당본풀이",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "표선면",
+      "한라산",
+      "정의현",
+      "가시리"
+    ]
+  },
+  {
+    "code_no": "C_M_021",
+    "source_type": "legend",
+    "title": "C_M_021 도두본향 오름허릿당",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "제주시",
+      "한라산",
+      "삼도동",
+      "도두동"
+    ]
+  },
+  {
+    "code_no": "C_M_022",
+    "source_type": "legend",
+    "title": "C_M_022 동복본향당본풀이",
+    "primary_place": "구좌읍",
+    "lat": 33.4980532,
+    "lng": 126.7954504,
+    "all_places": [
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "C_M_023",
+    "source_type": "legend",
+    "title": "C_M_023 동복본향당본풀이 1",
+    "primary_place": "김녕리",
+    "lat": 33.5389636,
+    "lng": 126.7494481,
+    "all_places": [
+      "구좌읍",
+      "김녕리"
+    ]
+  },
+  {
+    "code_no": "C_M_024",
+    "source_type": "legend",
+    "title": "C_M_024 두리빌렛당 두리빌레 용해부인 할마님",
+    "primary_place": "김녕리",
+    "lat": 33.5389636,
+    "lng": 126.7494481,
+    "all_places": [
+      "제주시",
+      "김녕리"
+    ]
+  },
+  {
+    "code_no": "C_M_026",
+    "source_type": "legend",
+    "title": "C_M_026 마라도본향 애기씨",
+    "primary_place": "마라도",
+    "lat": 33.1206371,
+    "lng": 126.2671204,
+    "all_places": [
+      "대정읍",
+      "마라도"
+    ]
+  },
+  {
+    "code_no": "C_M_027",
+    "source_type": "legend",
+    "title": "C_M_027 명월본향 축일당",
+    "primary_place": "한림읍",
+    "lat": 33.3764716,
+    "lng": 126.2852587,
+    "all_places": [
+      "한림읍"
+    ]
+  },
+  {
+    "code_no": "C_M_030",
+    "source_type": "legend",
+    "title": "C_M_030 부대각본",
+    "primary_place": "하도리",
+    "lat": 33.5163279,
+    "lng": 126.8833403,
+    "all_places": [
+      "평대리",
+      "제주성",
+      "하도리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "C_M_031",
+    "source_type": "legend",
+    "title": "C_M_031 비매닛당 비매닛할망당",
+    "primary_place": "애월읍",
+    "lat": 33.4110784,
+    "lng": 126.3939276,
+    "all_places": [
+      "애월읍"
+    ]
+  },
+  {
+    "code_no": "C_M_032",
+    "source_type": "legend",
+    "title": "C_M_032 사계본향 큰물당",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "한라산",
+      "안덕면",
+      "사계리"
+    ]
+  },
+  {
+    "code_no": "C_M_034",
+    "source_type": "legend",
+    "title": "C_M_034 삼달본향당본풀이",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "C_M_037",
+    "source_type": "legend",
+    "title": "C_M_037 상가본향 새당 할으방당",
+    "primary_place": "애월읍",
+    "lat": 33.4110784,
+    "lng": 126.3939276,
+    "all_places": [
+      "애월읍"
+    ]
+  },
+  {
+    "code_no": "C_M_038",
+    "source_type": "legend",
+    "title": "C_M_038 서귀본향당본푸리",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "한라산",
+      "서귀포시"
+    ]
+  },
+  {
+    "code_no": "C_M_039",
+    "source_type": "legend",
+    "title": "C_M_039 선을안판관제주판관본",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "한라산",
+      "조천읍",
+      "납읍리",
+      "가시리",
+      "선흘리"
+    ]
+  },
+  {
+    "code_no": "C_M_043",
+    "source_type": "legend",
+    "title": "C_M_043 세화본향당 금상님본풀이",
+    "primary_place": "세화리",
+    "lat": 33.4902403,
+    "lng": 126.8326492,
+    "all_places": [
+      "성산읍",
+      "세화리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "C_M_044",
+    "source_type": "legend",
+    "title": "C_M_044 세화본향당 벡주또본풀이",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "한라산",
+      "세화리",
+      "평대리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "C_M_045",
+    "source_type": "legend",
+    "title": "C_M_045 만이본풀이",
+    "primary_place": "우도",
+    "lat": 33.5042977,
+    "lng": 126.954048,
+    "all_places": [
+      "우도"
+    ]
+  },
+  {
+    "code_no": "C_M_046",
+    "source_type": "legend",
+    "title": "C_M_046 손당본향 소천국광 백주할망",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "한라산",
+      "송당리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "C_M_047",
+    "source_type": "legend",
+    "title": "C_M_047 솥할망본",
+    "primary_place": "표선면",
+    "lat": 33.3747697,
+    "lng": 126.7684581,
+    "all_places": [
+      "표선면",
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "C_M_048",
+    "source_type": "legend",
+    "title": "C_M_048 시흥본향당본풀이",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "시흥리",
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "C_M_049",
+    "source_type": "legend",
+    "title": "C_M_049 신천본향 선씨일월",
+    "primary_place": "신촌리",
+    "lat": 33.5233479,
+    "lng": 126.6200395,
+    "all_places": [
+      "조천읍",
+      "성산읍",
+      "신촌리"
+    ]
+  },
+  {
+    "code_no": "C_M_050",
+    "source_type": "legend",
+    "title": "C_M_050 알당(금성)",
+    "primary_place": "애월읍",
+    "lat": 33.4110784,
+    "lng": 126.3939276,
+    "all_places": [
+      "애월읍"
+    ]
+  },
+  {
+    "code_no": "C_M_051",
+    "source_type": "legend",
+    "title": "C_M_051 양씨아미본풀이",
+    "primary_place": "남원읍",
+    "lat": 33.3283413,
+    "lng": 126.6661355,
+    "all_places": [
+      "신례리",
+      "남원읍",
+      "하례리"
+    ]
+  },
+  {
+    "code_no": "C_M_053",
+    "source_type": "legend",
+    "title": "C_M_053 열리본향당본풀이",
+    "primary_place": "화순리",
+    "lat": 33.252712,
+    "lng": 126.3343265,
+    "all_places": [
+      "화순리",
+      "서귀포시",
+      "예래동",
+      "사계리"
+    ]
+  },
+  {
+    "code_no": "C_M_054",
+    "source_type": "legend",
+    "title": "C_M_054 영감본",
+    "primary_place": "한경면",
+    "lat": 33.3227575,
+    "lng": 126.2238176,
+    "all_places": [
+      "한경면"
+    ]
+  },
+  {
+    "code_no": "C_M_055",
+    "source_type": "legend",
+    "title": "C_M_055 영등당(한림)",
+    "primary_place": "한림읍",
+    "lat": 33.3764716,
+    "lng": 126.2852587,
+    "all_places": [
+      "한림읍"
+    ]
+  },
+  {
+    "code_no": "C_M_056",
+    "source_type": "legend",
+    "title": "C_M_056 예촌보목효돈토평본향당본풀이",
+    "primary_place": "남원읍",
+    "lat": 33.3283413,
+    "lng": 126.6661355,
+    "all_places": [
+      "서귀포시",
+      "신례리",
+      "남원읍",
+      "하례리",
+      "효돈동"
+    ]
+  },
+  {
+    "code_no": "C_M_058",
+    "source_type": "legend",
+    "title": "C_M_058 드렛당본풀이",
+    "primary_place": "가시리",
+    "lat": 33.3828211,
+    "lng": 126.7313785,
+    "all_places": [
+      "표선면",
+      "가시리",
+      "온평리"
+    ]
+  },
+  {
+    "code_no": "C_M_059",
+    "source_type": "legend",
+    "title": "C_M_059 우렝이 김씨조상본풀이",
+    "primary_place": "외도동",
+    "lat": 33.4827496,
+    "lng": 126.4404592,
+    "all_places": [
+      "제주시",
+      "외도동"
+    ]
+  },
+  {
+    "code_no": "C_M_060",
+    "source_type": "legend",
+    "title": "C_M_060 우렝이 신씨조상본풀이",
+    "primary_place": "가시리",
+    "lat": 33.3828211,
+    "lng": 126.7313785,
+    "all_places": [
+      "제주시",
+      "가시리",
+      "외도동"
+    ]
+  },
+  {
+    "code_no": "C_M_061",
+    "source_type": "legend",
+    "title": "C_M_061 웃당본(토산)",
+    "primary_place": "마라도",
+    "lat": 33.1206371,
+    "lng": 126.2671204,
+    "all_places": [
+      "표선면",
+      "마라도",
+      "한라산"
+    ]
+  },
+  {
+    "code_no": "C_M_062",
+    "source_type": "legend",
+    "title": "C_M_062 원당할망본",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "C_M_065",
+    "source_type": "legend",
+    "title": "C_M_065 월정본향당본풀이",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "한라산",
+      "월정리",
+      "행원리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "C_M_068",
+    "source_type": "legend",
+    "title": "C_M_068 자원당",
+    "primary_place": "애월읍",
+    "lat": 33.4110784,
+    "lng": 126.3939276,
+    "all_places": [
+      "애월읍",
+      "한림읍"
+    ]
+  },
+  {
+    "code_no": "C_M_069",
+    "source_type": "legend",
+    "title": "C_M_069 저지본향 허릿궁할망",
+    "primary_place": "한경면",
+    "lat": 33.3227575,
+    "lng": 126.2238176,
+    "all_places": [
+      "저지리",
+      "한경면",
+      "한림읍"
+    ]
+  },
+  {
+    "code_no": "C_M_071",
+    "source_type": "legend",
+    "title": "C_M_071 진안할망",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍",
+      "수산리"
+    ]
+  },
+  {
+    "code_no": "C_M_073",
+    "source_type": "legend",
+    "title": "C_M_073 천지왕본",
+    "primary_place": "표선리",
+    "lat": 33.324883,
+    "lng": 126.8245979,
+    "all_places": [
+      "표선면",
+      "표선리"
+    ]
+  },
+  {
+    "code_no": "C_M_076",
+    "source_type": "legend",
+    "title": "C_M_076 칠성본풀이",
+    "primary_place": "함덕리",
+    "lat": 33.5307681,
+    "lng": 126.6673798,
+    "all_places": [
+      "함덕리",
+      "제주성"
+    ]
+  },
+  {
+    "code_no": "C_M_077",
+    "source_type": "legend",
+    "title": "C_M_077 토산일뤳당본풀이",
+    "primary_place": "마라도",
+    "lat": 33.1206371,
+    "lng": 126.2671204,
+    "all_places": [
+      "표선면",
+      "마라도"
+    ]
+  },
+  {
+    "code_no": "C_M_078",
+    "source_type": "legend",
+    "title": "C_M_078 평대본향 신선당",
+    "primary_place": "우도",
+    "lat": 33.5042977,
+    "lng": 126.954048,
+    "all_places": [
+      "평대리",
+      "우도면",
+      "구좌읍",
+      "우도"
+    ]
+  },
+  {
+    "code_no": "C_M_079",
+    "source_type": "legend",
+    "title": "C_M_079 피쟁이조상본 황정싱본",
+    "primary_place": "삼도동",
+    "lat": 33.5120406,
+    "lng": 126.5215055,
+    "all_places": [
+      "제주시",
+      "삼도동"
+    ]
+  },
+  {
+    "code_no": "C_M_080",
+    "source_type": "legend",
+    "title": "C_M_080 하도본향 삼싱당",
+    "primary_place": "하도리",
+    "lat": 33.5163279,
+    "lng": 126.8833403,
+    "all_places": [
+      "하도리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "C_M_081",
+    "source_type": "legend",
+    "title": "C_M_081 함덕본향당본풀이",
+    "primary_place": "함덕리",
+    "lat": 33.5307681,
+    "lng": 126.6673798,
+    "all_places": [
+      "함덕리"
+    ]
+  },
+  {
+    "code_no": "C_M_082",
+    "source_type": "legend",
+    "title": "C_M_082 해안본향 강구물동산당",
+    "primary_place": "연동",
+    "lat": 33.4659777,
+    "lng": 126.4934011,
+    "all_places": [
+      "제주시",
+      "연동"
+    ]
+  },
+  {
+    "code_no": "C_M_083",
+    "source_type": "legend",
+    "title": "C_M_083 행원남당본풀이",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "한라산",
+      "행원리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "C_M_084",
+    "source_type": "legend",
+    "title": "C_M_084 호근이르 드렛당본풀이",
+    "primary_place": "안덕면",
+    "lat": 33.2926011,
+    "lng": 126.3476551,
+    "all_places": [
+      "안덕면"
+    ]
+  },
+  {
+    "code_no": "C_M_085",
+    "source_type": "legend",
+    "title": "C_M_085 화순본향 원당밭 일뢰중조",
+    "primary_place": "화순리",
+    "lat": 33.252712,
+    "lng": 126.3343265,
+    "all_places": [
+      "화순리",
+      "색달리",
+      "안덕면",
+      "사계리"
+    ]
+  },
+  {
+    "code_no": "T_M_001",
+    "source_type": "legend",
+    "title": "T_M_001 각시당본풀이",
+    "primary_place": "삼도동",
+    "lat": 33.5120406,
+    "lng": 126.5215055,
+    "all_places": [
+      "삼도동"
+    ]
+  },
+  {
+    "code_no": "T_M_002",
+    "source_type": "legend",
+    "title": "T_M_002 고내본향",
+    "primary_place": "고내봉",
+    "lat": 33.4591265,
+    "lng": 126.3418004,
+    "all_places": [
+      "고내봉"
+    ]
+  },
+  {
+    "code_no": "T_M_003",
+    "source_type": "legend",
+    "title": "T_M_003 고대장 본풀이",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "제주시",
+      "한라산",
+      "고성리",
+      "무근성",
+      "화북동",
+      "납읍리",
+      "정의현",
+      "대정현",
+      "한림읍",
+      "어음리",
+      "항파두리",
+      "제주성",
+      "남문통",
+      "선흘리",
+      "건입동",
+      "용담동"
+    ]
+  },
+  {
+    "code_no": "T_M_004",
+    "source_type": "legend",
+    "title": "T_M_004 고도채비본(일도2)",
+    "primary_place": "제주시",
+    "lat": 33.5042779,
+    "lng": 126.519838,
+    "all_places": [
+      "제주시"
+    ]
+  },
+  {
+    "code_no": "T_M_005",
+    "source_type": "legend",
+    "title": "T_M_005 고성신양수산본향당본풀이",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "한라산",
+      "송당리",
+      "온평리",
+      "수산리",
+      "종달리"
+    ]
+  },
+  {
+    "code_no": "T_M_006",
+    "source_type": "legend",
+    "title": "T_M_006 고전적본",
+    "primary_place": "송당리",
+    "lat": 33.4564636,
+    "lng": 126.7691579,
+    "all_places": [
+      "제주시",
+      "송당리",
+      "정의현",
+      "봉개동",
+      "선흘리",
+      "하례리"
+    ]
+  },
+  {
+    "code_no": "T_M_007",
+    "source_type": "legend",
+    "title": "T_M_007 곤물당본풀이",
+    "primary_place": "화순리",
+    "lat": 33.252712,
+    "lng": 126.3343265,
+    "all_places": [
+      "화순리",
+      "안덕면"
+    ]
+  },
+  {
+    "code_no": "T_M_008",
+    "source_type": "legend",
+    "title": "T_M_008 광정당본풀이",
+    "primary_place": "성읍리",
+    "lat": 33.407816,
+    "lng": 126.7828957,
+    "all_places": [
+      "표선면",
+      "제주시",
+      "고성리",
+      "이도동",
+      "성읍리"
+    ]
+  },
+  {
+    "code_no": "T_M_010",
+    "source_type": "legend",
+    "title": "T_M_010 구실할망본풀이",
+    "primary_place": "조천리",
+    "lat": 33.5267388,
+    "lng": 126.6435672,
+    "all_places": [
+      "제주시",
+      "조천리",
+      "신촌리"
+    ]
+  },
+  {
+    "code_no": "T_M_011",
+    "source_type": "legend",
+    "title": "T_M_011 궤눼깃당본풀이",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "한라산",
+      "송당리",
+      "세화리",
+      "평대리",
+      "선흘리",
+      "구좌읍",
+      "김녕리",
+      "우도",
+      "종달리"
+    ]
+  },
+  {
+    "code_no": "T_M_013",
+    "source_type": "legend",
+    "title": "T_M_013 금덕본향 검은댁잇당(유수암)",
+    "primary_place": "제주목",
+    "lat": 33.5042779,
+    "lng": 126.519838,
+    "all_places": [
+      "제주목"
+    ]
+  },
+  {
+    "code_no": "T_M_014",
+    "source_type": "legend",
+    "title": "T_M_014 금악본향 오일당",
+    "primary_place": "한림읍",
+    "lat": 33.3764716,
+    "lng": 126.2852587,
+    "all_places": [
+      "금악리",
+      "한림읍"
+    ]
+  },
+  {
+    "code_no": "T_M_015",
+    "source_type": "legend",
+    "title": "T_M_015 나주 기민창조상본풀이",
+    "primary_place": "조천리",
+    "lat": 33.5267388,
+    "lng": 126.6435672,
+    "all_places": [
+      "제주목",
+      "납읍리",
+      "조천리",
+      "어음리",
+      "제주성",
+      "선흘리"
+    ]
+  },
+  {
+    "code_no": "T_M_016",
+    "source_type": "legend",
+    "title": "T_M_016 내왓당 천또마누라 본풀이",
+    "primary_place": "송당리",
+    "lat": 33.4564636,
+    "lng": 126.7691579,
+    "all_places": [
+      "송당리"
+    ]
+  },
+  {
+    "code_no": "T_M_017",
+    "source_type": "legend",
+    "title": "T_M_017 널갯당 오일본향(판포)",
+    "primary_place": "한경면",
+    "lat": 33.3227575,
+    "lng": 126.2238176,
+    "all_places": [
+      "한경면"
+    ]
+  },
+  {
+    "code_no": "T_M_019",
+    "source_type": "legend",
+    "title": "T_M_019 눈미 양씨아미본풀이",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "제주시",
+      "한라산",
+      "조천읍",
+      "용담동"
+    ]
+  },
+  {
+    "code_no": "T_M_020",
+    "source_type": "legend",
+    "title": "T_M_020 당나미문씨아기당본풀이",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "표선면",
+      "한라산",
+      "가시리",
+      "성읍리"
+    ]
+  },
+  {
+    "code_no": "T_M_021",
+    "source_type": "legend",
+    "title": "T_M_021 도두본향 오름허릿당",
+    "primary_place": "삼도동",
+    "lat": 33.5120406,
+    "lng": 126.5215055,
+    "all_places": [
+      "제주시",
+      "삼도동"
+    ]
+  },
+  {
+    "code_no": "T_M_022",
+    "source_type": "legend",
+    "title": "T_M_022 동복본향당본풀이",
+    "primary_place": "제주성",
+    "lat": 33.2546582,
+    "lng": 126.3467011,
+    "all_places": [
+      "제주성"
+    ]
+  },
+  {
+    "code_no": "T_M_024",
+    "source_type": "legend",
+    "title": "T_M_024 두리빌렛당 두리빌레 용해부인 할마님",
+    "primary_place": "제주시",
+    "lat": 33.5042779,
+    "lng": 126.519838,
+    "all_places": [
+      "제주시",
+      "제주성"
+    ]
+  },
+  {
+    "code_no": "T_M_026",
+    "source_type": "legend",
+    "title": "T_M_026 마라도본향 애기씨",
+    "primary_place": "마라도",
+    "lat": 33.1206371,
+    "lng": 126.2671204,
+    "all_places": [
+      "대정읍",
+      "마라도",
+      "가파도"
+    ]
+  },
+  {
+    "code_no": "T_M_027",
+    "source_type": "legend",
+    "title": "T_M_027 명월본향 축일당",
+    "primary_place": "한림읍",
+    "lat": 33.3764716,
+    "lng": 126.2852587,
+    "all_places": [
+      "한림읍"
+    ]
+  },
+  {
+    "code_no": "T_M_030",
+    "source_type": "legend",
+    "title": "T_M_030 부대각본",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "제주시",
+      "한라산",
+      "평대리",
+      "구좌읍",
+      "용담동"
+    ]
+  },
+  {
+    "code_no": "T_M_032",
+    "source_type": "legend",
+    "title": "T_M_032 사계본향 큰물당",
+    "primary_place": "사계리",
+    "lat": 33.2383758,
+    "lng": 126.3026575,
+    "all_places": [
+      "안덕면",
+      "사계리"
+    ]
+  },
+  {
+    "code_no": "T_M_034",
+    "source_type": "legend",
+    "title": "T_M_034 삼달본향당본풀이",
+    "primary_place": "함덕리",
+    "lat": 33.5307681,
+    "lng": 126.6673798,
+    "all_places": [
+      "표선면",
+      "시흥리",
+      "함덕리",
+      "성읍리",
+      "종달리",
+      "난산리"
+    ]
+  },
+  {
+    "code_no": "T_M_035",
+    "source_type": "legend",
+    "title": "T_M_035 삼두구미본",
+    "primary_place": "한경면",
+    "lat": 33.3227575,
+    "lng": 126.2238176,
+    "all_places": [
+      "한경면"
+    ]
+  },
+  {
+    "code_no": "T_M_038",
+    "source_type": "legend",
+    "title": "T_M_038 서귀본향당본푸리",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "한라산",
+      "연동"
+    ]
+  },
+  {
+    "code_no": "T_M_039",
+    "source_type": "legend",
+    "title": "T_M_039 선흘안판관제주판관본",
+    "primary_place": "가시리",
+    "lat": 33.3828211,
+    "lng": 126.7313785,
+    "all_places": [
+      "표선면",
+      "제주시",
+      "납읍리",
+      "가시리",
+      "선흘리"
+    ]
+  },
+  {
+    "code_no": "T_M_042",
+    "source_type": "legend",
+    "title": "T_M_042 세민황제본",
+    "primary_place": "한경면",
+    "lat": 33.3227575,
+    "lng": 126.2238176,
+    "all_places": [
+      "한경면"
+    ]
+  },
+  {
+    "code_no": "T_M_043",
+    "source_type": "legend",
+    "title": "T_M_043 세화본향당본풀이 금상님본풀이",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "한라산",
+      "세화리",
+      "우도"
+    ]
+  },
+  {
+    "code_no": "T_M_044",
+    "source_type": "legend",
+    "title": "T_M_044 세화본향당본풀이 벡주또본풀이",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "한라산",
+      "조천리",
+      "세화리",
+      "평대리",
+      "선흘리"
+    ]
+  },
+  {
+    "code_no": "T_M_046",
+    "source_type": "legend",
+    "title": "T_M_046 송당본향 소천국광 백주할망",
+    "primary_place": "제주시",
+    "lat": 33.5042779,
+    "lng": 126.519838,
+    "all_places": [
+      "제주시"
+    ]
+  },
+  {
+    "code_no": "T_M_048",
+    "source_type": "legend",
+    "title": "T_M_048 시흥본향당본풀이",
+    "primary_place": "종달리",
+    "lat": 33.4791521,
+    "lng": 126.8667686,
+    "all_places": [
+      "시흥리",
+      "오조리",
+      "종달리"
+    ]
+  },
+  {
+    "code_no": "T_M_049",
+    "source_type": "legend",
+    "title": "T_M_049 신천본향 선씨일월",
+    "primary_place": "표선리",
+    "lat": 33.324883,
+    "lng": 126.8245979,
+    "all_places": [
+      "표선면",
+      "표선리",
+      "신촌리"
+    ]
+  },
+  {
+    "code_no": "T_M_051",
+    "source_type": "legend",
+    "title": "T_M_051 양씨아미 본풀이",
+    "primary_place": "온평리",
+    "lat": 33.4111905,
+    "lng": 126.8935582,
+    "all_places": [
+      "온평리",
+      "하례리"
+    ]
+  },
+  {
+    "code_no": "T_M_052",
+    "source_type": "legend",
+    "title": "T_M_052 양이목본풀이",
+    "primary_place": "제주목",
+    "lat": 33.5042779,
+    "lng": 126.519838,
+    "all_places": [
+      "제주목",
+      "제주성"
+    ]
+  },
+  {
+    "code_no": "T_M_053",
+    "source_type": "legend",
+    "title": "T_M_053 열리본향당본풀이",
+    "primary_place": "화순리",
+    "lat": 33.252712,
+    "lng": 126.3343265,
+    "all_places": [
+      "화순리",
+      "안덕면",
+      "사계리"
+    ]
+  },
+  {
+    "code_no": "T_M_054",
+    "source_type": "legend",
+    "title": "T_M_054 영감본",
+    "primary_place": "마라도",
+    "lat": 33.1206371,
+    "lng": 126.2671204,
+    "all_places": [
+      "대정읍",
+      "마라도",
+      "한경면",
+      "가파도",
+      "함덕리",
+      "종달리"
+    ]
+  },
+  {
+    "code_no": "T_M_055",
+    "source_type": "legend",
+    "title": "T_M_055 영등당(한림)",
+    "primary_place": "한림읍",
+    "lat": 33.3764716,
+    "lng": 126.2852587,
+    "all_places": [
+      "제주시",
+      "한림읍"
+    ]
+  },
+  {
+    "code_no": "T_M_058",
+    "source_type": "legend",
+    "title": "T_M_058 요드렛당본풀이",
+    "primary_place": "가시리",
+    "lat": 33.3828211,
+    "lng": 126.7313785,
+    "all_places": [
+      "표선면",
+      "가시리",
+      "온평리",
+      "성읍리"
+    ]
+  },
+  {
+    "code_no": "T_M_059",
+    "source_type": "legend",
+    "title": "T_M_059 우렝이 김씨조상본풀이",
+    "primary_place": "애월읍",
+    "lat": 33.4110784,
+    "lng": 126.3939276,
+    "all_places": [
+      "제주시",
+      "삼도동",
+      "이호동",
+      "애월읍",
+      "한림읍",
+      "용담동"
+    ]
+  },
+  {
+    "code_no": "T_M_060",
+    "source_type": "legend",
+    "title": "T_M_060 우렝이 신씨조상본풀이",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "표선면",
+      "제주시",
+      "한라산",
+      "제주목",
+      "서귀포시",
+      "가시리",
+      "대정현",
+      "애월읍",
+      "안덕면",
+      "광령리",
+      "용담동"
+    ]
+  },
+  {
+    "code_no": "T_M_061",
+    "source_type": "legend",
+    "title": "T_M_061 웃당본(토산)",
+    "primary_place": "마라도",
+    "lat": 33.1206371,
+    "lng": 126.2671204,
+    "all_places": [
+      "마라도"
+    ]
+  },
+  {
+    "code_no": "T_M_063",
+    "source_type": "legend",
+    "title": "T_M_063 원천강본",
+    "primary_place": "한경면",
+    "lat": 33.3227575,
+    "lng": 126.2238176,
+    "all_places": [
+      "한경면"
+    ]
+  },
+  {
+    "code_no": "T_M_065",
+    "source_type": "legend",
+    "title": "T_M_065 월정본향당본풀이",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "제주시",
+      "한라산",
+      "월정리",
+      "조천리",
+      "함덕리"
+    ]
+  },
+  {
+    "code_no": "T_M_067",
+    "source_type": "legend",
+    "title": "T_M_067 이씨할망조상본",
+    "primary_place": "건입동",
+    "lat": 33.5153591,
+    "lng": 126.5420032,
+    "all_places": [
+      "제주시",
+      "건입동"
+    ]
+  },
+  {
+    "code_no": "T_M_068",
+    "source_type": "legend",
+    "title": "T_M_068 자원당(하가)",
+    "primary_place": "한림읍",
+    "lat": 33.3764716,
+    "lng": 126.2852587,
+    "all_places": [
+      "한림읍"
+    ]
+  },
+  {
+    "code_no": "T_M_069",
+    "source_type": "legend",
+    "title": "T_M_069 저지본향 허릿궁할망",
+    "primary_place": "한경면",
+    "lat": 33.3227575,
+    "lng": 126.2238176,
+    "all_places": [
+      "한경면"
+    ]
+  },
+  {
+    "code_no": "T_M_071",
+    "source_type": "legend",
+    "title": "T_M_071 진안할망(수산)",
+    "primary_place": "수산리",
+    "lat": 33.4644603,
+    "lng": 126.3887347,
+    "all_places": [
+      "수산리"
+    ]
+  },
+  {
+    "code_no": "T_M_072",
+    "source_type": "legend",
+    "title": "T_M_072 차사본풀이",
+    "primary_place": "건입동",
+    "lat": 33.5153591,
+    "lng": 126.5420032,
+    "all_places": [
+      "제주시",
+      "제주성",
+      "건입동",
+      "아라동"
+    ]
+  },
+  {
+    "code_no": "T_M_073",
+    "source_type": "legend",
+    "title": "T_M_073 천지왕본",
+    "primary_place": "표선리",
+    "lat": 33.324883,
+    "lng": 126.8245979,
+    "all_places": [
+      "표선면",
+      "표선리"
+    ]
+  },
+  {
+    "code_no": "T_M_074",
+    "source_type": "legend",
+    "title": "T_M_074 천지왕본풀이",
+    "primary_place": "우도",
+    "lat": 33.5042977,
+    "lng": 126.954048,
+    "all_places": [
+      "우도"
+    ]
+  },
+  {
+    "code_no": "T_M_075",
+    "source_type": "legend",
+    "title": "T_M_075 초공본풀이",
+    "primary_place": "대정읍",
+    "lat": 33.2578881,
+    "lng": 126.2467175,
+    "all_places": [
+      "대정읍",
+      "제주시",
+      "보성리",
+      "대정현"
+    ]
+  },
+  {
+    "code_no": "T_M_076",
+    "source_type": "legend",
+    "title": "T_M_076 칠성본풀이",
+    "primary_place": "조천리",
+    "lat": 33.5267388,
+    "lng": 126.6435672,
+    "all_places": [
+      "제주시",
+      "화북동",
+      "삼도동",
+      "조천리",
+      "세화리",
+      "함덕리",
+      "이도동",
+      "삼양동",
+      "건입동",
+      "신촌리"
+    ]
+  },
+  {
+    "code_no": "T_M_077",
+    "source_type": "legend",
+    "title": "T_M_077 토산 일뤳당본풀이",
+    "primary_place": "마라도",
+    "lat": 33.1206371,
+    "lng": 126.2671204,
+    "all_places": [
+      "대정읍",
+      "마라도",
+      "표선리",
+      "남원리",
+      "위미리",
+      "하도리"
+    ]
+  },
+  {
+    "code_no": "T_M_079",
+    "source_type": "legend",
+    "title": "T_M_079 피쟁이조상본 황정싱본",
+    "primary_place": "삼도동",
+    "lat": 33.5120406,
+    "lng": 126.5215055,
+    "all_places": [
+      "삼도동"
+    ]
+  },
+  {
+    "code_no": "T_M_080",
+    "source_type": "legend",
+    "title": "T_M_080 하도본향 삼싱당",
+    "primary_place": "세화리",
+    "lat": 33.4902403,
+    "lng": 126.8326492,
+    "all_places": [
+      "세화리",
+      "하도리"
+    ]
+  },
+  {
+    "code_no": "T_M_082",
+    "source_type": "legend",
+    "title": "T_M_082 해안본향",
+    "primary_place": "도두동",
+    "lat": 33.501536,
+    "lng": 126.4781879,
+    "all_places": [
+      "제주시",
+      "도두동"
+    ]
+  },
+  {
+    "code_no": "T_M_083",
+    "source_type": "legend",
+    "title": "T_M_083 행원남당본풀이",
+    "primary_place": "조천리",
+    "lat": 33.5267388,
+    "lng": 126.6435672,
+    "all_places": [
+      "행원리",
+      "조천리"
+    ]
+  },
+  {
+    "code_no": "T_M_085",
+    "source_type": "legend",
+    "title": "T_M_085 화순본향 원당밭 일뢰중",
+    "primary_place": "화순리",
+    "lat": 33.252712,
+    "lng": 126.3343265,
+    "all_places": [
+      "화순리",
+      "안덕면",
+      "중문리"
+    ]
+  },
+  {
+    "code_no": "W_M_001",
+    "source_type": "legend",
+    "title": "W_M_001 구할망본풀이",
+    "primary_place": "조천읍",
+    "lat": 33.4721666,
+    "lng": 126.6674663,
+    "all_places": [
+      "조천읍",
+      "서귀포시",
+      "한림읍",
+      "동홍동"
+    ]
+  },
+  {
+    "code_no": "W_M_002",
+    "source_type": "legend",
+    "title": "W_M_002 문전본풀이",
+    "primary_place": "남원읍",
+    "lat": 33.3283413,
+    "lng": 126.6661355,
+    "all_places": [
+      "제주시",
+      "남원읍",
+      "태흥리",
+      "용담동"
+    ]
+  },
+  {
+    "code_no": "W_M_003",
+    "source_type": "legend",
+    "title": "W_M_003 삼공본풀이",
+    "primary_place": "애월읍",
+    "lat": 33.4110784,
+    "lng": 126.3939276,
+    "all_places": [
+      "애월읍",
+      "남원읍",
+      "태흥리",
+      "수산리"
+    ]
+  },
+  {
+    "code_no": "W_M_004",
+    "source_type": "legend",
+    "title": "W_M_004 세경본풀이",
+    "primary_place": "남원읍",
+    "lat": 33.3283413,
+    "lng": 126.6661355,
+    "all_places": [
+      "제주시",
+      "남원읍",
+      "태흥리",
+      "용담동"
+    ]
+  },
+  {
+    "code_no": "W_M_005",
+    "source_type": "legend",
+    "title": "W_M_005 만이본풀이",
+    "primary_place": "조천리",
+    "lat": 33.5267388,
+    "lng": 126.6435672,
+    "all_places": [
+      "제주시",
+      "조천읍",
+      "조천리"
+    ]
+  },
+  {
+    "code_no": "W_M_006",
+    "source_type": "legend",
+    "title": "W_M_006 이공본풀이",
+    "primary_place": "남원읍",
+    "lat": 33.3283413,
+    "lng": 126.6661355,
+    "all_places": [
+      "제주시",
+      "남원읍",
+      "태흥리",
+      "용담동"
+    ]
+  },
+  {
+    "code_no": "W_M_007",
+    "source_type": "legend",
+    "title": "W_M_007 지장본풀이",
+    "primary_place": "애월읍",
+    "lat": 33.4110784,
+    "lng": 126.3939276,
+    "all_places": [
+      "애월읍",
+      "남원읍",
+      "태흥리",
+      "수산리"
+    ]
+  },
+  {
+    "code_no": "W_M_008",
+    "source_type": "legend",
+    "title": "W_M_008 차사본풀이",
+    "primary_place": "우도",
+    "lat": 33.5042977,
+    "lng": 126.954048,
+    "all_places": [
+      "조천읍",
+      "조천리",
+      "하도리",
+      "구좌읍",
+      "우도"
+    ]
+  },
+  {
+    "code_no": "W_M_009",
+    "source_type": "legend",
+    "title": "W_M_009 천지왕본풀이",
+    "primary_place": "조천읍",
+    "lat": 33.4721666,
+    "lng": 126.6674663,
+    "all_places": [
+      "조천읍",
+      "서귀포시",
+      "한림읍",
+      "동홍동"
+    ]
+  },
+  {
+    "code_no": "W_M_010",
+    "source_type": "legend",
+    "title": "W_M_010 초공본풀이",
+    "primary_place": "조천읍",
+    "lat": 33.4721666,
+    "lng": 126.6674663,
+    "all_places": [
+      "조천읍",
+      "애월읍",
+      "수산리"
+    ]
+  },
+  {
+    "code_no": "W_M_011",
+    "source_type": "legend",
+    "title": "W_M_011 칠성본풀이",
+    "primary_place": "애월읍",
+    "lat": 33.4110784,
+    "lng": 126.3939276,
+    "all_places": [
+      "애월읍",
+      "남원읍",
+      "남문통",
+      "태흥리",
+      "수산리"
+    ]
+  },
+  {
+    "code_no": "W_M_012",
+    "source_type": "legend",
+    "title": "W_M_012 할망본풀이",
+    "primary_place": "표선리",
+    "lat": 33.324883,
+    "lng": 126.8245979,
+    "all_places": [
+      "표선면",
+      "표선리",
+      "남원읍",
+      "태흥리"
+    ]
+  },
+  {
+    "code_no": "W-F-201",
+    "source_type": "folktale",
+    "title": "W_F_201 겁먹고 똥 싼 하르방",
+    "primary_place": "구좌읍",
+    "lat": 33.4980532,
+    "lng": 126.7954504,
+    "all_places": [
+      "한동리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-202",
+    "source_type": "folktale",
+    "title": "W_F_202 공서방과 배서방",
+    "primary_place": "조천리",
+    "lat": 33.5267388,
+    "lng": 126.6435672,
+    "all_places": [
+      "조천읍",
+      "조천리"
+    ]
+  },
+  {
+    "code_no": "W-F-203",
+    "source_type": "folktale",
+    "title": "W_F_203 귀신 말 들은 걸바시 부부",
+    "primary_place": "김녕리",
+    "lat": 33.5389636,
+    "lng": 126.7494481,
+    "all_places": [
+      "조천읍",
+      "김녕리"
+    ]
+  },
+  {
+    "code_no": "W-F-204",
+    "source_type": "folktale",
+    "title": "W_F_204 그슨새",
+    "primary_place": "안덕면",
+    "lat": 33.2926011,
+    "lng": 126.3476551,
+    "all_places": [
+      "안덕면"
+    ]
+  },
+  {
+    "code_no": "W-F-205",
+    "source_type": "folktale",
+    "title": "W_F_205 금송아지",
+    "primary_place": "안덕면",
+    "lat": 33.2926011,
+    "lng": 126.3476551,
+    "all_places": [
+      "안덕면"
+    ]
+  },
+  {
+    "code_no": "W-F-206",
+    "source_type": "folktale",
+    "title": "W_F_206 기십 센 여자",
+    "primary_place": "세화리",
+    "lat": 33.4902403,
+    "lng": 126.8326492,
+    "all_places": [
+      "세화리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-207",
+    "source_type": "folktale",
+    "title": "W_F_207 까마귀와 생이가 도와준 콩데기",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-208",
+    "source_type": "folktale",
+    "title": "W_F_208 꾀가 많은 토끼",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-209",
+    "source_type": "folktale",
+    "title": "W_F_209 난파선과 도깨빗불",
+    "primary_place": "구좌읍",
+    "lat": 33.4980532,
+    "lng": 126.7954504,
+    "all_places": [
+      "행원리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-210",
+    "source_type": "folktale",
+    "title": "W_F_210 다슴애기 콩데기",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "고성리",
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-211",
+    "source_type": "folktale",
+    "title": "W_F_211 대롱이의 영혼",
+    "primary_place": "송당리",
+    "lat": 33.4564636,
+    "lng": 126.7691579,
+    "all_places": [
+      "송당리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-212",
+    "source_type": "folktale",
+    "title": "W_F_212 도깨비에 놀란 말",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍",
+      "온평리",
+      "신산리"
+    ]
+  },
+  {
+    "code_no": "W-F-213",
+    "source_type": "folktale",
+    "title": "W_F_213 도깨비에 홀려서 피 냄새 맡게 한 사람",
+    "primary_place": "신촌리",
+    "lat": 33.5233479,
+    "lng": 126.6200395,
+    "all_places": [
+      "조천읍",
+      "신촌리"
+    ]
+  },
+  {
+    "code_no": "W-F-214",
+    "source_type": "folktale",
+    "title": "W_F_214 도둑 물리친 개구리",
+    "primary_place": "안덕면",
+    "lat": 33.2926011,
+    "lng": 126.3476551,
+    "all_places": [
+      "동광리",
+      "안덕면"
+    ]
+  },
+  {
+    "code_no": "W-F-215",
+    "source_type": "folktale",
+    "title": "W_F_215 도복 입은 어른과 여우",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "고성리",
+      "성산읍",
+      "난산리"
+    ]
+  },
+  {
+    "code_no": "W-F-216",
+    "source_type": "folktale",
+    "title": "W_F_216 도새기 좋아하는 도체비",
+    "primary_place": "종달리",
+    "lat": 33.4791521,
+    "lng": 126.8667686,
+    "all_places": [
+      "구좌읍",
+      "종달리"
+    ]
+  },
+  {
+    "code_no": "W-F-217",
+    "source_type": "folktale",
+    "title": "W_F_217 도체비 배",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍",
+      "온평리"
+    ]
+  },
+  {
+    "code_no": "W-F-218",
+    "source_type": "folktale",
+    "title": "W_F_218 도체비 심엉 보금지에 담아온 사름",
+    "primary_place": "조천읍",
+    "lat": 33.4721666,
+    "lng": 126.6674663,
+    "all_places": [
+      "조천읍"
+    ]
+  },
+  {
+    "code_no": "W-F-219",
+    "source_type": "folktale",
+    "title": "W_F_219 도체비도 이기는 쉐",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-220",
+    "source_type": "folktale",
+    "title": "W_F_220 대가리와 똘데기",
+    "primary_place": "종달리",
+    "lat": 33.4791521,
+    "lng": 126.8667686,
+    "all_places": [
+      "구좌읍",
+      "종달리"
+    ]
+  },
+  {
+    "code_no": "W-F-221",
+    "source_type": "folktale",
+    "title": "W_F_221 동대문 모양으로 생긴 그슨새",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-222",
+    "source_type": "folktale",
+    "title": "W_F_222 동복리 돔벡낭 도체비",
+    "primary_place": "구좌읍",
+    "lat": 33.4980532,
+    "lng": 126.7954504,
+    "all_places": [
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-223",
+    "source_type": "folktale",
+    "title": "W_F_223 듬북광 싸운 큰아방",
+    "primary_place": "구좌읍",
+    "lat": 33.4980532,
+    "lng": 126.7954504,
+    "all_places": [
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-224",
+    "source_type": "folktale",
+    "title": "W_F_224 만세동산 구신",
+    "primary_place": "조천리",
+    "lat": 33.5267388,
+    "lng": 126.6435672,
+    "all_places": [
+      "조천리",
+      "구좌읍",
+      "종달리"
+    ]
+  },
+  {
+    "code_no": "W-F-225",
+    "source_type": "folktale",
+    "title": "W_F_225 만장굴로 나온 개",
+    "primary_place": "만장굴",
+    "lat": 33.5282463,
+    "lng": 126.7702874,
+    "all_places": [
+      "평대리",
+      "구좌읍",
+      "만장굴"
+    ]
+  },
+  {
+    "code_no": "W-F-226",
+    "source_type": "folktale",
+    "title": "W_F_226 말꼬리에 눈 어둑은 하르방",
+    "primary_place": "조천읍",
+    "lat": 33.4721666,
+    "lng": 126.6674663,
+    "all_places": [
+      "조천읍"
+    ]
+  },
+  {
+    "code_no": "W-F-227",
+    "source_type": "folktale",
+    "title": "W_F_227 멜 들었다고 알린 도체비",
+    "primary_place": "신촌리",
+    "lat": 33.5233479,
+    "lng": 126.6200395,
+    "all_places": [
+      "조천읍",
+      "신촌리"
+    ]
+  },
+  {
+    "code_no": "W-F-228",
+    "source_type": "folktale",
+    "title": "W_F_228 무식한 까마귀",
+    "primary_place": "안덕면",
+    "lat": 33.2926011,
+    "lng": 126.3476551,
+    "all_places": [
+      "안덕면"
+    ]
+  },
+  {
+    "code_no": "W-F-229",
+    "source_type": "folktale",
+    "title": "W_F_229 문밧벵디의 돌",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "한라산",
+      "성산읍",
+      "온평리"
+    ]
+  },
+  {
+    "code_no": "W-F-230",
+    "source_type": "folktale",
+    "title": "W_F_230 바당밧 엇인 상도리",
+    "primary_place": "하도리",
+    "lat": 33.5163279,
+    "lng": 126.8833403,
+    "all_places": [
+      "하도리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-231",
+    "source_type": "folktale",
+    "title": "W_F_231 바보 사위",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-232",
+    "source_type": "folktale",
+    "title": "W_F_232 보람 엇인 아기",
+    "primary_place": "안덕면",
+    "lat": 33.2926011,
+    "lng": 126.3476551,
+    "all_places": [
+      "안덕면"
+    ]
+  },
+  {
+    "code_no": "W-F-233",
+    "source_type": "folktale",
+    "title": "W_F_233 부자 하르방",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍",
+      "신산리"
+    ]
+  },
+  {
+    "code_no": "W-F-234",
+    "source_type": "folktale",
+    "title": "W_F_234 빗자루와 도체비",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-235",
+    "source_type": "folktale",
+    "title": "W_F_235 뺨 맞은 하르방",
+    "primary_place": "종달리",
+    "lat": 33.4791521,
+    "lng": 126.8667686,
+    "all_places": [
+      "구좌읍",
+      "종달리"
+    ]
+  },
+  {
+    "code_no": "W-F-236",
+    "source_type": "folktale",
+    "title": "W_F_236 사람 시늉하는 그슨새",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍",
+      "온평리"
+    ]
+  },
+  {
+    "code_no": "W-F-237",
+    "source_type": "folktale",
+    "title": "W_F_237 상도리와 하도리 설촌유래",
+    "primary_place": "하도리",
+    "lat": 33.5163279,
+    "lng": 126.8833403,
+    "all_places": [
+      "하도리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-238",
+    "source_type": "folktale",
+    "title": "W_F_238 서귀진 벤인테",
+    "primary_place": "세화리",
+    "lat": 33.4902403,
+    "lng": 126.8326492,
+    "all_places": [
+      "세화리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-239",
+    "source_type": "folktale",
+    "title": "W_F_239 신랑을 지붕 위로 던져버린 각시",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-240",
+    "source_type": "folktale",
+    "title": "W_F_240 신촌리 그슨새",
+    "primary_place": "신촌리",
+    "lat": 33.5233479,
+    "lng": 126.6200395,
+    "all_places": [
+      "조천읍",
+      "신촌리"
+    ]
+  },
+  {
+    "code_no": "W-F-241",
+    "source_type": "folktale",
+    "title": "W_F_241 신촌리 기신대",
+    "primary_place": "신촌리",
+    "lat": 33.5233479,
+    "lng": 126.6200395,
+    "all_places": [
+      "조천읍",
+      "신촌리"
+    ]
+  },
+  {
+    "code_no": "W-F-242",
+    "source_type": "folktale",
+    "title": "W_F_242 심술부리는 도체비",
+    "primary_place": "구좌읍",
+    "lat": 33.4980532,
+    "lng": 126.7954504,
+    "all_places": [
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-243",
+    "source_type": "folktale",
+    "title": "W_F_243 양촌 상도리",
+    "primary_place": "구좌읍",
+    "lat": 33.4980532,
+    "lng": 126.7954504,
+    "all_places": [
+      "납읍리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-244",
+    "source_type": "folktale",
+    "title": "W_F_244 어리석은 도체비",
+    "primary_place": "선흘리",
+    "lat": 33.4851252,
+    "lng": 126.7078377,
+    "all_places": [
+      "조천읍",
+      "선흘리"
+    ]
+  },
+  {
+    "code_no": "W-F-245",
+    "source_type": "folktale",
+    "title": "W_F_245 여자를 좋아하는 도깨비",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍",
+      "온평리",
+      "신산리"
+    ]
+  },
+  {
+    "code_no": "W-F-246",
+    "source_type": "folktale",
+    "title": "W_F_246 여자에게 홀린 사람",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍",
+      "온평리",
+      "신산리"
+    ]
+  },
+  {
+    "code_no": "W-F-248",
+    "source_type": "folktale",
+    "title": "W_F_248 오조리 송장군",
+    "primary_place": "한라산",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "all_places": [
+      "한라산",
+      "성산읍",
+      "오조리"
+    ]
+  },
+  {
+    "code_no": "W-F-249",
+    "source_type": "folktale",
+    "title": "W_F_249 망진 대정 생이",
+    "primary_place": "안덕면",
+    "lat": 33.2926011,
+    "lng": 126.3476551,
+    "all_places": [
+      "안덕면"
+    ]
+  },
+  {
+    "code_no": "W-F-250",
+    "source_type": "folktale",
+    "title": "W_F_250 우장 썽 나온 도체비",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "고성리",
+      "성산읍",
+      "오조리"
+    ]
+  },
+  {
+    "code_no": "W-F-251",
+    "source_type": "folktale",
+    "title": "W_F_251 자장가 부르는 헛게",
+    "primary_place": "하도리",
+    "lat": 33.5163279,
+    "lng": 126.8833403,
+    "all_places": [
+      "하도리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-252",
+    "source_type": "folktale",
+    "title": "W_F_252 잡신 쫓아내는 소리",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍",
+      "신산리"
+    ]
+  },
+  {
+    "code_no": "W-F-253",
+    "source_type": "folktale",
+    "title": "W_F_253 저승과 이승을 가른 역사",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍",
+      "온평리"
+    ]
+  },
+  {
+    "code_no": "W-F-254",
+    "source_type": "folktale",
+    "title": "W_F_254 저승에서 만난 강아지",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-255",
+    "source_type": "folktale",
+    "title": "W_F_255 정동모자 줄로 끈 만든 사람",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-256",
+    "source_type": "folktale",
+    "title": "W_F_256 정시 손",
+    "primary_place": "세화리",
+    "lat": 33.4902403,
+    "lng": 126.8326492,
+    "all_places": [
+      "세화리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-257",
+    "source_type": "folktale",
+    "title": "W_F_257 정안수 정성",
+    "primary_place": "구좌읍",
+    "lat": 33.4980532,
+    "lng": 126.7954504,
+    "all_places": [
+      "행원리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-258",
+    "source_type": "folktale",
+    "title": "W_F_258 죽은 혼사 거부한 언니 영혼",
+    "primary_place": "구좌읍",
+    "lat": 33.4980532,
+    "lng": 126.7954504,
+    "all_places": [
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-259",
+    "source_type": "folktale",
+    "title": "W_F_259 토산 뱀과 새각시",
+    "primary_place": "표선읍",
+    "lat": 33.3747697,
+    "lng": 126.7684581,
+    "all_places": [
+      "표선읍",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-260",
+    "source_type": "folktale",
+    "title": "W_F_260 하늘광 땅광 맞붙은 그슨새",
+    "primary_place": "하도리",
+    "lat": 33.5163279,
+    "lng": 126.8833403,
+    "all_places": [
+      "하도리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-261",
+    "source_type": "folktale",
+    "title": "W_F_261 할망의 복수",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "고성리",
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-262",
+    "source_type": "folktale",
+    "title": "W_F_262 할아버지를 지붕 위로 던져버린 할머니",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-263",
+    "source_type": "folktale",
+    "title": "W_F_263 헛게비",
+    "primary_place": "신촌리",
+    "lat": 33.5233479,
+    "lng": 126.6200395,
+    "all_places": [
+      "제주시",
+      "조천읍",
+      "삼양동",
+      "신촌리"
+    ]
+  },
+  {
+    "code_no": "W-F-264",
+    "source_type": "folktale",
+    "title": "W_F_264 호열제와 산 송장",
+    "primary_place": "하도리",
+    "lat": 33.5163279,
+    "lng": 126.8833403,
+    "all_places": [
+      "하도리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-265",
+    "source_type": "folktale",
+    "title": "W_F_265 화장터 헛게",
+    "primary_place": "세화리",
+    "lat": 33.4902403,
+    "lng": 126.8326492,
+    "all_places": [
+      "세화리",
+      "구좌읍",
+      "종달리",
+      "사계리"
+    ]
+  },
+  {
+    "code_no": "W-F-266",
+    "source_type": "folktale",
+    "title": "W_F_266 귀신을 본 모녀(#)",
+    "primary_place": "종달리",
+    "lat": 33.4791521,
+    "lng": 126.8667686,
+    "all_places": [
+      "성산읍",
+      "오조리",
+      "종달리"
+    ]
+  },
+  {
+    "code_no": "W-F-267",
+    "source_type": "folktale",
+    "title": "W_F_267 글공부로 미친 사람(#)",
+    "primary_place": "함덕리",
+    "lat": 33.5307681,
+    "lng": 126.6673798,
+    "all_places": [
+      "조천읍",
+      "함덕리"
+    ]
+  },
+  {
+    "code_no": "W-F-268",
+    "source_type": "folktale",
+    "title": "W_F_268 꿩빙에기 소리(#)",
+    "primary_place": "조천읍",
+    "lat": 33.4721666,
+    "lng": 126.6674663,
+    "all_places": [
+      "조천읍"
+    ]
+  },
+  {
+    "code_no": "W-F-269",
+    "source_type": "folktale",
+    "title": "W_F_269 눈썹에 아진 뱀(#)",
+    "primary_place": "함덕리",
+    "lat": 33.5307681,
+    "lng": 126.6673798,
+    "all_places": [
+      "제주시",
+      "조천읍",
+      "함덕리"
+    ]
+  },
+  {
+    "code_no": "W-F-270",
+    "source_type": "folktale",
+    "title": "W_F_270 도깨빗불에 놀라서 넋나간 아버지(#)",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-271",
+    "source_type": "folktale",
+    "title": "W_F_271 도체비 푸다시(#)",
+    "primary_place": "함덕리",
+    "lat": 33.5307681,
+    "lng": 126.6673798,
+    "all_places": [
+      "조천읍",
+      "함덕리"
+    ]
+  },
+  {
+    "code_no": "W-F-272",
+    "source_type": "folktale",
+    "title": "W_F_272 도체비와 그슨새(#)",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-273",
+    "source_type": "folktale",
+    "title": "W_F_273 마 받아 먹은 나그네(#)",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-274",
+    "source_type": "folktale",
+    "title": "W_F_274 래 도체비(#)",
+    "primary_place": "구좌읍",
+    "lat": 33.4980532,
+    "lng": 126.7954504,
+    "all_places": [
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-275",
+    "source_type": "folktale",
+    "title": "W_F_275 물 싯군 꿈(#)",
+    "primary_place": "구좌읍",
+    "lat": 33.4980532,
+    "lng": 126.7954504,
+    "all_places": [
+      "행원리",
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-276",
+    "source_type": "folktale",
+    "title": "W_F_276 바당 귀신(#)",
+    "primary_place": "신촌리",
+    "lat": 33.5233479,
+    "lng": 126.6200395,
+    "all_places": [
+      "조천읍",
+      "신촌리"
+    ]
+  },
+  {
+    "code_no": "W-F-277",
+    "source_type": "folktale",
+    "title": "W_F_277 삼강오륜과 뱃사름(#)",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-278",
+    "source_type": "folktale",
+    "title": "W_F_278 앙갚음을 한 도체비(#)",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍"
+    ]
+  },
+  {
+    "code_no": "W-F-279",
+    "source_type": "folktale",
+    "title": "W_F_279 음식 먼저 받는 도체비 조상(#)",
+    "primary_place": "구좌읍",
+    "lat": 33.4980532,
+    "lng": 126.7954504,
+    "all_places": [
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "W-F-280",
+    "source_type": "folktale",
+    "title": "W_F_280 정류장에서 본 도체비(#)",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍",
+      "오조리"
+    ]
+  },
+  {
+    "code_no": "W-F-281",
+    "source_type": "folktale",
+    "title": "W_F_281 정월멩질에 본 도깨빗불(#)",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "월정리",
+      "성산읍",
+      "구좌읍",
+      "오조리"
+    ]
+  },
+  {
+    "code_no": "W-F-282",
+    "source_type": "folktale",
+    "title": "W_F_282 주막동산 도체빗불(#)",
+    "primary_place": "조천읍",
+    "lat": 33.4721666,
+    "lng": 126.6674663,
+    "all_places": [
+      "조천읍"
+    ]
+  },
+  {
+    "code_no": "W-F-283",
+    "source_type": "folktale",
+    "title": "W_F_283 죽은 사람 때린 하르방(#)",
+    "primary_place": "조천읍",
+    "lat": 33.4721666,
+    "lng": 126.6674663,
+    "all_places": [
+      "조천읍"
+    ]
+  },
+  {
+    "code_no": "W-F-284",
+    "source_type": "folktale",
+    "title": "W_F_284 짐수막에서 본 도체비(#)",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍",
+      "오조리"
+    ]
+  },
+  {
+    "code_no": "W-F-285",
+    "source_type": "folktale",
+    "title": "W_F_285 콩데기와 데기(#)",
+    "primary_place": "성산읍",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "all_places": [
+      "성산읍",
+      "오조리"
+    ]
+  },
+  {
+    "code_no": "W-F-286",
+    "source_type": "folktale",
+    "title": "W_F_286 한흘과 논흘(#)",
+    "primary_place": "조천읍",
+    "lat": 33.4721666,
+    "lng": 126.6674663,
+    "all_places": [
+      "조천읍"
+    ]
+  },
+  {
+    "code_no": "W-F-287",
+    "source_type": "folktale",
+    "title": "W_F_287 허영 헌 소낭에 놀랜 사름(#)",
+    "primary_place": "함덕리",
+    "lat": 33.5307681,
+    "lng": 126.6673798,
+    "all_places": [
+      "조천읍",
+      "함덕리"
+    ]
+  },
+  {
+    "code_no": "T_M_012",
+    "source_type": "legend",
+    "title": "금덕리당 종신당 유수암당",
+    "primary_place": "어음리",
+    "lat": 33.3885692,
+    "lng": 126.3664921,
+    "all_places": [
+      "어음리"
+    ]
+  },
+  {
+    "code_no": "T_M_018",
+    "source_type": "legend",
+    "title": "눈미 불돗당 본풀이",
+    "primary_place": "조천읍",
+    "lat": 33.4721666,
+    "lng": 126.6674663,
+    "all_places": [
+      "조천읍"
+    ]
+  },
+  {
+    "code_no": "T_M_023",
+    "source_type": "legend",
+    "title": "동복본향당본풀이",
+    "primary_place": "구좌읍",
+    "lat": 33.4980532,
+    "lng": 126.7954504,
+    "all_places": [
+      "구좌읍"
+    ]
+  },
+  {
+    "code_no": "T_M_031",
+    "source_type": "legend",
+    "title": "비매닛당 비매닛할망당(어음)",
+    "primary_place": "어음리",
+    "lat": 33.3885692,
+    "lng": 126.3664921,
+    "all_places": [
+      "어음리"
+    ]
+  },
+  {
+    "code_no": "T_M_037",
+    "source_type": "legend",
+    "title": "상가본향 새당 할으방당",
+    "primary_place": "한림읍",
+    "lat": 33.3764716,
+    "lng": 126.2852587,
+    "all_places": [
+      "한림읍"
+    ]
+  },
+  {
+    "code_no": "T_M_050",
+    "source_type": "legend",
+    "title": "알당(금성)",
+    "primary_place": "제주시",
+    "lat": 33.5042779,
+    "lng": 126.519838,
+    "all_places": [
+      "제주시"
+    ]
+  },
+  {
+    "code_no": "T_M_056",
+    "source_type": "legend",
+    "title": "예촌 보목효돈토평본향당본풀이",
+    "primary_place": "효돈동",
+    "lat": 33.2600837,
+    "lng": 126.6112375,
+    "all_places": [
+      "효돈동"
+    ]
+  },
+  {
+    "code_no": "T_M_062",
+    "source_type": "legend",
+    "title": "원당할망본",
+    "primary_place": "삼양동",
+    "lat": 33.5152875,
+    "lng": 126.5914354,
+    "all_places": [
+      "삼양동"
+    ]
+  },
+  {
+    "code_no": "T_M_078",
+    "source_type": "legend",
+    "title": "평대본향 신선당",
+    "primary_place": "평대리",
+    "lat": 33.5099291,
+    "lng": 126.8271354,
+    "all_places": [
+      "평대리"
+    ]
+  },
+  {
+    "code_no": "T_M_081",
+    "source_type": "legend",
+    "title": "함덕 본향당본풀이",
+    "primary_place": "함덕리",
+    "lat": 33.5307681,
+    "lng": 126.6673798,
+    "all_places": [
+      "함덕리"
+    ]
+  },
+  {
+    "code_no": "T_M_084",
+    "source_type": "legend",
+    "title": "호근이루 드렛당본풀이",
+    "primary_place": "호근동",
+    "lat": 33.2665,
+    "lng": 126.5323,
+    "all_places": [
+      "호근동"
+    ]
+  }
+]

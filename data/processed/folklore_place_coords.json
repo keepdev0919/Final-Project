@@ -1,0 +1,658 @@
+[
+  {
+    "place_name": "가시리",
+    "status": "OK",
+    "lat": 33.3828211,
+    "lng": 126.7313785,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 표선면 가시리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "가파도",
+    "status": "OK",
+    "lat": 33.1707573,
+    "lng": 126.2726748,
+    "formatted_address": "서귀포시 가파도",
+    "in_jeju": true
+  },
+  {
+    "place_name": "건입동",
+    "status": "OK",
+    "lat": 33.5153591,
+    "lng": 126.5420032,
+    "formatted_address": "대한민국 제주특별자치도 제주시 건입동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "고내리",
+    "status": "OK",
+    "lat": 33.4630284,
+    "lng": 126.3384173,
+    "formatted_address": "대한민국 제주특별자치도 제주시 애월읍 고내리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "고내봉",
+    "status": "OK",
+    "lat": 33.4591265,
+    "lng": 126.3418004,
+    "formatted_address": "대한민국 제주시 고내봉",
+    "in_jeju": true
+  },
+  {
+    "place_name": "고성리",
+    "status": "OK",
+    "lat": 33.4191693,
+    "lng": 126.4289539,
+    "formatted_address": "대한민국 제주특별자치도 제주시 애월읍 고성리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "광령리",
+    "status": "OK",
+    "lat": 33.4034138,
+    "lng": 126.4508866,
+    "formatted_address": "대한민국 제주특별자치도 제주시 애월읍 광령리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "구좌읍",
+    "status": "OK",
+    "lat": 33.4980532,
+    "lng": 126.7954504,
+    "formatted_address": "대한민국 제주특별자치도 제주시 구좌읍",
+    "in_jeju": true
+  },
+  {
+    "place_name": "금악리",
+    "status": "OK",
+    "lat": 33.3515554,
+    "lng": 126.3162828,
+    "formatted_address": "대한민국 제주특별자치도 제주시 한림읍 금악리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "김녕리",
+    "status": "OK",
+    "lat": 33.5389636,
+    "lng": 126.7494481,
+    "formatted_address": "대한민국 제주특별자치도 제주시 구좌읍 김녕리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "난산리",
+    "status": "OK",
+    "lat": 33.4090901,
+    "lng": 126.8505589,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 성산읍 난산리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "남문통",
+    "status": "OK",
+    "lat": 33.5090496,
+    "lng": 126.5187964,
+    "formatted_address": "대한민국 제주특별자치도 제주시 남성로 125",
+    "in_jeju": true
+  },
+  {
+    "place_name": "남원리",
+    "status": "OK",
+    "lat": 33.2880072,
+    "lng": 126.7046919,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 남원읍 남원리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "남원읍",
+    "status": "OK",
+    "lat": 33.3283413,
+    "lng": 126.6661355,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 남원읍",
+    "in_jeju": true
+  },
+  {
+    "place_name": "납읍리",
+    "status": "OK",
+    "lat": 33.4284054,
+    "lng": 126.3417831,
+    "formatted_address": "대한민국 제주특별자치도 제주시 애월읍 납읍리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "대정읍",
+    "status": "OK",
+    "lat": 33.2578881,
+    "lng": 126.2467175,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 대정읍",
+    "in_jeju": true
+  },
+  {
+    "place_name": "대정현",
+    "status": "OK",
+    "lat": 33.5042779,
+    "lng": 126.519838,
+    "formatted_address": "대한민국 제주특별자치도 제주시",
+    "in_jeju": true
+  },
+  {
+    "place_name": "도두동",
+    "status": "OK",
+    "lat": 33.501536,
+    "lng": 126.4781879,
+    "formatted_address": "대한민국 제주특별자치도 제주시 도두동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "동광리",
+    "status": "OK",
+    "lat": 33.3157138,
+    "lng": 126.3443504,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 안덕면 동광리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "동홍동",
+    "status": "OK",
+    "lat": 33.2674043,
+    "lng": 126.5663635,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 동홍동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "마라도",
+    "status": "OK",
+    "lat": 33.1206371,
+    "lng": 126.2671204,
+    "formatted_address": "서귀포시 마라도",
+    "in_jeju": true
+  },
+  {
+    "place_name": "만장굴",
+    "status": "OK",
+    "lat": 33.5282463,
+    "lng": 126.7702874,
+    "formatted_address": "대한민국 제주특별자치도 제주시 구좌읍 만장굴길 182 만장굴",
+    "in_jeju": true
+  },
+  {
+    "place_name": "무근성",
+    "status": "OK",
+    "lat": 33.5120406,
+    "lng": 126.5215055,
+    "formatted_address": "대한민국 제주특별자치도 제주시 특별자치도 삼도2동 1159-9",
+    "in_jeju": true
+  },
+  {
+    "place_name": "보성리",
+    "status": "OK",
+    "lat": 33.2676908,
+    "lng": 126.2718984,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 대정읍 보성리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "봉개동",
+    "status": "OK",
+    "lat": 33.4571323,
+    "lng": 126.6130534,
+    "formatted_address": "대한민국 제주특별자치도 제주시 봉개동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "사계리",
+    "status": "OK",
+    "lat": 33.2383758,
+    "lng": 126.3026575,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 안덕면 사계리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "삼도동",
+    "status": "OK",
+    "lat": 33.5120406,
+    "lng": 126.5215055,
+    "formatted_address": "대한민국 제주특별자치도 제주시 삼도2동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "삼양동",
+    "status": "OK",
+    "lat": 33.5152875,
+    "lng": 126.5914354,
+    "formatted_address": "대한민국 제주특별자치도 제주시 삼양동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "색달리",
+    "status": "OK",
+    "lat": 33.5042779,
+    "lng": 126.519838,
+    "formatted_address": "대한민국 제주특별자치도 제주시",
+    "in_jeju": true
+  },
+  {
+    "place_name": "서귀포시",
+    "status": "OK",
+    "lat": 33.2532177,
+    "lng": 126.5609945,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시",
+    "in_jeju": true
+  },
+  {
+    "place_name": "선흘리",
+    "status": "OK",
+    "lat": 33.4851252,
+    "lng": 126.7078377,
+    "formatted_address": "대한민국 제주특별자치도 제주시 조천읍 선흘리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "성산읍",
+    "status": "OK",
+    "lat": 33.4180535,
+    "lng": 126.8648302,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 성산읍",
+    "in_jeju": true
+  },
+  {
+    "place_name": "성읍리",
+    "status": "OK",
+    "lat": 33.407816,
+    "lng": 126.7828957,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 표선면 성읍리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "세화리",
+    "status": "OK",
+    "lat": 33.4902403,
+    "lng": 126.8326492,
+    "formatted_address": "대한민국 제주특별자치도 제주시 구좌읍 세화리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "송당리",
+    "status": "OK",
+    "lat": 33.4564636,
+    "lng": 126.7691579,
+    "formatted_address": "대한민국 제주특별자치도 제주시 구좌읍 송당리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "수산리",
+    "status": "OK",
+    "lat": 33.4644603,
+    "lng": 126.3887347,
+    "formatted_address": "대한민국 제주특별자치도 제주시 애월읍 수산리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "시흥리",
+    "status": "OK",
+    "lat": 33.4693635,
+    "lng": 126.8824129,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 성산읍 시흥리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "신례리",
+    "status": "OK",
+    "lat": 33.3330338,
+    "lng": 126.6180657,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 남원읍 신례리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "신산리",
+    "status": "OK",
+    "lat": 33.3858087,
+    "lng": 126.8675588,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 성산읍 신산리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "신촌리",
+    "status": "OK",
+    "lat": 33.5233479,
+    "lng": 126.6200395,
+    "formatted_address": "대한민국 제주특별자치도 제주시 조천읍 신촌리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "아라동",
+    "status": "OK",
+    "lat": 33.4612315,
+    "lng": 126.5550836,
+    "formatted_address": "대한민국 제주특별자치도 제주시 아라동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "안덕면",
+    "status": "OK",
+    "lat": 33.2926011,
+    "lng": 126.3476551,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 안덕면",
+    "in_jeju": true
+  },
+  {
+    "place_name": "애월읍",
+    "status": "OK",
+    "lat": 33.4110784,
+    "lng": 126.3939276,
+    "formatted_address": "대한민국 제주특별자치도 제주시 애월읍",
+    "in_jeju": true
+  },
+  {
+    "place_name": "어음리",
+    "status": "OK",
+    "lat": 33.3885692,
+    "lng": 126.3664921,
+    "formatted_address": "대한민국 제주특별자치도 제주시 애월읍 어음리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "연동",
+    "status": "OK",
+    "lat": 33.4659777,
+    "lng": 126.4934011,
+    "formatted_address": "대한민국 제주특별자치도 제주시 연동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "예래동",
+    "status": "OK",
+    "lat": 33.2790117,
+    "lng": 126.4031698,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 예래동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "오조리",
+    "status": "OK",
+    "lat": 33.4605544,
+    "lng": 126.903981,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 성산읍 오조리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "온평리",
+    "status": "OK",
+    "lat": 33.4111905,
+    "lng": 126.8935582,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 성산읍 온평리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "외도동",
+    "status": "OK",
+    "lat": 33.4827496,
+    "lng": 126.4404592,
+    "formatted_address": "대한민국 제주특별자치도 제주시 외도동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "용담동",
+    "status": "OK",
+    "lat": 33.5088456,
+    "lng": 126.509989,
+    "formatted_address": "대한민국 제주특별자치도 제주시 용담2동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "우도",
+    "status": "OK",
+    "lat": 33.5042977,
+    "lng": 126.954048,
+    "formatted_address": "제주시 우도",
+    "in_jeju": true
+  },
+  {
+    "place_name": "우도면",
+    "status": "OK",
+    "lat": 33.5054213,
+    "lng": 126.9554832,
+    "formatted_address": "대한민국 제주특별자치도 제주시 우도면",
+    "in_jeju": true
+  },
+  {
+    "place_name": "월정리",
+    "status": "OK",
+    "lat": 33.5446034,
+    "lng": 126.7803854,
+    "formatted_address": "대한민국 제주특별자치도 제주시 구좌읍 월정리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "위미리",
+    "status": "OK",
+    "lat": 33.302706,
+    "lng": 126.6568975,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 남원읍 위미리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "이도동",
+    "status": "OK",
+    "lat": 33.4909191,
+    "lng": 126.5341622,
+    "formatted_address": "대한민국 제주특별자치도 제주시 이도2동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "이호동",
+    "status": "OK",
+    "lat": 33.4946053,
+    "lng": 126.458999,
+    "formatted_address": "대한민국 제주특별자치도 제주시 이호동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "저지리",
+    "status": "OK",
+    "lat": 33.3279794,
+    "lng": 126.2700715,
+    "formatted_address": "대한민국 제주특별자치도 제주시 한경면 저지리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "정의현",
+    "status": "OK",
+    "lat": 33.4112985,
+    "lng": 126.7819256,
+    "formatted_address": "대한민국 서귀포시 성읍리 1430-7",
+    "in_jeju": true
+  },
+  {
+    "place_name": "제주목",
+    "status": "OK",
+    "lat": 33.5042779,
+    "lng": 126.519838,
+    "formatted_address": "대한민국 제주특별자치도 제주시",
+    "in_jeju": true
+  },
+  {
+    "place_name": "제주성",
+    "status": "OK",
+    "lat": 33.2546582,
+    "lng": 126.3467011,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 특별자치도, 안덕면 일주서로 1611",
+    "in_jeju": true
+  },
+  {
+    "place_name": "제주시",
+    "status": "OK",
+    "lat": 33.5042779,
+    "lng": 126.519838,
+    "formatted_address": "대한민국 제주특별자치도 제주시",
+    "in_jeju": true
+  },
+  {
+    "place_name": "조천리",
+    "status": "OK",
+    "lat": 33.5267388,
+    "lng": 126.6435672,
+    "formatted_address": "대한민국 제주특별자치도 제주시 조천읍 조천리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "조천읍",
+    "status": "OK",
+    "lat": 33.4721666,
+    "lng": 126.6674663,
+    "formatted_address": "대한민국 제주특별자치도 제주시 조천읍",
+    "in_jeju": true
+  },
+  {
+    "place_name": "종달리",
+    "status": "OK",
+    "lat": 33.4791521,
+    "lng": 126.8667686,
+    "formatted_address": "대한민국 제주특별자치도 제주시 구좌읍 종달리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "중문리",
+    "status": "OK",
+    "lat": 33.5042779,
+    "lng": 126.519838,
+    "formatted_address": "대한민국 제주특별자치도 제주시",
+    "in_jeju": true
+  },
+  {
+    "place_name": "태흥리",
+    "status": "OK",
+    "lat": 33.2924853,
+    "lng": 126.7415146,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 남원읍 태흥리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "평대리",
+    "status": "OK",
+    "lat": 33.5099291,
+    "lng": 126.8271354,
+    "formatted_address": "대한민국 제주특별자치도 제주시 구좌읍 평대리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "표선리",
+    "status": "OK",
+    "lat": 33.324883,
+    "lng": 126.8245979,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 표선면 표선리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "표선면",
+    "status": "OK",
+    "lat": 33.3747697,
+    "lng": 126.7684581,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 표선면",
+    "in_jeju": true
+  },
+  {
+    "place_name": "표선읍",
+    "status": "OK",
+    "lat": 33.3747697,
+    "lng": 126.7684581,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 표선면",
+    "in_jeju": true
+  },
+  {
+    "place_name": "하도리",
+    "status": "OK",
+    "lat": 33.5163279,
+    "lng": 126.8833403,
+    "formatted_address": "대한민국 제주특별자치도 제주시 구좌읍 하도리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "하례리",
+    "status": "OK",
+    "lat": 33.3252261,
+    "lng": 126.5961931,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 남원읍 하례리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "한경면",
+    "status": "OK",
+    "lat": 33.3227575,
+    "lng": 126.2238176,
+    "formatted_address": "대한민국 제주특별자치도 제주시 한경면",
+    "in_jeju": true
+  },
+  {
+    "place_name": "한동리",
+    "status": "OK",
+    "lat": 33.5191109,
+    "lng": 126.8108162,
+    "formatted_address": "대한민국 제주특별자치도 제주시 구좌읍 한동리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "한라산",
+    "status": "OK",
+    "lat": 33.3616666,
+    "lng": 126.5291666,
+    "formatted_address": "대한민국 서귀포시 한라산",
+    "in_jeju": true
+  },
+  {
+    "place_name": "한림읍",
+    "status": "OK",
+    "lat": 33.3764716,
+    "lng": 126.2852587,
+    "formatted_address": "대한민국 제주특별자치도 제주시 한림읍",
+    "in_jeju": true
+  },
+  {
+    "place_name": "함덕리",
+    "status": "OK",
+    "lat": 33.5307681,
+    "lng": 126.6673798,
+    "formatted_address": "대한민국 제주특별자치도 제주시 조천읍 함덕리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "항파두리",
+    "status": "OK",
+    "lat": 33.4525645,
+    "lng": 126.4081369,
+    "formatted_address": "대한민국 제주특별자치도 제주시 애월읍 고성리 1126-1",
+    "in_jeju": true
+  },
+  {
+    "place_name": "행원리",
+    "status": "OK",
+    "lat": 33.5332052,
+    "lng": 126.7939455,
+    "formatted_address": "대한민국 제주특별자치도 제주시 구좌읍 행원리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "화북동",
+    "status": "OK",
+    "lat": 33.507826,
+    "lng": 126.5640243,
+    "formatted_address": "대한민국 제주특별자치도 제주시 화북동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "화순리",
+    "status": "OK",
+    "lat": 33.252712,
+    "lng": 126.3343265,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 안덕면 화순리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "효돈동",
+    "status": "OK",
+    "lat": 33.2600837,
+    "lng": 126.6112375,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 효돈동",
+    "in_jeju": true
+  }
+]
