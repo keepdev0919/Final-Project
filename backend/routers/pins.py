@@ -28,14 +28,14 @@ def get_all_pins(request: Request):
     """GPS 있는 설화·민담 핀 전체 반환 (앱 시작 시 1회 호출용)."""
     conn = get_db_connection()
     rows = conn.execute(
-        "SELECT code_no, title, source_type, primary_place, lat, lng FROM metadata WHERE lat IS NOT NULL AND lng IS NOT NULL"
+        "SELECT code_no, title, source_type, primary_place, lat, lng, summary FROM metadata WHERE lat IS NOT NULL AND lng IS NOT NULL"
     ).fetchall()
     return [
         Pin(
             code_no=row["code_no"],
             title=row["title"],
             source_type=row["source_type"],
-            summary=row["title"],
+            summary=row["summary"] or row["title"],
             lat=row["lat"],
             lng=row["lng"],
             primary_place=row["primary_place"] or "",
@@ -57,7 +57,7 @@ def get_pins(request: Request, lat: float, lng: float, radius_m: float = 500):
 
     rows = conn.execute(
         """
-        SELECT code_no, title, source_type, primary_place, lat, lng
+        SELECT code_no, title, source_type, primary_place, lat, lng, summary
         FROM metadata
         WHERE lat IS NOT NULL
           AND lat BETWEEN ? AND ?
@@ -74,7 +74,7 @@ def get_pins(request: Request, lat: float, lng: float, radius_m: float = 500):
                 code_no=row["code_no"],
                 title=row["title"],
                 source_type=row["source_type"],
-                summary=row["title"],   # TODO: 청크에서 요약 추출
+                summary=row["summary"] or row["title"],
                 lat=row["lat"],
                 lng=row["lng"],
                 primary_place=row["primary_place"] or "",
