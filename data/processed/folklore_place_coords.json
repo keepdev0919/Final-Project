@@ -654,5 +654,165 @@
     "lng": 126.6112375,
     "formatted_address": "대한민국 제주특별자치도 서귀포시 효돈동",
     "in_jeju": true
+  },
+  {
+    "place_name": "고산리",
+    "status": "OK",
+    "lat": 33.3021091,
+    "lng": 126.1851714,
+    "formatted_address": "대한민국 제주특별자치도 제주시 한경면 고산리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "귀덕리",
+    "status": "OK",
+    "lat": 33.4317792,
+    "lng": 126.291254,
+    "formatted_address": "대한민국 제주특별자치도 제주시 한림읍 귀덕리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "덕천리",
+    "status": "OK",
+    "lat": 33.4850905,
+    "lng": 126.7468625,
+    "formatted_address": "대한민국 제주특별자치도 제주시 구좌읍 덕천리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "동복리",
+    "status": "OK",
+    "lat": 33.5359923,
+    "lng": 126.7190983,
+    "formatted_address": "대한민국 제주특별자치도 제주시 구좌읍 동복리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "명월리",
+    "status": "OK",
+    "lat": 33.379419,
+    "lng": 126.2756824,
+    "formatted_address": "대한민국 제주특별자치도 제주시 한림읍 명월리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "보목동",
+    "status": "OK",
+    "lat": 33.2456969,
+    "lng": 126.6010289,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 보목동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "북촌리",
+    "status": "OK",
+    "lat": 33.5374849,
+    "lng": 126.6939218,
+    "formatted_address": "대한민국 제주특별자치도 제주시 조천읍 북촌리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "삼달리",
+    "status": "OK",
+    "lat": 33.3854117,
+    "lng": 126.8354134,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 성산읍 삼달리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "상도리",
+    "status": "OK",
+    "lat": 33.4892717,
+    "lng": 126.8568494,
+    "formatted_address": "대한민국 제주특별자치도 제주시 구좌읍 상도리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "상명리",
+    "status": "OK",
+    "lat": 33.3600196,
+    "lng": 126.271862,
+    "formatted_address": "대한민국 제주특별자치도 제주시 한림읍 상명리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "수원리",
+    "status": "OK",
+    "lat": 33.4309643,
+    "lng": 126.2681874,
+    "formatted_address": "대한민국 제주특별자치도 제주시 한림읍 수원리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "신천리",
+    "status": "OK",
+    "lat": 33.3506155,
+    "lng": 126.8524692,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 성산읍 신천리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "신풍리",
+    "status": "OK",
+    "lat": 33.3697855,
+    "lng": 126.8320995,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 성산읍 신풍리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "신흥리",
+    "status": "OK",
+    "lat": 33.5473868,
+    "lng": 126.6487873,
+    "formatted_address": "대한민국 제주특별자치도 제주시 조천읍 신흥리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "와산리",
+    "status": "OK",
+    "lat": 33.4802497,
+    "lng": 126.6843061,
+    "formatted_address": "대한민국 제주특별자치도 제주시 조천읍 와산리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "월평동",
+    "status": "OK",
+    "lat": 33.4376198,
+    "lng": 126.5870541,
+    "formatted_address": "대한민국 제주특별자치도 제주시 월평동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "토산리",
+    "status": "OK",
+    "lat": 33.3249072,
+    "lng": 126.773206,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 표선면 토산리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "판포리",
+    "status": "OK",
+    "lat": 33.3583661,
+    "lng": 126.2127584,
+    "formatted_address": "대한민국 제주특별자치도 제주시 한경면 판포리",
+    "in_jeju": true
+  },
+  {
+    "place_name": "하원동",
+    "status": "OK",
+    "lat": 33.3064815,
+    "lng": 126.4708742,
+    "formatted_address": "대한민국 제주특별자치도 서귀포시 하원동",
+    "in_jeju": true
+  },
+  {
+    "place_name": "해안동",
+    "status": "OK",
+    "lat": 33.4242628,
+    "lng": 126.4714854,
+    "formatted_address": "대한민국 제주특별자치도 제주시 해안동",
+    "in_jeju": true
   }
 ]
