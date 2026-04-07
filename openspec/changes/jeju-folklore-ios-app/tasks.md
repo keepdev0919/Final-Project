@@ -25,10 +25,11 @@
 
 ## 4. 홈 지도 화면 (map-home)
 
-- [x] 4.1 `HomeViewModel.swift` — 핀 로딩, 지도 이동 감지, 뷰포트 기반 API 호출 로직
-- [x] 4.2 `HomeView.swift` — Map(MapKit) + 핀 마커 어노테이션, clusteringIdentifier 설정
-- [x] 4.3 마커 탭 → 바텀 팝업 카드 (설화 제목 + summary + "더 보기" 버튼)
-- [x] 4.4 팝업 외부 탭 시 dismiss 처리
+- [x] 4.1 `HomeViewModel.swift` — 앱 시작 시 전체 핀 1회 로드 (`/pins/all`), 좌표별 PinGroup 그룹핑
+- [x] 4.2 `HomeView.swift` — UIViewRepresentable MKMapView, 좌표 기반 그룹 마커 표시
+- [x] 4.3 단일 핀 마커 탭 → FolkloreDetailView 시트 직접 표시
+- [x] 4.4 복수 핀 마커 탭 → PinListSheet (장소 내 설화 목록) → 설화 탭 → FolkloreDetailView
+- [x] 4.5 GPS 정밀도 개선 — NER whitelist 30개 리 단위 지명 추가, SPECIFICITY 점수 반영 후 geocoding 재실행 (최대 클러스터 36→10)
 
 ## 5. 코스 추천 화면 (course-recommendation)
 
