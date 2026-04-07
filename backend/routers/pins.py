@@ -22,6 +22,29 @@ def _haversine_m(lat1, lng1, lat2, lng2) -> float:
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
+@router.get("/all", response_model=list[Pin])
+@limiter.limit("10/minute")
+def get_all_pins(request: Request):
+    """GPS 있는 설화·민담 핀 전체 반환 (앱 시작 시 1회 호출용)."""
+    conn = get_db_connection()
+    rows = conn.execute(
+        "SELECT code_no, title, source_type, primary_place, lat, lng FROM metadata WHERE lat IS NOT NULL AND lng IS NOT NULL"
+    ).fetchall()
+    return [
+        Pin(
+            code_no=row["code_no"],
+            title=row["title"],
+            source_type=row["source_type"],
+            summary=row["title"],
+            lat=row["lat"],
+            lng=row["lng"],
+            primary_place=row["primary_place"] or "",
+            distance_m=0.0,
+        )
+        for row in rows
+    ]
+
+
 @router.get("", response_model=list[Pin])
 @limiter.limit("60/minute")
 def get_pins(request: Request, lat: float, lng: float, radius_m: float = 500):
