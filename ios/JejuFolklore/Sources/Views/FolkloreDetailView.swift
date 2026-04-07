@@ -3,88 +3,128 @@ import SwiftUI
 struct FolkloreDetailView: View {
     let pin: Pin
     @StateObject private var audio = AudioPlayer.shared
-    @State private var selectedTab = 0
+    @State private var detail: PinDetail?
+    @State private var isLoadingDetail = false
     @State private var isLoadingTTS = false
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                Picker("탭", selection: $selectedTab) {
-                    Text("설화").tag(0)
-                    Text("공식 안내").tag(1)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    headerSection
+                    Divider()
+                    contentSection
                 }
-                .pickerStyle(.segmented)
-                .padding(16)
-
-                if selectedTab == 0 {
-                    folkloreTab
-                } else {
-                    officialGuideTab
+                .padding(20)
+            }
+            .navigationTitle(displayTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    ttsButton
                 }
             }
-            .navigationTitle(pin.title)
-            .navigationBarTitleDisplayMode(.inline)
+        }
+        .task { await loadDetail() }
+    }
+
+    // MARK: - Header
+
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Label(detail?.sourceTypeLabel ?? pin.sourceTypeLabel,
+                      systemImage: pin.sourceType == "legend" ? "book.fill" : "mic.fill")
+                    .font(.caption)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(tagColor.opacity(0.15))
+                    .foregroundColor(tagColor)
+                    .clipShape(Capsule())
+
+                if !pin.primaryPlace.isEmpty {
+                    Label(pin.primaryPlace, systemImage: "mappin")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Text(displayTitle)
+                .font(.title2)
+                .fontWeight(.bold)
+
+            Text(detail?.summary ?? pin.summary)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .lineSpacing(4)
         }
     }
 
-    private var folkloreTab: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+    // MARK: - Content
+
+    private var contentSection: some View {
+        Group {
+            if isLoadingDetail {
                 HStack {
-                    Label(pin.sourceTypeLabel, systemImage: pin.sourceType == "legend" ? "book.fill" : "mic.fill")
-                        .font(.caption)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(pin.sourceType == "legend" ? Color.orange.opacity(0.15) : Color.purple.opacity(0.15))
-                        .foregroundColor(pin.sourceType == "legend" ? .orange : .purple)
-                        .clipShape(Capsule())
-                    if !pin.primaryPlace.isEmpty {
-                        Label(pin.primaryPlace, systemImage: "mappin")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
+                    Spacer()
+                    ProgressView()
+                    Spacer()
                 }
+                .padding(.top, 40)
+            } else if let fullText = detail?.fullText, !fullText.isEmpty {
+                Text(fullText)
+                    .font(.body)
+                    .lineSpacing(7)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else {
                 Text(pin.summary)
                     .font(.body)
-                    .lineSpacing(6)
-
-                Button {
-                    Task { await playTTS() }
-                } label: {
-                    Label(
-                        audio.isPlaying ? "재생 중..." : (isLoadingTTS ? "로딩 중..." : "설화 듣기"),
-                        systemImage: audio.isPlaying ? "speaker.wave.3.fill" : "play.circle.fill"
-                    )
-                    .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(.orange)
-                .disabled(audio.isPlaying || isLoadingTTS)
+                    .lineSpacing(7)
             }
-            .padding(20)
         }
     }
 
-    private var officialGuideTab: some View {
-        VStack {
-            Spacer()
-            ContentUnavailableView(
-                "공식 안내 없음",
-                systemImage: "headphones",
-                description: Text("이 장소의 공식 오디오 가이드가 없습니다")
-            )
-            Spacer()
+    // MARK: - TTS Button
+
+    private var ttsButton: some View {
+        Button {
+            Task { await playTTS() }
+        } label: {
+            Image(systemName: audio.isPlaying ? "speaker.wave.3.fill" : "play.circle.fill")
+                .foregroundColor(tagColor)
         }
+        .disabled(isLoadingTTS)
+    }
+
+    // MARK: - Helpers
+
+    private var displayTitle: String {
+        let t = detail?.title ?? pin.title
+        // "C_M_001 각시당본풀이" → "각시당본풀이"
+        if let space = t.firstIndex(of: " ") {
+            let after = t[t.index(after: space)...]
+            if !after.isEmpty { return String(after) }
+        }
+        return t
+    }
+
+    private var tagColor: Color {
+        pin.sourceType == "legend" ? .orange : .purple
+    }
+
+    private func loadDetail() async {
+        isLoadingDetail = true
+        detail = try? await PinDetailAPI.fetch(codeNo: pin.codeNo)
+        isLoadingDetail = false
     }
 
     private func playTTS() async {
+        let text = detail?.fullText ?? pin.summary
         isLoadingTTS = true
         do {
-            let data = try await TTSAPI.fetch(text: pin.summary, pinId: pin.id)
+            let data = try await TTSAPI.fetch(text: String(text.prefix(500)), pinId: pin.id)
             audio.play(data: data)
-        } catch {
-            // TTS 실패 시 조용히 무시 (텍스트로 폴백)
-        }
+        } catch {}
         isLoadingTTS = false
     }
 }

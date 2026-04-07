@@ -13,6 +13,17 @@ class Pin(BaseModel):
     distance_m: Optional[float] = None
 
 
+class PinDetail(BaseModel):
+    code_no: str
+    title: str
+    source_type: str
+    summary: str
+    full_text: str            # 내용 섹션 원문
+    primary_place: str
+    lat: float
+    lng: float
+
+
 class CourseRequest(BaseModel):
     theme: str                # 신화 | 도깨비 | 사랑과이별 | 바다해녀 | 오름자연
     duration_days: int        # 1~5
