@@ -10,6 +10,12 @@ __pycache__/
 storage/metadata.db
 storage/vector_db/
 
+# 로컬 IP가 박히는 파일 (start_dev.sh가 자동 갱신)
+ios/JejuFolklore/Sources/App/Config.swift
+
+# Xcode 사용자 상태 파일
+*.xcuserstate
+
 # 원본 데이터 파일
 *.csv
 *.CSV

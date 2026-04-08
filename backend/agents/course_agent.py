@@ -17,20 +17,50 @@ from typing import TypedDict
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, END
 
-from services.db import get_db_connection, get_chroma_collection
+from services.db import get_db_connection, get_chroma_collection, embed_query
 
 BASE_DIR = Path(__file__).parent.parent.parent
 FOLKLORE_GPS_PATH = BASE_DIR / "data" / "processed" / "folklore_gps.json"
 
 llm = ChatOpenAI(model="gpt-4o", temperature=0.3, api_key=os.getenv("OPENAI_API_KEY"))
 
-THEME_KEYWORDS = {
-    "신화":      ["신화", "본풀이", "설문대할망", "영등할망", "천지왕", "창세", "신"],
-    "도깨비":    ["도깨비", "도체비", "요괴", "귀신", "괴물", "혼"],
-    "사랑과이별": ["사랑", "이별", "부부", "연인", "그리움", "눈물", "원한"],
-    "바다해녀":  ["해녀", "바다", "어부", "용왕", "물속", "해신", "조개"],
-    "오름자연":  ["오름", "한라산", "폭포", "숲", "자연", "동물", "바람"],
+# 실제 설화 텍스트 전수 분석(505개) 기반 키워드
+# 단어 나열이 아닌 문장 형태로 구성 → OpenAI 임베딩 품질 향상
+THEME_QUERIES = {
+    "신화": (
+        "제주 무속신화 본풀이 당신화. "
+        "본향당 심방 굿 좌정 천지왕 옥황상제 서천꽃밭 환생꽃. "
+        "세경 초공 이공 삼공 차사 칠성 지장 문전 삼승 원천강 영등. "
+        "조상신 이승과 저승 귀양정배 적강 신격화."
+    ),
+    "도깨비": (
+        "제주 도깨비 귀신 초자연적 존재 이야기. "
+        "도체비 도깨빗불 헛게 그슨새 기신 혼령 유령 헛것 불미귀신. "
+        "여우 구렁이 호랑이 둔갑 변신 요괴 저승사자. "
+        "밤에 나타나는 존재 신비한 현상 무서운 이야기."
+    ),
+    "사랑과이별": (
+        "제주 사랑 이별 혼인 인간 감정 이야기. "
+        "신랑 신부 처녀 총각 낭군 그리움 눈물 비극 원한. "
+        "콩데기 계모 다슴어멍 효자 전생업보 인연 팔자. "
+        "한이 맺힌 설운 서로운 가족 부부 사이 슬픈 이야기."
+    ),
+    "바다해녀": (
+        "제주 바다 해녀 어촌 생활 이야기. "
+        "잠수 물질 전복 소라 멸치 멜 어장 고기잡이 바당. "
+        "용왕 영등할망 어부 선박 해신 풍어제. "
+        "바다에서 살아가는 제주 사람들 삶."
+    ),
+    "오름자연": (
+        "제주 오름 자연 지형 지명 유래 이야기. "
+        "한라산 설문대할망 백록담 화산 산신 폭포 동굴 바위 연못. "
+        "고종달 마을 설촌 지명유래 명당 지세 영기. "
+        "제주 땅과 자연에 얽힌 전설."
+    ),
 }
+
+# 하위 호환을 위한 별칭 (understand_interest 노드에서 테마 목록 참조)
+THEME_KEYWORDS = {k: [] for k in THEME_QUERIES}
 
 
 def _haversine_m(lat1, lng1, lat2, lng2) -> float:
@@ -62,25 +92,24 @@ class AgentState(TypedDict):
 def understand_interest(state: AgentState) -> AgentState:
     """사용자 입력에서 테마 파악. 명시된 경우 그대로 사용."""
     theme = state.get("theme", "")
-    if theme not in THEME_KEYWORDS:
+    if theme not in THEME_QUERIES:
         # LLM으로 테마 분류
         prompt = f"""다음 사용자 요청에서 가장 잘 맞는 설화 테마를 골라줘.
-테마 목록: {list(THEME_KEYWORDS.keys())}
+테마 목록: {list(THEME_QUERIES.keys())}
 사용자 요청: {state['user_input']}
 테마 이름만 답해줘."""
         result = llm.invoke(prompt).content.strip()
-        theme = result if result in THEME_KEYWORDS else "신화"
+        theme = result if result in THEME_QUERIES else "신화"
     return {**state, "theme": theme}
 
 
 def search_folklore(state: AgentState) -> AgentState:
     """ChromaDB RAG로 테마 관련 설화 검색."""
     collection = get_chroma_collection()
-    keywords = " ".join(THEME_KEYWORDS[state["theme"]])
-    query = f"제주 설화 {state['theme']} {keywords}"
+    query = THEME_QUERIES[state["theme"]]
 
     results = collection.query(
-        query_texts=[query],
+        query_embeddings=[embed_query(query)],
         n_results=min(20, collection.count()),
         include=["documents", "metadatas", "distances"],
     )

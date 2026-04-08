@@ -11,7 +11,7 @@ from langchain_core.tools import tool
 from langgraph.prebuilt import create_react_agent
 
 from models.schemas import ChatRequest
-from services.db import get_db_connection, get_chroma_collection
+from services.db import get_db_connection, get_chroma_collection, embed_query
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 limiter = Limiter(key_func=get_remote_address)
@@ -34,7 +34,7 @@ def search_folklore(query: str) -> str:
     """제주 설화(신화·전설) 검색. 사용자가 이야기나 배경을 물어볼 때 사용."""
     collection = get_chroma_collection()
     results = collection.query(
-        query_texts=[query],
+        query_embeddings=[embed_query(query)],
         n_results=3,
         where={"source_type": "legend"},
         include=["documents", "metadatas", "distances"],
@@ -57,7 +57,7 @@ def search_folktale(query: str) -> str:
     """제주 민담(구술 채록) 검색. 생활 이야기, 인물 이야기를 물어볼 때 사용."""
     collection = get_chroma_collection()
     results = collection.query(
-        query_texts=[query],
+        query_embeddings=[embed_query(query)],
         n_results=3,
         where={"source_type": "folktale"},
         include=["documents", "metadatas", "distances"],

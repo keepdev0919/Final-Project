@@ -18,6 +18,32 @@ final class CourseRecommendViewModel: ObservableObject {
 
     let themes = ["신화", "도깨비·요괴", "사랑과 이별", "바다·해녀", "오름·자연"]
 
+    // Q1(분위기) + Q2(장소) → 백엔드 theme 문자열 매핑
+    // 바다해녀·도깨비·신화·사랑과이별·오름자연 5가지 테마
+    static func mapTheme(mood: String, place: String) -> String {
+        switch mood {
+        case "신비롭고 으스스한":
+            return place == "바다" ? "바다해녀" : "도깨비"
+        case "웅장하고 신성한":
+            return "신화"
+        case "따뜻하고 감동적인":
+            switch place {
+            case "바다":   return "바다해녀"
+            case "오름·산": return "오름자연"
+            default:       return "사랑과이별"
+            }
+        case "사람들의 삶 이야기":
+            switch place {
+            case "바다":   return "바다해녀"
+            case "오름·산": return "오름자연"
+            case "마을":   return "사랑과이별"
+            default:       return "바다해녀"
+            }
+        default:
+            return "신화"
+        }
+    }
+
     var isLoading: Bool { loadingStep != .idle && loadingStep != .done && result == nil && errorMessage == nil }
 
     func recommend() async {
