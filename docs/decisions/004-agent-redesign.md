@@ -49,7 +49,7 @@
         ↓
 [iOS 앱]
   코스 결과 화면에서 장소 클릭
-        ↓ GET /tourist/place-detail?name=성산일출봉
+        ↓ GET /tourist/place-detail?name=성산일출봉 (이거는 kto api 사용하는거임)
 [백엔드 - 장소 상세]
   KTO searchKeyword2 → contentId
   detailCommon2 → 설명글
