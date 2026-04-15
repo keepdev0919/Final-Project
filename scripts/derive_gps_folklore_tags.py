@@ -91,18 +91,11 @@ CORE_RULES = {
         "저승",
     ],
     "가족·인간사 서사": [
-        "부부",
-        "아들",
-        "딸",
         "며느리",
-        "부모",
         "계모",
-        "남편",
-        "아내",
         "혼인",
         "신랑",
         "신부",
-        "가족",
         "인연",
         "팔자",
         "원한",
@@ -111,6 +104,13 @@ CORE_RULES = {
         "총각",
         "콩데기",
         "본처",
+        "버려진",
+        "학대",
+        "사랑",
+        "이별",
+        "부부",
+        "서러운",
+        "설운",
     ],
     "생활민담·교훈담": [
         "민담",
@@ -131,7 +131,6 @@ CORE_RULES = {
     ],
     "지명·지형 유래": [
         "유래",
-        "한라산",
         "오름",
         "연못",
         "동굴",
@@ -145,7 +144,9 @@ CORE_RULES = {
         "형성",
         "생겨",
         "산천",
-        "백록담",
+        "경계",
+        "갈랐다",
+        "차지할 땅",
     ],
 }
 
@@ -292,9 +293,6 @@ def main() -> None:
         if row["source_type"] == "folktale":
             core_scores["생활민담·교훈담"] += 2
             core_scores["가족·인간사 서사"] += 1
-        if item["primary_place"] == "한라산":
-            core_scores["지명·지형 유래"] += 2
-
         core_topics = sorted_labels(core_scores, min_score=1)
         if not core_topics:
             core_topics = ["생활민담·교훈담" if row["source_type"] == "folktale" else "무속신화·신격 전승"]

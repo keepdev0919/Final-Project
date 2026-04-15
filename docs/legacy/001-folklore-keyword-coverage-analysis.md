@@ -1,3 +1,10 @@
+> Status: Legacy
+> Moved on: 2026-04-08
+> Reason: 기존 5개 테마 기반 키워드 품질을 점검한 실험 문서입니다. 현재는 GPS 설화 카테고리 재도출과 질문 역설계 흐름이 기준이므로 active 실험 폴더에서 분리했습니다.
+> Follow-up:
+> - [/Users/choikjun/Desktop/keepdev/졸프/docs/experiments/002-gps-folklore-tagging-framework.md](/Users/choikjun/Desktop/keepdev/졸프/docs/experiments/002-gps-folklore-tagging-framework.md)
+> - [/Users/choikjun/Desktop/keepdev/졸프/docs/experiments/gps-folklore-final.md](/Users/choikjun/Desktop/keepdev/졸프/docs/experiments/gps-folklore-final.md)
+
 # 실험 001. 설화 전체 텍스트 기반 테마 키워드 커버리지 분석
 
 **날짜**: 2026-04-08  

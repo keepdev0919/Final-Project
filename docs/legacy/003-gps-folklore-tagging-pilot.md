@@ -1,3 +1,10 @@
+> Status: Legacy
+> Moved on: 2026-04-08
+> Reason: 전체 228개 설화에 대한 v1 태깅 결과가 나온 뒤, 초기 파일럿 메모는 참고용 중간 기록이 되었습니다.
+> Follow-up:
+> - [/Users/choikjun/Desktop/keepdev/졸프/docs/experiments/gps-folklore-final.csv](/Users/choikjun/Desktop/keepdev/졸프/docs/experiments/gps-folklore-final.csv)
+> - [/Users/choikjun/Desktop/keepdev/졸프/docs/experiments/gps-folklore-final.md](/Users/choikjun/Desktop/keepdev/졸프/docs/experiments/gps-folklore-final.md)
+
 # 실험 003. GPS 설화 1차 파일럿 태깅 메모
 
 **날짜**: 2026-04-08  

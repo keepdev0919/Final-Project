@@ -1,13 +1,23 @@
+> Status: Legacy
+> Reason: GPS 설화 분류 작업의 1차 해석 문서입니다. 마지막 검토 후 단순화된 최종본이 별도로 정리되었습니다.
+> Replaced by:
+> - [/Users/choikjun/Desktop/keepdev/졸프/docs/experiments/gps-folklore-final.md](/Users/choikjun/Desktop/keepdev/졸프/docs/experiments/gps-folklore-final.md)
+
 # 실험 004. GPS 설화 228개 기반 내부 카테고리 도출 v1
 
 **날짜**: 2026-04-08  
 **목적**: GPS가 있는 실제 활용 가능 설화 228개를 기준으로 1차 자동 태깅을 수행하고, 내부 카테고리 구조와 질문 재설계 방향을 도출합니다.
 
 관련 파일:
+- [전체 설화 마스터 카테고리 분석](/Users/choikjun/Desktop/keepdev/졸프/docs/legacy/006-full-folklore-category-derivation-v1.md)
 - [태깅 프레임워크](/Users/choikjun/Desktop/keepdev/졸프/docs/experiments/002-gps-folklore-tagging-framework.md)
-- [작업 시트](/Users/choikjun/Desktop/keepdev/졸프/docs/experiments/004-gps-folklore-tagging-v1.csv)
-- [요약 통계](/Users/choikjun/Desktop/keepdev/졸프/docs/experiments/004-gps-folklore-tagging-v1-summary.json)
+- [자동 태깅 결과](/Users/choikjun/Desktop/keepdev/졸프/docs/legacy/004-gps-folklore-tagging-v1.csv)
+- [표본 검토 및 보정 메모](/Users/choikjun/Desktop/keepdev/졸프/docs/legacy/005-gps-folklore-validation-notes.md)
 - [생성 스크립트](/Users/choikjun/Desktop/keepdev/졸프/scripts/derive_gps_folklore_tags.py)
+
+참고:
+- 초기 원본 작업 시트와 기계 집계용 JSON은 현재 기준 문서가 아니므로 `docs/legacy`로 옮겼습니다.
+- 전체 설화 기준의 큰 카테고리 체계는 `006-full-folklore-category-derivation-v1.md`를 기준으로 보고, 본 문서는 GPS 추천 풀에 한정한 서비스용 해석으로 봅니다.
 
 ---
 
@@ -118,7 +128,8 @@
 - `무속신화·신격 전승`은 제주 설화의 가장 큰 뼈대입니다.
 - `생활민담·교훈담`은 legend와 분리되는 민담 축으로 유지할 가치가 큽니다.
 - `마을 공동체 전승`, `지명·지형 유래`, `해양·어촌 전승`은 제주 여행 서비스의 장소성과 직접 연결됩니다.
-- `초자연 존재담`, `가족·인간사 서사`는 공간 카테고리라기보다 사용자의 감정 취향과 연결되는 축입니다.
+- `초자연 존재담`은 독립 주카테고리로 볼 수 있습니다.
+- `가족·인간사 서사`는 주카테고리라기보다 여러 서사에 덧붙는 보조 정서/관계 축으로 해석하는 것이 더 안정적입니다.
 
 즉 최종적으로는,
 
@@ -131,8 +142,10 @@
 서사성 중심 카테고리
 - 무속신화·신격 전승
 - 초자연 존재담
-- 가족·인간사 서사
 - 생활민담·교훈담
+
+보조 정서/관계 태그
+- 가족·인간사 서사
 ```
 
 처럼 2층 구조로 보는 것이 더 자연스럽습니다.
@@ -187,8 +200,9 @@
 1차 자동 태깅 결과를 기준으로 볼 때,
 
 - 현재의 고정 5테마 구조는 초기 기획안으로는 의미가 있었지만 데이터 유도형 구조라고 보기는 어렵습니다.
-- GPS 사용 가능 설화 228개에서는 `무속신화`, `생활민담`, `마을 공동체`, `지명·지형`, `해양`, `초자연`, `가족·인간사` 축이 더 자연스럽게 드러납니다.
-- 따라서 다음 단계에서는 이 7개 축을 기준으로 질문을 재설계하고, 이후 에이전트의 후보 선택 구조를 다시 정의하는 것이 더 타당합니다.
+- GPS 사용 가능 설화 228개에서는 `무속신화`, `생활민담`, `마을 공동체`, `지명·지형`, `해양`, `초자연` 축이 주카테고리로 더 자연스럽게 드러납니다.
+- `가족·인간사`는 주카테고리라기보다 보조 정서/관계 태그로 활용하는 편이 더 적절합니다.
+- 따라서 다음 단계에서는 위 주카테고리와 보조 태그 구조를 기준으로 질문을 재설계하고, 이후 에이전트의 후보 선택 구조를 다시 정의하는 것이 더 타당합니다.
 
 ---
 

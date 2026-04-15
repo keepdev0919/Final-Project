@@ -5,10 +5,10 @@ import SwiftUI
 struct TasteDiscoveryView: View {
     @StateObject private var vm = CourseRecommendViewModel()
     @State private var step = 0
-    @State private var selectedMood = ""
-    @State private var selectedPlace = ""
+    @State private var selectedRegion = ""
+    @State private var selectedStyle = ""
     @State private var selectedDays = 1
-    @State private var navigateToPreview = false
+    @State private var navigateToList = false
 
     var body: some View {
         NavigationStack {
@@ -19,10 +19,9 @@ struct TasteDiscoveryView: View {
 
                     Group {
                         switch step {
-                        case 0: moodStep
-                        case 1: placeStep
+                        case 0: regionStep
+                        case 1: styleStep
                         case 2: daysStep
-                        case 3: transportStep
                         default: EmptyView()
                         }
                     }
@@ -35,31 +34,28 @@ struct TasteDiscoveryView: View {
                     Spacer()
                 }
 
-                if vm.isLoading {
+                if vm.isLoadingList {
                     LoadingOverlay(step: vm.loadingStep)
                 }
             }
             .animation(.spring(response: 0.35), value: step)
             .navigationBarHidden(true)
-            .navigationDestination(isPresented: $navigateToPreview) {
-                if let course = vm.result {
-                    CoursePreviewView(course: course)
-                        .onDisappear { vm.reset() }
+            .navigationDestination(isPresented: $navigateToList) {
+                CourseListView(vm: vm)
+                    .onDisappear {
+                        if vm.courseList.isEmpty { vm.reset() }
+                    }
+            }
+            .onChange(of: vm.courseList) {
+                if !vm.courseList.isEmpty {
+                    navigateToList = true
                 }
             }
-            .onChange(of: vm.result) { course in
-                if course != nil {
-                    navigateToPreview = true
-                    step = 0
-                    selectedMood = ""
-                    selectedPlace = ""
-                }
-            }
-            .alert("코스를 만들지 못했어요", isPresented: Binding(
+            .alert("코스를 가져오지 못했어요", isPresented: Binding(
                 get: { vm.errorMessage != nil },
                 set: { if !$0 { vm.errorMessage = nil } }
             )) {
-                Button("다시 시도") { Task { await generate(transport: vm.transport) } }
+                Button("다시 시도") { Task { await startSearch() } }
                 Button("처음으로", role: .cancel) { resetToStart() }
             } message: {
                 Text(vm.errorMessage ?? "네트워크를 확인하고 다시 시도해주세요.")
@@ -87,7 +83,7 @@ struct TasteDiscoveryView: View {
 
                 Spacer()
 
-                Text("\(step + 1) / 4")
+                Text("\(step + 1) / 3")
                     .font(.caption.weight(.medium))
                     .foregroundColor(.secondary)
 
@@ -100,7 +96,7 @@ struct TasteDiscoveryView: View {
             VStack(spacing: 6) {
                 Text("제주 여행 코스 만들기")
                     .font(.title3.weight(.bold))
-                Text("설화 기반 제주스러운 코스를 추천해드릴게요")
+                Text("실제 여행자들의 검증된 경로로 코스를 추천해드릴게요")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -116,44 +112,52 @@ struct TasteDiscoveryView: View {
                 Rectangle().fill(Color.secondary.opacity(0.12))
                 Rectangle()
                     .fill(Color.orange)
-                    .frame(width: geo.size.width * CGFloat(step + 1) / 4)
+                    .frame(width: geo.size.width * CGFloat(step + 1) / 3)
                     .animation(.spring(response: 0.4), value: step)
             }
         }
         .frame(height: 3)
     }
 
-    // MARK: - Steps
+    // MARK: - Step 1: 지역 선택 (제주도 지도)
 
-    private var moodStep: some View {
-        DiscoveryStep(
-            question: "어떤 분위기가 끌려요?",
-            options: [
-                ("🌙", "신비롭고 으스스한"),
-                ("🌸", "따뜻하고 감동적인"),
-                ("⛩️", "웅장하고 신성한"),
-                ("🎣", "사람들의 삶 이야기"),
-            ]
-        ) { label in
-            selectedMood = label
-            withAnimation { step = 1 }
+    private var regionStep: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("어느 지역을 여행하고 싶어요?")
+                .font(.title2.weight(.bold))
+                .padding(.horizontal, 24)
+                .padding(.top, 32)
+
+            JejuMapRegionPicker { region in
+                selectedRegion = region
+                withAnimation { step = 1 }
+            }
+            .padding(.horizontal, 24)
         }
     }
 
-    private var placeStep: some View {
-        DiscoveryStep(
-            question: "주로 어디가 좋아요?",
-            options: [
-                ("🌊", "바다"),
-                ("🌿", "오름·산"),
-                ("🏘️", "마을"),
-                ("✨", "상관없어요"),
-            ]
-        ) { label in
-            selectedPlace = label
-            withAnimation { step = 2 }
+    // MARK: - Step 2: 스타일 선택 (이미지 카드)
+
+    private var styleStep: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("어떤 여행 스타일이에요?")
+                .font(.title2.weight(.bold))
+                .padding(.horizontal, 24)
+                .padding(.top, 32)
+
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                ForEach(StyleCard.all) { card in
+                    StyleCardView(card: card) {
+                        selectedStyle = card.key
+                        withAnimation { step = 2 }
+                    }
+                }
+            }
+            .padding(.horizontal, 24)
         }
     }
+
+    // MARK: - Step 3: 기간 선택
 
     private var daysStep: some View {
         VStack(alignment: .leading, spacing: 32) {
@@ -166,7 +170,7 @@ struct TasteDiscoveryView: View {
                 ForEach([(1, "1일"), (2, "2일"), (3, "3일"), (5, "4일+")], id: \.0) { days, label in
                     Button {
                         selectedDays = days
-                        withAnimation { step = 3 }
+                        Task { await startSearch() }
                     } label: {
                         Text(label)
                             .font(.body.weight(.semibold))
@@ -182,75 +186,117 @@ struct TasteDiscoveryView: View {
         }
     }
 
-    private var transportStep: some View {
-        DiscoveryStep(
-            question: "이동수단은요?",
-            options: [
-                ("🚗", "렌트카"),
-                ("🚶", "대중교통·도보"),
-            ]
-        ) { label in
-            let transport = label == "렌트카" ? "car" : "walk"
-            Task { await generate(transport: transport) }
-        }
-    }
-
     // MARK: - Actions
 
-    private func generate(transport: String) async {
-        let theme = CourseRecommendViewModel.mapTheme(mood: selectedMood, place: selectedPlace)
-        vm.selectedTheme = theme
+    private func startSearch() async {
+        vm.selectedRegion = selectedRegion
+        vm.selectedStyle = selectedStyle
         vm.durationDays = selectedDays
-        vm.transport = transport
-        await vm.recommend()
+        await vm.fetchList()
     }
 
     private func resetToStart() {
         step = 0
-        selectedMood = ""
-        selectedPlace = ""
+        selectedRegion = ""
+        selectedStyle = ""
         selectedDays = 1
         vm.reset()
     }
 }
 
-// MARK: - DiscoveryStep (재사용 컴포넌트)
+// MARK: - 제주 지도 지역 선택 컴포넌트
 
-private struct DiscoveryStep: View {
-    let question: String
-    let options: [(icon: String, label: String)]
+private struct JejuMapRegionPicker: View {
     let onSelect: (String) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text(question)
-                .font(.title2.weight(.bold))
-                .padding(.horizontal, 24)
-                .padding(.top, 32)
+        VStack(spacing: 8) {
+            // 북부 (제주시)
+            regionButton("북부 (제주시)", color: .blue.opacity(0.15), icon: "🏙️") { onSelect("북부") }
 
-            VStack(spacing: 10) {
-                ForEach(options, id: \.label) { option in
-                    Button { onSelect(option.label) } label: {
-                        HStack(spacing: 16) {
-                            Text(option.icon)
-                                .font(.title2)
-                                .frame(width: 36)
-                            Text(option.label)
-                                .font(.body.weight(.medium))
-                                .foregroundColor(.primary)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 18)
-                        .background(Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                    }
-                }
+            // 중간 행: 서부 | 전체 | 동부
+            HStack(spacing: 8) {
+                regionButton("서부", color: .green.opacity(0.15), icon: "🌿") { onSelect("서부") }
+                regionButton("전체", color: .orange.opacity(0.15), icon: "🗺️") { onSelect("전체") }
+                    .frame(maxWidth: .infinity)
+                regionButton("동부", color: .purple.opacity(0.15), icon: "🌅") { onSelect("동부") }
             }
-            .padding(.horizontal, 24)
+
+            // 남부 (서귀포)
+            regionButton("남부 (서귀포)", color: .red.opacity(0.15), icon: "🌊") { onSelect("남부") }
         }
+    }
+
+    private func regionButton(_ label: String, color: Color, icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack {
+                Text(icon)
+                    .font(.title3)
+                Text(label)
+                    .font(.body.weight(.semibold))
+                    .foregroundColor(.primary)
+                Spacer()
+            }
+            .padding(.vertical, 18)
+            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity)
+            .background(color)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - StyleCard
+
+private struct StyleCard: Identifiable {
+    let id = UUID()
+    let label: String
+    let key: String          // 백엔드 전달값
+    let imageName: String
+
+    static let all: [StyleCard] = [
+        StyleCard(label: "자연·오름",  key: "nature",  imageName: "mood_grand_sacred"),
+        StyleCard(label: "해변·바다",  key: "ocean",   imageName: "mood_village"),
+        StyleCard(label: "맛집·카페",  key: "food",    imageName: "mood_cheerful"),
+        StyleCard(label: "문화·역사",  key: "culture", imageName: "mood_mysterious"),
+    ]
+}
+
+// MARK: - StyleCardView
+
+private struct StyleCardView: View {
+    let card: StyleCard
+    let onSelect: () -> Void
+
+    var body: some View {
+        Button(action: onSelect) {
+            ZStack(alignment: .bottomLeading) {
+                Image(card.imageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 160)
+                    .clipped()
+
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.65)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+
+                Text(card.label)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 12)
+                    .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+        .buttonStyle(.plain)
     }
 }

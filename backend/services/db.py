@@ -35,6 +35,20 @@ _load_env()
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
+    # 관광지 정보 캐시 테이블 (없으면 최초 연결 시 한 번만 생성)
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS tourist_info_cache (
+            content_id TEXT PRIMARY KEY,
+            name       TEXT,
+            address    TEXT,
+            phone      TEXT,
+            category   TEXT,
+            cached_at  REAL
+        )
+        """
+    )
+    conn.commit()
     return conn
 
 

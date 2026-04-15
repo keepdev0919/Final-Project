@@ -27,7 +27,18 @@ class PinDetail(BaseModel):
 class CourseRequest(BaseModel):
     theme: str                # 신화 | 도깨비 | 사랑과이별 | 바다해녀 | 오름자연
     duration_days: int        # 1~5
-    transport: str = "car"    # car | walk
+    category_scores: dict[str, int] | None = None
+
+
+class CourseListRequest(BaseModel):
+    region: str               # 동부 | 서부 | 남부 | 북부 | 전체
+    style: str                # nature | ocean | food | culture
+    duration_days: int        # 1~5
+
+
+class CourseDetailRequest(BaseModel):
+    course_id: str
+    style: str                # nature | ocean | food | culture
 
 
 class CoursePlace(BaseModel):
@@ -39,12 +50,21 @@ class CoursePlace(BaseModel):
     folklore_pins: list[Pin] = []
 
 
+class CourseListItem(BaseModel):
+    id: str
+    title: str
+    duration_days: int
+    places: list[CoursePlace]
+
+
 class Course(BaseModel):
     id: str
     title: str
     duration_days: int
     places: list[CoursePlace]
     estimated_minutes: int
+    source_course_id: str = ""
+    narrative: str = ""
 
 
 class ChatMessage(BaseModel):

@@ -52,13 +52,16 @@ struct CoursePreviewView: View {
 
             ScrollView(.vertical) {
                 VStack(spacing: 12) {
+                    if !course.narrative.isEmpty {
+                        NarrativeCard(text: course.narrative)
+                    }
                     ForEach(Array(course.places.enumerated()), id: \.offset) { idx, place in
                         PlaceCard(index: idx + 1, place: place)
                     }
                 }
                 .padding(16)
             }
-            .frame(maxHeight: 320)
+            .frame(maxHeight: 380)
 
             HStack(spacing: 12) {
                 Button("다시 추천") {}
@@ -114,6 +117,34 @@ struct NumberedMarker: View {
             .background(Color.orange)
             .clipShape(Circle())
             .shadow(radius: 3)
+    }
+}
+
+struct NarrativeCard: View {
+    let text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: "book.pages")
+                    .font(.caption)
+                    .foregroundColor(.orange)
+                Text("여행 이야기")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(.orange)
+            }
+            Text(text)
+                .font(.subheadline)
+                .foregroundColor(.primary)
+                .lineSpacing(4)
+        }
+        .padding(14)
+        .background(Color.orange.opacity(0.07))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.orange.opacity(0.2), lineWidth: 1)
+        )
     }
 }
 
