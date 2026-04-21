@@ -1,5 +1,53 @@
 # 개발 변경 이력
 
+## 2026-04-21
+
+### 아키텍처 전환: 설화가 코스를 선택한다
+
+교수 피드백("기존 여행앱과 차별점이 없다")을 반영해 코스 선택 로직을 설화 중심으로 전면 재설계.
+이전까지 설화는 코스 생성 후 내러티브에 "얹히는" 부가 콘텐츠였다. 이제는 설화 밀도가 코스를 고른다.
+
+**흐름 변경 전:**
+`사용자 취향(여행 스타일) → 여행 키워드 매칭 → 코스 선택 → 설화 내러티브 추가`
+
+**흐름 변경 후:**
+`사용자 취향(설화 테마) → ChromaDB 설화 검색 → GPS 반경 필터 → 설화 풍부한 코스 선택 → 내러티브`
+
+#### 백엔드: `course_list_agent.py` 재작성
+
+| 항목 | 이전 | 변경 후 |
+|------|------|---------|
+| 취향 매핑 | `STYLE_HINTS` (여행 키워드) | `FOLKLORE_THEME_QUERIES` (설화 텍스트) |
+| 코스 선택 기준 | 여행 스타일 키워드 유사도 | `get_folklore_near_place` 도구로 실제 설화 밀도 확인 |
+| 새 도구 | 없음 | `get_folklore_near_place`: ChromaDB 임베딩 검색 + GPS 3km 반경 필터 |
+| MAX_TOOL_CALLS | 5 | 8 (여러 코스 설화 확인 위해) |
+
+#### iOS: `TasteDiscoveryView.swift` 스타일 카드 업데이트
+
+| 이전 레이블 | 이전 key | 변경 후 레이블 | 변경 후 key |
+|-----------|---------|-------------|-----------|
+| 자연·오름 | nature | 신비로운 제주 | dokkaebi |
+| 문화·역사 | culture | 신성한 제주 | mythology |
+| 해변·바다 | ocean | 바다의 제주 | haenyeo |
+| 맛집·카페 | food | 사람의 제주 | human_story |
+
+이미지는 기존 `mood_*.png` 4장 그대로 사용 (도안이 설화 테마와 정확히 매핑).
+
+### 버그 수정: ChromaDB 멀티스레드 레이스 컨디션
+
+`get_chroma_collection()`이 `@lru_cache`만 사용해 `PersistentClient`를 로컬 변수로 관리하던 구조에서
+LangGraph ToolNode가 도구를 스레드에서 동시 호출할 때 GC + 레이스 컨디션으로 `KeyError` 발생.
+
+- `services/db.py`: `_chroma_client` 모듈 레벨 보관 + double-checked locking으로 교체
+- 5스레드 동시 접근 테스트 통과
+
+### 버그 수정: `course_list_agent.py` 경로 오류 2건
+
+- `BASE_DIR = Path(__file__).parent.parent` → `.parent.parent.parent` (프로젝트 루트로 수정)
+  - `data/processed/folklore_gps.json` 파일을 `backend/data/`에서 찾던 오류
+- `format_output` ID 매핑 실패: 메시지 슬라이스(`[-20:]`)로 코스 검색 결과가 잘려 LLM이 가짜 ID 생성
+  - 유효 코스 ID 목록을 extraction_prompt에 명시적으로 포함해 수정
+
 ## 2026-04-15
 
 ### 분위기 질문 옵션 재설계 (카테고리 데이터 기반)

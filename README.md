@@ -1,10 +1,67 @@
-# 제주 설화·민담 RAG 챗봇
+# 제주 설화 여행 앱
 
-제주 설화와 민담 데이터를 수집하고, 텍스트로 정제한 뒤, 벡터 DB와 LLM을 결합해 질문에 답하는 RAG 챗봇 프로젝트다.
+사용자가 설화 테마를 고르면, AI 에이전트가 실제 설화 밀도가 높은 제주 여행 코스를 골라 이야기를 엮어주는 iOS 앱이다.
 
-이 프로젝트는 `PDF 파일 자체`를 저장하는 것이 아니라, 원문 PDF/E-Book에서 추출한 텍스트를 정규화하고 청킹한 뒤 임베딩하여 검색 가능한 지식베이스를 만든다.
+> "설화가 코스를 만든다." 코스에 설화를 얹는 게 아니라, 설화가 있는 곳으로 코스가 간다.
 
-## 현재 구현 범위
+## 서비스 흐름
+
+```
+iOS: 설화 테마 선택 (신비로운 제주 / 신성한 제주 / 바다의 제주 / 사람의 제주)
+  ↓
+FastAPI /course/list
+  ↓
+LangGraph course_list_agent
+  - search_jeju_courses: Visit Jeju DB에서 코스 후보 조회
+  - get_folklore_near_place: ChromaDB 벡터 검색 + GPS 3km 반경으로 설화 확인
+  - 설화 밀도 높은 코스 3개 선택
+  ↓
+iOS: 코스 카드 3개 표시 → 사용자 선택
+  ↓
+FastAPI /course/detail
+  ↓
+LangGraph course_detail_agent
+  - 코스 장소별 설화 핀 매핑
+  - GPT-4o로 설화 내러티브 생성
+  ↓
+iOS: 지도 + 설화 핀 + 내러티브 표시
+```
+
+## 구성 요소
+
+| 구성 | 위치 | 설명 |
+|------|------|------|
+| iOS 앱 | `ios/` | SwiftUI, TasteDiscovery → 코스 선택 → 지도 |
+| FastAPI 백엔드 | `backend/` | 5개 라우터 (course, pins, chat, tts, tourist) |
+| LangGraph 에이전트 | `backend/agents/` | course_list_agent, course_detail_agent |
+| 설화 벡터 DB | `storage/vector_db/` | ChromaDB, 1,749청크, text-embedding-3-small |
+| 코스 DB | `storage/metadata.db` | Visit Jeju 9,134개 코스, 146,508개 장소 |
+
+## 앱 실행
+
+```bash
+# 백엔드
+source .venv/bin/activate
+cd backend
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+iOS는 Xcode에서 `ios/JejuFolklore.xcodeproj` 열고 실행.
+
+---
+
+## 데이터 파이프라인
+
+아래는 설화 벡터 DB를 구축하는 파이프라인이다. 이미 구축되어 있으면 실행 불필요.
+
+## 현재 데이터 상태
+
+- 설화·민담: `505건` (설화 182 + 민담 323)
+- GPS 매핑 완료: `235건 / 269건 (87%)`
+- ChromaDB 청크: `1,749개`
+- Visit Jeju 코스: `9,134개`
+
+## 현재 구현 범위 (파이프라인)
 
 - 공공 API 기반 메타데이터 수집
 - PDF/E-Book 원문 다운로드

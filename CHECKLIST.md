@@ -39,7 +39,9 @@
 - [x] courses DB — 9,134개 코스 + 146,508개 코스-장소 레코드 (`duration_days` 버그 수정)
 - [x] 설화·민담 GPS 매핑 — 269건 중 235건(87%) 완료
 - [x] FastAPI 백엔드 — 5개 라우터 (pins, chat, course, tts, tourist)
-- [x] LangGraph 6노드 에이전트 — 설화 중심 코스 생성 코드 완성
+- [x] LangGraph 에이전트 2개 — `course_list_agent`(설화 테마→ChromaDB 검색→코스 선택) + `course_detail_agent`(내러티브 생성)
+- [x] 설화 테마 4종 완성 — dokkaebi / mythology / haenyeo / human_story (iOS StyleCard 연동)
+- [x] iOS TasteDiscovery 스타일 카드 — 여행 스타일에서 설화 테마 레이블로 전환
 - [x] pytest 19개 테스트 통과
 - [x] 설계 문서 — 설화 중심 컨셉 반영
 
