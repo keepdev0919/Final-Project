@@ -1,6 +1,7 @@
 """SQLite + ChromaDB 연결 싱글톤."""
 import os
 import sqlite3
+import threading
 from pathlib import Path
 from functools import lru_cache
 
@@ -11,6 +12,12 @@ DB_PATH = BASE_DIR / "storage" / "metadata.db"
 CHROMA_PATH = BASE_DIR / "storage" / "vector_db"
 COLLECTION_NAME = "jeju_folklore_chunks"
 EMBEDDING_MODEL = "text-embedding-3-small"
+
+# PersistentClient를 모듈 레벨에 보관해 GC 방지
+# (lru_cache만으로는 client 로컬 변수가 GC되어 ChromaDB 내부 시스템이 해제됨)
+_chroma_client: chromadb.PersistentClient | None = None
+_chroma_collection = None
+_chroma_lock = threading.Lock()
 
 
 def _load_env() -> None:
@@ -52,10 +59,14 @@ def get_db_connection():
     return conn
 
 
-@lru_cache(maxsize=1)
 def get_chroma_collection():
-    client = chromadb.PersistentClient(path=str(CHROMA_PATH))
-    return client.get_collection(COLLECTION_NAME)
+    global _chroma_client, _chroma_collection
+    if _chroma_collection is None:
+        with _chroma_lock:
+            if _chroma_collection is None:
+                _chroma_client = chromadb.PersistentClient(path=str(CHROMA_PATH))
+                _chroma_collection = _chroma_client.get_collection(COLLECTION_NAME)
+    return _chroma_collection
 
 
 def embed_query(text: str) -> list[float]:
