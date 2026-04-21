@@ -24,7 +24,7 @@
 | 3/31 | ~~기초조사서 제출~~ (완료) |
 | 4/30 | 4월 면담확인서 |
 | **5/6** | **공모전 제안서 제출** |
-| 5/8 | 중간보고서 — Flutter 기본 화면 + 코스 생성 동작 확인 |
+| 5/8 | 중간보고서 — iOS 기본 화면 + 코스 생성 동작 확인 |
 | 5/31 | 5월 면담확인서 |
 | 6/12 | 6월 면담확인서 |
 | **6/15** | **최종보고서 — 전체 기능 완성** |
@@ -42,28 +42,26 @@
 - [x] LangGraph 에이전트 2개 — `course_list_agent`(설화 테마→ChromaDB 검색→코스 선택) + `course_detail_agent`(내러티브 생성)
 - [x] 설화 테마 4종 완성 — dokkaebi / mythology / haenyeo / human_story (iOS StyleCard 연동)
 - [x] iOS TasteDiscovery 스타일 카드 — 여행 스타일에서 설화 테마 레이블로 전환
-- [x] pytest 19개 테스트 통과
+- [x] pytest 16개 테스트 통과
 - [x] 설계 문서 — 설화 중심 컨셉 반영
 
 ---
 
-## W1 (4/1 ~ 4/7): KTO API + Flutter 셋업
+## W1 (4/1 ~ 4/7): KTO API 신청 (완료)
 
-- [ ] **KTO OpenAPI 5개 신청** — api.visitkorea.or.kr
+- [x] **KTO OpenAPI 5개 신청** — api.visitkorea.or.kr
   - [ ] 국문 관광정보 (KorService2)
   - [ ] 관광사진 (PhotoGalleryService1)
   - [ ] 오디오 가이드 (Odii)
   - [ ] 연관 관광지 (TarRlteTarService1)
   - [ ] 집중률 예측 (TatsCntrRateService)
-- [ ] `tourist_info_cache` SQLite 테이블 생성
-- [ ] Flutter 프로젝트 생성 + 패키지 설정
-  - google_maps_flutter, dio, provider, flutter_tts, geolocator
+- [ ] `tourist_info_cache` SQLite 테이블 생성 (스키마 정의됨, 실데이터 미연동)
 
 ---
 
-## W2 (4/8 ~ 4/14): Flutter 홈 화면
+## W2 (4/8 ~ 4/14): iOS 홈 화면
 
-- [ ] 홈 — 제주 전체 지도 (google_maps_flutter)
+- [ ] 홈 — 제주 전체 지도 (MapKit / MKMapView)
 - [ ] `/pins` API 연동 — GPS 반경 내 설화 마커 표시
 - [ ] 마커 클러스터링
 - [ ] 설화 밀집 히트맵 레이어 ("이 동네는 도깨비 이야기가 5개!")
@@ -71,23 +69,22 @@
 
 ---
 
-## W3 (4/15 ~ 4/21): 테마 선택 + 코스 추천
+## W3 (4/15 ~ 4/21): 테마 선택 + 코스 추천 (부분 완료)
 
-- [ ] 테마 선택 화면 — 신화 / 도깨비·요괴 / 사랑과 이별 / 바다·해녀 / 오름·자연
+- [x] 테마 선택 화면 — 4종 설화 테마 StyleCard (TasteDiscoveryView)
 - [ ] 조건 입력 — 여행 일수, 이동수단
-- [ ] `/course/recommend` API 연동 + SSE 스트리밍 로딩 화면
-  - 단계별 텍스트: "설화 검색 중..." → "동선 최적화 중..." → "완성!"
+- [x] `/course/list` API 연동 + 로딩 화면 (CourseRecommendView)
 
 ---
 
 ## W4 (4/22 ~ 4/28): 코스 미리보기 + 저장
 
-- [ ] 코스 미리보기 — 지도 위 경로 + 장소 목록
+- [x] 코스 미리보기 — 지도 위 경로 + 장소 목록 (CoursePreviewView)
 - [ ] 장소 카드 — 설화 제목 + 요약 + 혼잡도 배지 + 관광사진 API 이미지
 - [ ] [다시 추천] / [저장] 버튼
 - [ ] 내 코스 저장 목록 화면
 
-> **4/30 면담확인서**: 백엔드 완성 + Flutter 홈·코스 생성 화면 시연 가능 상태
+> **4/30 면담확인서**: 백엔드 완성 + iOS 홈·코스 생성 화면 시연 가능 상태
 
 ---
 
@@ -102,14 +99,14 @@
   - 5p: 개발 일정
 
 > **5/6 공모전 제안서 제출**
-> **5/8 중간보고서**: Flutter 홈 + 코스 생성 + 미리보기 동작 캡처
+> **5/8 중간보고서**: iOS 홈 + 코스 생성 + 미리보기 동작 캡처
 
 ---
 
 ## W6 (5/6 ~ 5/12): 탐험 모드 — GPS + 도착 감지
 
 - [ ] 저장된 코스 불러오기 → [탐험 시작]
-- [ ] 실시간 GPS 위치 추적 (geolocator)
+- [ ] 실시간 GPS 위치 추적 (CoreLocation)
 - [ ] 장소 도착 감지 반경 — 도보 100m / 차량 300m
 
 ---
@@ -167,7 +164,7 @@
 
 - [ ] 클라우드 배포 (Railway 또는 Render) + UptimeRobot 핑
 - [ ] contentId 매핑 전처리 + `enrich_places` 노드 완성
-- [ ] Flutter iOS TestFlight + Android APK
+- [ ] iOS TestFlight 배포
 - [ ] **스토리 아크 코스** — 같은 캐릭터 등장 설화 서사 순서 연결
   - "설문대할망의 발자취" 한라산 → 산방산 → 영실
 - [ ] 영문 관광정보 API 연동 (외국인 확장)
