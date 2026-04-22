@@ -14,7 +14,10 @@ final class CourseRecommendViewModel: ObservableObject {
     @Published var durationDays: Int = 1
 
     @Published var courseList: [CourseListItem] = []
+    @Published var currentCourseIndex: Int = 0
     @Published var isLoadingList: Bool = false
+
+    var hasNextCourse: Bool { currentCourseIndex + 1 < courseList.count }
 
     @Published var selectedCourse: Course?
     @Published var isLoadingDetail: Bool = false
@@ -38,12 +41,17 @@ final class CourseRecommendViewModel: ObservableObject {
                 durationDays: durationDays
             )
             courseList = items
+            currentCourseIndex = 0
+            isLoadingList = false
             loadingStep = .idle
+            if let first = items.first {
+                await fetchDetail(courseId: first.id)
+            }
         } catch {
             errorMessage = error.localizedDescription
             loadingStep = .idle
+            isLoadingList = false
         }
-        isLoadingList = false
     }
 
     func fetchDetail(courseId: String) async {
@@ -65,11 +73,18 @@ final class CourseRecommendViewModel: ObservableObject {
         isLoadingDetail = false
     }
 
+    func advanceToNextCourse() async {
+        guard hasNextCourse else { return }
+        currentCourseIndex += 1
+        await fetchDetail(courseId: courseList[currentCourseIndex].id)
+    }
+
     func reset() {
         selectedRegion = ""
         categoryScores = [:]
         durationDays = 1
         courseList = []
+        currentCourseIndex = 0
         selectedCourse = nil
         errorMessage = nil
         loadingStep = .idle
