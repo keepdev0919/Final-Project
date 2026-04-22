@@ -55,6 +55,20 @@ def get_db_connection():
         )
         """
     )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS place_detail_cache (
+            name        TEXT,
+            lat         REAL,
+            lng         REAL,
+            overview    TEXT,
+            image_url   TEXT,
+            address     TEXT,
+            cached_at   REAL,
+            PRIMARY KEY (name, lat, lng)
+        )
+        """
+    )
     conn.commit()
     return conn
 
