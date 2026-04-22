@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import difflib
 import json as _json
+import logging
 import time
 from fastapi import APIRouter, HTTPException, Request
 from slowapi import Limiter
@@ -12,6 +13,7 @@ from routers.tourist import _kto_get  # tourist.py와 중복 방지
 
 router = APIRouter(prefix="/place", tags=["place"])
 limiter = Limiter(key_func=get_remote_address)
+logger = logging.getLogger(__name__)
 
 CACHE_TTL = 7 * 24 * 3600  # 7일
 
@@ -28,7 +30,10 @@ def _find_content_id(name: str, lat: float, lng: float) -> tuple[str, str] | Non
         items = data["response"]["body"]["items"]
         if not items or items == "":
             return None
-        item_list = items["item"] if isinstance(items["item"], list) else [items["item"]]
+        raw_items = items.get("item")
+        if not raw_items:
+            return None
+        item_list = raw_items if isinstance(raw_items, list) else [raw_items]
         titles = [it["title"] for it in item_list]
         matches = difflib.get_close_matches(name, titles, n=1, cutoff=0.3)
         best = next(
@@ -36,7 +41,8 @@ def _find_content_id(name: str, lat: float, lng: float) -> tuple[str, str] | Non
             item_list[0]
         ) if matches else item_list[0]
         return best["contentid"], str(best.get("contenttypeid", "12"))
-    except Exception:
+    except Exception as e:
+        logger.warning("KTO _find_content_id failed for %s: %s", name, e)
         return None
 
 
@@ -52,7 +58,8 @@ def _fetch_detail(content_id: str) -> dict:
         if isinstance(item, list):
             item = item[0]
         return item
-    except Exception:
+    except Exception as e:
+        logger.warning("KTO _fetch_detail failed for content_id=%s: %s", content_id, e)
         return {}
 
 
@@ -67,7 +74,10 @@ def _fetch_images(content_id: str) -> list[str]:
         items = data["response"]["body"]["items"]
         if not items or items == "":
             return []
-        item_list = items["item"] if isinstance(items["item"], list) else [items["item"]]
+        raw_items = items.get("item")
+        if not raw_items:
+            return []
+        item_list = raw_items if isinstance(raw_items, list) else [raw_items]
         return [it["originimgurl"] for it in item_list if it.get("originimgurl")]
     except Exception:
         return []
@@ -99,9 +109,11 @@ def get_place_detail(request: Request, name: str, lat: float, lng: float):
     """장소명 + GPS로 KTO 사진·설명·이용팁 조회 (7일 캐시)."""
     conn = get_db_connection()
 
+    _lat = round(lat, 5)
+    _lng = round(lng, 5)
     cached = conn.execute(
-        "SELECT * FROM place_detail_cache WHERE name = ? AND ABS(lat - ?) < 0.001 AND ABS(lng - ?) < 0.001",
-        (name, lat, lng),
+        "SELECT * FROM place_detail_cache WHERE name = ? AND lat = ? AND lng = ?",
+        (name, _lat, _lng),
     ).fetchone()
     if cached and (time.time() - cached["cached_at"]) < CACHE_TTL:
         return {
@@ -137,7 +149,7 @@ def get_place_detail(request: Request, name: str, lat: float, lng: float):
            (name, lat, lng, overview, images, address, tel,
             open_time, rest_date, use_fee, parking, content_type_id, cached_at)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (name, lat, lng, overview, _json.dumps(images, ensure_ascii=False),
+        (name, _lat, _lng, overview, _json.dumps(images, ensure_ascii=False),
          address, tel,
          intro["open_time"], intro["rest_date"], intro["use_fee"], intro["parking"],
          content_type_id, time.time()),
