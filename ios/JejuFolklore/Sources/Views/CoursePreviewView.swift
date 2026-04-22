@@ -15,6 +15,7 @@ struct CoursePreviewView: View {
     @State private var navigateToExplore = false
     @State private var selectedDay: Int? = nil
     @State private var isSheetExpanded = true
+    @State private var selectedPlace: CoursePlace?
 
     init(course: Course, hasNext: Bool = false, onNext: (() -> Void)? = nil, onReset: (() -> Void)? = nil) {
         self.course = course
@@ -49,6 +50,9 @@ struct CoursePreviewView: View {
             }
         }
         .animation(.spring(response: 0.3), value: vm.showSavedToast)
+        .sheet(item: $selectedPlace) { place in
+            PlaceDetailSheet(place: place)
+        }
         .navigationTitle(course.title)
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $navigateToExplore) {
@@ -133,7 +137,8 @@ struct CoursePreviewView: View {
                                 DaySectionView(
                                     day: day,
                                     places: placesByDay[day] ?? [],
-                                    globalOffset: globalOffset(for: day)
+                                    globalOffset: globalOffset(for: day),
+                                    onPlaceTap: { selectedPlace = $0 }
                                 )
                             }
                         }
@@ -256,6 +261,7 @@ private struct DaySectionView: View {
     let day: Int
     let places: [CoursePlace]
     let globalOffset: Int   // 전체 배열에서의 시작 번호 오프셋
+    let onPlaceTap: (CoursePlace) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -283,6 +289,7 @@ private struct DaySectionView: View {
                 PlaceCard(index: globalOffset + idx + 1, place: place)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 8)
+                    .onTapGesture { onPlaceTap(place) }
             }
         }
     }
