@@ -92,16 +92,22 @@ def get_places_for_course(course_id: str) -> list[dict]:
         """,
         (course_id,),
     ).fetchall()
-    return [
-        {
+    seen: set[tuple] = set()
+    result = []
+    for r in rows:
+        if r["lat"] is None or r["lng"] is None:
+            continue
+        key = (r["place_name"], r["day"])
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append({
             "place_name": r["place_name"],
             "lat": r["lat"],
             "lng": r["lng"],
             "day": r["day"],
-        }
-        for r in rows
-        if r["lat"] is not None and r["lng"] is not None
-    ]
+        })
+    return result
 
 
 def get_course_title(course_id: str) -> tuple[str, int]:
@@ -207,7 +213,9 @@ def run_detail_agent(course_id: str, category_scores: dict[str, int]) -> dict:
         return {"error": f"코스 장소 데이터가 없습니다: {course_id}"}
 
     places_with_folklore = map_folklore_to_places(places, category_scores=category_scores, radius_m=3000)
-    narrative = generate_narrative(places_with_folklore, category_scores, course_title)
+    # TODO: 내러티브 생성 시점 재설계 예정 — 코스 확정 시점으로 이동할 것
+    # narrative = generate_narrative(places_with_folklore, category_scores, course_title)
+    narrative = ""
 
     return {
         "id": course_id,
