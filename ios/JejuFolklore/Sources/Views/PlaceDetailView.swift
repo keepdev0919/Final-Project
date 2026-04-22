@@ -3,6 +3,7 @@ import MapKit
 
 struct PlaceDetailView: View {
     let place: CoursePlace
+    @Environment(\.openURL) private var openURL
     @State private var detail: PlaceDetail?
     @State private var isLoading = true
     @State private var failed = false
@@ -271,8 +272,9 @@ struct PlaceDetailView: View {
     // MARK: - Helpers
 
     private func openInMaps() {
-        let url = URL(string: "maps://?daddr=\(place.lat),\(place.lng)&dirflg=d")!
-        UIApplication.shared.open(url)
+        if let url = URL(string: "maps://?daddr=\(place.lat),\(place.lng)&dirflg=d") {
+            openURL(url)
+        }
     }
 
     private func loadDetail() async {
