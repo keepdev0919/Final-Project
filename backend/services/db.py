@@ -55,20 +55,32 @@ def get_db_connection():
         )
         """
     )
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS place_detail_cache (
-            name        TEXT,
-            lat         REAL,
-            lng         REAL,
-            overview    TEXT,
-            image_url   TEXT,
-            address     TEXT,
-            cached_at   REAL,
-            PRIMARY KEY (name, lat, lng)
+    # place_detail_cache: 스키마 변경 감지 시 DROP + 재생성 (캐시라 데이터 손실 무방)
+    _existing_cols = {
+        row[1] for row in conn.execute("PRAGMA table_info(place_detail_cache)").fetchall()
+    }
+    if "images" not in _existing_cols:
+        conn.execute("DROP TABLE IF EXISTS place_detail_cache")
+        conn.execute(
+            """
+            CREATE TABLE place_detail_cache (
+                name             TEXT,
+                lat              REAL,
+                lng              REAL,
+                overview         TEXT,
+                images           TEXT,
+                address          TEXT,
+                tel              TEXT,
+                open_time        TEXT,
+                rest_date        TEXT,
+                use_fee          TEXT,
+                parking          TEXT,
+                content_type_id  TEXT,
+                cached_at        REAL,
+                PRIMARY KEY (name, lat, lng)
+            )
+            """
         )
-        """
-    )
     conn.commit()
     return conn
 
