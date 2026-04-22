@@ -1,10 +1,10 @@
 """코스 리스트 에이전트.
 
-설화 테마 기반으로 Visit Jeju DB에서 후보 코스를 뽑고,
-LLM이 get_folklore_near_place로 설화 연결이 풍부한 코스 3개를 선택한다.
-
 흐름:
-    initialize → call_model ⇄ call_tools (ReAct 루프) → format_output → END
+    initialize (SQL 50개 추출 → Python 설화 점수 계산 → 상위 15개 선별)
+    → call_model ⇄ call_tools (LLM이 get_folklore_near_place로 심층 확인)
+    → format_output (최종 3개 선택)
+    → END
 """
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ FOLKLORE_GPS_PATH = BASE_DIR / "data" / "processed" / "folklore_gps.json"
 
 llm = ChatOpenAI(model="gpt-4o", temperature=0.3, api_key=os.getenv("OPENAI_API_KEY"))
 
-MAX_TOOL_CALLS = 8
+MAX_TOOL_CALLS = 6
 
 # 지역 → SQL WHERE 조건 (course_places 서브쿼리용)
 REGION_SQL_CONDITIONS = {
@@ -39,7 +39,7 @@ REGION_SQL_CONDITIONS = {
     "서부": "cp2.lng < 126.57",
 }
 
-# 내부 카테고리명 → ChromaDB 검색 쿼리 (gps-folklore-final 5개 카테고리 기준)
+# 내부 카테고리명 → 설명 텍스트 (LLM 컨텍스트용)
 CATEGORY_QUERIES = {
     "무속신화·신격 전승": (
         "제주 무속신화 본풀이 신격 전승 이야기. "
@@ -73,20 +73,18 @@ CATEGORY_QUERIES = {
 SYSTEM_PROMPT = """당신은 제주 설화 여행 코스 큐레이터입니다.
 
 역할:
-사용자의 설화 취향에 맞는 제주 여행 코스 3개를 선택합니다.
-Visit Jeju의 실제 여행 경로 중, 선택한 설화 테마와 가장 잘 연결되는 코스를 고릅니다.
+설화 점수로 사전 선별된 코스 후보를 받아,
+사용자 취향과 가장 잘 맞는 코스 3개를 최종 선택합니다.
 
 작업 순서:
-1. search_jeju_courses 도구로 코스 후보를 가져옵니다.
-2. 후보 중 제목/장소 이름으로 봤을 때 설화 테마와 어울릴 것 같은 코스를 2~3개 추립니다.
-3. 추린 코스의 주요 장소에 대해 get_folklore_near_place 도구로 인근 설화를 확인합니다.
-4. 설화 연결이 가장 풍부한 코스 3개를 최종 선택합니다.
+1. 전달받은 후보 목록과 각 코스의 설화 점수·설화 목록을 확인합니다.
+2. 점수가 높은 코스를 우선 검토하되, 필요하면 get_folklore_near_place로 특정 장소의 설화를 더 확인합니다.
+3. 설화 연결이 풍부하고 서로 분위기가 다른 코스 3개를 최종 선택합니다.
 
 중요 규칙:
-- 설화가 하나라도 있는 코스를 설화가 없는 코스보다 우선합니다.
-- 설화가 없는 장소는 반경을 5000m로 늘려 get_folklore_near_place를 다시 호출하세요.
+- 설화 점수 0인 코스는 점수가 있는 코스를 모두 검토한 뒤에만 선택하세요.
+- 3개 코스가 서로 다른 지역·분위기를 갖도록 다양하게 구성하세요.
 - get_folklore_near_place 호출 시 categories는 사용자 취향 카테고리를 점수 높은 순으로 전달하세요.
-- 3개 코스가 서로 다른 지역/분위기를 갖도록 다양하게 구성하세요.
 - GPS 좌표는 절대 직접 만들지 마세요. 도구에서 받은 값만 사용하세요."""
 
 
@@ -112,20 +110,35 @@ def _haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
-# ─── 도구 ────────────────────────────────────────────────────────────────────
+# ─── Python 사전 선별 ─────────────────────────────────────────────────────────
 
-@tool
-def search_jeju_courses(duration_days: int, region: str) -> str:
-    """Visit Jeju DB에서 지역·기간 조건에 맞는 코스 후보를 가져옵니다.
+def _map_folklore_for_place(lat: float, lng: float, radius_m: int = 3000) -> list[dict]:
+    """장소 GPS 기준 반경 내 설화 목록 반환 (거리순)."""
+    all_folklore = _load_folklore_gps()
+    nearby = []
+    for f in all_folklore:
+        if f.get("lat") is None or f.get("lng") is None:
+            continue
+        dist = _haversine_m(lat, lng, f["lat"], f["lng"])
+        if dist <= radius_m:
+            nearby.append({
+                "code_no": f.get("code_no", ""),
+                "title": f.get("title", ""),
+                "final_category": f.get("final_category", ""),
+                "distance_m": round(dist),
+            })
+    nearby.sort(key=lambda x: x["distance_m"])
+    return nearby[:3]
 
-    Args:
-        duration_days: 여행 일수 (1~5)
-        region: 지역 (동부 | 서부 | 남부 | 북부 | 전체)
 
-    Returns:
-        코스 후보 목록 JSON. 각 코스: id, title, duration_days,
-        places[{place_name, lat, lng, day}]
-    """
+def _fetch_and_score_courses(
+    region: str,
+    duration_days: int,
+    category_scores: dict[str, int],
+    pool_size: int = 50,
+    top_n: int = 15,
+) -> list[dict]:
+    """SQL에서 pool_size개 추출 → 설화 가중치 점수 계산 → 상위 top_n개 반환."""
     conn = get_db_connection()
     duration_min = max(1, duration_days - 1)
     duration_max = duration_days + 1
@@ -151,21 +164,23 @@ def search_jeju_courses(duration_days: int, region: str) -> str:
         WHERE total_count > 0
           AND region_count * 2 >= total_count
         ORDER BY RANDOM()
-        LIMIT 15
+        LIMIT ?
         """
+        rows = conn.execute(sql, (duration_min, duration_max, min_places, pool_size)).fetchall()
     else:
-        sql = """
-        SELECT id, title, duration_days
-        FROM courses
-        WHERE duration_days BETWEEN ? AND ?
-          AND place_count >= ?
-        ORDER BY RANDOM()
-        LIMIT 15
-        """
+        rows = conn.execute(
+            """
+            SELECT id, title, duration_days
+            FROM courses
+            WHERE duration_days BETWEEN ? AND ?
+              AND place_count >= ?
+            ORDER BY RANDOM()
+            LIMIT ?
+            """,
+            (duration_min, duration_max, min_places, pool_size),
+        ).fetchall()
 
-    rows = conn.execute(sql, (duration_min, duration_max, min_places)).fetchall()
-
-    courses = []
+    scored = []
     for row in rows:
         place_rows = conn.execute(
             """
@@ -177,22 +192,41 @@ def search_jeju_courses(duration_days: int, region: str) -> str:
             (row["id"],),
         ).fetchall()
 
-        places = [
-            {"place_name": p["place_name"], "lat": p["lat"], "lng": p["lng"], "day": p["day"]}
-            for p in place_rows
-            if p["lat"] is not None and p["lng"] is not None
-        ]
-
-        if places:
-            courses.append({
-                "id": row["id"],
-                "title": row["title"],
-                "duration_days": row["duration_days"],
-                "places": places,
+        places = []
+        for p in place_rows:
+            if p["lat"] is None or p["lng"] is None:
+                continue
+            folklore_pins = _map_folklore_for_place(p["lat"], p["lng"])
+            places.append({
+                "place_name": p["place_name"],
+                "lat": p["lat"],
+                "lng": p["lng"],
+                "day": p["day"],
+                "folklore_pins": folklore_pins,
             })
 
-    return json.dumps(courses, ensure_ascii=False)
+        if not places:
+            continue
 
+        folklore_score = sum(
+            category_scores.get(pin["final_category"], 0)
+            for p in places
+            for pin in p["folklore_pins"]
+        )
+
+        scored.append({
+            "id": row["id"],
+            "title": row["title"],
+            "duration_days": row["duration_days"],
+            "places": places,
+            "folklore_score": folklore_score,
+        })
+
+    scored.sort(key=lambda x: -x["folklore_score"])
+    return scored[:top_n]
+
+
+# ─── 도구 (LLM 전용) ──────────────────────────────────────────────────────────
 
 @tool
 def get_folklore_near_place(
@@ -241,6 +275,7 @@ class ListAgentState(TypedDict):
     region: str
     category_scores: dict[str, int]
     duration_days: int
+    candidates: list[dict]   # initialize에서 채워지는 사전 선별 코스
     result_courses: list[dict]
     error: str
 
@@ -248,13 +283,12 @@ class ListAgentState(TypedDict):
 # ─── Structured Output ────────────────────────────────────────────────────────
 
 class CourseSelection(BaseModel):
-    """LLM이 선택하는 코스 ID 목록 (GPS 없음, id만)"""
     course_ids: list[str] = Field(description="선택된 코스 id 3개", min_length=1, max_length=3)
 
 
 # ─── 노드 ────────────────────────────────────────────────────────────────────
 
-_tools = [search_jeju_courses, get_folklore_near_place]
+_tools = [get_folklore_near_place]
 _tool_node = ToolNode(_tools)
 _llm_with_tools = llm.bind_tools(_tools)
 
@@ -265,27 +299,51 @@ def _scores_to_theme_text(scores: dict[str, int]) -> str:
     for cat, score in sorted_cats:
         if score > 0:
             query = CATEGORY_QUERIES.get(cat, cat)
-            lines.append(f"- {cat} ({score}점): {query[:100]}")
+            lines.append(f"- {cat} ({score}점): {query[:80]}")
     return "\n".join(lines) if lines else "특별한 취향 없음 (다양한 설화 포함)"
 
 
 def initialize(state: ListAgentState) -> dict:
-    theme_text = _scores_to_theme_text(state.get("category_scores", {}))
+    category_scores = state.get("category_scores", {})
+    candidates = _fetch_and_score_courses(
+        region=state["region"],
+        duration_days=state["duration_days"],
+        category_scores=category_scores,
+    )
+
+    theme_text = _scores_to_theme_text(category_scores)
+
+    candidate_lines = []
+    for c in candidates:
+        place_names = " → ".join(p["place_name"] for p in c["places"][:4])
+        folklore_items = []
+        for p in c["places"]:
+            for pin in p.get("folklore_pins", []):
+                folklore_items.append(f"{pin['title']}[{pin['final_category']}]")
+        folklore_text = " / ".join(folklore_items[:5]) if folklore_items else "설화 없음"
+        candidate_lines.append(
+            f"- id={c['id']} | 설화점수={c['folklore_score']} | {c['title']}\n"
+            f"  장소: {place_names}\n"
+            f"  인근 설화: {folklore_text}"
+        )
+
+    candidates_text = "\n".join(candidate_lines) if candidate_lines else "후보 없음"
+
     messages = [
         SystemMessage(content=SYSTEM_PROMPT),
         HumanMessage(content=(
-            f"제주 여행 코스 후보 3개를 선택해주세요.\n\n"
+            f"제주 여행 코스 3개를 선택해주세요.\n\n"
             f"조건:\n"
             f"- 지역: {state['region']}\n"
             f"- 설화 취향 (점수 높은 순):\n{theme_text}\n"
             f"- 여행 일수: {state['duration_days']}일\n\n"
-            f"search_jeju_courses 도구로 후보를 가져온 뒤, "
-            f"get_folklore_near_place 로 설화 연결이 풍부한 코스를 확인하세요. "
-            f"categories 파라미터에는 위 취향 카테고리를 점수 높은 순으로 전달하세요. "
-            f"가장 잘 맞는 3개를 선택해주세요."
+            f"[사전 선별 후보 {len(candidates)}개 — 설화 점수 내림차순]\n"
+            f"{candidates_text}\n\n"
+            f"위 후보 중 취향에 가장 잘 맞는 코스 3개를 선택해주세요. "
+            f"필요하면 get_folklore_near_place로 특정 장소의 설화를 더 확인하세요."
         )),
     ]
-    return {"messages": messages}
+    return {"messages": messages, "candidates": candidates}
 
 
 def call_model(state: ListAgentState) -> dict:
@@ -306,75 +364,26 @@ def should_continue(state: ListAgentState) -> Literal["tools", "format_output"]:
     return "format_output"
 
 
-def _extract_tool_results(messages: list) -> dict[str, dict]:
-    """state 메시지에서 ToolMessage JSON 결과를 파싱해 id → course dict 매핑 반환."""
-    result = {}
-    for m in messages:
-        content = getattr(m, "content", "")
-        if not isinstance(content, str):
-            continue
-        try:
-            parsed = json.loads(content)
-            if isinstance(parsed, list):
-                for course in parsed:
-                    if isinstance(course, dict) and "id" in course:
-                        result[course["id"]] = course
-        except Exception:
-            pass
-    return result
-
-
 def format_output(state: ListAgentState) -> dict:
     structured_llm = llm.with_structured_output(CourseSelection)
 
-    tool_courses = _extract_tool_results(state["messages"])
+    candidates = state.get("candidates", [])
+    candidate_map = {c["id"]: c for c in candidates}
 
-    # 유효 course id → title 매핑 (LLM에 명시적으로 전달해 가짜 ID 생성 방지)
     valid_courses_text = "\n".join(
-        f"  - id={cid}, title={c.get('title', '')}"
-        for cid, c in tool_courses.items()
+        f"  - id={c['id']}, title={c['title']}, 설화점수={c['folklore_score']}"
+        for c in candidates
     )
 
-    # 설화 발견 내역 (messages에서 folklore tool 결과만 추출)
-    folklore_lines = []
-    pending_call: dict | None = None
-    for m in state["messages"]:
-        if hasattr(m, "tool_calls") and m.tool_calls:
-            for tc in m.tool_calls:
-                if tc["name"] == "get_folklore_near_place":
-                    pending_call = tc["args"]
-        content = getattr(m, "content", "")
-        if isinstance(content, str) and content:
-            try:
-                parsed = json.loads(content)
-                if isinstance(parsed, list) and parsed and "code_no" in parsed[0]:
-                    titles = [f.get("title", "") for f in parsed]
-                    call_info = json.dumps(pending_call or {}, ensure_ascii=False)[:80]
-                    folklore_lines.append(f"  위치 {call_info}: 설화 {len(titles)}개 — {', '.join(titles[:4])}")
-                    pending_call = None
-                elif isinstance(parsed, list) and "code_no" not in (parsed[0] if parsed else {}):
-                    # 빈 설화 결과
-                    if pending_call is not None:
-                        call_info = json.dumps(pending_call, ensure_ascii=False)[:80]
-                        folklore_lines.append(f"  위치 {call_info}: 설화 0개")
-                        pending_call = None
-            except Exception:
-                pass
-
-    folklore_text = "\n".join(folklore_lines) if folklore_lines else "  (설화 검색 결과 없음)"
     scores = state.get("category_scores", {})
     sorted_cats = sorted(scores.items(), key=lambda x: -x[1])
     scores_text = ", ".join(f"{c}({s}점)" for c, s in sorted_cats if s > 0) or "없음"
-    top_query = CATEGORY_QUERIES.get(sorted_cats[0][0], "") if sorted_cats else ""
 
     extraction_prompt = (
-        f"아래 코스 목록과 설화 발견 내역을 보고 설화 취향에 가장 잘 맞는 코스 3개의 id를 골라주세요.\n\n"
-        f"설화 취향 (점수 높은 순): {scores_text}\n"
-        f"주요 테마 설명: {top_query[:150]}\n\n"
-        f"[유효한 코스 목록 — 반드시 이 목록의 id만 사용]\n{valid_courses_text}\n\n"
-        f"[설화 발견 내역 — 설화가 많은 위치의 코스를 우선]\n{folklore_text}\n\n"
-        f"규칙: course_ids에는 위 '유효한 코스 목록'의 id 값만 넣으세요. "
-        f"설화 code_no(W_F_xxx 형태)는 course id가 아닙니다."
+        f"아래 후보 중 설화 취향에 가장 잘 맞는 코스 3개의 id를 골라주세요.\n\n"
+        f"설화 취향: {scores_text}\n\n"
+        f"[후보 목록 — 반드시 이 목록의 id만 사용]\n{valid_courses_text}\n\n"
+        f"규칙: course_ids에는 위 목록의 id 값만 넣으세요. 서로 다른 분위기의 코스로 구성하세요."
     )
 
     try:
@@ -383,7 +392,7 @@ def format_output(state: ListAgentState) -> dict:
         )
         courses = []
         for cid in selection.course_ids:
-            course = tool_courses.get(cid)
+            course = candidate_map.get(cid)
             if course:
                 courses.append({
                     "id": course["id"],
@@ -403,7 +412,7 @@ def format_output(state: ListAgentState) -> dict:
         if courses:
             return {"result_courses": courses, "error": ""}
         else:
-            return {"result_courses": [], "error": "선택된 코스 id가 tool 결과에 없습니다."}
+            return {"result_courses": [], "error": "선택된 코스 id가 후보 목록에 없습니다."}
     except Exception as e:
         return {"result_courses": [], "error": f"코스 리스트 생성 실패: {e}"}
 
