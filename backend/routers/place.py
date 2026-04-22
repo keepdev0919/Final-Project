@@ -130,7 +130,9 @@ def get_place_detail(request: Request, name: str, lat: float, lng: float):
 
     result = _find_content_id(name, lat, lng)
     if not result:
-        raise HTTPException(status_code=404, detail="KTO에서 해당 장소를 찾을 수 없습니다.")
+        # KTO DB에 없는 장소(공항 등)는 빈 필드로 200 반환 — iOS는 있는 정보만 표시
+        return {"name": name, "overview": "", "images": [], "address": "",
+                "tel": "", "open_time": "", "rest_date": "", "use_fee": "", "parking": ""}
     content_id, content_type_id = result
 
     detail  = _fetch_detail(content_id)
