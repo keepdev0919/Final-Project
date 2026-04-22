@@ -19,6 +19,7 @@
 		344CFDCD02C0689B73F83D69 /* CourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */; };
 		38CBEDD8EFB51E3971426554 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C903EDA776C43559F19313 /* ChatMessage.swift */; };
 		3C924367BF6D98281ABDEE6F /* PlaceAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997538FBFEB00536EF630FCB /* PlaceAPI.swift */; };
+		3F87278B10B282BE0924C3DC /* PlaceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */; };
 		4B5F8136E4813312F1CE5976 /* CourseAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */; };
 		4BBA96123849AB365EC9B2B4 /* Pin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B2D361FC201D7B53D1D5374 /* Pin.swift */; };
 		4E5F51B91701A71F45C93812 /* PinsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E5481B0ED3479BFF321C98 /* PinsAPI.swift */; };
@@ -26,7 +27,6 @@
 		522757289D4B9A4C480111F5 /* ExploreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */; };
 		67157E9A54F763785AB8AAE4 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB19D914698888F9F31CB4C /* Config.swift */; };
 		74DCBD57A66368EA7F46C223 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */; };
-		7F9ACD59BCB0F93172EF69AC /* PlaceDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C13E2D41B798B0E95A9E2DAD /* PlaceDetailSheet.swift */; };
 		8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFB45E01F6089646021CEA5 /* SharedComponents.swift */; };
 		88DD5A8EED77969C5A45054D /* TTSAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F6205B0B938C2482576817A /* TTSAPI.swift */; };
 		8A08DE3EE1EDECFC01390C82 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE1015A20E1B4F561042D346 /* ContentView.swift */; };
@@ -47,13 +47,14 @@
 		03E5481B0ED3479BFF321C98 /* PinsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinsAPI.swift; sourceTree = "<group>"; };
 		0C6027A4A228CB2943AF3A93 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewViewModel.swift; sourceTree = "<group>"; };
+		2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDetailView.swift; sourceTree = "<group>"; };
 		2F2F5C21FAE77807D7721C05 /* ChatAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAPI.swift; sourceTree = "<group>"; };
 		34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseListView.swift; sourceTree = "<group>"; };
 		3716E52689657C66A89C990A /* Course.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
 		38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRecommendView.swift; sourceTree = "<group>"; };
 		456D629F5C5C7EBC91E3B287 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasteDiscoveryView.swift; sourceTree = "<group>"; };
-		4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JejuFolklore.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JejuFolklore.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewModel.swift; sourceTree = "<group>"; };
 		6DEF7C5A76ABA12369016601 /* JejuFolkloreApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JejuFolkloreApp.swift; sourceTree = "<group>"; };
 		72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewView.swift; sourceTree = "<group>"; };
@@ -69,7 +70,6 @@
 		A744E956106F34C9C2D95F2F /* CoursePlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePlace.swift; sourceTree = "<group>"; };
 		AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		BCB19D914698888F9F31CB4C /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
-		C13E2D41B798B0E95A9E2DAD /* PlaceDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDetailSheet.swift; sourceTree = "<group>"; };
 		C5C903EDA776C43559F19313 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
 		C8932708010A3431E486DF98 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseAPI.swift; sourceTree = "<group>"; };
@@ -144,7 +144,7 @@
 				8A8DC0AEACC6D55FDF9997B9 /* FolkloreDetailView.swift */,
 				AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */,
 				EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */,
-				C13E2D41B798B0E95A9E2DAD /* PlaceDetailSheet.swift */,
+				2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */,
 				7BFB45E01F6089646021CEA5 /* SharedComponents.swift */,
 				49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */,
 			);
@@ -208,6 +208,11 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					58E5457657C3C958743B0C25 = {
+						DevelopmentTeam = "";
+					};
+				};
 			};
 			buildConfigurationList = 695326EA143816F89BEC379B /* Build configuration list for PBXProject "JejuFolklore" */;
 			developmentRegion = en;
@@ -262,7 +267,7 @@
 				4E5F51B91701A71F45C93812 /* PinsAPI.swift in Sources */,
 				3C924367BF6D98281ABDEE6F /* PlaceAPI.swift in Sources */,
 				2F421FD8AD3B408FB4CB94C4 /* PlaceDetail.swift in Sources */,
-				7F9ACD59BCB0F93172EF69AC /* PlaceDetailSheet.swift in Sources */,
+				3F87278B10B282BE0924C3DC /* PlaceDetailView.swift in Sources */,
 				1EFFDAF78ADAE81D2021D06E /* SavedCourse.swift in Sources */,
 				8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */,
 				88DD5A8EED77969C5A45054D /* TTSAPI.swift in Sources */,
@@ -279,7 +284,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = JejuFolklore/Resources/JejuFolklore.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = HB2ZHR35Y4;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = JejuFolklore/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -363,7 +368,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = JejuFolklore/Resources/JejuFolklore.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = HB2ZHR35Y4;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = JejuFolklore/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
