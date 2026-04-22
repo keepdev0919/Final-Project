@@ -1,10 +1,13 @@
 import Foundation
 
-// APIClient.decoder가 .convertFromSnakeCase를 사용하므로
-// image_url → imageUrl 자동 변환됨. CodingKeys 불필요.
 struct PlaceDetail: Decodable {
     let name: String
     let overview: String
-    let imageUrl: String
+    let images: [String]
     let address: String
+    let tel: String
+    let openTime: String
+    let restDate: String
+    let useFee: String
+    let parking: String
 }
