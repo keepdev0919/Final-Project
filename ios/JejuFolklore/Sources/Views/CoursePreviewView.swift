@@ -114,6 +114,14 @@ struct CoursePreviewView: View {
             .buttonStyle(.plain)
 
             if isSheetExpanded {
+                // 내러티브 — 드래그 핸들 아래 항상 고정 표시
+                if !course.narrative.isEmpty {
+                    NarrativeCard(text: course.narrative)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 12)
+                        .padding(.bottom, 4)
+                }
+
                 // Day 탭 필터
                 if days.count > 1 {
                     dayTabBar
@@ -123,14 +131,6 @@ struct CoursePreviewView: View {
 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 0) {
-                        // TODO: 내러티브 생성 시점 재설계 예정 — 코스 확정 시점으로 이동할 것
-                        // if !course.narrative.isEmpty {
-                        //     NarrativeCard(text: course.narrative)
-                        //         .padding(.horizontal, 16)
-                        //         .padding(.top, 12)
-                        //         .padding(.bottom, 8)
-                        // }
-
                         // Day 섹션별 장소 목록
                         ForEach(days, id: \.self) { day in
                             if selectedDay == nil || selectedDay == day {

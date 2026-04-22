@@ -39,15 +39,13 @@ NARRATIVE_SYSTEM_PROMPT = """당신은 제주도 여행 스토리텔러입니다
 
 역할:
 여행 코스의 장소들과 그 주변에 깃든 설화를 엮어,
-여행자가 읽으면 설레는 여행 내러티브를 작성합니다.
+여행자가 읽으면 이 코스를 걷고 싶어지는 한두 문장을 씁니다.
 
 내러티브 가이드라인:
-- 전체 여행을 관통하는 주제나 흐름을 만들어주세요
-- 각 장소를 방문하는 감각적인 묘사를 포함하세요
-- 설화가 있는 장소는 그 이야기를 자연스럽게 녹여주세요
-- 설화가 없는 장소도 분위기 있게 소개해주세요
-- 전체 길이: 300~500자 내외 한국어
-- 여행 팸플릿이 아닌, 이야기처럼 써주세요"""
+- 반드시 2문장 이내, 60~90자 한국어
+- 첫 문장: 이 여정을 관통하는 설화적 분위기나 주제
+- 둘째 문장: 여행자를 초대하는 감각적 표현
+- 관광 안내문 느낌 금지. 이야기처럼 써주세요"""
 
 
 # ─── 설화 GPS 캐시 ────────────────────────────────────────────────────────────
@@ -213,9 +211,7 @@ def run_detail_agent(course_id: str, category_scores: dict[str, int]) -> dict:
         return {"error": f"코스 장소 데이터가 없습니다: {course_id}"}
 
     places_with_folklore = map_folklore_to_places(places, category_scores=category_scores, radius_m=3000)
-    # TODO: 내러티브 생성 시점 재설계 예정 — 코스 확정 시점으로 이동할 것
-    # narrative = generate_narrative(places_with_folklore, category_scores, course_title)
-    narrative = ""
+    narrative = generate_narrative(places_with_folklore, category_scores, course_title)
 
     return {
         "id": course_id,
