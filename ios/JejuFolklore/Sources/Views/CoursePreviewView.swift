@@ -50,8 +50,8 @@ struct CoursePreviewView: View {
             }
         }
         .animation(.spring(response: 0.3), value: vm.showSavedToast)
-        .sheet(item: $selectedPlace) { place in
-            PlaceDetailSheet(place: place)
+        .navigationDestination(item: $selectedPlace) { place in
+            PlaceDetailView(place: place)
         }
         .navigationTitle(course.title)
         .navigationBarTitleDisplayMode(.inline)
