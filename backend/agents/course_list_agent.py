@@ -113,13 +113,23 @@ def _haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
 # ─── Python 사전 선별 ─────────────────────────────────────────────────────────
 
 def _map_folklore_for_place(lat: float, lng: float, radius_m: int = 3000) -> list[dict]:
-    """장소 GPS 기준 반경 내 설화 목록 반환 (거리순)."""
+    """장소 GPS 기준 반경 내 설화 목록 반환.
+
+    바운딩 박스로 1차 필터 후 Haversine 정밀 계산 — 전체 228개 루프 대비 ~90% 연산 절감.
+    """
     all_folklore = _load_folklore_gps()
+    # 3000m → 위도 약 0.027°, 경도 약 0.032° (제주 위도 기준)
+    d_lat = radius_m / 111_000
+    d_lng = radius_m / (111_000 * math.cos(math.radians(lat)))
+
     nearby = []
     for f in all_folklore:
-        if f.get("lat") is None or f.get("lng") is None:
+        f_lat, f_lng = f.get("lat"), f.get("lng")
+        if f_lat is None or f_lng is None:
             continue
-        dist = _haversine_m(lat, lng, f["lat"], f["lng"])
+        if abs(f_lat - lat) > d_lat or abs(f_lng - lng) > d_lng:
+            continue
+        dist = _haversine_m(lat, lng, f_lat, f_lng)
         if dist <= radius_m:
             nearby.append({
                 "code_no": f.get("code_no", ""),
@@ -180,40 +190,47 @@ def _fetch_and_score_courses(
             (duration_min, duration_max, min_places, pool_size),
         ).fetchall()
 
+    if not rows:
+        return []
+
+    # 배치 쿼리: 50개 개별 쿼리 → IN절 1번으로 대체
+    course_ids = [row["id"] for row in rows]
+    placeholders = ",".join("?" * len(course_ids))
+    place_rows = conn.execute(
+        f"""
+        SELECT course_id, place_name, lat, lng, day
+        FROM course_places
+        WHERE course_id IN ({placeholders}) AND in_jeju = 1
+        ORDER BY course_id, day, start_time
+        """,
+        course_ids,
+    ).fetchall()
+
+    # course_id별로 그룹핑
+    places_by_course: dict[str, list] = {row["id"]: [] for row in rows}
+    for p in place_rows:
+        if p["lat"] is None or p["lng"] is None:
+            continue
+        cid = p["course_id"]
+        folklore_pins = _map_folklore_for_place(p["lat"], p["lng"])
+        places_by_course[cid].append({
+            "place_name": p["place_name"],
+            "lat": p["lat"],
+            "lng": p["lng"],
+            "day": p["day"],
+            "folklore_pins": folklore_pins,
+        })
+
     scored = []
     for row in rows:
-        place_rows = conn.execute(
-            """
-            SELECT place_name, lat, lng, day
-            FROM course_places
-            WHERE course_id = ? AND in_jeju = 1
-            ORDER BY day, start_time
-            """,
-            (row["id"],),
-        ).fetchall()
-
-        places = []
-        for p in place_rows:
-            if p["lat"] is None or p["lng"] is None:
-                continue
-            folklore_pins = _map_folklore_for_place(p["lat"], p["lng"])
-            places.append({
-                "place_name": p["place_name"],
-                "lat": p["lat"],
-                "lng": p["lng"],
-                "day": p["day"],
-                "folklore_pins": folklore_pins,
-            })
-
+        places = places_by_course.get(row["id"], [])
         if not places:
             continue
-
         folklore_score = sum(
             category_scores.get(pin["final_category"], 0)
             for p in places
             for pin in p["folklore_pins"]
         )
-
         scored.append({
             "id": row["id"],
             "title": row["title"],
