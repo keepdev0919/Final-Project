@@ -6,6 +6,9 @@ import SwiftData
 
 struct CoursePreviewView: View {
     let course: Course
+    let hasNext: Bool
+    let onNext: (() -> Void)?
+    let onReset: (() -> Void)?
     @StateObject private var vm: CoursePreviewViewModel
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -13,8 +16,11 @@ struct CoursePreviewView: View {
     @State private var selectedDay: Int? = nil
     @State private var isSheetExpanded = true
 
-    init(course: Course) {
+    init(course: Course, hasNext: Bool = false, onNext: (() -> Void)? = nil, onReset: (() -> Void)? = nil) {
         self.course = course
+        self.hasNext = hasNext
+        self.onNext = onNext
+        self.onReset = onReset
         _vm = StateObject(wrappedValue: CoursePreviewViewModel(course: course))
     }
 
@@ -53,12 +59,18 @@ struct CoursePreviewView: View {
     // MARK: - Map
 
     private var courseMap: some View {
-        let coords = course.places.map {
+        let placesToShow = selectedDay == nil
+            ? course.places
+            : course.places.filter { $0.day == selectedDay }
+        let coords = placesToShow.map {
             CLLocationCoordinate2D(latitude: $0.lat, longitude: $0.lng)
+        }
+        let markers = placesToShow.enumerated().map {
+            IndexedPlace(index: $0.offset, place: $0.element)
         }
         let mapView = MapWithPolyline(
             coordinates: coords,
-            annotationItems: indexedPlaces,
+            annotationItems: markers,
             onCollapse: {
                 withAnimation(.spring(response: 0.35)) {
                     isSheetExpanded = false
@@ -107,13 +119,13 @@ struct CoursePreviewView: View {
 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 0) {
-                        // 내러티브 카드
-                        if !course.narrative.isEmpty {
-                            NarrativeCard(text: course.narrative)
-                                .padding(.horizontal, 16)
-                                .padding(.top, 12)
-                                .padding(.bottom, 8)
-                        }
+                        // TODO: 내러티브 생성 시점 재설계 예정 — 코스 확정 시점으로 이동할 것
+                        // if !course.narrative.isEmpty {
+                        //     NarrativeCard(text: course.narrative)
+                        //         .padding(.horizontal, 16)
+                        //         .padding(.top, 12)
+                        //         .padding(.bottom, 8)
+                        // }
 
                         // Day 섹션별 장소 목록
                         ForEach(days, id: \.self) { day in
@@ -164,25 +176,49 @@ struct CoursePreviewView: View {
     // MARK: - Action Buttons
 
     private var actionButtons: some View {
-        HStack(spacing: 12) {
-            Button {
-                dismiss()
-            } label: {
-                Text("다시 추천")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.bordered)
-            .tint(.orange)
+        VStack(spacing: 12) {
+            Text("추천 일정이 마음에 드세요?")
+                .font(.footnote)
+                .foregroundColor(.secondary)
 
-            Button {
-                vm.save(context: modelContext)
-            } label: {
-                Text(vm.isSaved ? "저장됨" : "코스 저장")
-                    .frame(maxWidth: .infinity)
+            HStack(spacing: 10) {
+                // 다시하기
+                Button {
+                    dismiss()
+                    onReset?()
+                } label: {
+                    Label("다시하기", systemImage: "arrow.counterclockwise")
+                        .font(.caption.weight(.medium))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .tint(.secondary)
+
+                // 새로운 추천받기 (다음 코스 없으면 비활성)
+                Button {
+                    dismiss()
+                    onNext?()
+                } label: {
+                    Label("새로운 추천", systemImage: "shuffle")
+                        .font(.caption.weight(.medium))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .tint(.orange)
+                .disabled(!hasNext)
+
+                // 내 일정으로 담기
+                Button {
+                    vm.save(context: modelContext)
+                } label: {
+                    Label(vm.isSaved ? "저장됨" : "담기", systemImage: vm.isSaved ? "checkmark" : "square.and.arrow.down")
+                        .font(.caption.weight(.medium))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.orange)
+                .disabled(vm.isSaved)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.orange)
-            .disabled(vm.isSaved)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
