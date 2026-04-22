@@ -61,13 +61,17 @@ struct CourseListView: View {
                     onNext: { shouldLoadNext = true },
                     onReset: { vm.reset() }
                 )
-                .onDisappear {
-                    if shouldLoadNext {
-                        shouldLoadNext = false
-                        Task { await vm.advanceToNextCourse() }
-                    } else {
-                        vm.selectedCourse = nil
-                    }
+            }
+        }
+        .onChange(of: navigateToPreview) {
+            // navigateToPreview가 false가 되는 시점 = 사용자가 실제로 뒤로 간 경우만
+            // (PlaceDetailView로 앞으로 갈 때는 navigateToPreview가 변하지 않음)
+            if !navigateToPreview {
+                if shouldLoadNext {
+                    shouldLoadNext = false
+                    Task { await vm.advanceToNextCourse() }
+                } else {
+                    vm.selectedCourse = nil
                 }
             }
         }
