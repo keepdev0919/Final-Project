@@ -30,6 +30,7 @@
 		8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFB45E01F6089646021CEA5 /* SharedComponents.swift */; };
 		88DD5A8EED77969C5A45054D /* TTSAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F6205B0B938C2482576817A /* TTSAPI.swift */; };
 		8A08DE3EE1EDECFC01390C82 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE1015A20E1B4F561042D346 /* ContentView.swift */; };
+		8C282DF964A29D9C75C3B99A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E11EACDCA05DCA02F59297D3 /* Assets.xcassets */; };
 		8E332C8B628EB5E1E42AC01C /* MyCourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */; };
 		9CE3AAF8CFE0F62B647E2B1B /* CourseRecommendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */; };
 		B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */; };
@@ -76,6 +77,7 @@
 		CFE5A8C878A19F0DF3217997 /* PinDetailAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinDetailAPI.swift; sourceTree = "<group>"; };
 		D0A562565D326C0C4C39FA4D /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		DBD5EDEE06A3A22C0EED714E /* PlaceDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDetail.swift; sourceTree = "<group>"; };
+		E11EACDCA05DCA02F59297D3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyCourseListView.swift; sourceTree = "<group>"; };
 		FE1015A20E1B4F561042D346 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		FF8528DFE3BA78C29CA022D3 /* ExploreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreView.swift; sourceTree = "<group>"; };
@@ -127,9 +129,19 @@
 		75D21EA6AC81E560B87E62D9 = {
 			isa = PBXGroup;
 			children = (
+				9FF2A0088192C74D186B9AF2 /* Resources */,
 				DAB3CC0431095E8DCD0B7724 /* Sources */,
 				008A9C8980608A8515E098EF /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		9FF2A0088192C74D186B9AF2 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E11EACDCA05DCA02F59297D3 /* Assets.xcassets */,
+			);
+			name = Resources;
+			path = JejuFolklore/Resources;
 			sourceTree = "<group>";
 		};
 		D0732435DDB78ACC43D69004 /* Views */ = {
@@ -188,6 +200,7 @@
 			buildConfigurationList = 83032AAC9CEDC7FAAADB0C24 /* Build configuration list for PBXNativeTarget "JejuFolklore" */;
 			buildPhases = (
 				D50DE94A51AF6A56E6264984 /* Sources */,
+				D0D4D4D316502368F59F3746 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -232,6 +245,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D0D4D4D316502368F59F3746 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C282DF964A29D9C75C3B99A /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		D50DE94A51AF6A56E6264984 /* Sources */ = {
