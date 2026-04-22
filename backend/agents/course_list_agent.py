@@ -31,34 +31,42 @@ llm = ChatOpenAI(model="gpt-4o", temperature=0.3, api_key=os.getenv("OPENAI_API_
 
 MAX_TOOL_CALLS = 8
 
-# 지역 필터 적용 여부 (전체는 필터 없음)
-REGION_HAS_FILTER = {"북부", "남부", "동부", "서부"}
+# 지역 → SQL WHERE 조건 (course_places 서브쿼리용)
+REGION_SQL_CONDITIONS = {
+    "북부": "cp2.lat >= 33.38",
+    "남부": "cp2.lat < 33.38",
+    "동부": "cp2.lng >= 126.57",
+    "서부": "cp2.lng < 126.57",
+}
 
-# 설화 테마별 ChromaDB 검색 쿼리 (iOS StyleCard key → 설화 검색 텍스트)
-FOLKLORE_THEME_QUERIES = {
-    "dokkaebi": (
-        "제주 초자연 존재 이야기. "
-        "도체비 귀신 혼령 요괴 변신 둔갑 신비하고 으스스한 존재. "
-        "밤과 경계 공간에서 벌어지는 기이한 설화. "
-        "도깨비불 오름 숲길 으슥한 곳 밤길 귀신 나오는 장소."
-    ),
-    "mythology": (
+# 내부 카테고리명 → ChromaDB 검색 쿼리 (gps-folklore-final 5개 카테고리 기준)
+CATEGORY_QUERIES = {
+    "무속신화·신격 전승": (
         "제주 무속신화 본풀이 신격 전승 이야기. "
         "천지왕 설문대할망 삼성혈 탄생 신화 당오름 성소. "
         "본향당 당신 심방 굿 좌정 옥황상제 서천꽃밭 영등신 세경신. "
         "신이 인간 세상에 내려와 마을과 당에 자리 잡는 서사."
     ),
-    "haenyeo": (
-        "제주 바다 어촌 해양 전승 이야기. "
-        "해녀 잠수 물질 어부 용왕 영등신 풍어제 바당과 해안 마을. "
-        "바다에서 살아가는 제주 사람들의 삶과 신앙. "
-        "해변 성산 우도 협재 바닷가 해안 마을."
-    ),
-    "human_story": (
+    "생활민담·교훈담": (
         "제주 생활민담 교훈담 해학 이야기. "
         "재치 지혜 욕심 벌 교훈 권선징악 속고 속이는 이야기. "
         "일상 속 인간의 행동과 선택이 드러나는 민담. "
         "마을 사람들의 삶 사랑 이별 제주 생활 풍속."
+    ),
+    "마을 공동체 전승": (
+        "제주 마을 공동체 전승 이야기. "
+        "본향당 마을신 당제 동네 사람들이 함께 믿고 전해온 전승. "
+        "공동체 기억과 마을 수호에 관한 설화."
+    ),
+    "해양·어촌 전승": (
+        "제주 바다 어촌 해양 전승 이야기. "
+        "해녀 잠수 물질 어부 용왕 영등신 풍어제 바당과 해안 마을. "
+        "바다에서 살아가는 제주 사람들의 삶과 신앙."
+    ),
+    "초자연 존재담": (
+        "제주 초자연 존재 이야기. "
+        "도체비 귀신 혼령 요괴 변신 둔갑 신비하고 으스스한 존재. "
+        "밤과 경계 공간에서 벌어지는 기이한 설화."
     ),
 }
 
@@ -122,17 +130,39 @@ def search_jeju_courses(duration_days: int, region: str) -> str:
     duration_max = duration_days + 1
     min_places = max(2, duration_days * 2)
 
-    rows = conn.execute(
+    region_cond = REGION_SQL_CONDITIONS.get(region)
+
+    if region_cond:
+        sql = f"""
+        SELECT id, title, duration_days FROM (
+            SELECT c.id, c.title, c.duration_days,
+                   (SELECT COUNT(*) FROM course_places cp2
+                    WHERE cp2.course_id = c.id AND cp2.in_jeju = 1
+                      AND cp2.lat IS NOT NULL AND cp2.lng IS NOT NULL
+                      AND {region_cond}) AS region_count,
+                   (SELECT COUNT(*) FROM course_places cp2
+                    WHERE cp2.course_id = c.id AND cp2.in_jeju = 1
+                      AND cp2.lat IS NOT NULL AND cp2.lng IS NOT NULL) AS total_count
+            FROM courses c
+            WHERE c.duration_days BETWEEN ? AND ?
+              AND c.place_count >= ?
+        )
+        WHERE total_count > 0
+          AND region_count * 2 >= total_count
+        ORDER BY RANDOM()
+        LIMIT 15
         """
+    else:
+        sql = """
         SELECT id, title, duration_days
         FROM courses
         WHERE duration_days BETWEEN ? AND ?
           AND place_count >= ?
         ORDER BY RANDOM()
-        LIMIT 30
-        """,
-        (duration_min, duration_max, min_places),
-    ).fetchall()
+        LIMIT 15
+        """
+
+    rows = conn.execute(sql, (duration_min, duration_max, min_places)).fetchall()
 
     courses = []
     for row in rows:
@@ -152,11 +182,6 @@ def search_jeju_courses(duration_days: int, region: str) -> str:
             if p["lat"] is not None and p["lng"] is not None
         ]
 
-        if region in REGION_HAS_FILTER and places:
-            filtered = _filter_places_by_region(places, region)
-            if not filtered:
-                continue
-
         if places:
             courses.append({
                 "id": row["id"],
@@ -164,9 +189,6 @@ def search_jeju_courses(duration_days: int, region: str) -> str:
                 "duration_days": row["duration_days"],
                 "places": places,
             })
-
-        if len(courses) >= 15:
-            break
 
     return json.dumps(courses, ensure_ascii=False)
 
@@ -218,30 +240,12 @@ def get_folklore_near_place(lat: float, lng: float, query: str, radius_m: int = 
     return json.dumps(nearby[:10], ensure_ascii=False)
 
 
-def _filter_places_by_region(places: list[dict], region: str) -> list[dict]:
-    """지역 GPS 조건으로 장소를 필터링. 코스 내 과반수 장소가 해당 지역이면 통과."""
-    def in_region(p: dict) -> bool:
-        lat, lng = p.get("lat", 0), p.get("lng", 0)
-        if region == "북부":
-            return lat >= 33.45
-        elif region == "남부":
-            return lat < 33.30
-        elif region == "동부":
-            return lng >= 126.70
-        elif region == "서부":
-            return lng < 126.40
-        return True
-
-    matched = [p for p in places if in_region(p)]
-    return matched if len(matched) >= len(places) * 0.5 else []
-
-
 # ─── State ───────────────────────────────────────────────────────────────────
 
 class ListAgentState(TypedDict):
     messages: Annotated[list, add_messages]
     region: str
-    style: str
+    category_scores: dict[str, int]
     duration_days: int
     result_courses: list[dict]
     error: str
@@ -261,15 +265,25 @@ _tool_node = ToolNode(_tools)
 _llm_with_tools = llm.bind_tools(_tools)
 
 
+def _scores_to_theme_text(scores: dict[str, int]) -> str:
+    sorted_cats = sorted(scores.items(), key=lambda x: -x[1])
+    lines = []
+    for cat, score in sorted_cats:
+        if score > 0:
+            query = CATEGORY_QUERIES.get(cat, cat)
+            lines.append(f"- {cat} ({score}점): {query[:100]}")
+    return "\n".join(lines) if lines else "특별한 취향 없음 (다양한 설화 포함)"
+
+
 def initialize(state: ListAgentState) -> dict:
-    theme_query = FOLKLORE_THEME_QUERIES.get(state["style"], state["style"])
+    theme_text = _scores_to_theme_text(state.get("category_scores", {}))
     messages = [
         SystemMessage(content=SYSTEM_PROMPT),
         HumanMessage(content=(
             f"제주 여행 코스 후보 3개를 선택해주세요.\n\n"
             f"조건:\n"
             f"- 지역: {state['region']}\n"
-            f"- 설화 테마: {state['style']} — {theme_query[:120]}\n"
+            f"- 설화 취향 (점수 높은 순):\n{theme_text}\n"
             f"- 여행 일수: {state['duration_days']}일\n\n"
             f"search_jeju_courses 도구로 후보를 가져온 뒤, "
             f"get_folklore_near_place 로 설화 연결이 풍부한 코스를 확인해 "
@@ -353,12 +367,15 @@ def format_output(state: ListAgentState) -> dict:
                 pass
 
     folklore_text = "\n".join(folklore_lines) if folklore_lines else "  (설화 검색 결과 없음)"
-    theme_query = FOLKLORE_THEME_QUERIES.get(state["style"], state["style"])
+    scores = state.get("category_scores", {})
+    sorted_cats = sorted(scores.items(), key=lambda x: -x[1])
+    scores_text = ", ".join(f"{c}({s}점)" for c, s in sorted_cats if s > 0) or "없음"
+    top_query = CATEGORY_QUERIES.get(sorted_cats[0][0], "") if sorted_cats else ""
 
     extraction_prompt = (
-        f"아래 코스 목록과 설화 발견 내역을 보고 설화 테마에 가장 잘 맞는 코스 3개의 id를 골라주세요.\n\n"
-        f"설화 테마: {state['style']}\n"
-        f"테마 설명: {theme_query[:150]}\n\n"
+        f"아래 코스 목록과 설화 발견 내역을 보고 설화 취향에 가장 잘 맞는 코스 3개의 id를 골라주세요.\n\n"
+        f"설화 취향 (점수 높은 순): {scores_text}\n"
+        f"주요 테마 설명: {top_query[:150]}\n\n"
         f"[유효한 코스 목록 — 반드시 이 목록의 id만 사용]\n{valid_courses_text}\n\n"
         f"[설화 발견 내역 — 설화가 많은 위치의 코스를 우선]\n{folklore_text}\n\n"
         f"규칙: course_ids에는 위 '유효한 코스 목록'의 id 값만 넣으세요. "

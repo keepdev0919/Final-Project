@@ -8,14 +8,14 @@ struct CourseRequest: Encodable {
 }
 
 struct CourseListRequest: Encodable {
-    let region: String        // 동부 | 서부 | 남부 | 북부 | 전체
-    let style: String         // nature | ocean | food | culture
+    let region: String
+    let categoryScores: [String: Int]
     let durationDays: Int
 }
 
 struct CourseDetailRequest: Encodable {
     let courseId: String
-    let style: String
+    let categoryScores: [String: Int]
 }
 
 struct CourseAPI {
@@ -31,18 +31,22 @@ struct CourseAPI {
         ))
     }
 
-    static func list(region: String, style: String, durationDays: Int) async throws -> [CourseListItem] {
+    static func list(
+        region: String,
+        categoryScores: [String: Int],
+        durationDays: Int
+    ) async throws -> [CourseListItem] {
         try await APIClient.shared.post("/course/list", body: CourseListRequest(
             region: region,
-            style: style,
+            categoryScores: categoryScores,
             durationDays: durationDays
         ))
     }
 
-    static func detail(courseId: String, style: String) async throws -> Course {
+    static func detail(courseId: String, categoryScores: [String: Int]) async throws -> Course {
         try await APIClient.shared.post("/course/detail", body: CourseDetailRequest(
             courseId: courseId,
-            style: style
+            categoryScores: categoryScores
         ))
     }
 }

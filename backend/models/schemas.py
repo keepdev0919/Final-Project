@@ -31,14 +31,14 @@ class CourseRequest(BaseModel):
 
 
 class CourseListRequest(BaseModel):
-    region: str               # 동부 | 서부 | 남부 | 북부 | 전체
-    style: str                # nature | ocean | food | culture
-    duration_days: int        # 1~5
+    region: str                          # 동부 | 서부 | 남부 | 북부 | 전체
+    category_scores: dict[str, int]      # 카테고리별 취향 점수
+    duration_days: int                   # 1~5
 
 
 class CourseDetailRequest(BaseModel):
     course_id: str
-    style: str                # nature | ocean | food | culture
+    category_scores: dict[str, int]      # 카테고리별 취향 점수
 
 
 class CoursePlace(BaseModel):

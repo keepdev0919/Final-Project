@@ -9,16 +9,13 @@ enum LoadingStep: String {
 
 @MainActor
 final class CourseRecommendViewModel: ObservableObject {
-    // 신규 입력 상태
     @Published var selectedRegion: String = ""
-    @Published var selectedStyle: String = ""
+    @Published var categoryScores: [String: Int] = [:]
     @Published var durationDays: Int = 1
 
-    // 리스트 결과
     @Published var courseList: [CourseListItem] = []
     @Published var isLoadingList: Bool = false
 
-    // 상세 결과
     @Published var selectedCourse: Course?
     @Published var isLoadingDetail: Bool = false
 
@@ -28,7 +25,7 @@ final class CourseRecommendViewModel: ObservableObject {
     var isLoading: Bool { isLoadingList || isLoadingDetail }
 
     func fetchList() async {
-        guard !selectedRegion.isEmpty, !selectedStyle.isEmpty else { return }
+        guard !selectedRegion.isEmpty, !categoryScores.isEmpty else { return }
         errorMessage = nil
         courseList = []
         isLoadingList = true
@@ -37,7 +34,7 @@ final class CourseRecommendViewModel: ObservableObject {
         do {
             let items = try await CourseAPI.list(
                 region: selectedRegion,
-                style: selectedStyle,
+                categoryScores: categoryScores,
                 durationDays: durationDays
             )
             courseList = items
@@ -56,7 +53,7 @@ final class CourseRecommendViewModel: ObservableObject {
         loadingStep = .generating
 
         do {
-            let course = try await CourseAPI.detail(courseId: courseId, style: selectedStyle)
+            let course = try await CourseAPI.detail(courseId: courseId, categoryScores: categoryScores)
             loadingStep = .done
             try? await Task.sleep(nanoseconds: 400_000_000)
             selectedCourse = course
@@ -70,7 +67,7 @@ final class CourseRecommendViewModel: ObservableObject {
 
     func reset() {
         selectedRegion = ""
-        selectedStyle = ""
+        categoryScores = [:]
         durationDays = 1
         courseList = []
         selectedCourse = nil

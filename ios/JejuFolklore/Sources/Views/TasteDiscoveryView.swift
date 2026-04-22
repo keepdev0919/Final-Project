@@ -8,7 +8,8 @@ struct TasteDiscoveryView: View {
     @StateObject private var vm = CourseRecommendViewModel()
     @State private var step = 0
     @State private var selectedRegion = ""
-    @State private var selectedStyle = ""
+    @State private var selectedQ1 = ""
+    @State private var selectedQ2 = ""
     @State private var selectedDays = 1
     @State private var navigateToList = false
 
@@ -22,8 +23,9 @@ struct TasteDiscoveryView: View {
                     Group {
                         switch step {
                         case 0: regionStep
-                        case 1: styleStep
-                        case 2: daysStep
+                        case 1: q1Step
+                        case 2: q2Step
+                        case 3: daysStep
                         default: EmptyView()
                         }
                     }
@@ -85,7 +87,7 @@ struct TasteDiscoveryView: View {
 
                 Spacer()
 
-                Text("\(step + 1) / 3")
+                Text("\(step + 1) / 4")
                     .font(.caption.weight(.medium))
                     .foregroundColor(.secondary)
 
@@ -114,7 +116,7 @@ struct TasteDiscoveryView: View {
                 Rectangle().fill(Color.secondary.opacity(0.12))
                 Rectangle()
                     .fill(Color.orange)
-                    .frame(width: geo.size.width * CGFloat(step + 1) / 3)
+                    .frame(width: geo.size.width * CGFloat(step + 1) / 4)
                     .animation(.spring(response: 0.4), value: step)
             }
         }
@@ -134,23 +136,24 @@ struct TasteDiscoveryView: View {
                 selectedRegion = region
                 withAnimation { step = 1 }
             }
+
             .padding(.horizontal, 24)
         }
     }
 
-    // MARK: - Step 2: 스타일 선택 (이미지 카드)
+    // MARK: - Step 2: Q1 — 어떤 이야기 결
 
-    private var styleStep: some View {
+    private var q1Step: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("어떤 여행 스타일이에요?")
+            Text("어떤 이야기 결이 끌려요?")
                 .font(.title2.weight(.bold))
                 .padding(.horizontal, 24)
                 .padding(.top, 32)
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                ForEach(StyleCard.all) { card in
-                    StyleCardView(card: card) {
-                        selectedStyle = card.key
+                ForEach(Q1Option.all) { option in
+                    Q1CardView(option: option) {
+                        selectedQ1 = option.key
                         withAnimation { step = 2 }
                     }
                 }
@@ -159,7 +162,28 @@ struct TasteDiscoveryView: View {
         }
     }
 
-    // MARK: - Step 3: 기간 선택
+    // MARK: - Step 3: Q2 — 어떤 배경
+
+    private var q2Step: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("어떤 배경이 좋아요?")
+                .font(.title2.weight(.bold))
+                .padding(.horizontal, 24)
+                .padding(.top, 32)
+
+            VStack(spacing: 10) {
+                ForEach(Q2Option.all) { option in
+                    tasteButton(option.label) {
+                        selectedQ2 = option.key
+                        withAnimation { step = 3 }
+                    }
+                }
+            }
+            .padding(.horizontal, 24)
+        }
+    }
+
+    // MARK: - Step 4: 기간 선택
 
     private var daysStep: some View {
         VStack(alignment: .leading, spacing: 32) {
@@ -188,11 +212,53 @@ struct TasteDiscoveryView: View {
         }
     }
 
+    // MARK: - Helpers
+
+    private func tasteButton(_ label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(label)
+                .font(.body.weight(.semibold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 18)
+                .background(Color(UIColor.secondarySystemBackground))
+                .foregroundColor(.primary)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func computeCategoryScores() -> [String: Int] {
+        // Q1: 서사 축 점수
+        let q1Map: [String: [String: Int]] = [
+            "mythology":    ["무속신화·신격 전승": 3, "마을 공동체 전승": 1],
+            "supernatural": ["초자연 존재담": 3, "생활민담·교훈담": 1],
+            "folktale":     ["생활민담·교훈담": 3, "마을 공동체 전승": 1],
+            "community":    ["마을 공동체 전승": 3, "무속신화·신격 전승": 1],
+        ]
+        // Q2: 공간 축 점수
+        let q2Map: [String: [String: Int]] = [
+            "ocean":    ["해양·어촌 전승": 3, "초자연 존재담": 1],
+            "village":  ["마을 공동체 전승": 2, "무속신화·신격 전승": 1],
+            "mountain": ["무속신화·신격 전승": 1, "생활민담·교훈담": 1, "초자연 존재담": 1],
+            "any":      [:],
+        ]
+
+        var scores: [String: Int] = [:]
+        for (cat, score) in q1Map[selectedQ1] ?? [:] {
+            scores[cat, default: 0] += score
+        }
+        for (cat, score) in q2Map[selectedQ2] ?? [:] {
+            scores[cat, default: 0] += score
+        }
+        return scores
+    }
+
     // MARK: - Actions
 
     private func startSearch() async {
         vm.selectedRegion = selectedRegion
-        vm.selectedStyle = selectedStyle
+        vm.categoryScores = computeCategoryScores()
         vm.durationDays = selectedDays
         await vm.fetchList()
     }
@@ -200,7 +266,8 @@ struct TasteDiscoveryView: View {
     private func resetToStart() {
         step = 0
         selectedRegion = ""
-        selectedStyle = ""
+        selectedQ1 = ""
+        selectedQ2 = ""
         selectedDays = 1
         vm.reset()
     }
@@ -507,32 +574,32 @@ private struct JejuRegionMapView: UIViewRepresentable {
     }
 }
 
-// MARK: - StyleCard
+// MARK: - Q1/Q2 선택지
 
-private struct StyleCard: Identifiable {
+private struct Q1Option: Identifiable {
     let id = UUID()
+    let key: String
     let label: String
-    let key: String          // 백엔드 전달값
     let imageName: String
 
-    static let all: [StyleCard] = [
-        StyleCard(label: "신비로운 제주",  key: "dokkaebi",    imageName: "mood_mysterious"),
-        StyleCard(label: "신성한 제주",    key: "mythology",   imageName: "mood_grand_sacred"),
-        StyleCard(label: "바다의 제주",    key: "haenyeo",     imageName: "mood_village"),
-        StyleCard(label: "사람의 제주",    key: "human_story", imageName: "mood_cheerful"),
+    static let all: [Q1Option] = [
+        Q1Option(key: "mythology",    label: "신이 마을에 내려오는 이야기", imageName: "mood_grand_sacred"),
+        Q1Option(key: "supernatural", label: "으스스하고 기이한 이야기",     imageName: "mood_mysterious"),
+        Q1Option(key: "folktale",     label: "재치 있고 교훈적인 이야기",   imageName: "mood_cheerful"),
+        Q1Option(key: "community",    label: "마을 사람들이 함께 전해온 이야기", imageName: "mood_village"),
     ]
 }
 
-// MARK: - StyleCardView
+// MARK: - Q1CardView
 
-private struct StyleCardView: View {
-    let card: StyleCard
+private struct Q1CardView: View {
+    let option: Q1Option
     let onSelect: () -> Void
 
     var body: some View {
         Button(action: onSelect) {
             ZStack(alignment: .bottomLeading) {
-                Image(card.imageName)
+                Image(option.imageName)
                     .resizable()
                     .scaledToFill()
                     .frame(height: 160)
@@ -544,8 +611,8 @@ private struct StyleCardView: View {
                     endPoint: .bottom
                 )
 
-                Text(card.label)
-                    .font(.system(size: 14, weight: .semibold))
+                Text(option.label)
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(.white)
                     .padding(.horizontal, 12)
                     .padding(.bottom, 12)
@@ -555,4 +622,17 @@ private struct StyleCardView: View {
         }
         .buttonStyle(.plain)
     }
+}
+
+private struct Q2Option: Identifiable {
+    let id = UUID()
+    let key: String
+    let label: String
+
+    static let all: [Q2Option] = [
+        Q2Option(key: "ocean",    label: "바다와 어촌"),
+        Q2Option(key: "village",  label: "마을과 당"),
+        Q2Option(key: "mountain", label: "산·오름"),
+        Q2Option(key: "any",      label: "상관없어요"),
+    ]
 }

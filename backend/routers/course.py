@@ -71,7 +71,7 @@ def list_courses(request: Request, body: CourseListRequest):
     state = course_list_graph.invoke({
         "messages": [],
         "region": body.region,
-        "style": body.style,
+        "category_scores": body.category_scores,
         "duration_days": body.duration_days,
         "result_courses": [],
         "error": "",
@@ -108,7 +108,7 @@ def list_courses(request: Request, body: CourseListRequest):
 @router.post("/detail", response_model=Course)
 @limiter.limit("10/minute")
 def detail_course(request: Request, body: CourseDetailRequest):
-    result = run_detail_agent(course_id=body.course_id, style=body.style)
+    result = run_detail_agent(course_id=body.course_id, category_scores=body.category_scores)
 
     if result.get("error"):
         raise HTTPException(status_code=500, detail=result["error"])

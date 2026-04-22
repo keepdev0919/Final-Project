@@ -27,11 +27,12 @@ FOLKLORE_GPS_PATH = BASE_DIR / "data" / "processed" / "folklore_gps.json"
 
 llm = ChatOpenAI(model="gpt-4o", temperature=0.5, api_key=os.getenv("OPENAI_API_KEY"))
 
-STYLE_DESCRIPTIONS = {
-    "nature": "자연과 오름 중심 여행. 한라산, 오름, 숲, 트레킹 코스.",
-    "ocean": "해변과 바다 중심 여행. 해안 절경, 해수욕, 해양 활동.",
-    "food": "맛집과 카페 중심 여행. 제주 로컬 음식, 흑돼지, 해산물, 감성 카페.",
-    "culture": "문화와 역사 중심 여행. 제주 역사 유적, 민속촌, 박물관.",
+CATEGORY_DESCRIPTIONS = {
+    "무속신화·신격 전승": "신이 마을에 내려오는 이야기. 본향당·당신·심방·굿·좌정 중심의 무속신화.",
+    "생활민담·교훈담": "재치와 교훈이 담긴 이야기. 권선징악과 생활 속 지혜의 민담.",
+    "마을 공동체 전승": "마을 사람들이 함께 전해온 이야기. 본향당·마을신·당제 중심의 공동체 전승.",
+    "해양·어촌 전승": "바다와 어촌의 이야기. 해녀·어부·용왕·영등신의 해양 전승.",
+    "초자연 존재담": "도체비·귀신·혼령 등 으스스하고 기이한 초자연 존재의 설화.",
 }
 
 NARRATIVE_SYSTEM_PROMPT = """당신은 제주도 여행 스토리텔러입니다.
@@ -144,11 +145,15 @@ def map_folklore_to_places(places: list[dict], radius_m: int = 3000) -> list[dic
     return result
 
 
-def generate_narrative(places_with_folklore: list[dict], style: str, course_title: str) -> str:
+def generate_narrative(places_with_folklore: list[dict], category_scores: dict[str, int], course_title: str) -> str:
     """LLM에게 매핑된 설화 데이터를 전달해 여행 내러티브 생성."""
-    style_desc = STYLE_DESCRIPTIONS.get(style, style)
+    sorted_cats = sorted(category_scores.items(), key=lambda x: -x[1])
+    style_desc = " / ".join(
+        CATEGORY_DESCRIPTIONS.get(cat, cat)
+        for cat, score in sorted_cats[:2]
+        if score > 0
+    ) or "제주 설화 전반"
 
-    # LLM에 전달할 장소+설화 요약
     place_summaries = []
     for p in places_with_folklore:
         folklore_titles = [f["title"] for f in p.get("folklore_pins", [])]
@@ -159,7 +164,7 @@ def generate_narrative(places_with_folklore: list[dict], style: str, course_titl
 
     prompt = (
         f"코스 제목: {course_title}\n"
-        f"여행 스타일: {style_desc}\n\n"
+        f"설화 취향: {style_desc}\n\n"
         f"방문 장소와 설화:\n{places_text}\n\n"
         f"위 코스를 여행하는 사람이 읽을 여행 내러티브를 작성해주세요."
     )
@@ -175,7 +180,7 @@ def generate_narrative(places_with_folklore: list[dict], style: str, course_titl
         return ""
 
 
-def run_detail_agent(course_id: str, style: str) -> dict:
+def run_detail_agent(course_id: str, category_scores: dict[str, int]) -> dict:
     """Detail 에이전트 진입점. Course 딕셔너리 반환."""
     course_title, duration_days = get_course_title(course_id)
     if not course_title:
@@ -186,7 +191,7 @@ def run_detail_agent(course_id: str, style: str) -> dict:
         return {"error": f"코스 장소 데이터가 없습니다: {course_id}"}
 
     places_with_folklore = map_folklore_to_places(places, radius_m=3000)
-    narrative = generate_narrative(places_with_folklore, style, course_title)
+    narrative = generate_narrative(places_with_folklore, category_scores, course_title)
 
     return {
         "id": course_id,

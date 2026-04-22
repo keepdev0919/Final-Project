@@ -57,13 +57,8 @@ struct CourseListView: View {
 
     private var regionLabel: String { vm.selectedRegion.isEmpty ? "전체" : vm.selectedRegion }
     private var styleLabel: String {
-        switch vm.selectedStyle {
-        case "nature":  return "자연·오름"
-        case "ocean":   return "해변·바다"
-        case "food":    return "맛집·카페"
-        case "culture": return "문화·역사"
-        default:        return vm.selectedStyle
-        }
+        let top = vm.categoryScores.max(by: { $0.value < $1.value })?.key ?? ""
+        return top.isEmpty ? "설화 여행" : top
     }
 }
 
