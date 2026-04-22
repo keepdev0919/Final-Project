@@ -90,7 +90,7 @@ struct CoursePreviewView: View {
 
     private var bottomSheet: some View {
         VStack(spacing: 0) {
-            // 드래그 핸들 — 탭하면 펼침/접힘 토글
+            // 드래그 핸들 — 탭 or 아래로 스와이프하면 접힘
             Button {
                 withAnimation(.spring(response: 0.35)) {
                     isSheetExpanded.toggle()
@@ -112,6 +112,16 @@ struct CoursePreviewView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .gesture(
+                DragGesture(minimumDistance: 20)
+                    .onEnded { value in
+                        if value.translation.height > 40 {
+                            withAnimation(.spring(response: 0.35)) { isSheetExpanded = false }
+                        } else if value.translation.height < -40 {
+                            withAnimation(.spring(response: 0.35)) { isSheetExpanded = true }
+                        }
+                    }
+            )
 
             if isSheetExpanded {
                 // 내러티브 — 드래그 핸들 아래 항상 고정 표시
@@ -146,7 +156,7 @@ struct CoursePreviewView: View {
                         Spacer(minLength: 8)
                     }
                 }
-                .frame(maxHeight: 400)
+                .frame(maxHeight: 260)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
 
