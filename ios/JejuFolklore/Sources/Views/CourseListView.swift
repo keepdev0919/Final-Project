@@ -3,41 +3,72 @@ import SwiftUI
 struct CourseListView: View {
     @ObservedObject var vm: CourseRecommendViewModel
     @State private var navigateToPreview = false
+    @State private var shouldLoadNext = false
 
     var body: some View {
         ZStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("추천 코스")
-                            .font(.title2.weight(.bold))
-                        Text("\(regionLabel) · \(styleLabel) · \(vm.durationDays)일")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
+            Color(.systemBackground).ignoresSafeArea()
 
-                    ForEach(vm.courseList) { item in
-                        CourseCardView(item: item) {
-                            Task { await vm.fetchDetail(courseId: item.id) }
-                        }
-                        .padding(.horizontal, 16)
-                    }
+            if vm.isLoadingList {
+                VStack(spacing: 16) {
+                    ProgressView()
+                        .scaleEffect(1.4)
+                    Text("코스를 찾고 있어요...")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
-                .padding(.bottom, 32)
+            } else if let err = vm.errorMessage {
+                VStack(spacing: 12) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.largeTitle)
+                        .foregroundColor(.orange)
+                    Text(err)
+                        .font(.subheadline)
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.secondary)
+                    Button("다시 시도") {
+                        Task { await vm.fetchList() }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.orange)
+                }
+                .padding(32)
+            } else if !vm.courseList.isEmpty {
+                // Back 버튼으로 돌아온 경우 (세 액션 버튼 대신 기본 Back 사용)
+                VStack(spacing: 12) {
+                    Text("다른 코스를 탐색하려면\n처음부터 다시 시작해주세요.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                    Button("처음으로") { vm.reset() }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.orange)
+                }
+                .padding(32)
             }
 
             if vm.isLoadingDetail {
                 LoadingOverlay(step: vm.loadingStep)
             }
         }
-        .navigationTitle("코스 선택")
+        .navigationTitle("코스 추천")
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $navigateToPreview) {
             if let course = vm.selectedCourse {
-                CoursePreviewView(course: course)
-                    .onDisappear { vm.selectedCourse = nil }
+                CoursePreviewView(
+                    course: course,
+                    hasNext: vm.hasNextCourse,
+                    onNext: { shouldLoadNext = true },
+                    onReset: { vm.reset() }
+                )
+                .onDisappear {
+                    if shouldLoadNext {
+                        shouldLoadNext = false
+                        Task { await vm.advanceToNextCourse() }
+                    } else {
+                        vm.selectedCourse = nil
+                    }
+                }
             }
         }
         .onChange(of: vm.selectedCourse) {
@@ -45,82 +76,13 @@ struct CourseListView: View {
                 navigateToPreview = true
             }
         }
-        .alert("코스 정보를 가져오지 못했어요", isPresented: Binding(
-            get: { vm.errorMessage != nil },
+        .alert("코스를 가져오지 못했어요", isPresented: Binding(
+            get: { vm.errorMessage != nil && !vm.isLoadingList },
             set: { if !$0 { vm.errorMessage = nil } }
         )) {
             Button("확인", role: .cancel) {}
         } message: {
             Text(vm.errorMessage ?? "다시 시도해주세요.")
         }
-    }
-
-    private var regionLabel: String { vm.selectedRegion.isEmpty ? "전체" : vm.selectedRegion }
-    private var styleLabel: String {
-        let top = vm.categoryScores.max(by: { $0.value < $1.value })?.key ?? ""
-        return top.isEmpty ? "설화 여행" : top
-    }
-}
-
-// MARK: - CourseCardView
-
-private struct CourseCardView: View {
-    let item: CourseListItem
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Text(item.title)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.primary)
-                        .multilineTextAlignment(.leading)
-                    Spacer()
-                    Text("\(item.durationDays)일")
-                        .font(.caption.weight(.medium))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.orange)
-                        .clipShape(Capsule())
-                }
-
-                // 대표 장소 2~3개
-                let previewPlaces = Array(item.places.prefix(3))
-                HStack(spacing: 6) {
-                    ForEach(Array(previewPlaces.enumerated()), id: \.offset) { idx, place in
-                        if idx > 0 {
-                            Image(systemName: "chevron.right")
-                                .font(.caption2)
-                                .foregroundColor(.secondary)
-                        }
-                        Text(place.name)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                    }
-                    if item.places.count > 3 {
-                        Text("외 \(item.places.count - 3)곳")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-
-                HStack {
-                    Spacer()
-                    Text("코스 보기")
-                        .font(.caption.weight(.medium))
-                        .foregroundColor(.orange)
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundColor(.orange)
-                }
-            }
-            .padding(16)
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-        }
-        .buttonStyle(.plain)
     }
 }
