@@ -1,4 +1,4 @@
-"""KTO OpenAPI 프록시 (국문관광정보 / 연관관광지 / 집중률 예측)."""
+"""KTO OpenAPI 프록시 — `_kto_get`은 place.py에서도 공유."""
 import os
 import time
 import urllib.parse
@@ -28,7 +28,7 @@ def _kto_get(service: str, operation: str, params: dict) -> dict:
 @router.get("/info")
 @limiter.limit("30/minute")
 def get_tourist_info(request: Request, content_id: str):
-    """국문 관광정보 조회 (7일 캐시)."""
+    """contentId로 관광정보 조회 (7일 캐시)."""
     conn = get_db_connection()
     cached = conn.execute(
         "SELECT * FROM tourist_info_cache WHERE content_id=?", (content_id,)
@@ -49,29 +49,3 @@ def get_tourist_info(request: Request, content_id: str):
     )
     conn.commit()
     return item
-
-
-@router.get("/related")
-@limiter.limit("30/minute")
-def get_related_tourist(request: Request, area_cd: str, signgu_cd: str, base_ym: str):
-    """연관 관광지 조회."""
-    try:
-        data = _kto_get("TarRlteTarService1", "AreaBasedList1",
-                        {"areaCd": area_cd, "signguCd": signgu_cd, "baseYm": base_ym})
-        return data["response"]["body"]["items"]
-    except Exception:
-        raise HTTPException(status_code=502, detail="KTO API 오류")
-
-
-@router.get("/congestion")
-@limiter.limit("30/minute")
-def get_congestion(request: Request, area_cd: str, signgu_cd: str, date: str, tats_nm: str = ""):
-    """집중률 예측 조회 (캐시 없음, 실시간)."""
-    params = {"areaCd": area_cd, "signguCd": signgu_cd, "baseYmd": date}
-    if tats_nm:
-        params["tAtsNm"] = tats_nm
-    try:
-        data = _kto_get("TatsCntrRateService", "tatsCntrRateList", params)
-        return data["response"]["body"]["items"]
-    except Exception:
-        raise HTTPException(status_code=502, detail="KTO API 오류")
