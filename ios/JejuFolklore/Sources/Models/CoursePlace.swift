@@ -1,6 +1,6 @@
 import Foundation
 
-struct CoursePlace: Codable, Identifiable, Equatable {
+struct CoursePlace: Codable, Identifiable, Equatable, Hashable {
     let name: String
     let lat: Double
     let lng: Double

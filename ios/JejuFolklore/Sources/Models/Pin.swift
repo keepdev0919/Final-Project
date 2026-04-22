@@ -1,6 +1,6 @@
 import Foundation
 
-struct Pin: Codable, Identifiable, Equatable {
+struct Pin: Codable, Identifiable, Equatable, Hashable {
     let codeNo: String
     let title: String
     let sourceType: String       // "legend" | "folktale"
