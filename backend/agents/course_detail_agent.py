@@ -114,11 +114,21 @@ def get_course_title(course_id: str) -> tuple[str, int]:
     return (row["title"] if row else "", row["duration_days"] if row else 1)
 
 
-def map_folklore_to_places(places: list[dict], radius_m: int = 3000) -> list[dict]:
-    """각 장소 GPS 기준 반경 내 설화를 매핑한다. 코드로 처리 (LLM 환각 방지)."""
-    all_folklore = _load_folklore_gps()
-    result = []
+def map_folklore_to_places(
+    places: list[dict],
+    category_scores: dict[str, int] | None = None,
+    radius_m: int = 3000,
+) -> list[dict]:
+    """각 장소 GPS 기준 반경 내 설화를 매핑한다.
 
+    category_scores가 있으면 사용자 취향 카테고리 점수를 반영해 정렬:
+    score 높은 카테고리 설화를 거리 보정 없이 우선 선택 (거리 패널티 + 카테고리 보너스).
+    """
+    all_folklore = _load_folklore_gps()
+    scores = category_scores or {}
+    max_score = max(scores.values(), default=1) or 1
+
+    result = []
     for place in places:
         lat, lng = place["lat"], place["lng"]
         nearby = []
@@ -126,17 +136,23 @@ def map_folklore_to_places(places: list[dict], radius_m: int = 3000) -> list[dic
             if f.get("lat") is None or f.get("lng") is None:
                 continue
             dist = _haversine_m(lat, lng, f["lat"], f["lng"])
-            if dist <= radius_m:
-                nearby.append({
-                    "code_no": f.get("code_no", ""),
-                    "title": f.get("title", ""),
-                    "source_type": f.get("source_type", "legend"),
-                    "summary": f.get("summary", ""),
-                    "lat": f["lat"],
-                    "lng": f["lng"],
-                    "distance_m": round(dist),
-                })
-        nearby.sort(key=lambda x: x["distance_m"])
+            if dist > radius_m:
+                continue
+            cat_score = scores.get(f.get("final_category", ""), 0)
+            # 정렬 키: 카테고리 점수 내림차순 우선, 거리 오름차순 보조
+            sort_key = (-cat_score / max_score, dist / radius_m)
+            nearby.append({
+                "code_no": f.get("code_no", ""),
+                "title": f.get("title", ""),
+                "source_type": f.get("source_type", "legend"),
+                "final_category": f.get("final_category", ""),
+                "summary": f.get("summary", ""),
+                "lat": f["lat"],
+                "lng": f["lng"],
+                "distance_m": round(dist),
+                "_sort_key": sort_key,
+            })
+        nearby.sort(key=lambda x: x.pop("_sort_key"))
         result.append({
             **place,
             "folklore_pins": nearby[:3],  # 장소당 최대 3개
@@ -190,7 +206,7 @@ def run_detail_agent(course_id: str, category_scores: dict[str, int]) -> dict:
     if not places:
         return {"error": f"코스 장소 데이터가 없습니다: {course_id}"}
 
-    places_with_folklore = map_folklore_to_places(places, radius_m=3000)
+    places_with_folklore = map_folklore_to_places(places, category_scores=category_scores, radius_m=3000)
     narrative = generate_narrative(places_with_folklore, category_scores, course_title)
 
     return {
