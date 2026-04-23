@@ -43,6 +43,7 @@ final class LocationService: NSObject, ObservableObject {
         activePlaces = places
         transportMode = transport
         visitedPlaceIDs.removeAll()
+        pendingArrivals.removeAll()
         manager.allowsBackgroundLocationUpdates = true
         manager.pausesLocationUpdatesAutomatically = false
         manager.startUpdatingLocation()
