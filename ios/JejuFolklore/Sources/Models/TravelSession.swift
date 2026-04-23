@@ -44,15 +44,22 @@ enum CompanionCharacter: String, Codable, CaseIterable {
     }
 }
 
+// MARK: - MessageRole
+
+enum MessageRole: String, Codable {
+    case user
+    case assistant
+}
+
 // MARK: - TravelChatMessage
 
 struct TravelChatMessage: Codable, Identifiable, Equatable {
-    var id: UUID
-    let role: String    // "user" | "assistant"
+    let id: UUID
+    let role: MessageRole
     let content: String
     let timestamp: Date
 
-    init(role: String, content: String) {
+    init(role: MessageRole, content: String) {
         self.id = UUID()
         self.role = role
         self.content = content
@@ -75,7 +82,7 @@ struct TravelSession: Codable {
     let companion: CompanionCharacter
     let startedAt: Date
     var visitedPlaceNames: [String]
-    var chatLogs: [PlaceChatLog]
+    private(set) var chatLogs: [PlaceChatLog]
 
     init(courseId: String, companion: CompanionCharacter) {
         self.courseId = courseId
@@ -96,6 +103,7 @@ struct TravelSession: Codable {
 
 // MARK: - TravelStore (UserDefaults persistence)
 
+@MainActor
 final class TravelStore {
     static let shared = TravelStore()
     private let key = "active_travel_session"
@@ -104,8 +112,11 @@ final class TravelStore {
     private init() {}
 
     func save(_ session: TravelSession) {
-        if let data = try? encoder.encode(session) {
+        do {
+            let data = try encoder.encode(session)
             UserDefaults.standard.set(data, forKey: key)
+        } catch {
+            assertionFailure("TravelSession encode failed: \(error)")
         }
     }
 
