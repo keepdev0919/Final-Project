@@ -22,6 +22,7 @@
 		3F87278B10B282BE0924C3DC /* PlaceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */; };
 		4B5F8136E4813312F1CE5976 /* CourseAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */; };
 		4BBA96123849AB365EC9B2B4 /* Pin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B2D361FC201D7B53D1D5374 /* Pin.swift */; };
+		4C1F407BDC88A1B264CEB27F /* ArrivalOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101A2B03B831695C27D31659 /* ArrivalOverlayView.swift */; };
 		4E5F51B91701A71F45C93812 /* PinsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E5481B0ED3479BFF321C98 /* PinsAPI.swift */; };
 		511BDB16CB99BDB74A36F7AA /* CourseRecommendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */; };
 		522757289D4B9A4C480111F5 /* ExploreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */; };
@@ -49,6 +50,7 @@
 /* Begin PBXFileReference section */
 		03E5481B0ED3479BFF321C98 /* PinsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinsAPI.swift; sourceTree = "<group>"; };
 		0C6027A4A228CB2943AF3A93 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
+		101A2B03B831695C27D31659 /* ArrivalOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrivalOverlayView.swift; sourceTree = "<group>"; };
 		161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewViewModel.swift; sourceTree = "<group>"; };
 		2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDetailView.swift; sourceTree = "<group>"; };
 		2F2F5C21FAE77807D7721C05 /* ChatAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAPI.swift; sourceTree = "<group>"; };
@@ -152,6 +154,7 @@
 		D0732435DDB78ACC43D69004 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				101A2B03B831695C27D31659 /* ArrivalOverlayView.swift */,
 				456D629F5C5C7EBC91E3B287 /* ChatView.swift */,
 				FE1015A20E1B4F561042D346 /* ContentView.swift */,
 				34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */,
@@ -269,6 +272,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F475DC455EF699B2C68D1803 /* APIClient.swift in Sources */,
+				4C1F407BDC88A1B264CEB27F /* ArrivalOverlayView.swift in Sources */,
 				BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */,
 				D797ABDBD47BA2407816B9AA /* ChatAPI.swift in Sources */,
 				38CBEDD8EFB51E3971426554 /* ChatMessage.swift in Sources */,
