@@ -153,7 +153,7 @@ struct CompanionChatView: View {
             streamingText += chunk
         }
 
-        if !streamingText.isEmpty && !Task.isCancelled {
+        if !streamingText.isEmpty {
             let assistantMsg = TravelChatMessage(role: .assistant, content: streamingText)
             messages.append(assistantMsg)
             vm.appendMessage(assistantMsg, to: place.name)

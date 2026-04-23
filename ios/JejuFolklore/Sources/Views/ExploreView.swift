@@ -73,7 +73,7 @@ struct ExploreView: View {
             } else {
                 TravelJournalView(
                     journalText: vm.journalText,
-                    visitedPlaces: Array(vm.visitedPlaceNames),
+                    visitedPlaces: vm.orderedVisitedPlaceNames,
                     companion: vm.companion,
                     onDone: { vm.showJournal = false }
                 )
@@ -122,7 +122,7 @@ struct ExploreView: View {
                 }
             }
             Spacer()
-            if let currentPlace = course.places.first(where: { vm.visitedPlaceNames.contains($0.name) }) {
+            if let currentPlace = vm.lastArrivedPlace {
                 Button {
                     vm.openCompanionChat(for: currentPlace)
                 } label: {

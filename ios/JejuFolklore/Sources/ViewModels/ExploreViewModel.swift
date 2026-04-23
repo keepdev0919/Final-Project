@@ -8,6 +8,7 @@ final class ExploreViewModel: ObservableObject {
 
     // Arrival overlay
     @Published var arrivedPlace: CoursePlace?
+    @Published var lastArrivedPlace: CoursePlace?
     @Published var showArrivalOverlay = false
 
     // Companion chat
@@ -62,6 +63,7 @@ final class ExploreViewModel: ObservableObject {
         TravelStore.shared.save(travelSession)
 
         arrivedPlace = place
+        lastArrivedPlace = place
         showArrivalOverlay = true
         sendArrivalNotification(placeName: placeName)
     }
@@ -75,6 +77,8 @@ final class ExploreViewModel: ObservableObject {
         activeChatPlace = place
         showCompanionChat = true
     }
+
+    var orderedVisitedPlaceNames: [String] { travelSession.visitedPlaceNames }
 
     // MARK: - Chat persistence
 

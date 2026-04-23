@@ -134,7 +134,8 @@ JOURNAL_SYSTEM_PROMPT = """당신은 감성적인 여행 기록 작가입니다.
 
 
 @router.post("/journal")
-async def generate_journal(body: JournalRequest):
+@limiter.limit("5/minute")
+async def generate_journal(request: Request, body: JournalRequest):
     places_text = ", ".join(body.visited_places) if body.visited_places else "방문 장소 없음"
 
     chat_summary_parts = []
