@@ -56,22 +56,31 @@ enum TravelAPI {
                 )
                 let encoder = JSONEncoder()
                 encoder.keyEncodingStrategy = .convertToSnakeCase
-                request.httpBody = try? encoder.encode(body)
+                guard let httpBody = try? encoder.encode(body) else {
+                    continuation.finish()
+                    return
+                }
+                request.httpBody = httpBody
 
                 guard let (bytes, _) = try? await URLSession.shared.bytes(for: request) else {
                     continuation.finish()
                     return
                 }
 
-                for try await line in bytes.lines {
-                    guard line.hasPrefix("data: ") else { continue }
-                    let payload = String(line.dropFirst(6))
-                    if payload == "[DONE]" { break }
-                    if let data = payload.data(using: .utf8),
-                       let json = try? JSONDecoder().decode([String: String].self, from: data),
-                       let text = json["text"] {
-                        continuation.yield(text)
+                let jsonDecoder = JSONDecoder()
+                do {
+                    for try await line in bytes.lines {
+                        guard line.hasPrefix("data: ") else { continue }
+                        let payload = String(line.dropFirst(6))
+                        if payload == "[DONE]" { break }
+                        if let data = payload.data(using: .utf8),
+                           let json = try? jsonDecoder.decode([String: String].self, from: data),
+                           let text = json["text"] {
+                            continuation.yield(text)
+                        }
                     }
+                } catch {
+                    // network error — stream ends cleanly
                 }
                 continuation.finish()
             }
