@@ -1,13 +1,17 @@
 """여행 중/여행 후 서비스 엔드포인트."""
 import os
 import json
-from fastapi import APIRouter
+from typing import Literal
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/travel", tags=["travel"])
+limiter = Limiter(key_func=get_remote_address)
 
 llm_stream = ChatOpenAI(
     model="gpt-4o",
@@ -56,7 +60,7 @@ VALID_CHARACTERS = set(CHARACTER_PROMPTS.keys())
 # ─── Request 모델 ──────────────────────────────────────────────────────────────
 
 class ChatHistoryItem(BaseModel):
-    role: str   # "user" | "assistant"
+    role: Literal["user", "assistant"]
     content: str
 
 class CompanionChatRequest(BaseModel):
@@ -78,7 +82,8 @@ class JournalRequest(BaseModel):
 # ─── 동행자 채팅 (SSE 스트리밍) ───────────────────────────────────────────────
 
 @router.post("/companion")
-async def companion_chat(body: CompanionChatRequest):
+@limiter.limit("15/minute")
+async def companion_chat(request: Request, body: CompanionChatRequest):
     character = body.companion_type if body.companion_type in VALID_CHARACTERS else "도깨비"
     system_text = CHARACTER_PROMPTS[character]
 
@@ -95,7 +100,6 @@ async def companion_chat(body: CompanionChatRequest):
         if h.role == "user":
             messages.append(HumanMessage(content=h.content))
         else:
-            from langchain_core.messages import AIMessage
             messages.append(AIMessage(content=h.content))
 
     if is_first:
@@ -110,7 +114,8 @@ async def companion_chat(body: CompanionChatRequest):
                     yield f"data: {json.dumps({'text': chunk.content}, ensure_ascii=False)}\n\n"
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)}, ensure_ascii=False)}\n\n"
-        yield "data: [DONE]\n\n"
+        finally:
+            yield "data: [DONE]\n\n"
 
     return StreamingResponse(stream_response(), media_type="text/event-stream")
 
@@ -151,4 +156,4 @@ async def generate_journal(body: JournalRequest):
         ])
         return {"journal_text": result.content}
     except Exception as e:
-        return {"journal_text": "", "error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
