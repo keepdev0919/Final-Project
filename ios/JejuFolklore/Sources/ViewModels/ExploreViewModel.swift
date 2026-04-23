@@ -3,24 +3,43 @@ import UserNotifications
 
 @MainActor
 final class ExploreViewModel: ObservableObject {
+    // Visit tracking
     @Published var visitedPlaceNames: Set<String> = []
-    @Published var arrivedPin: Pin?
-    @Published var showFolkloreDetail = false
+
+    // Arrival overlay
+    @Published var arrivedPlace: CoursePlace?
+    @Published var showArrivalOverlay = false
+
+    // Companion chat
+    @Published var activeChatPlace: CoursePlace?
+    @Published var showCompanionChat = false
+
+    // Travel journal
+    @Published var journalText: String = ""
+    @Published var isGeneratingJournal = false
+    @Published var showJournal = false
 
     let course: Course
     let transport: String
+    let companion: CompanionCharacter
 
-    init(course: Course, transport: String) {
+    private var travelSession: TravelSession
+
+    init(course: Course, transport: String, categoryScores: [String: Int]) {
         self.course = course
         self.transport = transport
+        self.companion = CompanionCharacter.from(categoryScores: categoryScores)
+        self.travelSession = TravelSession(courseId: course.id, companion: self.companion)
     }
+
+    // MARK: - Explore lifecycle
 
     func startExploring() {
         requestNotificationPermission()
         LocationService.shared.requestAlwaysAuthorization()
         LocationService.shared.onArrival = { [weak self] placeName, pin in
             Task { @MainActor [weak self] in
-                self?.handleArrival(placeName: placeName, pin: pin)
+                self?.handleArrival(placeName: placeName)
             }
         }
         LocationService.shared.startExploring(places: course.places, transport: transport)
@@ -29,38 +48,67 @@ final class ExploreViewModel: ObservableObject {
     func stopExploring() {
         LocationService.shared.stopExploring()
         LocationService.shared.onArrival = nil
+        TravelStore.shared.save(travelSession)
     }
 
-    private func handleArrival(placeName: String, pin: Pin?) {
+    // MARK: - Arrival handling
+
+    private func handleArrival(placeName: String) {
+        guard let place = course.places.first(where: { $0.name == placeName }) else { return }
         visitedPlaceNames.insert(placeName)
-        arrivedPin = pin
-        sendArrivalNotification(placeName: placeName, pin: pin)
+        if !travelSession.visitedPlaceNames.contains(placeName) {
+            travelSession.visitedPlaceNames.append(placeName)
+        }
+        TravelStore.shared.save(travelSession)
+
+        arrivedPlace = place
+        showArrivalOverlay = true
+        sendArrivalNotification(placeName: placeName)
     }
 
-    private func sendArrivalNotification(placeName: String, pin: Pin?) {
+    func dismissArrivalOverlay() {
+        showArrivalOverlay = false
+    }
+
+    func openCompanionChat(for place: CoursePlace) {
+        showArrivalOverlay = false
+        activeChatPlace = place
+        showCompanionChat = true
+    }
+
+    // MARK: - Chat persistence
+
+    func messages(for placeName: String) -> [TravelChatMessage] {
+        travelSession.chatLogs.first(where: { $0.placeName == placeName })?.messages ?? []
+    }
+
+    func appendMessage(_ msg: TravelChatMessage, to placeName: String) {
+        travelSession.appendMessage(msg, to: placeName)
+        TravelStore.shared.save(travelSession)
+        objectWillChange.send()
+    }
+
+    // MARK: - Journal generation
+
+    func generateJournal() async {
+        isGeneratingJournal = true
+        showJournal = true
+        do {
+            journalText = try await TravelAPI.generateJournal(session: travelSession)
+        } catch {
+            journalText = "여행 일지를 생성하지 못했어요. 나중에 다시 시도해주세요."
+        }
+        isGeneratingJournal = false
+    }
+
+    // MARK: - Notification
+
+    private func sendArrivalNotification(placeName: String) {
         let content = UNMutableNotificationContent()
-        content.title = "📍 \(placeName) 도착"
-        content.body = pin.map { "[\($0.sourceTypeLabel)] \($0.title)" } ?? "근처에 설화가 있어요"
+        content.title = "설화 장소에 도착했습니다"
+        content.body = "\(placeName) — \(companion.displayName)가 기다리고 있어요"
         content.sound = .default
-
-        let listenAction = UNNotificationAction(
-            identifier: "LISTEN_TTS",
-            title: "설화 듣기",
-            options: [.foreground]
-        )
-        let category = UNNotificationCategory(
-            identifier: "ARRIVAL",
-            actions: [listenAction],
-            intentIdentifiers: []
-        )
-        UNUserNotificationCenter.current().setNotificationCategories([category])
-        content.categoryIdentifier = "ARRIVAL"
-
-        let request = UNNotificationRequest(
-            identifier: UUID().uuidString,
-            content: content,
-            trigger: nil
-        )
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request)
     }
 
