@@ -17,6 +17,8 @@ final class LocationService: NSObject, ObservableObject {
     // 탐험 중인 코스 장소 목록
     private var activePlaces: [CoursePlace] = []
     private var transportMode: String = "car"  // "car" | "walk"
+    private var pendingArrivals: [String: Date] = [:]
+    private let dwellRequired: TimeInterval = 30
 
     private var arrivalRadius: Double {
         transportMode == "walk" ? 100.0 : 300.0
@@ -48,6 +50,7 @@ final class LocationService: NSObject, ObservableObject {
 
     func stopExploring() {
         activePlaces = []
+        pendingArrivals.removeAll()
         manager.allowsBackgroundLocationUpdates = false
         manager.stopUpdatingLocation()
     }
@@ -56,10 +59,22 @@ final class LocationService: NSObject, ObservableObject {
         for place in activePlaces {
             let placeID = "\(place.name)-\(place.day)"
             guard !visitedPlaceIDs.contains(placeID) else { continue }
+
             let target = CLLocation(latitude: place.lat, longitude: place.lng)
-            if location.distance(from: target) <= arrivalRadius {
-                visitedPlaceIDs.insert(placeID)
-                onArrival?(place.name, place.folklorePins.first)
+            let distance = location.distance(from: target)
+
+            if distance <= arrivalRadius {
+                if let enteredAt = pendingArrivals[placeID] {
+                    if Date().timeIntervalSince(enteredAt) >= dwellRequired {
+                        visitedPlaceIDs.insert(placeID)
+                        pendingArrivals.removeValue(forKey: placeID)
+                        onArrival?(place.name, place.folklorePins.first)
+                    }
+                } else {
+                    pendingArrivals[placeID] = Date()
+                }
+            } else {
+                pendingArrivals.removeValue(forKey: placeID)
             }
         }
     }
