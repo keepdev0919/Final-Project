@@ -21,6 +21,8 @@ struct ExploreView: View {
         ))
     }
 
+    @State private var hasStopped = false
+
     var body: some View {
         ZStack {
             exploreMap
@@ -50,6 +52,7 @@ struct ExploreView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("탐험 마치기") {
+                    hasStopped = true
                     vm.stopExploring()
                     Task { await vm.generateJournal() }
                 }
@@ -58,7 +61,7 @@ struct ExploreView: View {
             }
         }
         .onAppear { vm.startExploring() }
-        .onDisappear { vm.stopExploring() }
+        .onDisappear { if !hasStopped { vm.stopExploring() } }
         .sheet(isPresented: $vm.showCompanionChat) {
             if let place = vm.activeChatPlace {
                 CompanionChatView(place: place, companion: vm.companion, vm: vm)
