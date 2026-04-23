@@ -36,7 +36,7 @@ enum TravelAPI {
         history: [TravelChatMessage]
     ) -> AsyncStream<String> {
         AsyncStream { continuation in
-            Task {
+            let task = Task {
                 guard let url = URL(string: Config.baseURL + "/travel/companion") else {
                     continuation.finish()
                     return
@@ -84,6 +84,7 @@ enum TravelAPI {
                 }
                 continuation.finish()
             }
+            continuation.onTermination = { _ in task.cancel() }
         }
     }
 

@@ -11,6 +11,7 @@ struct CompanionChatView: View {
     @State private var messages: [TravelChatMessage] = []
     @State private var streamingText = ""
     @State private var isStreaming = false
+    @State private var streamingTask: Task<Void, Never>?
     @FocusState private var isInputFocused: Bool
 
     private var folkloreSummaries: [String] {
@@ -62,6 +63,9 @@ struct CompanionChatView: View {
         .onAppear {
             messages = vm.messages(for: place.name)
             if messages.isEmpty { sendGreeting() }
+        }
+        .onDisappear {
+            streamingTask?.cancel()
         }
     }
 
@@ -116,7 +120,7 @@ struct CompanionChatView: View {
     // MARK: - Streaming
 
     private func sendGreeting() {
-        Task { await stream(message: "__GREETING__", history: []) }
+        streamingTask = Task { await stream(message: "__GREETING__", history: []) }
     }
 
     private func sendMessage() {
@@ -128,7 +132,7 @@ struct CompanionChatView: View {
         messages.append(userMsg)
         vm.appendMessage(userMsg, to: place.name)
 
-        Task { await stream(message: text, history: messages.dropLast()) }
+        streamingTask = Task { await stream(message: text, history: messages.dropLast()) }
     }
 
     private func stream(message: String, history: some Collection<TravelChatMessage>) async {
@@ -145,10 +149,11 @@ struct CompanionChatView: View {
         )
 
         for await chunk in stream {
+            guard !Task.isCancelled else { break }
             streamingText += chunk
         }
 
-        if !streamingText.isEmpty {
+        if !streamingText.isEmpty && !Task.isCancelled {
             let assistantMsg = TravelChatMessage(role: .assistant, content: streamingText)
             messages.append(assistantMsg)
             vm.appendMessage(assistantMsg, to: place.name)
