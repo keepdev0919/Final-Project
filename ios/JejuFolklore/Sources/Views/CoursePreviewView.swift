@@ -9,6 +9,7 @@ struct CoursePreviewView: View {
     let hasNext: Bool
     let onNext: (() -> Void)?
     let onReset: (() -> Void)?
+    let categoryScores: [String: Int]
     @StateObject private var vm: CoursePreviewViewModel
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -17,11 +18,12 @@ struct CoursePreviewView: View {
     @State private var isSheetExpanded = true
     @State private var selectedPlace: CoursePlace?
 
-    init(course: Course, hasNext: Bool = false, onNext: (() -> Void)? = nil, onReset: (() -> Void)? = nil) {
+    init(course: Course, hasNext: Bool = false, onNext: (() -> Void)? = nil, onReset: (() -> Void)? = nil, categoryScores: [String: Int] = [:]) {
         self.course = course
         self.hasNext = hasNext
         self.onNext = onNext
         self.onReset = onReset
+        self.categoryScores = categoryScores
         _vm = StateObject(wrappedValue: CoursePreviewViewModel(course: course))
     }
 
@@ -56,7 +58,7 @@ struct CoursePreviewView: View {
         .navigationTitle(course.title)
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $navigateToExplore) {
-            ExploreView(course: course, transport: "car")
+            ExploreView(course: course, transport: "car", categoryScores: categoryScores)
         }
     }
 
@@ -234,6 +236,19 @@ struct CoursePreviewView: View {
                 .tint(.orange)
                 .disabled(vm.isSaved)
             }
+
+            Button {
+                navigateToExplore = true
+            } label: {
+                Label("오늘 탐험 시작", systemImage: "location.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.orange)
+                    .foregroundColor(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+            .padding(.top, 4)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
