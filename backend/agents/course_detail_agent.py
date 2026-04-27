@@ -1,20 +1,18 @@
 """코스 상세 에이전트.
 
-course_id로 장소 목록을 조회하고, 코드가 직접 GPS 설화 매핑 처리 (LLM 환각 방지).
-매핑 결과 + 스타일 힌트를 LLM에 전달해 여행 내러티브를 생성한다.
+course_id로 장소 목록을 조회하고, 사전 매핑 테이블(place_folklore_mapping)에서
+설화를 가져온다. 매핑 결과 + 스타일 힌트를 LLM에 전달해 여행 내러티브를 생성한다.
 
 흐름:
     1. SQLite에서 course_id로 장소 목록 조회
-    2. 각 장소 GPS 기준 반경 3km 내 설화 매핑 (folklore_gps.json)
-    3. 매핑 결과를 LLM에 전달 → 내러티브 생성
+    2. place_folklore_mapping 테이블에서 장소명으로 관련 설화 조회
+    3. category_scores로 재정렬 후 상위 3개 선택
+    4. 매핑 결과를 LLM에 전달 → 내러티브 생성
 """
 from __future__ import annotations
 
-import json
-import math
 import os
 from pathlib import Path
-from typing import Optional
 
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
@@ -23,7 +21,6 @@ from pydantic import BaseModel, Field
 from services.db import get_db_connection
 
 BASE_DIR = Path(__file__).parent.parent.parent
-FOLKLORE_GPS_PATH = BASE_DIR / "data" / "processed" / "folklore_gps.json"
 
 llm = ChatOpenAI(model="gpt-4o", temperature=0.5, api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -48,26 +45,6 @@ NARRATIVE_SYSTEM_PROMPT = """당신은 제주도 여행 스토리텔러입니다
 - 관광 안내문 느낌 금지. 이야기처럼 써주세요"""
 
 
-# ─── 설화 GPS 캐시 ────────────────────────────────────────────────────────────
-
-_folklore_gps_cache: list[dict] | None = None
-
-
-def _load_folklore_gps() -> list[dict]:
-    global _folklore_gps_cache
-    if _folklore_gps_cache is None:
-        with open(FOLKLORE_GPS_PATH, encoding="utf-8") as f:
-            _folklore_gps_cache = json.load(f)
-    return _folklore_gps_cache
-
-
-def _haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
-    R = 6_371_000
-    φ1, φ2 = math.radians(lat1), math.radians(lat2)
-    dφ = math.radians(lat2 - lat1)
-    dλ = math.radians(lng2 - lng1)
-    a = math.sin(dφ / 2) ** 2 + math.cos(φ1) * math.cos(φ2) * math.sin(dλ / 2) ** 2
-    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
 # ─── Structured Output ────────────────────────────────────────────────────────
@@ -121,45 +98,52 @@ def get_course_title(course_id: str) -> tuple[str, int]:
 def map_folklore_to_places(
     places: list[dict],
     category_scores: dict[str, int] | None = None,
-    radius_m: int = 3000,
+    radius_m: int = 3000,  # 하위 호환용 파라미터 (미사용)
 ) -> list[dict]:
-    """각 장소 GPS 기준 반경 내 설화를 매핑한다.
+    """각 장소에 연결된 설화를 사전 매핑 테이블(place_folklore_mapping)에서 조회.
 
-    category_scores가 있으면 사용자 취향 카테고리 점수를 반영해 정렬:
-    score 높은 카테고리 설화를 거리 보정 없이 우선 선택 (거리 패널티 + 카테고리 보너스).
+    category_scores가 있으면 사용자 취향 카테고리 점수 + 지명 구체성(specificity)으로 정렬.
     """
-    all_folklore = _load_folklore_gps()
+    conn = get_db_connection()
     scores = category_scores or {}
     max_score = max(scores.values(), default=1) or 1
 
     result = []
     for place in places:
-        lat, lng = place["lat"], place["lng"]
-        nearby = []
-        for f in all_folklore:
-            if f.get("lat") is None or f.get("lng") is None:
-                continue
-            dist = _haversine_m(lat, lng, f["lat"], f["lng"])
-            if dist > radius_m:
-                continue
-            cat_score = scores.get(f.get("final_category", ""), 0)
-            # 정렬 키: 카테고리 점수 내림차순 우선, 거리 오름차순 보조
-            sort_key = (-cat_score / max_score, dist / radius_m)
-            nearby.append({
-                "code_no": f.get("code_no", ""),
-                "title": f.get("title", ""),
-                "source_type": f.get("source_type", "legend"),
-                "final_category": f.get("final_category", ""),
-                "summary": f.get("summary", ""),
-                "lat": f["lat"],
-                "lng": f["lng"],
-                "distance_m": round(dist),
+        rows = conn.execute(
+            """
+            SELECT folklore_code_no, folklore_title, folklore_summary,
+                   final_category, matched_place, specificity,
+                   place_lat, place_lng
+            FROM place_folklore_mapping
+            WHERE place_name = ?
+            ORDER BY specificity DESC
+            LIMIT 20
+            """,
+            (place["place_name"],),
+        ).fetchall()
+
+        candidates = []
+        for r in rows:
+            cat_score = scores.get(r["final_category"] or "", 0)
+            spec = r["specificity"] or 0
+            # 정렬 키: 카테고리 취향 내림차순 우선, 지명 구체성 내림차순 보조
+            sort_key = (-cat_score / max_score, -spec)
+            candidates.append({
+                "code_no": r["folklore_code_no"],
+                "title": r["folklore_title"] or "",
+                "source_type": "legend",
+                "final_category": r["final_category"] or "",
+                "summary": r["folklore_summary"] or "",
+                "lat": r["place_lat"],
+                "lng": r["place_lng"],
                 "_sort_key": sort_key,
             })
-        nearby.sort(key=lambda x: x.pop("_sort_key"))
+
+        candidates.sort(key=lambda x: x.pop("_sort_key"))
         result.append({
             **place,
-            "folklore_pins": nearby[:3],  # 장소당 최대 3개
+            "folklore_pins": candidates[:3],
         })
 
     return result
