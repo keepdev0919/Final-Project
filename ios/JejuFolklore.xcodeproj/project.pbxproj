@@ -36,6 +36,7 @@
 		8E332C8B628EB5E1E42AC01C /* MyCourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */; };
 		9CE3AAF8CFE0F62B647E2B1B /* CourseRecommendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */; };
 		A981386C08A1E204A2AFC874 /* TravelJournalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB48E15DE9092E3D74AF2A89 /* TravelJournalView.swift */; };
+		B2F402633D5B5F4ABB981F0D /* DaySummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A9387AD77FAD744E124731E /* DaySummaryView.swift */; };
 		B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */; };
 		BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */; };
 		BF7D8FB6935D109B375EF985 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C6027A4A228CB2943AF3A93 /* ChatViewModel.swift */; };
@@ -64,6 +65,8 @@
 		49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasteDiscoveryView.swift; sourceTree = "<group>"; };
 		4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JejuFolklore.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewModel.swift; sourceTree = "<group>"; };
+		50714B04510A0105DCCEE895 /* debug-route.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "debug-route.gpx"; sourceTree = "<group>"; };
+		5A9387AD77FAD744E124731E /* DaySummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySummaryView.swift; sourceTree = "<group>"; };
 		6DEF7C5A76ABA12369016601 /* JejuFolkloreApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JejuFolkloreApp.swift; sourceTree = "<group>"; };
 		72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewView.swift; sourceTree = "<group>"; };
 		7BFB45E01F6089646021CEA5 /* SharedComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedComponents.swift; sourceTree = "<group>"; };
@@ -140,6 +143,7 @@
 		75D21EA6AC81E560B87E62D9 = {
 			isa = PBXGroup;
 			children = (
+				F76BEBAB352F3DCCB021C0F7 /* JejuFolklore */,
 				9FF2A0088192C74D186B9AF2 /* Resources */,
 				DAB3CC0431095E8DCD0B7724 /* Sources */,
 				008A9C8980608A8515E098EF /* Products */,
@@ -165,6 +169,7 @@
 				34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */,
 				72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */,
 				38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */,
+				5A9387AD77FAD744E124731E /* DaySummaryView.swift */,
 				FF8528DFE3BA78C29CA022D3 /* ExploreView.swift */,
 				8A8DC0AEACC6D55FDF9997B9 /* FolkloreDetailView.swift */,
 				AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */,
@@ -205,6 +210,14 @@
 			);
 			name = Sources;
 			path = JejuFolklore/Sources;
+			sourceTree = "<group>";
+		};
+		F76BEBAB352F3DCCB021C0F7 /* JejuFolklore */ = {
+			isa = PBXGroup;
+			children = (
+				50714B04510A0105DCCEE895 /* debug-route.gpx */,
+			);
+			path = JejuFolklore;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -295,6 +308,7 @@
 				174F84207B32BD1FF0089EA3 /* CoursePreviewViewModel.swift in Sources */,
 				511BDB16CB99BDB74A36F7AA /* CourseRecommendView.swift in Sources */,
 				9CE3AAF8CFE0F62B647E2B1B /* CourseRecommendViewModel.swift in Sources */,
+				B2F402633D5B5F4ABB981F0D /* DaySummaryView.swift in Sources */,
 				0EC1CB2AEEC08D50A8762866 /* ExploreView.swift in Sources */,
 				522757289D4B9A4C480111F5 /* ExploreViewModel.swift in Sources */,
 				0CF6CACB8348127FCA5D4145 /* FolkloreDetailView.swift in Sources */,

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="JejuFolklore Debug">
+  <trk>
+    <name>테스트 코스 (성산 → 섭지 → 협재)</name>
+    <trkseg>
+
+      <!-- 출발: 성산일출봉 주차장 근처 -->
+      <trkpt lat="33.4560" lon="126.9400"><time>2026-04-27T00:00:00Z</time></trkpt>
+      <trkpt lat="33.4565" lon="126.9405"><time>2026-04-27T00:00:05Z</time></trkpt>
+      <trkpt lat="33.4570" lon="126.9410"><time>2026-04-27T00:00:10Z</time></trkpt>
+      <!-- 성산일출봉 반경 진입 -->
+      <trkpt lat="33.4578" lon="126.9420"><time>2026-04-27T00:00:15Z</time></trkpt>
+      <trkpt lat="33.4580" lon="126.9425"><time>2026-04-27T00:00:20Z</time></trkpt>
+      <!-- 체류 (3초 조건 통과) -->
+      <trkpt lat="33.4580" lon="126.9425"><time>2026-04-27T00:00:25Z</time></trkpt>
+      <trkpt lat="33.4581" lon="126.9426"><time>2026-04-27T00:00:30Z</time></trkpt>
+      <trkpt lat="33.4580" lon="126.9425"><time>2026-04-27T00:00:35Z</time></trkpt>
+      <trkpt lat="33.4580" lon="126.9425"><time>2026-04-27T00:00:50Z</time></trkpt>
+
+      <!-- 이동: 성산 → 섭지코지 -->
+      <trkpt lat="33.4550" lon="126.9380"><time>2026-04-27T00:01:00Z</time></trkpt>
+      <trkpt lat="33.4500" lon="126.9350"><time>2026-04-27T00:01:10Z</time></trkpt>
+      <trkpt lat="33.4420" lon="126.9330"><time>2026-04-27T00:01:20Z</time></trkpt>
+      <!-- 섭지코지 반경 진입 -->
+      <trkpt lat="33.4275" lon="126.9308"><time>2026-04-27T00:01:30Z</time></trkpt>
+      <trkpt lat="33.4270" lon="126.9307"><time>2026-04-27T00:01:35Z</time></trkpt>
+      <!-- 체류 -->
+      <trkpt lat="33.4270" lon="126.9307"><time>2026-04-27T00:01:40Z</time></trkpt>
+      <trkpt lat="33.4271" lon="126.9308"><time>2026-04-27T00:01:45Z</time></trkpt>
+      <trkpt lat="33.4270" lon="126.9307"><time>2026-04-27T00:01:50Z</time></trkpt>
+      <trkpt lat="33.4270" lon="126.9307"><time>2026-04-27T00:02:05Z</time></trkpt>
+
+      <!-- 이동: 섭지 → 협재해수욕장 (서쪽으로 이동) -->
+      <trkpt lat="33.4200" lon="126.8500"><time>2026-04-27T00:02:20Z</time></trkpt>
+      <trkpt lat="33.4100" lon="126.7000"><time>2026-04-27T00:02:35Z</time></trkpt>
+      <trkpt lat="33.4000" lon="126.5500"><time>2026-04-27T00:02:50Z</time></trkpt>
+      <!-- 협재해수욕장 반경 진입 -->
+      <trkpt lat="33.3945" lon="126.2395"><time>2026-04-27T00:03:00Z</time></trkpt>
+      <trkpt lat="33.3942" lon="126.2390"><time>2026-04-27T00:03:05Z</time></trkpt>
+      <!-- 체류 -->
+      <trkpt lat="33.3942" lon="126.2390"><time>2026-04-27T00:03:10Z</time></trkpt>
+      <trkpt lat="33.3943" lon="126.2391"><time>2026-04-27T00:03:15Z</time></trkpt>
+      <trkpt lat="33.3942" lon="126.2390"><time>2026-04-27T00:03:20Z</time></trkpt>
+      <trkpt lat="33.3942" lon="126.2390"><time>2026-04-27T00:03:35Z</time></trkpt>
+
+    </trkseg>
+  </trk>
+</gpx>
