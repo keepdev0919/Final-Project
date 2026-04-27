@@ -153,6 +153,7 @@ def _fetch_and_score_courses(
     duration_min = max(1, duration_days - 1)
     duration_max = duration_days + 1
     min_places = max(2, duration_days * 2)
+    max_places = duration_days * 12  # 하루 최대 12곳, 초과는 중복 도배 코스
 
     region_cond = REGION_SQL_CONDITIONS.get(region)
 
@@ -169,25 +170,25 @@ def _fetch_and_score_courses(
                       AND cp2.lat IS NOT NULL AND cp2.lng IS NOT NULL) AS total_count
             FROM courses c
             WHERE c.duration_days BETWEEN ? AND ?
-              AND c.place_count >= ?
+              AND c.place_count BETWEEN ? AND ?
         )
         WHERE total_count > 0
           AND region_count * 2 >= total_count
         ORDER BY RANDOM()
         LIMIT ?
         """
-        rows = conn.execute(sql, (duration_min, duration_max, min_places, pool_size)).fetchall()
+        rows = conn.execute(sql, (duration_min, duration_max, min_places, max_places, pool_size)).fetchall()
     else:
         rows = conn.execute(
             """
             SELECT id, title, duration_days
             FROM courses
             WHERE duration_days BETWEEN ? AND ?
-              AND place_count >= ?
+              AND place_count BETWEEN ? AND ?
             ORDER BY RANDOM()
             LIMIT ?
             """,
-            (duration_min, duration_max, min_places, pool_size),
+            (duration_min, duration_max, min_places, max_places, pool_size),
         ).fetchall()
 
     if not rows:
@@ -206,12 +207,17 @@ def _fetch_and_score_courses(
         course_ids,
     ).fetchall()
 
-    # course_id별로 그룹핑
+    # course_id별로 그룹핑 — (course_id, place_name, day) 기준 중복 제거
     places_by_course: dict[str, list] = {row["id"]: [] for row in rows}
+    seen_places: set[tuple] = set()
     for p in place_rows:
         if p["lat"] is None or p["lng"] is None:
             continue
         cid = p["course_id"]
+        key = (cid, p["place_name"], p["day"])
+        if key in seen_places:
+            continue
+        seen_places.add(key)
         folklore_pins = _map_folklore_for_place(p["lat"], p["lng"])
         places_by_course[cid].append({
             "place_name": p["place_name"],
