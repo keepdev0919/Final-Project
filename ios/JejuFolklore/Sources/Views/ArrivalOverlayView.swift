@@ -84,7 +84,7 @@ struct ArrivalOverlayView: View {
     let mockPlace = CoursePlace(name: "성산일출봉", lat: 33.4584, lng: 126.9426, day: 1, folklorePins: [])
     ArrivalOverlayView(
         place: mockPlace,
-        companion: .dokkaebi,
+        companion: .hallam,
         onEnterChat: {},
         onDismiss: {}
     )

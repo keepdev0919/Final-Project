@@ -18,10 +18,18 @@ final class LocationService: NSObject, ObservableObject {
     private var activePlaces: [CoursePlace] = []
     private var transportMode: String = "car"  // "car" | "walk"
     private var pendingArrivals: [String: Date] = [:]
+    #if DEBUG
+    private let dwellRequired: TimeInterval = 3
+    #else
     private let dwellRequired: TimeInterval = 30
+    #endif
 
     private var arrivalRadius: Double {
-        transportMode == "walk" ? 100.0 : 300.0
+        #if DEBUG
+        return 99999.0
+        #else
+        return transportMode == "walk" ? 100.0 : 300.0
+        #endif
     }
 
     private override init() {

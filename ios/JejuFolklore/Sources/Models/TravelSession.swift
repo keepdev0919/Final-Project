@@ -3,45 +3,15 @@ import Foundation
 // MARK: - CompanionCharacter
 
 enum CompanionCharacter: String, Codable, CaseIterable {
-    case mudang = "당신/심방"
-    case dokkaebi = "도깨비"
     case hallam = "마을 할망"
-    case yeondeung = "영등신/해녀 선배"
-    case dochevi = "도체비"
 
     var displayName: String { rawValue }
 
-    var emoji: String {
-        switch self {
-        case .mudang:    return "🪷"
-        case .dokkaebi:  return "👺"
-        case .hallam:    return "👵"
-        case .yeondeung: return "🌊"
-        case .dochevi:   return "👻"
-        }
-    }
+    var emoji: String { "👵" }
 
-    var greeting: String {
-        switch self {
-        case .mudang:    return "당신이 오기를 기다렸습니다."
-        case .dokkaebi:  return "어이쿠, 손님이 왔구만!"
-        case .hallam:    return "아이고, 어서 오라게."
-        case .yeondeung: return "바다 바람이 불어왔구나."
-        case .dochevi:   return "...왔군."
-        }
-    }
+    var greeting: String { "아이고, 어서 오라게." }
 
-    static func from(categoryScores: [String: Int]) -> CompanionCharacter {
-        let top = categoryScores.max(by: { $0.value < $1.value })?.key ?? ""
-        switch top {
-        case "무속신화·신격 전승": return .mudang
-        case "생활민담·교훈담":   return .dokkaebi
-        case "마을 공동체 전승":  return .hallam
-        case "해양·어촌 전승":    return .yeondeung
-        case "초자연 존재담":     return .dochevi
-        default:                 return .dokkaebi
-        }
-    }
+    static func from(categoryScores: [String: Int]) -> CompanionCharacter { .hallam }
 }
 
 // MARK: - MessageRole
