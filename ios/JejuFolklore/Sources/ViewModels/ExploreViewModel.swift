@@ -19,6 +19,7 @@ final class ExploreViewModel: ObservableObject {
     @Published var journalText: String = ""
     @Published var isGeneratingJournal = false
     @Published var showJournal = false
+    @Published var showDaySummary = false
 
     let course: Course
     let transport: String
@@ -53,6 +54,13 @@ final class ExploreViewModel: ObservableObject {
     }
 
     // MARK: - Arrival handling
+
+    #if DEBUG
+    func simulateNextArrival() {
+        guard let next = course.places.first(where: { !visitedPlaceNames.contains($0.name) }) else { return }
+        handleArrival(placeName: next.name)
+    }
+    #endif
 
     private func handleArrival(placeName: String) {
         guard let place = course.places.first(where: { $0.name == placeName }) else { return }
