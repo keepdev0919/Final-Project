@@ -12,6 +12,7 @@ from langgraph.prebuilt import create_react_agent
 
 from models.schemas import ChatRequest
 from services.db import get_db_connection, get_chroma_collection, embed_query
+from services.folklore_search import search_folklore_by_place
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 limiter = Limiter(key_func=get_remote_address)
