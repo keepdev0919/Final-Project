@@ -1,12 +1,5 @@
 import Foundation
 
-// 레거시 — /course/recommend 호환 유지
-struct CourseRequest: Encodable {
-    let theme: String
-    let categoryScores: [String: Int]?
-    let durationDays: Int
-}
-
 struct CourseListRequest: Encodable {
     let region: String
     let categoryScores: [String: Int]
@@ -19,18 +12,6 @@ struct CourseDetailRequest: Encodable {
 }
 
 struct CourseAPI {
-    static func recommend(
-        theme: String,
-        categoryScores: [String: Int]? = nil,
-        durationDays: Int
-    ) async throws -> Course {
-        try await APIClient.shared.post("/course/recommend", body: CourseRequest(
-            theme: theme,
-            categoryScores: categoryScores,
-            durationDays: durationDays
-        ))
-    }
-
     static func list(
         region: String,
         categoryScores: [String: Int],

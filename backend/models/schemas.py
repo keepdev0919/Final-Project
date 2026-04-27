@@ -24,12 +24,6 @@ class PinDetail(BaseModel):
     lng: float
 
 
-class CourseRequest(BaseModel):
-    theme: str                # 신화 | 도깨비 | 사랑과이별 | 바다해녀 | 오름자연
-    duration_days: int        # 1~5
-    category_scores: dict[str, int] | None = None
-
-
 class CourseListRequest(BaseModel):
     region: str                          # 동부 | 서부 | 남부 | 북부 | 전체
     category_scores: dict[str, int]      # 카테고리별 취향 점수

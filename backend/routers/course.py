@@ -1,68 +1,15 @@
-"""코스 추천 엔드포인트 (LangGraph ReAct 에이전트 연결)."""
+"""코스 추천 엔드포인트."""
 import uuid
 from fastapi import APIRouter, Request, HTTPException
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
-from models.schemas import CourseRequest, CourseListRequest, CourseDetailRequest, CourseListItem, Course, CoursePlace, Pin
-from agents.course_agent import course_graph
+from models.schemas import CourseListRequest, CourseDetailRequest, CourseListItem, Course, CoursePlace, Pin
 from agents.course_list_agent import course_list_graph
 from agents.course_detail_agent import run_detail_agent
 
 router = APIRouter(prefix="/course", tags=["course"])
 limiter = Limiter(key_func=get_remote_address)
-
-
-@router.post("/recommend", response_model=Course)
-@limiter.limit("10/minute")
-def recommend_course(request: Request, body: CourseRequest):
-    state = course_graph.invoke({
-        "messages": [],
-        "user_input": f"{body.theme} {body.duration_days}일",
-        "category_scores": body.category_scores or {},
-        "duration_days": body.duration_days,
-        "final_course": {},
-        "course_title": "",
-        "error": "",
-    })
-
-    if state.get("error"):
-        raise HTTPException(status_code=500, detail=state["error"])
-
-    final_course = state.get("final_course", {})
-    if not final_course:
-        raise HTTPException(status_code=404, detail="코스를 생성하지 못했습니다.")
-
-    places = []
-    for p in final_course.get("places", []):
-        places.append(CoursePlace(
-            name=p["place_name"],
-            lat=p["lat"],
-            lng=p["lng"],
-            day=p.get("day", 1),
-            folklore_pins=[
-                Pin(
-                    code_no=f.get("code_no", ""),
-                    title=f.get("title", ""),
-                    source_type=f.get("source_type", "legend"),
-                    summary="",
-                    lat=f.get("lat", p["lat"]),
-                    lng=f.get("lng", p["lng"]),
-                    primary_place=p["place_name"],
-                    distance_m=f.get("distance_m"),
-                )
-                for f in p.get("folklore_nearby", [])
-            ],
-        ))
-
-    return Course(
-        id=str(uuid.uuid4()),
-        title=state.get("course_title", final_course.get("title", "")),
-        duration_days=body.duration_days,
-        places=places,
-        estimated_minutes=len(places) * 60,
-        source_course_id=final_course.get("id", ""),
-    )
 
 
 @router.post("/list", response_model=list[CourseListItem])
