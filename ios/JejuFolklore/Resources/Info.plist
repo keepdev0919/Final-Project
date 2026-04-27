@@ -20,7 +20,7 @@
 	<string>1</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
-		<string>kakaomap</string>
+		<string>comgooglemaps</string>
 	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>

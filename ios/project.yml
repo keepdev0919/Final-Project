@@ -62,4 +62,4 @@ targets:
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
         LSApplicationQueriesSchemes:
-          - kakaomap
+          - comgooglemaps

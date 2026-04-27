@@ -145,14 +145,15 @@ struct ExploreView: View {
     }
 
     private func openNavigation(to place: CoursePlace) {
-        let by = transport == "walk" ? "FOOT" : "CAR"
-        let kakaoStr = "kakaomap://route?ep=\(place.lat),\(place.lng)&by=\(by)"
-        let appleStr = "maps://?daddr=\(place.lat),\(place.lng)&dirflg=\(transport == "walk" ? "w" : "d")"
-        guard let kakaoURL = URL(string: kakaoStr), let appleURL = URL(string: appleStr) else { return }
-        if UIApplication.shared.canOpenURL(kakaoURL) {
-            UIApplication.shared.open(kakaoURL)
+        let mode = transport == "walk" ? "walking" : "driving"
+        let googleAppStr = "comgooglemaps://?daddr=\(place.lat),\(place.lng)&directionsmode=\(mode)"
+        let googleWebStr = "https://maps.google.com/maps?daddr=\(place.lat),\(place.lng)&directionsmode=\(mode)"
+        guard let googleAppURL = URL(string: googleAppStr),
+              let googleWebURL = URL(string: googleWebStr) else { return }
+        if UIApplication.shared.canOpenURL(googleAppURL) {
+            UIApplication.shared.open(googleAppURL)
         } else {
-            UIApplication.shared.open(appleURL)
+            UIApplication.shared.open(googleWebURL)
         }
     }
 
