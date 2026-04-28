@@ -98,15 +98,7 @@ struct FolkloreDetailView: View {
 
     // MARK: - Helpers
 
-    private var displayTitle: String {
-        let t = detail?.title ?? pin.title
-        // "C_M_001 각시당본풀이" → "각시당본풀이"
-        if let space = t.firstIndex(of: " ") {
-            let after = t[t.index(after: space)...]
-            if !after.isEmpty { return String(after) }
-        }
-        return t
-    }
+    private var displayTitle: String { pin.displayTitle }
 
     private var tagColor: Color {
         pin.sourceType == "legend" ? .orange : .purple

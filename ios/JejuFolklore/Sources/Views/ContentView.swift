@@ -1,18 +1,55 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var savedSession: TravelSession?
+    @State private var showRestoreSheet = false
+    @State private var resumeCourse: Course?
+    @State private var resumeTransport = "car"
+    @State private var navigateToExplore = false
+
     var body: some View {
-        TabView {
-            TasteDiscoveryView()
-                .tabItem { Label("코스 만들기", systemImage: "sparkles") }
-            MyCourseListView()
-                .tabItem { Label("내 코스", systemImage: "bookmark.fill") }
+        NavigationStack {
+            TabView {
+                TasteDiscoveryView()
+                    .tabItem { Label("코스 만들기", systemImage: "sparkles") }
+                MyCourseListView()
+                    .tabItem { Label("내 코스", systemImage: "bookmark.fill") }
 #if DEBUG
-            DebugExploreView()
-                .tabItem { Label("테스트", systemImage: "ladybug.fill") }
-            #endif
+                DebugExploreView()
+                    .tabItem { Label("테스트", systemImage: "ladybug.fill") }
+#endif
+            }
+            .tint(.orange)
+            .navigationDestination(isPresented: $navigateToExplore) {
+                if let course = resumeCourse {
+                    ExploreView(course: course, transport: resumeTransport, categoryScores: [:])
+                }
+            }
         }
-        .tint(.orange)
+        .sheet(isPresented: $showRestoreSheet) {
+            if let session = savedSession {
+                SessionRestoreView(
+                    session: session,
+                    onResume: { course, transport in
+                        showRestoreSheet = false
+                        resumeCourse = course
+                        resumeTransport = transport
+                        navigateToExplore = true
+                    },
+                    onDiscard: {
+                        TravelStore.shared.clear()
+                        savedSession = nil
+                        showRestoreSheet = false
+                    }
+                )
+            }
+        }
+        .onAppear {
+            if let session = TravelStore.shared.load() {
+                savedSession = session
+                showRestoreSheet = true
+            }
+        }
     }
 }
 

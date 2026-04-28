@@ -12,6 +12,8 @@ struct ExploreView: View {
 
     @State private var hasStopped = false
     @State private var mapPosition: MapCameraPosition = .userLocation(fallback: .automatic)
+    @State private var selectedFolklorePlace: CoursePlace?
+    @State private var selectedFolklorePin: Pin?
 
     init(course: Course, transport: String, categoryScores: [String: Int] = [:]) {
         self.course = course
@@ -97,6 +99,9 @@ struct ExploreView: View {
                 )
             }
         }
+        .sheet(item: $selectedFolklorePlace) { place in
+            FolklorePlacePinsView(place: place)
+        }
     }
 
     // MARK: - Map (iOS 17+)
@@ -112,8 +117,15 @@ struct ExploreView: View {
                 let place = course.places[i]
                 let isVisited = vm.visitedPlaceNames.contains(place.name)
                 Annotation("", coordinate: CLLocationCoordinate2D(latitude: place.lat, longitude: place.lng)) {
-                    NumberedMarker(number: i + 1, hasfolklore: !place.folklorePins.isEmpty)
-                        .opacity(isVisited ? 0.35 : 1.0)
+                    Button {
+                        if !place.folklorePins.isEmpty {
+                            selectedFolklorePlace = place
+                        }
+                    } label: {
+                        NumberedMarker(number: i + 1, hasfolklore: !place.folklorePins.isEmpty)
+                            .opacity(isVisited ? 0.35 : 1.0)
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             if placeCoordinates.count >= 2 {

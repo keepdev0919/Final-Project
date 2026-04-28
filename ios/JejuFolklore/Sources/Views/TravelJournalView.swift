@@ -7,6 +7,16 @@ struct TravelJournalView: View {
     let companion: CompanionCharacter
     let onDone: () -> Void
 
+    private var shareText: String {
+        """
+        \(companion.emoji) \(companion.displayName)와 함께한 제주 여행
+
+        방문: \(visitedPlaces.joined(separator: ", "))
+
+        \(journalText)
+        """
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -40,6 +50,11 @@ struct TravelJournalView: View {
             .navigationTitle("여행 일지")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    ShareLink(item: shareText, subject: Text("나의 제주 여행 일지")) {
+                        Label("공유", systemImage: "square.and.arrow.up")
+                    }
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("완료", action: onDone)
                         .fontWeight(.semibold)

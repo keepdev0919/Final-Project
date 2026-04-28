@@ -53,13 +53,17 @@ struct TravelSession: Codable {
     let startedAt: Date
     var visitedPlaceNames: [String]
     private(set) var chatLogs: [PlaceChatLog]
+    let courseSnapshot: Course      // 앱 종료 후 복원용
+    var transport: String
 
-    init(courseId: String, companion: CompanionCharacter) {
+    init(courseId: String, companion: CompanionCharacter, course: Course, transport: String) {
         self.courseId = courseId
         self.companion = companion
         self.startedAt = Date()
         self.visitedPlaceNames = []
         self.chatLogs = []
+        self.courseSnapshot = course
+        self.transport = transport
     }
 
     mutating func appendMessage(_ msg: TravelChatMessage, to placeName: String) {

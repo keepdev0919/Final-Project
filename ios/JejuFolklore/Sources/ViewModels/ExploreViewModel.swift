@@ -31,7 +31,19 @@ final class ExploreViewModel: ObservableObject {
         self.course = course
         self.transport = transport
         self.companion = CompanionCharacter.from(categoryScores: categoryScores)
-        self.travelSession = TravelSession(courseId: course.id, companion: self.companion)
+
+        // 앱 종료 후 복원: 같은 코스의 저장된 세션이 있으면 이어받는다
+        if let existing = TravelStore.shared.load(), existing.courseId == course.id {
+            self.travelSession = existing
+            self.visitedPlaceNames = Set(existing.visitedPlaceNames)
+        } else {
+            self.travelSession = TravelSession(
+                courseId: course.id,
+                companion: self.companion,
+                course: course,
+                transport: transport
+            )
+        }
     }
 
     // MARK: - Explore lifecycle

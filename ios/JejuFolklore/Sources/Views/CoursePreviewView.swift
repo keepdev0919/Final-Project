@@ -533,6 +533,7 @@ struct PlaceCard: View {
     let index: Int
     let place: CoursePlace
     @State private var isExpanded = false
+    @State private var selectedPin: Pin?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -595,7 +596,7 @@ struct PlaceCard: View {
                 if isExpanded {
                     VStack(spacing: 0) {
                         ForEach(place.folklorePins) { pin in
-                            FolklorePinRow(pin: pin)
+                            FolklorePinRow(pin: pin, onTap: { selectedPin = $0 })
                         }
                     }
                     .transition(.opacity.combined(with: .move(edge: .top)))
@@ -604,6 +605,9 @@ struct PlaceCard: View {
         }
         .background(Color(uiColor: .secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .sheet(item: $selectedPin) { pin in
+            FolkloreDetailView(pin: pin)
+        }
     }
 }
 
@@ -611,32 +615,45 @@ struct PlaceCard: View {
 
 private struct FolklorePinRow: View {
     let pin: Pin
+    let onTap: (Pin) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack(spacing: 6) {
-                Text(pin.sourceTypeLabel)
-                    .font(.caption2.weight(.semibold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 3)
-                    .background(Color.orange.opacity(0.8))
-                    .clipShape(Capsule())
+        Button { onTap(pin) } label: {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 6) {
+                        Text(pin.sourceTypeLabel)
+                            .font(.caption2.weight(.semibold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 3)
+                            .background(Color.orange.opacity(0.8))
+                            .clipShape(Capsule())
 
-                Text(pin.title)
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(.primary)
-                    .lineLimit(2)
-            }
+                        Text(pin.displayTitle)
+                            .font(.caption.weight(.semibold))
+                            .foregroundColor(.primary)
+                            .lineLimit(2)
+                    }
 
-            if !pin.summary.isEmpty {
-                Text(pin.summary)
-                    .font(.caption)
+                    if !pin.summary.isEmpty {
+                        Text(pin.summary)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .lineSpacing(3)
+                            .lineLimit(3)
+                    }
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption2)
                     .foregroundColor(.secondary)
-                    .lineSpacing(3)
-                    .lineLimit(3)
+                    .padding(.top, 2)
             }
         }
+        .buttonStyle(.plain)
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .frame(maxWidth: .infinity, alignment: .leading)
