@@ -2,6 +2,7 @@
 import os
 import json
 from typing import Literal
+from services.db import get_db_connection
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from slowapi import Limiter
@@ -227,6 +228,34 @@ CHARACTER_PROMPTS: dict[str, str] = {
 VALID_CHARACTERS = set(CHARACTER_PROMPTS.keys())
 
 
+def _get_community_context(visited_places: list[str]) -> str:
+    if not visited_places:
+        return ""
+    conn = get_db_connection()
+    lines = []
+    for place_name in visited_places:
+        rows = conn.execute(
+            "SELECT tags FROM place_reviews WHERE place_name = ?",
+            (place_name,),
+        ).fetchall()
+        if not rows:
+            continue
+        counts: dict[str, int] = {}
+        for row in rows:
+            for tag in json.loads(row[0]):
+                counts[tag] = counts.get(tag, 0) + 1
+        top_tag = max(counts, key=lambda k: counts[k])
+        top_pct = round(counts[top_tag] / len(rows) * 100)
+        lines.append(f"- {place_name}: {len(rows)}명 방문, 가장 많은 반응 '{top_tag}({top_pct}%)'")
+    if not lines:
+        return ""
+    return (
+        "[커뮤니티 반응]\n"
+        + "\n".join(lines)
+        + "\n이 정보를 일지에 자연스럽게 녹여주세요. 통계를 직접 나열하지 말고 이야기 흐름에 녹이세요.\n"
+    )
+
+
 # ─── Request 모델 ──────────────────────────────────────────────────────────────
 
 class ChatHistoryItem(BaseModel):
@@ -330,10 +359,13 @@ async def generate_journal(request: Request, body: JournalRequest):
         chat_summary_parts.append(f"--- {log.place_name} ---\n" + "\n".join(msgs))
     chat_text = "\n\n".join(chat_summary_parts) if chat_summary_parts else "(대화 기록 없음)"
 
+    community_context = _get_community_context(body.visited_places)
+
     prompt = (
         f"방문 장소: {places_text}\n\n"
         f"동행자와의 대화:\n{chat_text}\n\n"
-        "위 여행을 회고하는 개인 여행 일지를 작성해주세요."
+        + (community_context if community_context else "")
+        + "위 여행을 회고하는 개인 여행 일지를 작성해주세요."
     )
 
     try:
