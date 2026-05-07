@@ -31,9 +31,9 @@
 
 | # | 항목 | 담당 | 세부 내용 |
 |---|------|------|-----------|
-| M1 | 일지 SNS 공유 카드 | iOS | JournalView에 "공유하기" 버튼 → UIActivityViewController로 이미지 카드 공유 |
-| M2 | 동행자 채팅 페르소나 색상 | iOS | H4와 연계. 오버레이 배경색도 페르소나별 차별화 |
-| M3 | Day 요약 화면 개선 | iOS | 방문 장소 리스트 + 들은 설화 수 + 걸은 거리 집계 표시 |
+| ✅ M1 | 일지 SNS 공유 카드 | iOS | UIActivityViewController 공유 시트 구현 (동행자 정보 + 방문지 + 일지 전문) |
+| ✅ M2 | 동행자 채팅 페르소나 색상 | iOS | H4에서 완료 — themeColor/bubbleColor 적용 |
+| ✅ M3 | Day 요약 화면 개선 | iOS | 동행자 표시 + StatBadge (N곳 방문, N개 설화) 추가 |
 
 ---
 
