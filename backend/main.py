@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+import traceback
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -26,6 +28,15 @@ app.include_router(tts.router)
 app.include_router(tourist.router)
 app.include_router(place.router)
 app.include_router(travel.router)
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    tb = traceback.format_exc()
+    print(f"[GLOBAL 500] {request.method} {request.url.path}")
+    print(f"  {type(exc).__name__}: {exc}")
+    print(tb)
+    return JSONResponse(status_code=500, content={"detail": f"{type(exc).__name__}: {exc}"})
 
 
 @app.get("/health")

@@ -13,7 +13,8 @@ struct ExploreView: View {
     @State private var hasStopped = false
     @State private var mapPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var selectedFolklorePlace: CoursePlace?
-    @State private var selectedFolklorePin: Pin?
+    @State private var selectedPlace: CoursePlace?
+    @State private var isListExpanded = true
 
     init(course: Course, transport: String, categoryScores: [String: Int] = [:]) {
         self.course = course
@@ -27,7 +28,7 @@ struct ExploreView: View {
     }
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
             exploreMap
                 .ignoresSafeArea(edges: .top)
 
@@ -42,18 +43,7 @@ struct ExploreView: View {
                 .zIndex(10)
             }
 
-            VStack {
-                Spacer()
-                #if DEBUG
-                Button("🐞 다음 장소 도착") { vm.simulateNextArrival() }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.purple)
-                    .padding(.bottom, 8)
-                #endif
-                statusBar
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 12)
-            }
+            exploreBottomSheet
         }
         .animation(.easeInOut(duration: 0.25), value: vm.showArrivalOverlay)
         .navigationTitle("탐험 중")
@@ -68,6 +58,9 @@ struct ExploreView: View {
                 .foregroundColor(.orange)
                 .fontWeight(.semibold)
             }
+        }
+        .navigationDestination(item: $selectedPlace) { place in
+            PlaceDetailView(place: place)
         }
         .onAppear { vm.startExploring() }
         .onDisappear { if !hasStopped { vm.stopExploring() } }
@@ -104,7 +97,7 @@ struct ExploreView: View {
         }
     }
 
-    // MARK: - Map (iOS 17+)
+    // MARK: - Map
 
     private var placeCoordinates: [CLLocationCoordinate2D] {
         course.places.map { CLLocationCoordinate2D(latitude: $0.lat, longitude: $0.lng) }
@@ -138,7 +131,87 @@ struct ExploreView: View {
         }
     }
 
-    // MARK: - Status Bar
+    // MARK: - Bottom Sheet
+
+    private var exploreBottomSheet: some View {
+        VStack(spacing: 0) {
+            // 드래그 핸들
+            Button {
+                withAnimation(.spring(response: 0.35)) {
+                    isListExpanded.toggle()
+                }
+            } label: {
+                VStack(spacing: 6) {
+                    Capsule()
+                        .fill(Color.secondary.opacity(0.35))
+                        .frame(width: 36, height: 4)
+                    if !isListExpanded {
+                        Image(systemName: "chevron.up")
+                            .font(.caption2.weight(.semibold))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 10)
+                .padding(.bottom, isListExpanded ? 4 : 6)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .gesture(
+                DragGesture(minimumDistance: 20)
+                    .onEnded { value in
+                        withAnimation(.spring(response: 0.35)) {
+                            if value.translation.height > 40 { isListExpanded = false }
+                            else if value.translation.height < -40 { isListExpanded = true }
+                        }
+                    }
+            )
+
+            // 상태 요약 (항상 표시)
+            statusRow
+                .padding(.horizontal, 16)
+                .padding(.bottom, 10)
+
+            // 접을 수 있는 장소 목록
+            if isListExpanded {
+                Divider()
+                    .padding(.horizontal, 16)
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 8) {
+                        ForEach(Array(course.places.enumerated()), id: \.offset) { idx, place in
+                            let isVisited = vm.visitedPlaceNames.contains(place.name)
+                            PlaceCard(index: idx + 1, place: place)
+                                .opacity(isVisited ? 0.45 : 1.0)
+                                .overlay(alignment: .topTrailing) {
+                                    if isVisited {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.green)
+                                            .font(.title3)
+                                            .padding(10)
+                                    }
+                                }
+                                .onTapGesture { selectedPlace = place }
+                        }
+                        #if DEBUG
+                        Button("🐞 다음 장소 도착") { vm.simulateNextArrival() }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.purple)
+                            .padding(.top, 4)
+                        #endif
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                }
+                .frame(maxHeight: 280)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .padding(.horizontal, 8)
+        .padding(.bottom, 8)
+    }
+
+    // MARK: - Status Row
 
     private var nextUnvisitedPlace: CoursePlace? {
         course.places.first { !vm.visitedPlaceNames.contains($0.name) }
@@ -169,7 +242,7 @@ struct ExploreView: View {
         }
     }
 
-    private var statusBar: some View {
+    private var statusRow: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text("방문 \(vm.visitedPlaceNames.count) / \(course.places.count)곳")
@@ -193,11 +266,8 @@ struct ExploreView: View {
             }
             Spacer()
 
-            // 카카오맵 길찾기 버튼
             if let next = nextUnvisitedPlace {
-                Button {
-                    openNavigation(to: next)
-                } label: {
+                Button { openNavigation(to: next) } label: {
                     Image(systemName: "map.fill")
                         .font(.caption.weight(.semibold))
                         .padding(8)
@@ -207,11 +277,8 @@ struct ExploreView: View {
                 .foregroundColor(.primary)
             }
 
-            // 동행자 대화 버튼
             if let currentPlace = vm.lastArrivedPlace {
-                Button {
-                    vm.openCompanionChat(for: currentPlace)
-                } label: {
+                Button { vm.openCompanionChat(for: currentPlace) } label: {
                     HStack(spacing: 4) {
                         Text(vm.companion.emoji)
                         Text("대화")
@@ -225,7 +292,5 @@ struct ExploreView: View {
                 }
             }
         }
-        .padding(14)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
     }
 }

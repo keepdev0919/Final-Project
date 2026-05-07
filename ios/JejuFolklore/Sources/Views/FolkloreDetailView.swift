@@ -88,7 +88,11 @@ struct FolkloreDetailView: View {
 
     private var ttsButton: some View {
         Button {
-            Task { await playTTS() }
+            if audio.isPlaying {
+                audio.stop()
+            } else {
+                Task { await playTTS() }
+            }
         } label: {
             Image(systemName: audio.isPlaying ? "speaker.wave.3.fill" : "play.circle.fill")
                 .foregroundColor(tagColor)

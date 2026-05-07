@@ -3,15 +3,45 @@ import Foundation
 // MARK: - CompanionCharacter
 
 enum CompanionCharacter: String, Codable, CaseIterable {
-    case hallam = "마을 할망"
+    case hallam   = "마을 할망"
+    case dang     = "당신·심방"
+    case haenyeo  = "영등신·해녀 선배"
+    case dokkaebi = "도깨비"
+    case dochebi  = "도체비"
 
     var displayName: String { rawValue }
 
-    var emoji: String { "👵" }
+    var emoji: String {
+        switch self {
+        case .hallam:   return "👵"
+        case .dang:     return "🪬"
+        case .haenyeo:  return "🤿"
+        case .dokkaebi: return "👺"
+        case .dochebi:  return "👻"
+        }
+    }
 
-    var greeting: String { "아이고, 어서 오라게." }
+    var greeting: String {
+        switch self {
+        case .hallam:   return "아이고, 어서 오라게."
+        case .dang:     return "이 땅에 발을 들였도다."
+        case .haenyeo:  return "왔어? 여기 처음이야?"
+        case .dokkaebi: return "크크크, 왔네?"
+        case .dochebi:  return "왔어요? 아니... 왔나?"
+        }
+    }
 
-    static func from(categoryScores: [String: Int]) -> CompanionCharacter { .hallam }
+    static func from(categoryScores: [String: Int]) -> CompanionCharacter {
+        let categoryMap: [String: CompanionCharacter] = [
+            "무속신화·신격 전승": .dang,
+            "생활민담·교훈담":   .dokkaebi,
+            "마을 공동체 전승":  .hallam,
+            "해양·어촌 전승":    .haenyeo,
+            "초자연 존재담":     .dochebi,
+        ]
+        let best = categoryScores.max { $0.value < $1.value }
+        return best.flatMap { categoryMap[$0.key] } ?? .hallam
+    }
 }
 
 // MARK: - MessageRole
