@@ -90,3 +90,22 @@ final class APIClient {
         }
     }
 }
+
+// MARK: - Place Reviews
+extension APIClient {
+    func submitReview(placeName: String, tags: [String], note: String?) async {
+        let body = PlaceReviewBody(
+            placeName: placeName,
+            tags: tags,
+            note: note,
+            deviceId: DeviceIdentity.shared.id
+        )
+        _ = try? await postData("/place/review", body: body)
+    }
+
+    func fetchReviews(placeName: String) async throws -> PlaceReviewsResponse {
+        let encoded = placeName
+            .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? placeName
+        return try await get("/place/reviews/\(encoded)")
+    }
+}
