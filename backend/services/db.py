@@ -81,6 +81,19 @@ def get_db_connection():
             )
             """
         )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS place_reviews (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            place_name TEXT    NOT NULL,
+            tags       TEXT    NOT NULL,
+            note       TEXT,
+            device_id  TEXT    NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(place_name, device_id) ON CONFLICT REPLACE
+        )
+        """
+    )
     conn.commit()
     return conn
 
