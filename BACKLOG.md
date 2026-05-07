@@ -21,9 +21,9 @@
 | # | 항목 | 담당 | 세부 내용 |
 |---|------|------|-----------|
 | ✅ H1 | 코스 추천 로딩 UX | iOS | CourseListView에 ProgressView + "AI가 코스를 추천하고 있어요..." 표시 완료 |
-| H2 | 페르소나 수동 선택 UI | iOS | CompanionCharacter 5개를 선택 가능한 카드 UI. 자동 배정 위에 "바꾸기" 옵션 |
-| H3 | 설화 없는 장소 도착 처리 | iOS + 백엔드 | folklore_pins 빈 배열일 때 동행자가 fallback 인사 + 장소 설명으로 대체 |
-| H4 | 채팅 UI 폴리시 | iOS | 페르소나별 버블 색상, 배경색. 마을 할망=주황, 심방=보라, 해녀=파랑, 도깨비=초록, 도체비=회색 |
+| ✅ H2 | 페르소나 수동 선택 UI | iOS | CoursePreviewView에 자동 배정 표시 + "바꾸기" sheet 구현 완료 |
+| ✅ H3 | 설화 없는 장소 도착 처리 | iOS + 백엔드 | has_folklore 분기로 프롬프트 분리, 설화 없을 때 제주 분위기 대화로 fallback |
+| ✅ H4 | 채팅 UI 폴리시 | iOS | themeColor/bubbleColor computed property 추가, AI 버블·헤더·전송 버튼에 반영 |
 
 ---
 
