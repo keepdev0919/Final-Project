@@ -27,10 +27,10 @@ final class ExploreViewModel: ObservableObject {
 
     private var travelSession: TravelSession
 
-    init(course: Course, transport: String, categoryScores: [String: Int]) {
+    init(course: Course, transport: String, categoryScores: [String: Int], overrideCompanion: CompanionCharacter? = nil) {
         self.course = course
         self.transport = transport
-        self.companion = CompanionCharacter.from(categoryScores: categoryScores)
+        self.companion = overrideCompanion ?? CompanionCharacter.from(categoryScores: categoryScores)
 
         // 앱 종료 후 복원: 같은 코스의 저장된 세션이 있으면 이어받는다
         if let existing = TravelStore.shared.load(), existing.courseId == course.id {

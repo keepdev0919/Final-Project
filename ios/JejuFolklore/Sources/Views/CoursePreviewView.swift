@@ -17,6 +17,8 @@ struct CoursePreviewView: View {
     @State private var selectedDay: Int? = nil
     @State private var isSheetExpanded = true
     @State private var selectedPlace: CoursePlace?
+    @State private var selectedCompanion: CompanionCharacter? = nil
+    @State private var showCompanionPicker = false
 
     init(course: Course, hasNext: Bool = false, onNext: (() -> Void)? = nil, onReset: (() -> Void)? = nil, categoryScores: [String: Int] = [:]) {
         self.course = course
@@ -58,7 +60,12 @@ struct CoursePreviewView: View {
         .navigationTitle(course.title)
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $navigateToExplore) {
-            ExploreView(course: course, transport: "car", categoryScores: categoryScores)
+            ExploreView(
+                course: course,
+                transport: "car",
+                categoryScores: categoryScores,
+                overrideCompanion: selectedCompanion
+            )
         }
     }
 
@@ -235,6 +242,36 @@ struct CoursePreviewView: View {
                 .buttonStyle(.borderedProminent)
                 .tint(.orange)
                 .disabled(vm.isSaved)
+            }
+
+            // 동행자 표시 행
+            HStack(spacing: 0) {
+                let companion = selectedCompanion ?? CompanionCharacter.from(categoryScores: categoryScores)
+                Text("\(companion.emoji) \(companion.displayName)과 함께 탐험")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                Spacer()
+                Button {
+                    showCompanionPicker = true
+                } label: {
+                    Text("바꾸기")
+                        .font(.footnote.weight(.medium))
+                        .foregroundColor(.orange)
+                    Image(systemName: "chevron.right")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundColor(.orange)
+                }
+            }
+            .padding(.horizontal, 4)
+            .sheet(isPresented: $showCompanionPicker) {
+                CompanionPickerSheet(
+                    currentCompanion: selectedCompanion ?? CompanionCharacter.from(categoryScores: categoryScores),
+                    onSelect: { companion in
+                        selectedCompanion = companion
+                        showCompanionPicker = false
+                    }
+                )
+                .presentationDetents([.medium])
             }
 
             Button {
@@ -664,6 +701,85 @@ private struct FolklorePinRow: View {
                 .frame(width: 3),
             alignment: .leading
         )
+    }
+}
+
+// MARK: - CompanionPickerSheet
+
+private struct CompanionPickerSheet: View {
+    let currentCompanion: CompanionCharacter
+    let onSelect: (CompanionCharacter) -> Void
+
+    private let descriptions: [CompanionCharacter: String] = [
+        .hallam:   "따뜻한 제주 사투리로 마을 이야기를",
+        .dang:     "신탁의 언어로 신격 전승을",
+        .haenyeo:  "거친 바다의 직선적 이야기를",
+        .dokkaebi: "장난기 섞인 교훈담을",
+        .dochebi:  "불확실한 초자연 이야기를",
+    ]
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // 핸들
+            Capsule()
+                .fill(Color.secondary.opacity(0.35))
+                .frame(width: 36, height: 4)
+                .padding(.top, 10)
+                .padding(.bottom, 16)
+
+            Text("동행자 선택")
+                .font(.headline)
+                .padding(.bottom, 16)
+
+            VStack(spacing: 10) {
+                ForEach(CompanionCharacter.allCases, id: \.self) { companion in
+                    let isSelected = companion == currentCompanion
+                    Button {
+                        onSelect(companion)
+                    } label: {
+                        HStack(spacing: 14) {
+                            Text(companion.emoji)
+                                .font(.title2)
+                                .frame(width: 40, height: 40)
+                                .background(Color.orange.opacity(0.1))
+                                .clipShape(Circle())
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(companion.displayName)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundColor(.primary)
+                                if let desc = descriptions[companion] {
+                                    Text(desc)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+
+                            Spacer()
+
+                            if isSelected {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.orange)
+                                    .font(.title3)
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(isSelected ? Color.orange.opacity(0.08) : Color(uiColor: .secondarySystemBackground))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(isSelected ? Color.orange.opacity(0.5) : Color.clear, lineWidth: 1.5)
+                                )
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 24)
+        }
     }
 }
 

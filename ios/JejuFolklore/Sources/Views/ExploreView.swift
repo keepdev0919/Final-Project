@@ -16,14 +16,15 @@ struct ExploreView: View {
     @State private var selectedPlace: CoursePlace?
     @State private var isListExpanded = true
 
-    init(course: Course, transport: String, categoryScores: [String: Int] = [:]) {
+    init(course: Course, transport: String, categoryScores: [String: Int] = [:], overrideCompanion: CompanionCharacter? = nil) {
         self.course = course
         self.transport = transport
         self.categoryScores = categoryScores
         _vm = StateObject(wrappedValue: ExploreViewModel(
             course: course,
             transport: transport,
-            categoryScores: categoryScores
+            categoryScores: categoryScores,
+            overrideCompanion: overrideCompanion
         ))
     }
 

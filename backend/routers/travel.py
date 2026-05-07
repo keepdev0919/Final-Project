@@ -262,11 +262,18 @@ async def companion_chat(request: Request, body: CompanionChatRequest):
     if not summaries:
         summaries = search_folklore_by_place(body.place_name, n=3)
 
-    if summaries:
+    has_folklore = bool(summaries)
+    if has_folklore:
         folklore_ctx = "\n".join(f"- {s}" for s in summaries)
         system_text += f"\n\n현재 장소: {body.place_name}\n이 장소의 설화:\n{folklore_ctx}"
     else:
-        system_text += f"\n\n현재 장소: {body.place_name}\n(이 장소에 특정 설화 기록은 없습니다. 제주 설화 전반적 맥락으로 대화해주세요.)"
+        system_text += (
+            f"\n\n현재 장소: {body.place_name}\n"
+            "이 장소에는 별도로 기록된 설화가 없습니다.\n"
+            "설화가 없다는 사실을 굳이 언급하지 말고, 제주의 자연·바람·돌·바다·사람 이야기를 "
+            "당신의 캐릭터답게 자연스럽게 풀어내세요. "
+            "여행자가 이 장소에서 느낄 수 있는 감각적 분위기와 제주 전반의 이야기를 나누어 주세요."
+        )
 
     is_first = len(body.history) == 0 and body.message == "__GREETING__"
 
@@ -278,7 +285,11 @@ async def companion_chat(request: Request, body: CompanionChatRequest):
             messages.append(AIMessage(content=h.content))
 
     if is_first:
-        messages.append(HumanMessage(content=f"{body.place_name}에 방금 도착했어요. 반갑게 인사해주세요."))
+        if has_folklore:
+            greeting_prompt = f"{body.place_name}에 방금 도착했어요. 이 장소의 설화와 함께 반갑게 인사해주세요."
+        else:
+            greeting_prompt = f"{body.place_name}에 방금 도착했어요. 설화 이야기가 없더라도 제주의 분위기와 당신만의 이야기로 따뜻하게 맞이해주세요."
+        messages.append(HumanMessage(content=greeting_prompt))
     else:
         messages.append(HumanMessage(content=body.message))
 
