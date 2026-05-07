@@ -9,10 +9,10 @@
 
 | # | 항목 | 담당 | 세부 내용 |
 |---|------|------|-----------|
-| C1 | `/course/detail` 근본 원인 해결 | 백엔드 | response_model 제거로 임시 핫픽스됨. Pydantic v2 ResponseValidationError 원인 파악 후 response_model 복원 |
-| C2 | ExploreView.swift 완전 검증 | iOS | 세션 시작 시 지도 로딩, 장소 카드, "다음 장소 도착" 버튼 동작 E2E 확인 |
-| C3 | 동행자 첫 인사 자동 전송 검증 | iOS + 백엔드 | 장소 도착 시 companion greeting 자동 발송 → CompanionChatView 오버레이 등장 확인 |
-| C4 | 시연 E2E 플로우 전체 실행 | QA | 취향 선택 → 코스 추천 → 탐험 시작 → 장소 도착 2회 → 동행자 채팅 → 일지 생성 |
+| ✅ C1 | `/course/detail` 근본 원인 해결 | 백엔드 | NULL lat/lng 가드 추가, response_model=Course 복원 완료 |
+| ✅ C2 | ExploreView.swift 완전 검증 | iOS | 세션 복원 시 재도착 방지 로직 추가, sheet race condition 수정 완료 |
+| ✅ C3 | 동행자 첫 인사 자동 전송 검증 | iOS + 백엔드 | __GREETING__ 메시지로 첫 인사 자동 전송 구현 확인, 정상 동작 |
+| ✅ C4 | 시연 E2E 플로우 전체 실행 | QA | 6/6 PASS. /course/detail 200, 동행자 채팅 사투리 확인, 일지 400자 생성 |
 
 ---
 
@@ -20,7 +20,7 @@
 
 | # | 항목 | 담당 | 세부 내용 |
 |---|------|------|-----------|
-| H1 | 코스 추천 로딩 UX | iOS | TasteDiscoveryView → CourseListView 전환 시 빈 화면 대신 ProgressView + 문구 표시 |
+| ✅ H1 | 코스 추천 로딩 UX | iOS | CourseListView에 ProgressView + "AI가 코스를 추천하고 있어요..." 표시 완료 |
 | H2 | 페르소나 수동 선택 UI | iOS | CompanionCharacter 5개를 선택 가능한 카드 UI. 자동 배정 위에 "바꾸기" 옵션 |
 | H3 | 설화 없는 장소 도착 처리 | iOS + 백엔드 | folklore_pins 빈 배열일 때 동행자가 fallback 인사 + 장소 설명으로 대체 |
 | H4 | 채팅 UI 폴리시 | iOS | 페르소나별 버블 색상, 배경색. 마을 할망=주황, 심방=보라, 해녀=파랑, 도깨비=초록, 도체비=회색 |
