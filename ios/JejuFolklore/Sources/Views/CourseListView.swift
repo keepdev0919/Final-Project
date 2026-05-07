@@ -13,7 +13,7 @@ struct CourseListView: View {
                 VStack(spacing: 16) {
                     ProgressView()
                         .scaleEffect(1.4)
-                    Text("코스를 찾고 있어요...")
+                    Text("AI가 코스를 추천하고 있어요...")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }

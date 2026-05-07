@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 import MapKit
 
 // MARK: - TasteDiscoveryView
@@ -38,9 +37,6 @@ struct TasteDiscoveryView: View {
                     Spacer()
                 }
 
-                if vm.isLoadingList {
-                    LoadingOverlay(step: vm.loadingStep)
-                }
             }
             .animation(.spring(response: 0.35), value: step)
             .navigationBarHidden(true)
@@ -49,11 +45,6 @@ struct TasteDiscoveryView: View {
                     .onDisappear {
                         if vm.courseList.isEmpty { vm.reset() }
                     }
-            }
-            .onChange(of: vm.courseList) {
-                if !vm.courseList.isEmpty {
-                    navigateToList = true
-                }
             }
             .alert("코스를 가져오지 못했어요", isPresented: Binding(
                 get: { vm.errorMessage != nil },
@@ -260,6 +251,8 @@ struct TasteDiscoveryView: View {
         vm.selectedRegion = selectedRegion
         vm.categoryScores = computeCategoryScores()
         vm.durationDays = selectedDays
+        // 로딩 화면을 CourseListView에서 보여주기 위해 API 호출 전에 먼저 이동
+        navigateToList = true
         await vm.fetchList()
     }
 
