@@ -104,9 +104,7 @@ struct ExploreView: View {
                 onDismiss: { vm.showDaySummary = false }
             )
         }
-        .sheet(isPresented: $vm.showJournal, onDismiss: {
-            if goHome { dismiss() }
-        }) {
+        .sheet(isPresented: $vm.showJournal) {
             if vm.isGeneratingJournal {
                 JournalLoadingView(companion: vm.companion)
             } else {
@@ -120,6 +118,9 @@ struct ExploreView: View {
                     }
                 )
             }
+        }
+        .onChange(of: vm.showJournal) { _, isShowing in
+            if !isShowing && goHome { dismiss() }
         }
         .sheet(item: $selectedFolklorePlace) { place in
             FolklorePlacePinsView(place: place)
