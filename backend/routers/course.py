@@ -56,7 +56,7 @@ def list_courses(request: Request, body: CourseListRequest):
     return result
 
 
-@router.post("/detail")
+@router.post("/detail", response_model=Course)
 @limiter.limit("10/minute")
 def detail_course(request: Request, body: CourseDetailRequest):
     try:

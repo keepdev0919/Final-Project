@@ -56,7 +56,13 @@ final class ExploreViewModel: ObservableObject {
                 self?.handleArrival(placeName: placeName)
             }
         }
-        LocationService.shared.startExploring(places: course.places, transport: transport)
+        // 세션 복원 시 이미 방문한 장소를 LocationService에 전달해
+        // 재도착 감지를 막는다
+        LocationService.shared.startExploring(
+            places: course.places,
+            transport: transport,
+            alreadyVisited: visitedPlaceNames
+        )
     }
 
     func stopExploring() {

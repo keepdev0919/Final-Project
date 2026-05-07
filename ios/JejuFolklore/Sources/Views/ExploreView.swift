@@ -64,7 +64,7 @@ struct ExploreView: View {
         }
         .onAppear { vm.startExploring() }
         .onDisappear { if !hasStopped { vm.stopExploring() } }
-        .sheet(isPresented: $vm.showCompanionChat) {
+        .sheet(isPresented: $vm.showCompanionChat, onDismiss: { vm.activeChatPlace = nil }) {
             if let place = vm.activeChatPlace {
                 CompanionChatView(place: place, companion: vm.companion, vm: vm)
             }

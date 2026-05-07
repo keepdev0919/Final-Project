@@ -125,6 +125,9 @@ def map_folklore_to_places(
 
         candidates = []
         for r in rows:
+            # place_lat / place_lng 가 NULL인 행은 Pin 모델 검증 실패 원인이므로 제외
+            if r["place_lat"] is None or r["place_lng"] is None:
+                continue
             cat_score = scores.get(r["final_category"] or "", 0)
             spec = r["specificity"] or 0
             # 정렬 키: 카테고리 취향 내림차순 우선, 지명 구체성 내림차순 보조

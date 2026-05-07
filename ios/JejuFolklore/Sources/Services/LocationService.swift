@@ -47,10 +47,15 @@ final class LocationService: NSObject, ObservableObject {
         manager.requestAlwaysAuthorization()
     }
 
-    func startExploring(places: [CoursePlace], transport: String) {
+    func startExploring(places: [CoursePlace], transport: String, alreadyVisited: Set<String> = []) {
         activePlaces = places
         transportMode = transport
-        visitedPlaceIDs.removeAll()
+        // 세션 복원 시 이미 방문한 장소의 placeID를 미리 등록해 재감지를 방지한다
+        visitedPlaceIDs = Set(
+            places
+                .filter { alreadyVisited.contains($0.name) }
+                .map { "\($0.name)-\($0.day)" }
+        )
         pendingArrivals.removeAll()
         manager.allowsBackgroundLocationUpdates = true
         manager.pausesLocationUpdatesAutomatically = false
