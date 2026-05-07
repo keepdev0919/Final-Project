@@ -76,3 +76,19 @@ class ChatRequest(BaseModel):
 class TTSRequest(BaseModel):
     text: str
     pin_id: str
+
+
+VALID_REVIEW_TAGS = {"소름 돋아요", "감동이에요", "신기해요", "무서워요", "역사적이에요"}
+
+
+class PlaceReviewRequest(BaseModel):
+    place_name: str
+    tags: list[str]
+    note: str | None = None
+    device_id: str
+
+
+class PlaceReviewsResponse(BaseModel):
+    total: int
+    tag_counts: dict[str, int]
+    recent_notes: list[str]
