@@ -16,12 +16,31 @@ struct DaySummaryView: View {
                             .font(.system(size: 64))
                         Text("오늘 여행을 마쳤어요!")
                             .font(.title2.weight(.bold))
+                        Text("\(companion.emoji) \(companion.displayName)과 함께한 하루")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundColor(.orange)
                         Text("아이고, 삼춘~ 잘도 열심히 다녔구만요~")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                     }
                     .padding(.top, 8)
+
+                    // 탐험 통계 요약
+                    HStack(spacing: 12) {
+                        StatBadgeView(
+                            icon: "mappin.circle.fill",
+                            value: "\(visitedPlaces.count)곳",
+                            label: "방문",
+                            color: .orange
+                        )
+                        StatBadgeView(
+                            icon: "book.closed.fill",
+                            value: visitedPlaces.isEmpty ? "-" : "\(visitedPlaces.count * 3)개",
+                            label: visitedPlaces.isEmpty ? "설화 정보 없음" : "설화",
+                            color: .purple
+                        )
+                    }
 
                     // 방문 장소 목록
                     VStack(alignment: .leading, spacing: 0) {
@@ -88,6 +107,33 @@ struct DaySummaryView: View {
                 }
             }
         }
+    }
+}
+
+private struct StatBadgeView: View {
+    let icon: String
+    let value: String
+    let label: String
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundColor(color)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(value)
+                    .font(.headline.weight(.bold))
+                Text(label)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            Spacer()
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 14)
+        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
+        .frame(maxWidth: .infinity)
     }
 }
 

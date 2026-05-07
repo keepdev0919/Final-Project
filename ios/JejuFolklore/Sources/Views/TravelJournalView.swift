@@ -7,10 +7,13 @@ struct TravelJournalView: View {
     let companion: CompanionCharacter
     let onDone: () -> Void
 
+    @State private var showShareSheet = false
+
     private var shareText: String {
         """
-        \(companion.emoji) \(companion.displayName)와 함께한 제주 여행
+        제주 설화 여행 일지
 
+        \(companion.emoji) \(companion.displayName)와 함께한 제주 여행
         방문: \(visitedPlaces.joined(separator: ", "))
 
         \(journalText)
@@ -51,8 +54,10 @@ struct TravelJournalView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    ShareLink(item: shareText, subject: Text("나의 제주 여행 일지")) {
-                        Label("공유", systemImage: "square.and.arrow.up")
+                    Button {
+                        showShareSheet = true
+                    } label: {
+                        Image(systemName: "square.and.arrow.up")
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -60,8 +65,23 @@ struct TravelJournalView: View {
                         .fontWeight(.semibold)
                 }
             }
+            .sheet(isPresented: $showShareSheet) {
+                ShareSheet(text: shareText)
+            }
         }
     }
+}
+
+// MARK: - Share Sheet
+
+private struct ShareSheet: UIViewControllerRepresentable {
+    let text: String
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: [text], applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ vc: UIActivityViewController, context: Context) {}
 }
 
 // MARK: - Loading state
