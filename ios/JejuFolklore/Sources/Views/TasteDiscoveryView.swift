@@ -11,6 +11,9 @@ struct TasteDiscoveryView: View {
     @State private var selectedQ2 = ""
     @State private var selectedDays = 1
     @State private var navigateToList = false
+#if DEBUG
+    @State private var isDemoMode = false
+#endif
 
     var body: some View {
         NavigationStack {
@@ -127,8 +130,23 @@ struct TasteDiscoveryView: View {
                 selectedRegion = region
                 withAnimation { step = 1 }
             }
-
             .padding(.horizontal, 24)
+
+#if DEBUG
+            Button {
+                isDemoMode.toggle()
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: isDemoMode ? "checkmark.circle.fill" : "circle")
+                        .foregroundColor(isDemoMode ? .orange : .secondary)
+                    Text(isDemoMode ? "데모 모드 ON — 결과 코스 고정됨" : "데모 모드")
+                        .font(.caption.weight(.medium))
+                        .foregroundColor(isDemoMode ? .orange : .secondary)
+                }
+                .padding(.horizontal, 24)
+            }
+            .buttonStyle(.plain)
+#endif
         }
     }
 
@@ -251,8 +269,13 @@ struct TasteDiscoveryView: View {
         vm.selectedRegion = selectedRegion
         vm.categoryScores = computeCategoryScores()
         vm.durationDays = selectedDays
-        // 로딩 화면을 CourseListView에서 보여주기 위해 API 호출 전에 먼저 이동
         navigateToList = true
+#if DEBUG
+        if isDemoMode {
+            await vm.loadDemoCourse()
+            return
+        }
+#endif
         await vm.fetchList()
     }
 
