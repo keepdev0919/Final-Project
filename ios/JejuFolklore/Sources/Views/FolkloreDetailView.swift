@@ -6,6 +6,7 @@ struct FolkloreDetailView: View {
     @State private var detail: PinDetail?
     @State private var isLoadingDetail = false
     @State private var isLoadingTTS = false
+    @State private var placeReviews: PlaceReviewsResponse? = nil
 
     var body: some View {
         NavigationStack {
@@ -14,6 +15,10 @@ struct FolkloreDetailView: View {
                     headerSection
                     Divider()
                     contentSection
+                    if let reviews = placeReviews, reviews.total > 0 {
+                        Divider()
+                        communitySection(reviews: reviews)
+                    }
                 }
                 .padding(20)
             }
@@ -25,7 +30,11 @@ struct FolkloreDetailView: View {
                 }
             }
         }
-        .task { await loadDetail() }
+        .task {
+            async let detailTask: () = loadDetail()
+            async let reviewTask: () = loadReviews()
+            _ = await (detailTask, reviewTask)
+        }
     }
 
     // MARK: - Header
@@ -106,6 +115,63 @@ struct FolkloreDetailView: View {
 
     private var tagColor: Color {
         pin.sourceType == "legend" ? .orange : .purple
+    }
+
+    private func loadReviews() async {
+        guard !pin.primaryPlace.isEmpty else { return }
+        placeReviews = try? await APIClient.shared.fetchReviews(placeName: pin.primaryPlace)
+    }
+
+    private func communitySection(reviews: PlaceReviewsResponse) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("다른 여행자들의 반응")
+                    .font(.headline)
+                Spacer()
+                Text("총 \(reviews.total)명")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            let sortedTags = reviews.tagCounts
+                .filter { $0.value > 0 }
+                .sorted { $0.value > $1.value }
+
+            ForEach(sortedTags, id: \.key) { tag, count in
+                let pct = Double(count) / Double(reviews.total)
+                HStack(spacing: 8) {
+                    Text(tag)
+                        .font(.caption)
+                        .frame(width: 90, alignment: .leading)
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color(.systemFill))
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(tagColor)
+                                .frame(width: geo.size.width * pct)
+                        }
+                    }
+                    .frame(height: 8)
+                    Text("\(Int(pct * 100))%")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .frame(width: 30, alignment: .trailing)
+                }
+            }
+
+            if !reviews.recentNotes.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(reviews.recentNotes, id: \.self) { note in
+                        Text("\u{201C}\(note)\u{201D}")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .italic()
+                    }
+                }
+                .padding(.top, 4)
+            }
+        }
     }
 
     private func loadDetail() async {
