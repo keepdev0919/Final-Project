@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 // MARK: - CompanionCharacter
 
@@ -20,6 +21,18 @@ enum CompanionCharacter: String, Codable, CaseIterable {
         case .dochebi:  return "👻"
         }
     }
+
+    var themeColor: Color {
+        switch self {
+        case .hallam:   return .orange
+        case .dang:     return .purple
+        case .haenyeo:  return .blue
+        case .dokkaebi: return .green
+        case .dochebi:  return .gray
+        }
+    }
+
+    var bubbleColor: Color { themeColor.opacity(0.15) }
 
     var greeting: String {
         switch self {

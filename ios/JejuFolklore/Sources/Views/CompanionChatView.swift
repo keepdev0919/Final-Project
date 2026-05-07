@@ -78,6 +78,7 @@ struct CompanionChatView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(companion.displayName)
                     .font(.subheadline.weight(.semibold))
+                    .foregroundColor(companion.themeColor)
                 Text(place.name)
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -107,7 +108,7 @@ struct CompanionChatView: View {
             } label: {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.system(size: 32))
-                    .foregroundColor(inputText.trimmingCharacters(in: .whitespaces).isEmpty || isStreaming ? .secondary : .orange)
+                    .foregroundColor(inputText.trimmingCharacters(in: .whitespaces).isEmpty || isStreaming ? .secondary : companion.themeColor)
             }
             .disabled(inputText.trimmingCharacters(in: .whitespaces).isEmpty || isStreaming)
         }
@@ -185,11 +186,11 @@ private struct ChatBubble: View {
                 .foregroundColor(isUser ? .white : .primary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
-                .background(isUser ? Color.orange : Color(.secondarySystemBackground))
+                .background(isUser ? Color.orange : companion.bubbleColor)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .stroke(isUser ? Color.clear : Color.orange.opacity(0.2), lineWidth: 1)
+                        .stroke(isUser ? Color.clear : companion.themeColor.opacity(0.3), lineWidth: 1)
                 )
 
             if !isUser {
