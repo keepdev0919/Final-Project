@@ -15,6 +15,10 @@ struct ExploreView: View {
     @State private var selectedFolklorePlace: CoursePlace?
     @State private var selectedPlace: CoursePlace?
     @State private var isListExpanded = true
+    @State private var reviewTargetPlace: CoursePlace? = nil
+    @State private var showPlaceReview = false
+    @State private var activeTagFilter: String? = nil
+    @State private var placeReviews: [String: PlaceReviewsResponse] = [:]
 
     init(course: Course, transport: String, categoryScores: [String: Int] = [:], overrideCompanion: CompanionCharacter? = nil) {
         self.course = course
@@ -65,9 +69,29 @@ struct ExploreView: View {
         }
         .onAppear { vm.startExploring() }
         .onDisappear { if !hasStopped { vm.stopExploring() } }
-        .sheet(isPresented: $vm.showCompanionChat, onDismiss: { vm.activeChatPlace = nil }) {
+        .task { await loadPlaceReviews() }
+        .sheet(isPresented: $vm.showCompanionChat, onDismiss: {
+            let place = vm.lastArrivedPlace
+            vm.activeChatPlace = nil
+            if let place {
+                reviewTargetPlace = place
+                showPlaceReview = true
+            }
+        }) {
             if let place = vm.activeChatPlace {
                 CompanionChatView(place: place, companion: vm.companion, vm: vm)
+            }
+        }
+        .sheet(isPresented: $showPlaceReview) {
+            if let place = reviewTargetPlace {
+                PlaceReviewSheet(
+                    placeName: place.name,
+                    companion: vm.companion,
+                    onDone: {
+                        showPlaceReview = false
+                        reviewTargetPlace = nil
+                    }
+                )
             }
         }
         .sheet(isPresented: $vm.showDaySummary) {
@@ -105,29 +129,93 @@ struct ExploreView: View {
     }
 
     private var exploreMap: some View {
-        Map(position: $mapPosition) {
-            UserAnnotation()
-            ForEach(course.places.indices, id: \.self) { i in
-                let place = course.places[i]
-                let isVisited = vm.visitedPlaceNames.contains(place.name)
-                Annotation("", coordinate: CLLocationCoordinate2D(latitude: place.lat, longitude: place.lng)) {
-                    Button {
-                        if !place.folklorePins.isEmpty {
-                            selectedFolklorePlace = place
+        ZStack(alignment: .top) {
+            Map(position: $mapPosition) {
+                UserAnnotation()
+                ForEach(course.places.indices, id: \.self) { i in
+                    let place = course.places[i]
+                    let isVisited = vm.visitedPlaceNames.contains(place.name)
+                    let isFiltered = isPlaceFiltered(place)
+                    Annotation("", coordinate: CLLocationCoordinate2D(latitude: place.lat, longitude: place.lng)) {
+                        Button {
+                            if !place.folklorePins.isEmpty {
+                                selectedFolklorePlace = place
+                            }
+                        } label: {
+                            NumberedMarker(number: i + 1, hasfolklore: !place.folklorePins.isEmpty)
+                                .opacity(isVisited ? 0.35 : (isFiltered ? 0.2 : 1.0))
                         }
-                    } label: {
-                        NumberedMarker(number: i + 1, hasfolklore: !place.folklorePins.isEmpty)
-                            .opacity(isVisited ? 0.35 : 1.0)
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
+                }
+                if placeCoordinates.count >= 2 {
+                    MapPolyline(coordinates: placeCoordinates)
+                        .stroke(
+                            .orange.opacity(0.75),
+                            style: StrokeStyle(lineWidth: 3.5, dash: [8, 5])
+                        )
                 }
             }
-            if placeCoordinates.count >= 2 {
-                MapPolyline(coordinates: placeCoordinates)
-                    .stroke(
-                        .orange.opacity(0.75),
-                        style: StrokeStyle(lineWidth: 3.5, dash: [8, 5])
-                    )
+
+            if !placeReviews.isEmpty {
+                tagFilterBar
+                    .padding(.top, 8)
+                    .padding(.horizontal, 12)
+            }
+        }
+    }
+
+    private func isPlaceFiltered(_ place: CoursePlace) -> Bool {
+        guard let filter = activeTagFilter,
+              let reviews = placeReviews[place.name],
+              reviews.total > 0 else { return false }
+        let topTag = reviews.tagCounts.max(by: { $0.value < $1.value })?.key
+        return topTag != filter
+    }
+
+    private var tagFilterBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                filterChip(label: "전체", key: nil)
+                filterChip(label: "👻 소름", key: "소름 돋아요")
+                filterChip(label: "🥹 감동", key: "감동이에요")
+                filterChip(label: "🤔 신기", key: "신기해요")
+                filterChip(label: "😱 무서움", key: "무서워요")
+                filterChip(label: "📜 역사", key: "역사적이에요")
+            }
+            .padding(.horizontal, 4)
+        }
+    }
+
+    private func filterChip(label: String, key: String?) -> some View {
+        let isActive = activeTagFilter == key
+        return Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                activeTagFilter = isActive ? nil : key
+            }
+        } label: {
+            Text(label)
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(isActive ? Color.orange : Color(.systemBackground).opacity(0.9))
+                .foregroundColor(isActive ? .white : .primary)
+                .clipShape(Capsule())
+                .shadow(radius: isActive ? 0 : 2, y: 1)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func loadPlaceReviews() async {
+        await withTaskGroup(of: (String, PlaceReviewsResponse?).self) { group in
+            for place in course.places {
+                group.addTask {
+                    let r = try? await APIClient.shared.fetchReviews(placeName: place.name)
+                    return (place.name, r)
+                }
+            }
+            for await (name, reviews) in group {
+                if let reviews { placeReviews[name] = reviews }
             }
         }
     }
