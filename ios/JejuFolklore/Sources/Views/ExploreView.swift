@@ -129,38 +129,38 @@ struct ExploreView: View {
     }
 
     private var exploreMap: some View {
-        ZStack(alignment: .top) {
-            Map(position: $mapPosition) {
-                UserAnnotation()
-                ForEach(course.places.indices, id: \.self) { i in
-                    let place = course.places[i]
-                    let isVisited = vm.visitedPlaceNames.contains(place.name)
-                    let isFiltered = isPlaceFiltered(place)
-                    Annotation("", coordinate: CLLocationCoordinate2D(latitude: place.lat, longitude: place.lng)) {
-                        Button {
-                            if !place.folklorePins.isEmpty {
-                                selectedFolklorePlace = place
-                            }
-                        } label: {
-                            NumberedMarker(number: i + 1, hasfolklore: !place.folklorePins.isEmpty)
-                                .opacity(isVisited ? 0.35 : (isFiltered ? 0.2 : 1.0))
+        Map(position: $mapPosition) {
+            UserAnnotation()
+            ForEach(course.places.indices, id: \.self) { i in
+                let place = course.places[i]
+                let isVisited = vm.visitedPlaceNames.contains(place.name)
+                let isFiltered = isPlaceFiltered(place)
+                Annotation("", coordinate: CLLocationCoordinate2D(latitude: place.lat, longitude: place.lng)) {
+                    Button {
+                        if !place.folklorePins.isEmpty {
+                            selectedFolklorePlace = place
                         }
-                        .buttonStyle(.plain)
+                    } label: {
+                        NumberedMarker(number: i + 1, hasfolklore: !place.folklorePins.isEmpty)
+                            .opacity(isVisited ? 0.35 : (isFiltered ? 0.2 : 1.0))
                     }
-                }
-                if placeCoordinates.count >= 2 {
-                    MapPolyline(coordinates: placeCoordinates)
-                        .stroke(
-                            .orange.opacity(0.75),
-                            style: StrokeStyle(lineWidth: 3.5, dash: [8, 5])
-                        )
+                    .buttonStyle(.plain)
                 }
             }
-
+            if placeCoordinates.count >= 2 {
+                MapPolyline(coordinates: placeCoordinates)
+                    .stroke(
+                        .orange.opacity(0.75),
+                        style: StrokeStyle(lineWidth: 3.5, dash: [8, 5])
+                    )
+            }
+        }
+        .safeAreaInset(edge: .top, spacing: 0) {
             if !placeReviews.isEmpty {
                 tagFilterBar
-                    .padding(.top, 8)
                     .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(.ultraThinMaterial)
             }
         }
     }
