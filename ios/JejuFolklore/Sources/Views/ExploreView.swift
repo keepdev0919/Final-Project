@@ -7,10 +7,13 @@ struct ExploreView: View {
     let transport: String
     let categoryScores: [String: Int]
 
+    @Environment(\.dismiss) private var dismiss
+
     @StateObject private var vm: ExploreViewModel
     @StateObject private var location = LocationService.shared
 
     @State private var hasStopped = false
+    @State private var goHome = false
     @State private var mapPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var selectedFolklorePlace: CoursePlace?
     @State private var selectedPlace: CoursePlace?
@@ -101,7 +104,9 @@ struct ExploreView: View {
                 onDismiss: { vm.showDaySummary = false }
             )
         }
-        .sheet(isPresented: $vm.showJournal) {
+        .sheet(isPresented: $vm.showJournal, onDismiss: {
+            if goHome { dismiss() }
+        }) {
             if vm.isGeneratingJournal {
                 JournalLoadingView(companion: vm.companion)
             } else {
@@ -109,7 +114,10 @@ struct ExploreView: View {
                     journalText: vm.journalText,
                     visitedPlaces: vm.orderedVisitedPlaceNames,
                     companion: vm.companion,
-                    onDone: { vm.showJournal = false }
+                    onDone: {
+                        goHome = true
+                        vm.showJournal = false
+                    }
                 )
             }
         }
