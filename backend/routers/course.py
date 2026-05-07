@@ -63,7 +63,8 @@ def detail_course(request: Request, body: CourseDetailRequest):
         result = run_detail_agent(course_id=body.course_id, category_scores=body.category_scores)
 
         if result.get("error"):
-            raise HTTPException(status_code=500, detail=result["error"])
+            status = 404 if "찾을 수 없습니다" in result["error"] else 500
+            raise HTTPException(status_code=status, detail=result["error"])
 
         places = []
         for p in result.get("places", []):
