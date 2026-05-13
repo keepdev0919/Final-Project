@@ -68,19 +68,36 @@ def detail_course(request: Request, body: CourseDetailRequest):
 
         places = []
         for p in result.get("places", []):
-            folklore_pins = [
-                Pin(
+            # 장소 자체에 lat/lng가 없으면 스킵 (Pydantic 검증 실패 방지)
+            if p.get("lat") is None or p.get("lng") is None:
+                logger.warning(
+                    "[DETAIL] place skipped due to NULL coords: name=%s day=%s",
+                    p.get("place_name"), p.get("day"),
+                )
+                continue
+
+            folklore_pins = []
+            for f in p.get("folklore_pins", []):
+                # NULL lat/lng 핀 제외 (course_detail_agent에서도 거르지만 이중 방어)
+                f_lat = f.get("lat")
+                f_lng = f.get("lng")
+                if f_lat is None or f_lng is None:
+                    logger.warning(
+                        "[DETAIL] folklore pin skipped due to NULL coords: code_no=%s title=%s",
+                        f.get("code_no"), f.get("title"),
+                    )
+                    continue
+                folklore_pins.append(Pin(
                     code_no=f.get("code_no", ""),
                     title=f.get("title", ""),
                     source_type=f.get("source_type", "legend"),
                     summary=f.get("summary", ""),
-                    lat=f["lat"],
-                    lng=f["lng"],
+                    lat=f_lat,
+                    lng=f_lng,
                     primary_place=p["place_name"],
                     distance_m=f.get("distance_m"),
-                )
-                for f in p.get("folklore_pins", [])
-            ]
+                ))
+
             places.append(CoursePlace(
                 name=p["place_name"],
                 lat=p["lat"],
