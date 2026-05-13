@@ -129,6 +129,19 @@ final class SpeechRecognizer: ObservableObject {
         // 입력 노드에서 PCM 버퍼를 받아 요청에 전달
         let inputNode = audioEngine.inputNode
         let recordingFormat = inputNode.outputFormat(forBus: 0)
+
+        // 시뮬레이터·일부 환경에서 outputFormat이 sampleRate=0 / channelCount=0인
+        // invalid AVAudioFormat을 반환해서 installTap이 NSException으로 크래시하는 케이스 방어.
+        guard recordingFormat.sampleRate > 0, recordingFormat.channelCount > 0 else {
+            #if targetEnvironment(simulator)
+            lastErrorMessage = "시뮬레이터에서는 마이크 입력을 사용할 수 없습니다. 실기기에서 시도해주세요."
+            #else
+            lastErrorMessage = "마이크 초기화 실패. 다른 앱이 마이크를 사용 중인지 확인해주세요."
+            #endif
+            cancelInternal()
+            return
+        }
+
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
             self?.request?.append(buffer)
         }
