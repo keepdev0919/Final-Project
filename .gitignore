@@ -9,6 +9,8 @@ __pycache__/
 # 대용량 DB / 벡터 스토어
 storage/metadata.db
 storage/vector_db/
+storage/*.bak*
+storage/*.db.bak*
 
 # 잘못된 위치에 생성될 수 있는 빈 DB 파일 (실제 DB는 storage/metadata.db)
 backend/jeju_folklore.db
@@ -19,6 +21,19 @@ ios/JejuFolklore/Sources/App/Config.swift
 
 # Xcode 사용자 상태 파일
 *.xcuserstate
+
+# Xcode 빌드 산출물
+ios/build/
+build/
+
+# LaTeX 빌드 부산물
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
 
 # 원본 데이터 파일
 *.csv
