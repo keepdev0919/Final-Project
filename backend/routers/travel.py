@@ -1,7 +1,8 @@
 """여행 중/여행 후 서비스 엔드포인트."""
 import os
 import json
-from typing import Literal
+import logging
+from typing import Literal, Optional
 from services.db import get_db_connection
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
@@ -9,8 +10,11 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from openai import OpenAI
 from services.folklore_search import search_folklore_by_place
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/travel", tags=["travel"])
 limiter = Limiter(key_func=get_remote_address)
@@ -26,6 +30,9 @@ llm = ChatOpenAI(
     temperature=0.5,
     api_key=os.getenv("OPENAI_API_KEY"),
 )
+
+# OpenAI 클라이언트 (이미지 생성용)
+openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # ─── 제주 사투리 퓨샷 가이드 ─────────────────────────────────────────────────
 
@@ -339,13 +346,63 @@ async def companion_chat(request: Request, body: CompanionChatRequest):
 
 JOURNAL_SYSTEM_PROMPT = """당신은 감성적인 여행 기록 작가입니다.
 사용자가 제주도를 여행하며 AI 동행자와 나눈 대화를 바탕으로,
-개인화된 여행 일지를 작성해주세요.
+개인화된 여행 일지와 그 일지에 어울리는 한국 전통 민화 그림 프롬프트를 함께 만들어주세요.
 
-가이드라인:
+[journal_text 가이드라인]
 - 방문한 장소들을 시간 순서로 엮어 300~500자 한국어 산문으로 작성
 - 대화에서 언급된 설화나 인상적인 내용을 자연스럽게 녹여내세요
 - 관광 안내문이 아닌, 여행자의 1인칭 회고 형식으로 쓰세요
-- 마지막 문장은 이 여행이 남긴 감상으로 마무리해주세요"""
+- 마지막 문장은 이 여행이 남긴 감상으로 마무리해주세요
+
+[image_prompt 가이드라인]
+- 일지의 가장 인상 깊은 한 장면을 영어로 묘사하세요 (한 단락, 80~150단어)
+- 반드시 다음 스타일 가이드 문구로 시작하세요:
+  "Korean traditional folk painting (minhwa) style, flat colors, thick black outlines, decorative composition, symbolic motifs, soft natural pigments, paper texture background,"
+- 그 뒤에 일지 핵심 장면을 묘사: 장소(예: Jeju volcanic island, oreum hill, basaltic coast, traditional shrine, haenyeo diving), 인물·존재(예: an old shaman grandmother, a haenyeo in white diving suit, a playful dokkaebi spirit), 분위기(시간대·감정), 상징 요소(예: pine trees, plum blossoms, ocean waves, clouds, mountains)를 자연스럽게 담아주세요
+- 사람 얼굴은 텍스트로 디테일하게 묘사하지 마세요 (민화의 단순화된 표현 유지)
+- 영어 텍스트 안에 한글이나 한자 글씨를 넣지 마세요 (이미지에 글자가 등장하면 안 됨)
+- 폭력적이거나 부적절한 표현은 피하세요"""
+
+
+class JournalLLMOutput(BaseModel):
+    """일지 LLM이 한 번의 호출로 출력하는 구조화된 결과."""
+    journal_text: str = Field(description="300~500자 한국어 1인칭 회고 일지")
+    image_prompt: str = Field(
+        description="민화 스타일 영어 이미지 프롬프트. 시작에 'Korean traditional folk painting (minhwa) style...' 가이드 문구 포함."
+    )
+
+
+# 구조화 출력용 LLM (with_structured_output은 동기 함수이므로 모듈 레벨에서 1회 생성)
+journal_llm = llm.with_structured_output(JournalLLMOutput)
+
+
+def _generate_minhwa_image(image_prompt: str) -> Optional[str]:
+    """gpt-image-1로 민화 이미지 생성. 실패 시 None 반환 (폴백 = 무음)."""
+    try:
+        result = openai_client.images.generate(
+            model="gpt-image-1",
+            prompt=image_prompt,
+            size="1024x1024",
+            quality="medium",
+            n=1,
+        )
+        if not result.data:
+            logger.warning("gpt-image-1 returned no data")
+            return None
+        item = result.data[0]
+        # gpt-image-1은 기본적으로 b64_json을 반환할 수 있음. URL이 있으면 우선.
+        url = getattr(item, "url", None)
+        if url:
+            return url
+        b64 = getattr(item, "b64_json", None)
+        if b64:
+            # iOS AsyncImage가 data: URL 처리 가능
+            return f"data:image/png;base64,{b64}"
+        logger.warning("gpt-image-1 response had neither url nor b64_json")
+        return None
+    except Exception as e:
+        logger.warning(f"image generation failed: {e}")
+        return None
 
 
 @router.post("/journal")
@@ -365,14 +422,23 @@ async def generate_journal(request: Request, body: JournalRequest):
         f"방문 장소: {places_text}\n\n"
         f"동행자와의 대화:\n{chat_text}\n\n"
         + (community_context if community_context else "")
-        + "위 여행을 회고하는 개인 여행 일지를 작성해주세요."
+        + "위 여행을 회고하는 개인 여행 일지(journal_text)와 "
+        + "그 장면을 담은 한국 민화 스타일 영어 이미지 프롬프트(image_prompt)를 함께 작성해주세요."
     )
 
     try:
-        result = await llm.ainvoke([
+        llm_output: JournalLLMOutput = await journal_llm.ainvoke([
             SystemMessage(content=JOURNAL_SYSTEM_PROMPT),
             HumanMessage(content=prompt),
         ])
-        return {"journal_text": result.content}
     except Exception as e:
+        logger.error(f"journal LLM failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+    # 이미지 생성 (실패해도 일지는 정상 반환)
+    image_url = _generate_minhwa_image(llm_output.image_prompt)
+
+    return {
+        "journal_text": llm_output.journal_text,
+        "image_url": image_url,
+    }

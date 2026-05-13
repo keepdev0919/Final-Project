@@ -25,6 +25,12 @@ struct JournalChatLog: Encodable {
 
 struct JournalResponse: Decodable {
     let journalText: String
+    let imageUrl: String?
+}
+
+struct JournalResult {
+    let text: String
+    let imageUrl: URL?
 }
 
 enum TravelAPI {
@@ -88,7 +94,7 @@ enum TravelAPI {
         }
     }
 
-    static func generateJournal(session: TravelSession) async throws -> String {
+    static func generateJournal(session: TravelSession) async throws -> JournalResult {
         let logs = session.chatLogs.map { log in
             JournalChatLog(
                 placeName: log.placeName,
@@ -109,6 +115,8 @@ enum TravelAPI {
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.httpBody = try encoder.encode(body)
+        // 이미지 생성 포함 시 30초 이상 걸릴 수 있음
+        urlRequest.timeoutInterval = 90
 
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
@@ -117,6 +125,10 @@ enum TravelAPI {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         let result = try decoder.decode(JournalResponse.self, from: data)
-        return result.journalText
+        let imageURL: URL? = {
+            guard let s = result.imageUrl, !s.isEmpty else { return nil }
+            return URL(string: s)
+        }()
+        return JournalResult(text: result.journalText, imageUrl: imageURL)
     }
 }

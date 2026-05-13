@@ -110,6 +110,7 @@ struct ExploreView: View {
             } else {
                 TravelJournalView(
                     journalText: vm.journalText,
+                    imageURL: vm.journalImageURL,
                     visitedPlaces: vm.orderedVisitedPlaceNames,
                     companion: vm.companion,
                     onDone: {

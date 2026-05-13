@@ -93,3 +93,8 @@ class PlaceReviewsResponse(BaseModel):
     total: int
     tag_counts: dict[str, int]
     recent_notes: list[str]
+
+
+class JournalResponse(BaseModel):
+    journal_text: str
+    image_url: Optional[str] = None  # 이미지 생성 실패 시 None
