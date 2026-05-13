@@ -108,11 +108,17 @@ def run_course_list(
     duration_max = duration_days + 1
 
     # 요청 지역 코스 우선 + 부족하면 "전체" 코스로 보완
+    # 부실 코스 필터: place_count >= 3 AND >= duration_days
+    # (1박 2일에 갈 곳이 1~2곳인 부실 일정이 단일 장소의 매핑 다양성 덕에
+    #  점수 1등으로 올라가는 문제 방지)
     rows = conn.execute(
         """
         SELECT id, title, duration_days
         FROM curated_courses
-        WHERE region IN (?, '전체') AND duration_days BETWEEN ? AND ?
+        WHERE region IN (?, '전체')
+          AND duration_days BETWEEN ? AND ?
+          AND place_count >= 3
+          AND place_count >= duration_days
         ORDER BY CASE WHEN region = ? THEN 0 ELSE 1 END, composite_score DESC
         LIMIT 50
         """,
