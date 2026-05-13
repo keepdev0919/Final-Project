@@ -23,6 +23,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.parent
 VISITJEJU_PATH = BASE_DIR / "data" / "processed" / "visitjeju_places_geocoded.json"
+VISITJEJU_CATEGORIZED_PATH = BASE_DIR / "data" / "processed" / "visitjeju_places_final.json"
 FOLKLORE_GPS_PATH = BASE_DIR / "data" / "processed" / "folklore_gps.json"
 DB_PATH = BASE_DIR / "storage" / "metadata.db"
 
@@ -118,6 +119,18 @@ def main() -> None:
         vj_places = json.load(f)
     with open(FOLKLORE_GPS_PATH, encoding="utf-8") as f:
         gps_folklore = json.load(f)
+
+    # 관광지 필터: visitjeju_places_final.json에서 is_attraction=True만 남김
+    # (식당/카페/숙박/상점 등 비관광지는 설화 매핑 대상에서 제외)
+    if VISITJEJU_CATEGORIZED_PATH.exists():
+        with open(VISITJEJU_CATEGORIZED_PATH) as f:
+            categorized = json.load(f)
+        attraction_names = {p["place_name"] for p in categorized if p.get("is_attraction")}
+        before = len(vj_places)
+        vj_places = [v for v in vj_places if v["place_name"] in attraction_names]
+        print(f"  관광지 필터 적용: {before} → {len(vj_places)} (식당/카페/숙박 제외)")
+    else:
+        print(f"  ⚠️ 분류 파일 없음 — 전체 사용 ({VISITJEJU_CATEGORIZED_PATH})")
 
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
