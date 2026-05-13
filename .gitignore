@@ -10,6 +10,10 @@ __pycache__/
 storage/metadata.db
 storage/vector_db/
 
+# 잘못된 위치에 생성될 수 있는 빈 DB 파일 (실제 DB는 storage/metadata.db)
+backend/jeju_folklore.db
+backend/storage/metadata.db
+
 # 로컬 IP가 박히는 파일 (start_dev.sh가 자동 갱신)
 ios/JejuFolklore/Sources/App/Config.swift
 
