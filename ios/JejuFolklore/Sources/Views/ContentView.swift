@@ -71,6 +71,11 @@ struct ContentView: View {
                 showRestoreSheet = true
             }
         }
+        // SessionRestore 경로(ContentView가 직접 ExploreView를 push)로 진입한 경우
+        // 탐험 완료 시 navigation stack을 비워 TabView root로 복귀.
+        .onReceive(NotificationCenter.default.publisher(for: .exploreDidComplete)) { _ in
+            navigateToExplore = false
+        }
     }
 }
 

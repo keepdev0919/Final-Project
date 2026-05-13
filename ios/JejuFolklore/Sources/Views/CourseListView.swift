@@ -4,6 +4,7 @@ struct CourseListView: View {
     @ObservedObject var vm: CourseRecommendViewModel
     @State private var navigateToPreview = false
     @State private var shouldLoadNext = false
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ZStack {
@@ -59,6 +60,11 @@ struct CourseListView: View {
             Button("확인", role: .cancel) {}
         } message: {
             Text(vm.errorMessage ?? "다시 시도해주세요.")
+        }
+        // 탐험 완료 시 자신도 pop → TasteDiscoveryView(NavigationStack root)까지 연쇄적으로 복귀.
+        .onReceive(NotificationCenter.default.publisher(for: .exploreDidComplete)) { _ in
+            navigateToPreview = false
+            dismiss()
         }
     }
 

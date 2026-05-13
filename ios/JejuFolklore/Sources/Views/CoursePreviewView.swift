@@ -67,6 +67,13 @@ struct CoursePreviewView: View {
                 overrideCompanion: selectedCompanion
             )
         }
+        // 탐험 완료 시 자신도 dismiss → TabView root까지 연쇄적으로 pop.
+        // ExploreView가 4단 push(TasteDiscovery → CourseList → CoursePreview → Explore)
+        // 안에 있을 수 있어, dismiss 한 번으로는 root에 도달 못 함.
+        .onReceive(NotificationCenter.default.publisher(for: .exploreDidComplete)) { _ in
+            navigateToExplore = false
+            dismiss()
+        }
     }
 
     // MARK: - Map

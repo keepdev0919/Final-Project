@@ -161,3 +161,12 @@ final class TravelStore {
         UserDefaults.standard.removeObject(forKey: key)
     }
 }
+
+// MARK: - Notification Names
+
+extension Notification.Name {
+    /// 탐험(여행 일지) 완료 시 발송되는 글로벌 이벤트.
+    /// ExploreView → 부모 view(CoursePreviewView, SavedCourseDetailView, ContentView 등)가
+    /// 자신을 dismiss하여 TabView root까지 연쇄적으로 복귀하기 위한 신호.
+    static let exploreDidComplete = Notification.Name("exploreDidComplete")
+}

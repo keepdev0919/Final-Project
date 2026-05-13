@@ -76,6 +76,7 @@ struct SavedCourseRow: View {
 struct SavedCourseDetailView: View {
     let course: SavedCourse
     @State private var startExplore = false
+    @Environment(\.dismiss) private var dismiss
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -142,6 +143,12 @@ struct SavedCourseDetailView: View {
                     transport: "car"
                 )
             }
+        }
+        // 탐험 완료 시 sheet 자체를 닫아 MyCourseList(탭 root)로 복귀.
+        // sheet 내부의 NavigationStack에서 ExploreView dismiss만으로는 sheet가 닫히지 않음.
+        .onReceive(NotificationCenter.default.publisher(for: .exploreDidComplete)) { _ in
+            startExplore = false
+            dismiss()
         }
     }
 

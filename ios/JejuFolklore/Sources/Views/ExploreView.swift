@@ -128,9 +128,14 @@ struct ExploreView: View {
                 Task {
                     await archiveExploration()
                     await MainActor.run {
-                        // 탐험 완료 후 "내 코스" 탭으로 자동 전환
+                        // 탐험 완료 후 "내 코스" 탭으로 자동 전환.
+                        // 1) AppStorage 먼저 변경 → 부모가 dismiss될 때 이미 탭 전환 완료 상태.
+                        // 2) NotificationCenter post → 부모 view들(CoursePreviewView,
+                        //    SavedCourseDetailView)이 받아서 자신도 dismiss → TabView root 도달.
+                        // 3) 마지막으로 자신을 dismiss().
                         UserDefaults.standard.set(AppTab.myCourse.rawValue, forKey: "selected_tab")
                         TravelStore.shared.clear()
+                        NotificationCenter.default.post(name: .exploreDidComplete, object: nil)
                         dismiss()
                     }
                 }
