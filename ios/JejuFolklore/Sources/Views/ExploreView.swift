@@ -23,6 +23,26 @@ struct ExploreView: View {
     @State private var isListExpanded = true
     @State private var reviewTargetPlace: CoursePlace? = nil
     @State private var showPlaceReview = false
+    @State private var selectedDay: Int? = nil
+
+    // 전체 day 목록 (중복 제거, 정렬)
+    private var days: [Int] {
+        Array(Set(course.places.map { $0.day })).sorted()
+    }
+
+    // day 기준으로 장소 그룹핑
+    private var placesByDay: [Int: [CoursePlace]] {
+        Dictionary(grouping: course.places, by: { $0.day })
+    }
+
+    /// day 섹션의 첫 번째 장소가 전체 places 배열에서 갖는 오프셋 (마커 번호용)
+    private func globalOffset(for day: Int) -> Int {
+        guard let firstPlace = placesByDay[day]?.first else { return 0 }
+        let idx = course.places.firstIndex { p in
+            p.name == firstPlace.name && p.day == firstPlace.day
+        }
+        return idx ?? 0
+    }
     init(course: Course, transport: String, categoryScores: [String: Int] = [:], overrideCompanion: CompanionCharacter? = nil) {
         self.course = course
         self.transport = transport
@@ -220,31 +240,59 @@ struct ExploreView: View {
             if isListExpanded {
                 Divider()
                     .padding(.horizontal, 16)
+
+                // Day 탭 필터 (2일 이상일 때만 표시)
+                if days.count > 1 {
+                    dayTabBar
+                        .padding(.top, 8)
+                        .padding(.bottom, 2)
+                }
+
                 ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 8) {
-                        ForEach(Array(course.places.enumerated()), id: \.offset) { idx, place in
-                            let isVisited = vm.visitedPlaceNames.contains(place.name)
-                            PlaceCard(index: idx + 1, place: place)
-                                .opacity(isVisited ? 0.45 : 1.0)
-                                .overlay(alignment: .topTrailing) {
-                                    if isVisited {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundColor(.green)
-                                            .font(.title3)
-                                            .padding(10)
-                                    }
+                    VStack(spacing: 0) {
+                        if days.count > 1 {
+                            // Day 섹션별 장소 목록 (다일 코스)
+                            ForEach(days, id: \.self) { day in
+                                if selectedDay == nil || selectedDay == day {
+                                    ExploreDaySectionView(
+                                        day: day,
+                                        places: placesByDay[day] ?? [],
+                                        globalOffset: globalOffset(for: day),
+                                        visitedPlaceNames: vm.visitedPlaceNames,
+                                        onPlaceTap: { selectedPlace = $0 }
+                                    )
                                 }
-                                .onTapGesture { selectedPlace = place }
+                            }
+                        } else {
+                            // 1일 코스 — 기존 flat 표시 유지
+                            VStack(spacing: 8) {
+                                ForEach(Array(course.places.enumerated()), id: \.offset) { idx, place in
+                                    let isVisited = vm.visitedPlaceNames.contains(place.name)
+                                    PlaceCard(index: idx + 1, place: place)
+                                        .opacity(isVisited ? 0.45 : 1.0)
+                                        .overlay(alignment: .topTrailing) {
+                                            if isVisited {
+                                                Image(systemName: "checkmark.circle.fill")
+                                                    .foregroundColor(.green)
+                                                    .font(.title3)
+                                                    .padding(10)
+                                            }
+                                        }
+                                        .onTapGesture { selectedPlace = place }
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
                         }
+
                         #if DEBUG
                         Button("🐞 다음 장소 도착") { vm.simulateNextArrival() }
                             .buttonStyle(.borderedProminent)
                             .tint(.purple)
                             .padding(.top, 4)
+                            .padding(.bottom, 10)
                         #endif
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
                 }
                 .frame(maxHeight: 280)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -253,6 +301,26 @@ struct ExploreView: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .padding(.horizontal, 8)
         .padding(.bottom, 8)
+    }
+
+    // MARK: - Day Tab Bar
+
+    private var dayTabBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ExploreDayTabButton(title: "전체", isSelected: selectedDay == nil) {
+                    withAnimation(.easeInOut(duration: 0.2)) { selectedDay = nil }
+                }
+                ForEach(days, id: \.self) { day in
+                    ExploreDayTabButton(title: "Day \(day)", isSelected: selectedDay == day) {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            selectedDay = (selectedDay == day) ? nil : day
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+        }
     }
 
     // MARK: - Status Row
@@ -391,6 +459,78 @@ struct ExploreView: View {
             return data
         } catch {
             return nil
+        }
+    }
+}
+
+// MARK: - ExploreDaySectionView
+
+/// ExploreView 전용 Day 섹션 뷰. 방문 완료 체크마크 + 탭 액션을 포함.
+private struct ExploreDaySectionView: View {
+    let day: Int
+    let places: [CoursePlace]
+    let globalOffset: Int   // 전체 배열에서의 시작 번호 오프셋
+    let visitedPlaceNames: Set<String>
+    let onPlaceTap: (CoursePlace) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // 섹션 헤더
+            HStack {
+                Text("Day \(day)")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                    .background(Color.orange)
+                    .clipShape(Capsule())
+
+                Rectangle()
+                    .fill(Color.orange.opacity(0.25))
+                    .frame(height: 1)
+                    .frame(maxWidth: .infinity)
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
+
+            // 장소 카드 목록
+            ForEach(Array(places.enumerated()), id: \.offset) { idx, place in
+                let isVisited = visitedPlaceNames.contains(place.name)
+                PlaceCard(index: globalOffset + idx + 1, place: place)
+                    .opacity(isVisited ? 0.45 : 1.0)
+                    .overlay(alignment: .topTrailing) {
+                        if isVisited {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                                .font(.title3)
+                                .padding(10)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 8)
+                    .onTapGesture { onPlaceTap(place) }
+            }
+        }
+    }
+}
+
+// MARK: - ExploreDayTabButton
+
+private struct ExploreDayTabButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 7)
+                .background(isSelected ? Color.orange : Color.orange.opacity(0.1))
+                .foregroundColor(isSelected ? .white : .orange)
+                .clipShape(Capsule())
         }
     }
 }
