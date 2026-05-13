@@ -7,8 +7,8 @@ struct TasteDiscoveryView: View {
     @StateObject private var vm = CourseRecommendViewModel()
     @State private var step = 0
     @State private var selectedRegion = ""
-    @State private var selectedQ1 = ""
-    @State private var selectedQ2 = ""
+    @State private var selectedMain = ""
+    @State private var selectedSide = ""
     @State private var selectedDays = 1
     @State private var navigateToList = false
 #if DEBUG
@@ -150,45 +150,87 @@ struct TasteDiscoveryView: View {
         }
     }
 
-    // MARK: - Step 2: Q1 — 어떤 이야기 결
+    // MARK: - Step 2: 메인 결 선택
 
     private var q1Step: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("어떤 이야기 결이 끌려요?")
-                .font(.title2.weight(.bold))
-                .padding(.horizontal, 24)
-                .padding(.top, 32)
-
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                ForEach(Q1Option.all) { option in
-                    Q1CardView(option: option) {
-                        selectedQ1 = option.key
-                        withAnimation { step = 2 }
-                    }
-                }
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("어떤 결의 이야기에 끌려요?")
+                    .font(.title2.weight(.bold))
+                Text("메인으로 1개 골라주세요")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
             }
             .padding(.horizontal, 24)
+            .padding(.top, 32)
+
+            ScrollView {
+                VStack(spacing: 10) {
+                    ForEach(CategoryOption.all) { option in
+                        CategoryCardView(
+                            option: option,
+                            isSelected: selectedMain == option.key,
+                            isDisabled: false
+                        ) {
+                            selectedMain = option.key
+                            withAnimation { step = 2 }
+                        }
+                    }
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 20)
+            }
         }
     }
 
-    // MARK: - Step 3: Q2 — 어떤 배경
+    // MARK: - Step 3: 사이드 결 선택 (Skip 가능)
 
     private var q2Step: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("어떤 배경이 좋아요?")
-                .font(.title2.weight(.bold))
-                .padding(.horizontal, 24)
-                .padding(.top, 32)
-
-            VStack(spacing: 10) {
-                ForEach(Q2Option.all) { option in
-                    tasteButton(option.label) {
-                        selectedQ2 = option.key
-                        withAnimation { step = 3 }
-                    }
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("사이드 결도 있어요?")
+                        .font(.title2.weight(.bold))
+                    Text("선택사항이에요")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                Button {
+                    selectedSide = ""
+                    withAnimation { step = 3 }
+                } label: {
+                    Text("Skip")
+                        .font(.callout.weight(.semibold))
+                        .foregroundColor(.orange)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(Color.orange.opacity(0.12))
+                        .clipShape(Capsule())
                 }
             }
             .padding(.horizontal, 24)
+            .padding(.top, 32)
+
+            ScrollView {
+                VStack(spacing: 10) {
+                    ForEach(CategoryOption.all) { option in
+                        let isMain = option.key == selectedMain
+                        CategoryCardView(
+                            option: option,
+                            isSelected: selectedSide == option.key,
+                            isDisabled: isMain
+                        ) {
+                            if !isMain {
+                                selectedSide = option.key
+                                withAnimation { step = 3 }
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 20)
+            }
         }
     }
 
@@ -238,27 +280,13 @@ struct TasteDiscoveryView: View {
     }
 
     private func computeCategoryScores() -> [String: Int] {
-        // Q1: 서사 축 점수
-        let q1Map: [String: [String: Int]] = [
-            "mythology":    ["무속신화·신격 전승": 3, "마을 공동체 전승": 1],
-            "supernatural": ["초자연 존재담": 3, "생활민담·교훈담": 1],
-            "folktale":     ["생활민담·교훈담": 3, "마을 공동체 전승": 1],
-            "community":    ["마을 공동체 전승": 3, "무속신화·신격 전승": 1],
-        ]
-        // Q2: 공간 축 점수
-        let q2Map: [String: [String: Int]] = [
-            "ocean":    ["해양·어촌 전승": 3, "초자연 존재담": 1],
-            "village":  ["마을 공동체 전승": 2, "무속신화·신격 전승": 1],
-            "mountain": ["무속신화·신격 전승": 1, "생활민담·교훈담": 1, "초자연 존재담": 1],
-            "any":      [:],
-        ]
-
+        // 메인 카테고리 +3, 사이드 카테고리 +1 (비어있으면 점수 없음)
         var scores: [String: Int] = [:]
-        for (cat, score) in q1Map[selectedQ1] ?? [:] {
-            scores[cat, default: 0] += score
+        if !selectedMain.isEmpty {
+            scores[selectedMain] = 3
         }
-        for (cat, score) in q2Map[selectedQ2] ?? [:] {
-            scores[cat, default: 0] += score
+        if !selectedSide.isEmpty && selectedSide != selectedMain {
+            scores[selectedSide] = 1
         }
         return scores
     }
@@ -282,8 +310,8 @@ struct TasteDiscoveryView: View {
     private func resetToStart() {
         step = 0
         selectedRegion = ""
-        selectedQ1 = ""
-        selectedQ2 = ""
+        selectedMain = ""
+        selectedSide = ""
         selectedDays = 1
         vm.reset()
     }
@@ -590,65 +618,97 @@ private struct JejuRegionMapView: UIViewRepresentable {
     }
 }
 
-// MARK: - Q1/Q2 선택지
+// MARK: - 설화 카테고리 선택지
 
-private struct Q1Option: Identifiable {
+/// 5개 설화 카테고리. key는 백엔드 카테고리 이름과 정확히 일치해야 함.
+private struct CategoryOption: Identifiable {
     let id = UUID()
-    let key: String
-    let label: String
-    let imageName: String
+    let key: String        // 백엔드 final_category 값
+    let label: String      // 사용자에게 보여줄 친근한 표현
+    let icon: String       // SF Symbol
+    let tint: Color        // 카드 강조 색
 
-    static let all: [Q1Option] = [
-        Q1Option(key: "mythology",    label: "신이 마을에 내려오는 이야기", imageName: "mood_grand_sacred"),
-        Q1Option(key: "supernatural", label: "으스스하고 기이한 이야기",     imageName: "mood_mysterious"),
-        Q1Option(key: "folktale",     label: "재치 있고 교훈적인 이야기",   imageName: "mood_cheerful"),
-        Q1Option(key: "community",    label: "마을 사람들이 함께 전해온 이야기", imageName: "mood_village"),
+    static let all: [CategoryOption] = [
+        CategoryOption(
+            key: "무속신화·신격 전승",
+            label: "신이 마을에 내려오는 이야기",
+            icon: "sparkles",
+            tint: .purple
+        ),
+        CategoryOption(
+            key: "초자연 존재담",
+            label: "으스스하고 기이한 이야기",
+            icon: "moon.haze.fill",
+            tint: .indigo
+        ),
+        CategoryOption(
+            key: "해양·어촌 전승",
+            label: "바다와 해녀의 이야기",
+            icon: "water.waves",
+            tint: .blue
+        ),
+        CategoryOption(
+            key: "생활민담·교훈담",
+            label: "재치 있고 교훈적인 이야기",
+            icon: "book.closed.fill",
+            tint: .orange
+        ),
+        CategoryOption(
+            key: "마을 공동체 전승",
+            label: "마을 사람들이 함께 전해온 이야기",
+            icon: "house.fill",
+            tint: .green
+        ),
     ]
 }
 
-// MARK: - Q1CardView
+// MARK: - CategoryCardView
 
-private struct Q1CardView: View {
-    let option: Q1Option
+private struct CategoryCardView: View {
+    let option: CategoryOption
+    let isSelected: Bool
+    let isDisabled: Bool
     let onSelect: () -> Void
 
     var body: some View {
-        Button(action: onSelect) {
-            ZStack(alignment: .bottomLeading) {
-                Image(option.imageName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 160)
-                    .clipped()
-
-                LinearGradient(
-                    colors: [.clear, .black.opacity(0.65)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+        Button(action: { if !isDisabled { onSelect() } }) {
+            HStack(spacing: 14) {
+                Image(systemName: option.icon)
+                    .font(.title3.weight(.semibold))
+                    .foregroundColor(.white)
+                    .frame(width: 44, height: 44)
+                    .background(option.tint)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
 
                 Text(option.label)
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 12)
-                    .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
+                    .font(.body.weight(.semibold))
+                    .foregroundColor(isDisabled ? .secondary : .primary)
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(2)
+
+                Spacer()
+
+                if isDisabled {
+                    Text("메인")
+                        .font(.caption2.weight(.bold))
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.secondary.opacity(0.15))
+                        .clipShape(Capsule())
+                }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .padding(.horizontal, 14)
+            .padding(.vertical, 14)
+            .background(Color(UIColor.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(isSelected ? option.tint : Color.clear, lineWidth: 2)
+            )
+            .opacity(isDisabled ? 0.45 : 1)
         }
         .buttonStyle(.plain)
+        .disabled(isDisabled)
     }
-}
-
-private struct Q2Option: Identifiable {
-    let id = UUID()
-    let key: String
-    let label: String
-
-    static let all: [Q2Option] = [
-        Q2Option(key: "ocean",    label: "바다와 어촌"),
-        Q2Option(key: "village",  label: "마을과 당"),
-        Q2Option(key: "mountain", label: "산·오름"),
-        Q2Option(key: "any",      label: "상관없어요"),
-    ]
 }
