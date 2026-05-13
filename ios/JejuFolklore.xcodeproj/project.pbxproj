@@ -43,6 +43,7 @@
 		B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */; };
 		BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */; };
 		BF7D8FB6935D109B375EF985 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C6027A4A228CB2943AF3A93 /* ChatViewModel.swift */; };
+		C344E8EB8063A7D1A885FA40 /* TTSPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC4551DB86ABE4E92BB0191 /* TTSPlayerService.swift */; };
 		C73841BC51AF0A0EC4A72670 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F529E10D83F4E5A63726E5 /* LocationService.swift */; };
 		C74D798F99D1945551A212E6 /* TravelSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8400CD98E1FD2E1045AE84 /* TravelSession.swift */; };
 		C97C58E098FE7DDBBFA5E051 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D629F5C5C7EBC91E3B287 /* ChatView.swift */; };
@@ -75,6 +76,7 @@
 		4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewModel.swift; sourceTree = "<group>"; };
 		50714B04510A0105DCCEE895 /* debug-route.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "debug-route.gpx"; sourceTree = "<group>"; };
 		5A9387AD77FAD744E124731E /* DaySummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySummaryView.swift; sourceTree = "<group>"; };
+		6DC4551DB86ABE4E92BB0191 /* TTSPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSPlayerService.swift; sourceTree = "<group>"; };
 		6DEF7C5A76ABA12369016601 /* JejuFolkloreApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JejuFolkloreApp.swift; sourceTree = "<group>"; };
 		72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewView.swift; sourceTree = "<group>"; };
 		7BFB45E01F6089646021CEA5 /* SharedComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedComponents.swift; sourceTree = "<group>"; };
@@ -210,6 +212,7 @@
 				997538FBFEB00536EF630FCB /* PlaceAPI.swift */,
 				41B83DC6328155E768AEA6E2 /* TravelAPI.swift */,
 				8F6205B0B938C2482576817A /* TTSAPI.swift */,
+				6DC4551DB86ABE4E92BB0191 /* TTSPlayerService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -346,6 +349,7 @@
 				4FF8E3BA2A1CBF3EB0E700D8 /* SessionRestoreView.swift in Sources */,
 				8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */,
 				88DD5A8EED77969C5A45054D /* TTSAPI.swift in Sources */,
+				C344E8EB8063A7D1A885FA40 /* TTSPlayerService.swift in Sources */,
 				B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */,
 				FCF7F0B54F1DC31F15E28D22 /* TravelAPI.swift in Sources */,
 				A981386C08A1E204A2AFC874 /* TravelJournalView.swift in Sources */,

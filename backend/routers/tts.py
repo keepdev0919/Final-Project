@@ -12,6 +12,8 @@ router = APIRouter(prefix="/tts", tags=["tts"])
 limiter = Limiter(key_func=get_remote_address)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+ALLOWED_VOICES = {"alloy", "echo", "fable", "nova", "onyx", "shimmer"}
+
 
 @router.post("")
 @limiter.limit("20/minute")
@@ -19,9 +21,11 @@ def generate_tts(request: Request, body: TTSRequest):
     if not body.text.strip():
         raise HTTPException(status_code=400, detail="text is empty")
 
+    voice = body.voice if body.voice in ALLOWED_VOICES else "nova"
+
     response = client.audio.speech.create(
         model="tts-1",
-        voice="nova",
+        voice=voice,
         input=body.text[:4096],
     )
 

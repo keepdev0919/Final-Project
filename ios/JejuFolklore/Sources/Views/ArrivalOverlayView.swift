@@ -7,6 +7,7 @@ struct ArrivalOverlayView: View {
     let onDismiss: () -> Void
 
     @State private var appeared = false
+    @State private var greetingTask: Task<Void, Never>?
 
     var body: some View {
         ZStack {
@@ -76,6 +77,20 @@ struct ArrivalOverlayView: View {
             withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
                 appeared = true
             }
+            // 페르소나 인사말 자동 재생 (반복 시연 시 캐시로 즉시).
+            let voice = companion.ttsVoice
+            let greeting = companion.greeting
+            let cacheKey = "greeting_\(companion.rawValue)"
+            greetingTask = Task {
+                await TTSPlayerService.shared.speak(
+                    text: greeting,
+                    voice: voice,
+                    cacheKey: cacheKey
+                )
+            }
+        }
+        .onDisappear {
+            greetingTask?.cancel()
         }
     }
 }

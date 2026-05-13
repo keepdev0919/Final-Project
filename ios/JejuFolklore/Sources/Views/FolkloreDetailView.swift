@@ -184,7 +184,7 @@ struct FolkloreDetailView: View {
         let text = detail?.fullText ?? pin.summary
         isLoadingTTS = true
         do {
-            let data = try await TTSAPI.fetch(text: String(text.prefix(500)), pinId: pin.id)
+            let data = try await TTSAPI.fetch(text: String(text.prefix(500)), voice: "nova", cacheKey: "pin_\(pin.id)")
             audio.play(data: data)
         } catch {}
         isLoadingTTS = false

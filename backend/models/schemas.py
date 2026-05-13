@@ -75,7 +75,8 @@ class ChatRequest(BaseModel):
 
 class TTSRequest(BaseModel):
     text: str
-    pin_id: str
+    pin_id: Optional[str] = None
+    voice: str = "nova"
 
 
 VALID_REVIEW_TAGS = {"소름 돋아요", "감동이에요", "신기해요", "무서워요", "역사적이에요"}

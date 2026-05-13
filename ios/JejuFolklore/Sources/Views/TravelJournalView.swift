@@ -8,6 +8,9 @@ struct TravelJournalView: View {
     let onDone: () -> Void
 
     @State private var showShareSheet = false
+    @State private var isPreparingTTS = false
+    @State private var ttsTask: Task<Void, Never>?
+    @StateObject private var audio = AudioPlayer.shared
 
     private var shareText: String {
         """
@@ -61,13 +64,56 @@ struct TravelJournalView: View {
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("완료", action: onDone)
-                        .fontWeight(.semibold)
+                    HStack(spacing: 12) {
+                        journalTTSButton
+                        Button("완료", action: onDone)
+                            .fontWeight(.semibold)
+                    }
                 }
             }
             .sheet(isPresented: $showShareSheet) {
                 ShareSheet(text: shareText)
             }
+        }
+        .onDisappear {
+            ttsTask?.cancel()
+            AudioPlayer.shared.stop()
+        }
+    }
+
+    @ViewBuilder
+    private var journalTTSButton: some View {
+        if isPreparingTTS {
+            ProgressView()
+                .controlSize(.small)
+        } else if audio.isPlaying {
+            Button {
+                ttsTask?.cancel()
+                AudioPlayer.shared.stop()
+            } label: {
+                Image(systemName: "pause.circle.fill")
+                    .font(.title3)
+            }
+            .accessibilityLabel("낭독 멈추기")
+        } else {
+            Button {
+                playJournal()
+            } label: {
+                Image(systemName: "play.circle.fill")
+                    .font(.title3)
+            }
+            .accessibilityLabel("일지 낭독하기")
+        }
+    }
+
+    private func playJournal() {
+        let text = journalText
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        isPreparingTTS = true
+        ttsTask = Task {
+            // 페르소나 무관 내레이터 voice (nova). 일지는 1인칭 회고이므로 통일.
+            await TTSPlayerService.shared.speak(text: text, voice: "nova", cacheKey: nil)
+            isPreparingTTS = false
         }
     }
 }
