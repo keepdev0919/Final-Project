@@ -58,7 +58,8 @@ targets:
         UIBackgroundModes:
           - location
           - audio
-        NSMicrophoneUsageDescription: "오디오 가이드 재생을 위해 필요합니다."
+        NSMicrophoneUsageDescription: "리뷰 입력 시 음성 받아쓰기를 위해 마이크를 사용합니다."
+        NSSpeechRecognitionUsageDescription: "음성을 텍스트로 변환하기 위해 음성 인식을 사용합니다."
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
         LSApplicationQueriesSchemes:
