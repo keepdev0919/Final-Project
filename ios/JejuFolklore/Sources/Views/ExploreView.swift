@@ -1,5 +1,6 @@
 // ios/JejuFolklore/Sources/Views/ExploreView.swift
 import SwiftUI
+import SwiftData
 import MapKit
 
 struct ExploreView: View {
@@ -11,6 +12,8 @@ struct ExploreView: View {
     @StateObject private var location = LocationService.shared
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @Query private var savedCourses: [SavedCourse]
 
     @State private var hasStopped = false
     @State private var journalCompleted = false
@@ -122,8 +125,15 @@ struct ExploreView: View {
         }
         .onChange(of: journalCompleted) {
             if journalCompleted {
-                TravelStore.shared.clear()
-                dismiss()
+                Task {
+                    await archiveExploration()
+                    await MainActor.run {
+                        // 탐험 완료 후 "내 코스" 탭으로 자동 전환
+                        UserDefaults.standard.set(AppTab.myCourse.rawValue, forKey: "selected_tab")
+                        TravelStore.shared.clear()
+                        dismiss()
+                    }
+                }
             }
         }
         .sheet(item: $selectedFolklorePlace) { place in
@@ -325,6 +335,62 @@ struct ExploreView: View {
                     .clipShape(Capsule())
                 }
             }
+        }
+    }
+
+    // MARK: - Exploration Archive
+
+    /// 탐험 완료 시 SavedCourse(SwiftData)에 일지/이미지/방문 장소를 영구 저장한다.
+    /// - 기존 코스(같은 id)가 있으면 갱신, 없으면 새 SavedCourse를 생성해서 insert.
+    /// - 이미지 URL은 data:image/png;base64 형태 → 직접 디코딩, https → 다운로드.
+    private func archiveExploration() async {
+        let journalText = vm.journalText
+        let visitedPlaces = vm.orderedVisitedPlaceNames
+        let imageData = await loadJournalImageData(from: vm.journalImageURL)
+
+        // 같은 id가 이미 SavedCourse로 있는지 검색 (수동 필터 — predicate가 없어도 충분)
+        let targetId = course.id
+        await MainActor.run {
+            let existing = savedCourses.first(where: { $0.id == targetId })
+            if let existing {
+                existing.recordExploration(
+                    journalText: journalText,
+                    imageData: imageData,
+                    visitedPlaces: visitedPlaces
+                )
+            } else {
+                let newSaved = SavedCourse(from: course)
+                newSaved.recordExploration(
+                    journalText: journalText,
+                    imageData: imageData,
+                    visitedPlaces: visitedPlaces
+                )
+                modelContext.insert(newSaved)
+            }
+            try? modelContext.save()
+        }
+    }
+
+    /// 일지 이미지 URL을 Data로 로드한다. 실패 시 nil.
+    private func loadJournalImageData(from url: URL?) async -> Data? {
+        guard let url else { return nil }
+        let urlString = url.absoluteString
+
+        // data:image/...;base64,... 처리
+        if urlString.hasPrefix("data:") {
+            if let commaIdx = urlString.firstIndex(of: ",") {
+                let base64Part = String(urlString[urlString.index(after: commaIdx)...])
+                return Data(base64Encoded: base64Part)
+            }
+            return nil
+        }
+
+        // 일반 http(s) 다운로드
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            return data
+        } catch {
+            return nil
         }
     }
 }

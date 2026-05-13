@@ -1,5 +1,14 @@
 import SwiftUI
 
+/// 앱 탭 식별자. AppStorage 키 "selected_tab"에 raw value로 저장한다.
+enum AppTab: String {
+    case create = "create"
+    case myCourse = "myCourse"
+#if DEBUG
+    case debug = "debug"
+#endif
+}
+
 struct ContentView: View {
     @State private var savedSession: TravelSession?
     @State private var showRestoreSheet = false
@@ -7,16 +16,28 @@ struct ContentView: View {
     @State private var resumeTransport = "car"
     @State private var navigateToExplore = false
 
+    @AppStorage("selected_tab") private var selectedTabRaw: String = AppTab.create.rawValue
+
+    private var selectedTabBinding: Binding<AppTab> {
+        Binding(
+            get: { AppTab(rawValue: selectedTabRaw) ?? .create },
+            set: { selectedTabRaw = $0.rawValue }
+        )
+    }
+
     var body: some View {
         NavigationStack {
-            TabView {
+            TabView(selection: selectedTabBinding) {
                 TasteDiscoveryView()
                     .tabItem { Label("코스 만들기", systemImage: "sparkles") }
+                    .tag(AppTab.create)
                 MyCourseListView()
                     .tabItem { Label("내 코스", systemImage: "bookmark.fill") }
+                    .tag(AppTab.myCourse)
 #if DEBUG
                 DebugExploreView()
                     .tabItem { Label("테스트", systemImage: "ladybug.fill") }
+                    .tag(AppTab.debug)
 #endif
             }
             .tint(.orange)
