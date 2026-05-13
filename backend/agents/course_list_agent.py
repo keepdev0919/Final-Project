@@ -48,18 +48,45 @@ def _score_course(
     course_id: str,
     category_scores: dict[str, int],
     conn,
-) -> int:
-    """place_folklore_mapping 기반 카테고리 점수 합산."""
+) -> float:
+    """카테고리 점유율 × specificity 가중 점수.
+
+    - DISTINCT 대신 매핑 row 단위로 카운트 → 매핑이 많은 카테고리가 큰 영향
+    - specificity 가중치: spec=5 → 1.0, spec=10 → 2.0
+    - 점유율 정규화: 코스 매핑 분포 중 이 카테고리의 비율 사용
+    - 결과 점수 = Σ(사용자_점수 × 카테고리_점유율) × 10  (정수 비교용 스케일)
+    """
     rows = conn.execute(
         """
-        SELECT DISTINCT pfm.final_category
+        SELECT pfm.final_category, pfm.specificity
         FROM course_places cp
         JOIN place_folklore_mapping pfm ON pfm.place_name = cp.place_name
         WHERE cp.course_id = ? AND pfm.specificity >= 5
         """,
         (course_id,),
     ).fetchall()
-    return sum(category_scores.get(r["final_category"], 0) for r in rows)
+
+    if not rows:
+        return 0.0
+
+    # specificity 가중치로 카테고리별 누적
+    cat_weighted: dict[str, float] = {}
+    total_weight = 0.0
+    for r in rows:
+        w = r["specificity"] / 5.0  # spec=5 → 1.0, spec=10 → 2.0
+        cat_weighted[r["final_category"]] = cat_weighted.get(r["final_category"], 0.0) + w
+        total_weight += w
+
+    if total_weight == 0:
+        return 0.0
+
+    # 점유율 × 사용자 점수
+    score = 0.0
+    for cat, w in cat_weighted.items():
+        share = w / total_weight  # 0~1
+        score += category_scores.get(cat, 0) * share
+
+    return score * 10  # 정렬 변별력 위해 스케일 업
 
 
 # ─── 퍼블릭 API ───────────────────────────────────────────────────────────────
