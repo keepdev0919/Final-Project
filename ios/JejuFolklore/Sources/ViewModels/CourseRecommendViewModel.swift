@@ -3,8 +3,7 @@ import Foundation
 enum LoadingStep: String {
     case idle = ""
     case searching = "코스 검색 중..."
-    case generating = "내러티브 생성 중..."
-    case done = "완성!"
+    case generating = "코스 준비 중..."
 }
 
 @MainActor
@@ -69,8 +68,6 @@ final class CourseRecommendViewModel: ObservableObject {
 
         do {
             let course = try await CourseAPI.detail(courseId: courseId, categoryScores: categoryScores)
-            loadingStep = .done
-            try? await Task.sleep(nanoseconds: 400_000_000)
             selectedCourse = course
             loadingStep = .idle
         } catch {

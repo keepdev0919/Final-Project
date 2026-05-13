@@ -8,15 +8,9 @@ struct LoadingOverlay: View {
         ZStack {
             Color.black.opacity(0.4).ignoresSafeArea()
             VStack(spacing: 16) {
-                if step != .done {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                        .tint(.white)
-                } else {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 48))
-                        .foregroundColor(.green)
-                }
+                ProgressView()
+                    .scaleEffect(1.5)
+                    .tint(.white)
                 Text(step.rawValue)
                     .font(.headline)
                     .foregroundColor(.white)
