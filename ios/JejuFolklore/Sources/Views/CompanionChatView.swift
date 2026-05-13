@@ -12,6 +12,8 @@ struct CompanionChatView: View {
     @State private var streamingText = ""
     @State private var isStreaming = false
     @State private var streamingTask: Task<Void, Never>?
+    @State private var ttsTask: Task<Void, Never>?
+    @StateObject private var tts = TTSPlayerService.shared
     @FocusState private var isInputFocused: Bool
 
     private var folkloreSummaries: [String] {
@@ -58,6 +60,15 @@ struct CompanionChatView: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("닫기") { dismiss() }
                 }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        tts.toggleMute()
+                    } label: {
+                        Image(systemName: tts.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                            .foregroundColor(tts.isMuted ? .secondary : companion.themeColor)
+                    }
+                    .accessibilityLabel(tts.isMuted ? "음성 켜기" : "음성 끄기")
+                }
             }
         }
         .onAppear {
@@ -66,6 +77,8 @@ struct CompanionChatView: View {
         }
         .onDisappear {
             streamingTask?.cancel()
+            ttsTask?.cancel()
+            TTSPlayerService.shared.stop()
         }
     }
 
@@ -129,6 +142,10 @@ struct CompanionChatView: View {
         guard !text.isEmpty, !isStreaming else { return }
         inputText = ""
 
+        // 사용자가 새 메시지 보내면 이전 음성 즉시 중단
+        ttsTask?.cancel()
+        TTSPlayerService.shared.stop()
+
         let userMsg = TravelChatMessage(role: .user, content: text)
         messages.append(userMsg)
         vm.appendMessage(userMsg, to: place.name)
@@ -158,6 +175,13 @@ struct CompanionChatView: View {
             let assistantMsg = TravelChatMessage(role: .assistant, content: streamingText)
             messages.append(assistantMsg)
             vm.appendMessage(assistantMsg, to: place.name)
+
+            // TTS는 별도 Task로 띄움 (await 안 함). 다음 메시지/dismiss 시 cancel.
+            let voice = companion.ttsVoice
+            let textToSpeak = assistantMsg.content
+            ttsTask = Task {
+                await TTSPlayerService.shared.speak(text: textToSpeak, voice: voice, cacheKey: nil)
+            }
         }
         streamingText = ""
         isStreaming = false

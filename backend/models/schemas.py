@@ -75,4 +75,5 @@ class ChatRequest(BaseModel):
 
 class TTSRequest(BaseModel):
     text: str
-    pin_id: str
+    pin_id: Optional[str] = None
+    voice: str = "nova"

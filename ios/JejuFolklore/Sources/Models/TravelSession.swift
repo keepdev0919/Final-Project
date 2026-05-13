@@ -44,6 +44,18 @@ enum CompanionCharacter: String, Codable, CaseIterable {
         }
     }
 
+    /// OpenAI tts-1 voice 매핑 (페르소나 차별화).
+    /// alloy/echo/fable/nova/onyx/shimmer 중 선택.
+    var ttsVoice: String {
+        switch self {
+        case .dang:     return "onyx"     // 저음, 위엄 — 당신·심방
+        case .dokkaebi: return "fable"    // 스토리텔러, 경쾌 — 도깨비
+        case .hallam:   return "shimmer"  // 부드러운 여성 — 마을 할망
+        case .haenyeo:  return "nova"     // 강한 여성 — 영등신·해녀
+        case .dochebi:  return "echo"     // 차분, 신비 — 도체비
+        }
+    }
+
     static func from(categoryScores: [String: Int]) -> CompanionCharacter {
         let categoryMap: [String: CompanionCharacter] = [
             "무속신화·신격 전승": .dang,
