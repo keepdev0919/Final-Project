@@ -44,14 +44,21 @@ final class CourseRecommendViewModel: ObservableObject {
             currentCourseIndex = 0
             isLoadingList = false
             loadingStep = .idle
-            if let first = items.first {
-                await fetchDetail(courseId: first.id)
-            }
+            // 자동으로 첫 코스 detail을 호출하지 않음.
+            // 사용자가 Top 3 리스트에서 직접 선택하도록 변경.
         } catch {
             errorMessage = error.localizedDescription
             loadingStep = .idle
             isLoadingList = false
         }
+    }
+
+    /// 사용자가 리스트에서 카드를 탭했을 때 호출.
+    /// 선택한 인덱스를 currentCourseIndex로 표시하고 detail을 조회한다.
+    func selectCourse(at index: Int) async {
+        guard index >= 0, index < courseList.count else { return }
+        currentCourseIndex = index
+        await fetchDetail(courseId: courseList[index].id)
     }
 
     func fetchDetail(courseId: String) async {
