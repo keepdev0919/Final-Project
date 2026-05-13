@@ -23,9 +23,10 @@ from pathlib import Path
 BASE_DIR = Path(__file__).parent.parent.parent
 DB_PATH = BASE_DIR / "storage" / "metadata.db"
 
-TEXT_MAPPING_THRESHOLD = 50   # 텍스트 매핑 비율 최소값 (%)
-TOP_PER_BUCKET = 30           # region × duration 조합당 최대 코스 수
+TOP_PER_BUCKET = 50           # region × duration 조합당 최대 코스 수
 MMR_SIMILARITY_THRESHOLD = 0.7  # 이 이상 유사한 코스는 중복 제거
+# 필터링 기준: "모든 day에 설화 매핑된 장소가 최소 1개"
+# (기존 "전체 매핑 ≥ 50%" 기준은 너무 빡빡해서 의미있는 일부 코스도 탈락시키던 문제)
 
 TRANSIT_KEYWORDS = ["공항", "항구", "터미널", "버스"]
 
@@ -148,7 +149,14 @@ def build(conn: sqlite3.Connection) -> None:
         text_mapped = [p for p in non_transit if p["place_name"] in text_mapped_spec]
         text_pct = round(100 * len(text_mapped) / total)
 
-        if text_pct < TEXT_MAPPING_THRESHOLD:
+        # 필터: 모든 day에 설화 매핑된 장소 최소 1개 있어야 함
+        # (실시연 흐름상 각 day마다 설화 들을 곳이 1곳이면 충분)
+        days_in_course = set(p["day"] for p in non_transit)
+        all_days_have_mapping = all(
+            any(p["place_name"] in text_mapped_spec for p in non_transit if p["day"] == d)
+            for d in days_in_course
+        )
+        if not all_days_have_mapping:
             continue
 
         # 평균 specificity (텍스트 매핑된 장소만, 0~10 → 0~1 정규화)
