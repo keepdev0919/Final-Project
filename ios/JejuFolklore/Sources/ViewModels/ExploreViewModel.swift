@@ -17,6 +17,7 @@ final class ExploreViewModel: ObservableObject {
 
     // Travel journal
     @Published var journalText: String = ""
+    @Published var journalImageURL: URL?
     @Published var isGeneratingJournal = false
     @Published var showJournal = false
     @Published var showDaySummary = false
@@ -123,10 +124,14 @@ final class ExploreViewModel: ObservableObject {
     func generateJournal() async {
         isGeneratingJournal = true
         showJournal = true
+        journalImageURL = nil
         do {
-            journalText = try await TravelAPI.generateJournal(session: travelSession)
+            let result = try await TravelAPI.generateJournal(session: travelSession)
+            journalText = result.text
+            journalImageURL = result.imageUrl
         } catch {
             journalText = "여행 일지를 생성하지 못했어요. 나중에 다시 시도해주세요."
+            journalImageURL = nil
         }
         isGeneratingJournal = false
     }

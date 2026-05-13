@@ -76,3 +76,8 @@ class ChatRequest(BaseModel):
 class TTSRequest(BaseModel):
     text: str
     pin_id: str
+
+
+class JournalResponse(BaseModel):
+    journal_text: str
+    image_url: Optional[str] = None  # 이미지 생성 실패 시 None
