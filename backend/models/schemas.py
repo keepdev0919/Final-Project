@@ -11,6 +11,24 @@ class Pin(BaseModel):
     lng: float
     primary_place: str
     distance_m: Optional[float] = None
+    hook: Optional[str] = None   # 30~50자 후크 (LLM 생성, 캐시됨)
+
+
+class PinConnectionResponse(BaseModel):
+    code_no: str
+    place: str
+    connection: str
+
+
+class StoryPage(BaseModel):
+    title: str
+    body: str
+
+
+class PinStoryResponse(BaseModel):
+    code_no: str
+    place: str
+    pages: list[StoryPage]
 
 
 class PinDetail(BaseModel):

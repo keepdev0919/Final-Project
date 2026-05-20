@@ -154,6 +154,8 @@ struct ExploreView: View {
                         //    SavedCourseDetailView)이 받아서 자신도 dismiss → TabView root 도달.
                         // 3) 마지막으로 자신을 dismiss().
                         UserDefaults.standard.set(AppTab.myCourse.rawValue, forKey: "selected_tab")
+                        // 방금 완료한 코스 ID를 저장 → MyCourseListView.onAppear가 읽고 스크롤+하이라이트.
+                        UserDefaults.standard.set(course.id, forKey: "just_completed_course_id")
                         TravelStore.shared.clear()
                         NotificationCenter.default.post(name: .exploreDidComplete, object: nil)
                         dismiss()

@@ -96,26 +96,4 @@ final class CourseRecommendViewModel: ObservableObject {
         isLoadingDetail = false
     }
 
-#if DEBUG
-    // 데모 모드: TasteDiscovery를 건너뛰고 코스 8132(My first Jeju trip, 3일)를 바로 로드
-    func loadDemoCourse() async {
-        categoryScores = ["해양·어촌 전승": 3, "초자연 존재담": 2]
-        selectedRegion = "전체"
-        durationDays = 3
-        courseList = [CourseListItem(
-            id: "8132",
-            title: "My first Jeju trip",
-            durationDays: 3,
-            places: [
-                CoursePlace(name: "천지연폭포",                        lat: 33.2469, lng: 126.5544, day: 1),
-                CoursePlace(name: "새연교",                            lat: 33.2375, lng: 126.5598, day: 1),
-                CoursePlace(name: "성산일출봉(UNESCO 세계자연유산)",    lat: 33.4581, lng: 126.9425, day: 2),
-                CoursePlace(name: "우도(해양도립공원)",                 lat: 33.5043, lng: 126.9540, day: 2),
-                CoursePlace(name: "섭지코지",                          lat: 33.4242, lng: 126.9311, day: 2),
-            ]
-        )]
-        currentCourseIndex = 0
-        await fetchDetail(courseId: "8132")
-    }
-#endif
 }

@@ -29,6 +29,11 @@ schemes:
     archive:
       config: Release
 
+packages:
+  GoogleMaps:
+    url: https://github.com/googlemaps/ios-maps-sdk
+    from: 9.0.0
+
 targets:
   JejuFolklore:
     type: application
@@ -39,6 +44,12 @@ targets:
       - path: JejuFolklore/Resources/Assets.xcassets
       - path: JejuFolklore/debug-route.gpx
         optional: true
+    configFiles:
+      Debug: JejuFolklore/Resources/Secrets.xcconfig
+      Release: JejuFolklore/Resources/Secrets.xcconfig
+    dependencies:
+      - package: GoogleMaps
+        product: GoogleMaps
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.keepdev.jejufolklore
@@ -64,3 +75,4 @@ targets:
           NSAllowsArbitraryLoads: true
         LSApplicationQueriesSchemes:
           - comgooglemaps
+        GOOGLE_MAPS_API_KEY: $(GOOGLE_MAPS_API_KEY)

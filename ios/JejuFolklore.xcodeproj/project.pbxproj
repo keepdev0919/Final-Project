@@ -19,6 +19,7 @@
 		2F421FD8AD3B408FB4CB94C4 /* PlaceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD5EDEE06A3A22C0EED714E /* PlaceDetail.swift */; };
 		344CFDCD02C0689B73F83D69 /* CourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */; };
 		38CBEDD8EFB51E3971426554 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C903EDA776C43559F19313 /* ChatMessage.swift */; };
+		39C40D093F71EB8D5254DAEF /* HomeAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08CDC2EF152D55835AA96119 /* HomeAPI.swift */; };
 		39E84B4B300BE84BCBDC781F /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */; };
 		3C924367BF6D98281ABDEE6F /* PlaceAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997538FBFEB00536EF630FCB /* PlaceAPI.swift */; };
 		3E611EF2C36BAD2F21735019 /* CompanionChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46A0E0C2AC4070F7A0EAFF8 /* CompanionChatView.swift */; };
@@ -31,6 +32,7 @@
 		511BDB16CB99BDB74A36F7AA /* CourseRecommendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */; };
 		522757289D4B9A4C480111F5 /* ExploreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */; };
 		67157E9A54F763785AB8AAE4 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB19D914698888F9F31CB4C /* Config.swift */; };
+		7485325AAD31ADF859E86B09 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 73D434DC7C36590FAF11FE46 /* GoogleMaps */; };
 		74DCBD57A66368EA7F46C223 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */; };
 		8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFB45E01F6089646021CEA5 /* SharedComponents.swift */; };
 		88DD5A8EED77969C5A45054D /* TTSAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F6205B0B938C2482576817A /* TTSAPI.swift */; };
@@ -38,20 +40,26 @@
 		8C282DF964A29D9C75C3B99A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E11EACDCA05DCA02F59297D3 /* Assets.xcassets */; };
 		8E332C8B628EB5E1E42AC01C /* MyCourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */; };
 		9CE3AAF8CFE0F62B647E2B1B /* CourseRecommendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */; };
+		A354561FC140C77CD26F19D8 /* GoogleMapPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC15B8EA8FB8D80D2EA8016 /* GoogleMapPreview.swift */; };
 		A981386C08A1E204A2AFC874 /* TravelJournalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB48E15DE9092E3D74AF2A89 /* TravelJournalView.swift */; };
 		AC684B8C1956FFD93A8835F3 /* PlaceReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC21DDC81DEE2B5D42F38320 /* PlaceReview.swift */; };
 		B2F402633D5B5F4ABB981F0D /* DaySummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A9387AD77FAD744E124731E /* DaySummaryView.swift */; };
 		B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */; };
 		BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */; };
 		BF7D8FB6935D109B375EF985 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C6027A4A228CB2943AF3A93 /* ChatViewModel.swift */; };
+		C12673C8CA7842A8759796C7 /* StoryViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73927792BFCCF6FA36E310AC /* StoryViewerView.swift */; };
 		C344E8EB8063A7D1A885FA40 /* TTSPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC4551DB86ABE4E92BB0191 /* TTSPlayerService.swift */; };
 		C73841BC51AF0A0EC4A72670 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F529E10D83F4E5A63726E5 /* LocationService.swift */; };
 		C74D798F99D1945551A212E6 /* TravelSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8400CD98E1FD2E1045AE84 /* TravelSession.swift */; };
 		C97C58E098FE7DDBBFA5E051 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D629F5C5C7EBC91E3B287 /* ChatView.swift */; };
 		D449CF3942C6D17D5161645B /* PinDetailAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE5A8C878A19F0DF3217997 /* PinDetailAPI.swift */; };
+		D5F2DA5C2D7F02150C8C8789 /* HomeRecommendedCourseCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48324503CEDCE93C36D7EA0A /* HomeRecommendedCourseCard.swift */; };
 		D726750ECE035B9C28D50F72 /* Course.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3716E52689657C66A89C990A /* Course.swift */; };
 		D797ABDBD47BA2407816B9AA /* ChatAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F2F5C21FAE77807D7721C05 /* ChatAPI.swift */; };
 		DA537D46F6F9CCF7654E489D /* DeviceIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */; };
+		DC2B2B7C9E6EC48C81603F8C /* FolkloreStory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA696E33103EBE2921AAE0CD /* FolkloreStory.swift */; };
+		E997A2FA036599C45A3DF7BC /* TodayFolkloreCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA5042111C2AC6F8013280A /* TodayFolkloreCard.swift */; };
+		EF3F8D874A2F3E91CA567372 /* TodayFolklore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E429737D44A1DB1F43BA4C53 /* TodayFolklore.swift */; };
 		F475DC455EF699B2C68D1803 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8932708010A3431E486DF98 /* APIClient.swift */; };
 		F8D4029F14FE4EC28785AD5F /* PlaceReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EB46F8631558DA14B8DE90F /* PlaceReviewSheet.swift */; };
 		FCF7F0B54F1DC31F15E28D22 /* TravelAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B83DC6328155E768AEA6E2 /* TravelAPI.swift */; };
@@ -59,11 +67,13 @@
 
 /* Begin PBXFileReference section */
 		03E5481B0ED3479BFF321C98 /* PinsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinsAPI.swift; sourceTree = "<group>"; };
+		08CDC2EF152D55835AA96119 /* HomeAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeAPI.swift; sourceTree = "<group>"; };
 		0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
 		0C6027A4A228CB2943AF3A93 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		0EB46F8631558DA14B8DE90F /* PlaceReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceReviewSheet.swift; sourceTree = "<group>"; };
 		101A2B03B831695C27D31659 /* ArrivalOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrivalOverlayView.swift; sourceTree = "<group>"; };
 		161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewViewModel.swift; sourceTree = "<group>"; };
+		1DA5042111C2AC6F8013280A /* TodayFolkloreCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayFolkloreCard.swift; sourceTree = "<group>"; };
 		27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceIdentity.swift; sourceTree = "<group>"; };
 		2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDetailView.swift; sourceTree = "<group>"; };
 		2D901B468F50E9AB1B85E78B /* FolklorePlacePinsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolklorePlacePinsView.swift; sourceTree = "<group>"; };
@@ -73,14 +83,17 @@
 		38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRecommendView.swift; sourceTree = "<group>"; };
 		41B83DC6328155E768AEA6E2 /* TravelAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelAPI.swift; sourceTree = "<group>"; };
 		456D629F5C5C7EBC91E3B287 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		48324503CEDCE93C36D7EA0A /* HomeRecommendedCourseCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRecommendedCourseCard.swift; sourceTree = "<group>"; };
 		49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasteDiscoveryView.swift; sourceTree = "<group>"; };
 		4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JejuFolklore.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewModel.swift; sourceTree = "<group>"; };
 		50714B04510A0105DCCEE895 /* debug-route.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "debug-route.gpx"; sourceTree = "<group>"; };
 		5A9387AD77FAD744E124731E /* DaySummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySummaryView.swift; sourceTree = "<group>"; };
+		6A4C37778C65DA1DF7951735 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		6DC4551DB86ABE4E92BB0191 /* TTSPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSPlayerService.swift; sourceTree = "<group>"; };
 		6DEF7C5A76ABA12369016601 /* JejuFolkloreApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JejuFolkloreApp.swift; sourceTree = "<group>"; };
 		72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewView.swift; sourceTree = "<group>"; };
+		73927792BFCCF6FA36E310AC /* StoryViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewerView.swift; sourceTree = "<group>"; };
 		7BFB45E01F6089646021CEA5 /* SharedComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedComponents.swift; sourceTree = "<group>"; };
 		80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRecommendViewModel.swift; sourceTree = "<group>"; };
 		8A8DC0AEACC6D55FDF9997B9 /* FolkloreDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolkloreDetailView.swift; sourceTree = "<group>"; };
@@ -92,6 +105,7 @@
 		A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		A744E956106F34C9C2D95F2F /* CoursePlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePlace.swift; sourceTree = "<group>"; };
 		AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		BA696E33103EBE2921AAE0CD /* FolkloreStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolkloreStory.swift; sourceTree = "<group>"; };
 		BCB19D914698888F9F31CB4C /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		BE302B828FB176D1DA8415CD /* SessionRestoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRestoreView.swift; sourceTree = "<group>"; };
 		C46A0E0C2AC4070F7A0EAFF8 /* CompanionChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionChatView.swift; sourceTree = "<group>"; };
@@ -99,16 +113,29 @@
 		C8932708010A3431E486DF98 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		CB48E15DE9092E3D74AF2A89 /* TravelJournalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelJournalView.swift; sourceTree = "<group>"; };
 		CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseAPI.swift; sourceTree = "<group>"; };
+		CFC15B8EA8FB8D80D2EA8016 /* GoogleMapPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleMapPreview.swift; sourceTree = "<group>"; };
 		CFE5A8C878A19F0DF3217997 /* PinDetailAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinDetailAPI.swift; sourceTree = "<group>"; };
 		D0A562565D326C0C4C39FA4D /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		DBD5EDEE06A3A22C0EED714E /* PlaceDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDetail.swift; sourceTree = "<group>"; };
 		E11EACDCA05DCA02F59297D3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E429737D44A1DB1F43BA4C53 /* TodayFolklore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayFolklore.swift; sourceTree = "<group>"; };
 		EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyCourseListView.swift; sourceTree = "<group>"; };
 		FB8400CD98E1FD2E1045AE84 /* TravelSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelSession.swift; sourceTree = "<group>"; };
 		FC21DDC81DEE2B5D42F38320 /* PlaceReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceReview.swift; sourceTree = "<group>"; };
 		FE1015A20E1B4F561042D346 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		FF8528DFE3BA78C29CA022D3 /* ExploreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8014A2189CF42E4B73D198AA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7485325AAD31ADF859E86B09 /* GoogleMaps in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		008A9C8980608A8515E098EF /* Products */ = {
@@ -137,10 +164,12 @@
 				C5C903EDA776C43559F19313 /* ChatMessage.swift */,
 				3716E52689657C66A89C990A /* Course.swift */,
 				A744E956106F34C9C2D95F2F /* CoursePlace.swift */,
+				BA696E33103EBE2921AAE0CD /* FolkloreStory.swift */,
 				9B2D361FC201D7B53D1D5374 /* Pin.swift */,
 				DBD5EDEE06A3A22C0EED714E /* PlaceDetail.swift */,
 				FC21DDC81DEE2B5D42F38320 /* PlaceReview.swift */,
 				8E81A390764D24D99F14B2DA /* SavedCourse.swift */,
+				E429737D44A1DB1F43BA4C53 /* TodayFolklore.swift */,
 				FB8400CD98E1FD2E1045AE84 /* TravelSession.swift */,
 			);
 			path = Models;
@@ -153,6 +182,16 @@
 				6DEF7C5A76ABA12369016601 /* JejuFolkloreApp.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		4B9524F3E48D13C2441EFF33 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				CFC15B8EA8FB8D80D2EA8016 /* GoogleMapPreview.swift */,
+				48324503CEDCE93C36D7EA0A /* HomeRecommendedCourseCard.swift */,
+				1DA5042111C2AC6F8013280A /* TodayFolkloreCard.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		75D21EA6AC81E560B87E62D9 = {
@@ -169,6 +208,7 @@
 			isa = PBXGroup;
 			children = (
 				E11EACDCA05DCA02F59297D3 /* Assets.xcassets */,
+				6A4C37778C65DA1DF7951735 /* Secrets.xcconfig */,
 			);
 			name = Resources;
 			path = JejuFolklore/Resources;
@@ -194,8 +234,10 @@
 				0EB46F8631558DA14B8DE90F /* PlaceReviewSheet.swift */,
 				BE302B828FB176D1DA8415CD /* SessionRestoreView.swift */,
 				7BFB45E01F6089646021CEA5 /* SharedComponents.swift */,
+				73927792BFCCF6FA36E310AC /* StoryViewerView.swift */,
 				49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */,
 				CB48E15DE9092E3D74AF2A89 /* TravelJournalView.swift */,
+				4B9524F3E48D13C2441EFF33 /* Components */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -208,6 +250,7 @@
 				2F2F5C21FAE77807D7721C05 /* ChatAPI.swift */,
 				CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */,
 				27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */,
+				08CDC2EF152D55835AA96119 /* HomeAPI.swift */,
 				94F529E10D83F4E5A63726E5 /* LocationService.swift */,
 				CFE5A8C878A19F0DF3217997 /* PinDetailAPI.swift */,
 				03E5481B0ED3479BFF321C98 /* PinsAPI.swift */,
@@ -250,6 +293,7 @@
 			buildPhases = (
 				D50DE94A51AF6A56E6264984 /* Sources */,
 				D0D4D4D316502368F59F3746 /* Resources */,
+				8014A2189CF42E4B73D198AA /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -257,6 +301,7 @@
 			);
 			name = JejuFolklore;
 			packageProductDependencies = (
+				73D434DC7C36590FAF11FE46 /* GoogleMaps */,
 			);
 			productName = JejuFolklore;
 			productReference = 4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */;
@@ -285,6 +330,9 @@
 			);
 			mainGroup = 75D21EA6AC81E560B87E62D9;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				3B887012B207487E9482AEC2 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 008A9C8980608A8515E098EF /* Products */;
 			projectDirPath = "";
@@ -335,6 +383,10 @@
 				522757289D4B9A4C480111F5 /* ExploreViewModel.swift in Sources */,
 				0CF6CACB8348127FCA5D4145 /* FolkloreDetailView.swift in Sources */,
 				0B5C72C31D3300A23735A53C /* FolklorePlacePinsView.swift in Sources */,
+				DC2B2B7C9E6EC48C81603F8C /* FolkloreStory.swift in Sources */,
+				A354561FC140C77CD26F19D8 /* GoogleMapPreview.swift in Sources */,
+				39C40D093F71EB8D5254DAEF /* HomeAPI.swift in Sources */,
+				D5F2DA5C2D7F02150C8C8789 /* HomeRecommendedCourseCard.swift in Sources */,
 				74DCBD57A66368EA7F46C223 /* HomeView.swift in Sources */,
 				155FB05FBE57A905102D4BA4 /* HomeViewModel.swift in Sources */,
 				2BDBCF5B8C7C61F1C9478ABC /* JejuFolkloreApp.swift in Sources */,
@@ -352,9 +404,12 @@
 				4FF8E3BA2A1CBF3EB0E700D8 /* SessionRestoreView.swift in Sources */,
 				8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */,
 				39E84B4B300BE84BCBDC781F /* SpeechRecognizer.swift in Sources */,
+				C12673C8CA7842A8759796C7 /* StoryViewerView.swift in Sources */,
 				88DD5A8EED77969C5A45054D /* TTSAPI.swift in Sources */,
 				C344E8EB8063A7D1A885FA40 /* TTSPlayerService.swift in Sources */,
 				B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */,
+				EF3F8D874A2F3E91CA567372 /* TodayFolklore.swift in Sources */,
+				E997A2FA036599C45A3DF7BC /* TodayFolkloreCard.swift in Sources */,
 				FCF7F0B54F1DC31F15E28D22 /* TravelAPI.swift in Sources */,
 				A981386C08A1E204A2AFC874 /* TravelJournalView.swift in Sources */,
 				C74D798F99D1945551A212E6 /* TravelSession.swift in Sources */,
@@ -366,6 +421,7 @@
 /* Begin XCBuildConfiguration section */
 		0E022E3BB2C87CC440067257 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6A4C37778C65DA1DF7951735 /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = JejuFolklore/Resources/JejuFolklore.entitlements;
@@ -450,6 +506,7 @@
 		};
 		6E2A1776790A7031DA82FFA2 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6A4C37778C65DA1DF7951735 /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = JejuFolklore/Resources/JejuFolklore.entitlements;
@@ -547,6 +604,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3B887012B207487E9482AEC2 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googlemaps/ios-maps-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		73D434DC7C36590FAF11FE46 /* GoogleMaps */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3B887012B207487E9482AEC2 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */;
+			productName = GoogleMaps;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6C28E17D1C1CDB465148AC78 /* Project object */;
 }

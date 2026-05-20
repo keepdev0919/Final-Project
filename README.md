@@ -48,6 +48,23 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 iOS는 Xcode에서 `ios/JejuFolklore.xcodeproj` 열고 실행.
 
+### Google Maps SDK 설정 (iOS)
+
+`PlaceDetailView` 의 지도 미리보기와 길찾기는 Google Maps iOS SDK 를 사용한다.
+
+1. https://console.cloud.google.com/ 에서 프로젝트 생성 후 **Maps SDK for iOS** 활성화
+2. API 키 발급 (iOS 앱 번들 ID `com.keepdev.jejufolklore` 로 제한 권장)
+3. 키를 다음 중 한 방식으로 주입:
+
+   - **방식 A (권장, 환경변수):** Xcode → Edit Scheme → Run → Arguments → Environment Variables 에
+     `GOOGLE_MAPS_API_KEY = <발급받은 키>` 추가
+   - **방식 B (Info.plist):** `Info.plist` 에 `GOOGLE_MAPS_API_KEY` 키로 문자열 추가 (커밋 금지)
+
+4. `xcodegen generate` 로 SPM 의존성 (`https://github.com/googlemaps/ios-maps-sdk`) 을 재해석한 뒤 빌드
+
+키가 없으면 지도 미리보기가 회색으로 표시되고 콘솔에 경고가 찍힌다. 길찾기 버튼은 키 없이도
+구글맵 앱/웹 으로 폴백한다.
+
 ---
 
 ## 데이터 파이프라인

@@ -88,18 +88,18 @@ struct CoursePreviewView: View {
         let markers = placesToShow.enumerated().map {
             IndexedPlace(index: $0.offset, place: $0.element)
         }
-        let mapView = MapWithPolyline(
+        let onCollapse = {
+            withAnimation(.spring(response: 0.35)) {
+                isSheetExpanded = false
+            }
+        }
+
+        return MapWithPolyline(
             coordinates: coords,
             annotationItems: markers,
-            onCollapse: {
-                withAnimation(.spring(response: 0.35)) {
-                    isSheetExpanded = false
-                }
-            }
+            onCollapse: onCollapse
         )
-        return AnyView(
-            mapView.ignoresSafeArea(edges: Edge.Set.top)
-        )
+        .ignoresSafeArea(edges: .top)
     }
 
     // MARK: - Bottom Sheet

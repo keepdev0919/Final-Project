@@ -4,6 +4,8 @@ import SwiftData
 struct MyCourseListView: View {
     @Query(sort: \SavedCourse.savedAt, order: .reverse) private var courses: [SavedCourse]
     @State private var selectedCourse: SavedCourse?
+    /// 방금 완료된 코스 ID — 비어있지 않으면 해당 셀 배경을 1.5초간 하이라이트.
+    @State private var highlightedCourseId: String? = nil
 
     var body: some View {
         NavigationStack {
@@ -15,16 +17,56 @@ struct MyCourseListView: View {
                         description: Text("코스를 추천받고 저장해보세요")
                     )
                 } else {
-                    List(courses) { course in
-                        SavedCourseRow(course: course)
-                            .onTapGesture { selectedCourse = course }
+                    ScrollViewReader { proxy in
+                        List(courses) { course in
+                            SavedCourseRow(course: course)
+                                .listRowBackground(
+                                    highlightedCourseId == course.id
+                                        ? Color.orange.opacity(0.18)
+                                        : Color(.secondarySystemGroupedBackground)
+                                )
+                                .id(course.id)
+                                .onTapGesture { selectedCourse = course }
+                        }
+                        .listStyle(.insetGrouped)
+                        .animation(.easeInOut(duration: 0.35), value: highlightedCourseId)
+                        .onAppear { consumeJustCompletedCourse(scrollProxy: proxy) }
                     }
-                    .listStyle(.insetGrouped)
                 }
             }
             .navigationTitle("내 코스")
             .sheet(item: $selectedCourse) { course in
                 SavedCourseDetailView(course: course)
+            }
+        }
+    }
+
+    /// AppStorage("just_completed_course_id")를 한 번 소비:
+    /// 1) 해당 셀로 스크롤,
+    /// 2) 1.5초간 배경 하이라이트,
+    /// 3) 키 제거 (중복 트리거 방지).
+    private func consumeJustCompletedCourse(scrollProxy: ScrollViewProxy) {
+        let key = "just_completed_course_id"
+        guard let courseId = UserDefaults.standard.string(forKey: key),
+              !courseId.isEmpty,
+              courses.contains(where: { $0.id == courseId }) else {
+            return
+        }
+
+        UserDefaults.standard.removeObject(forKey: key)
+
+        // 다음 runloop에서 스크롤 (List 셀 mount 완료 후)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                scrollProxy.scrollTo(courseId, anchor: .center)
+            }
+            withAnimation(.easeInOut(duration: 0.35)) {
+                highlightedCourseId = courseId
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                withAnimation(.easeInOut(duration: 0.4)) {
+                    highlightedCourseId = nil
+                }
             }
         }
     }

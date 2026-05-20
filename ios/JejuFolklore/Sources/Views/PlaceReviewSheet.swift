@@ -122,6 +122,9 @@ struct PlaceReviewSheet: View {
         }
         .presentationDetents([.medium, .large])
         .task {
+            // TTS가 점유한 .playback AVAudioSession을 해제해야 마이크 캡처(.playAndRecord)가 가능.
+            // 이 호출 없이는 input node가 invalid format(sampleRate=0)을 반환해 "마이크 초기화 실패" 에러가 뜸.
+            AudioPlayer.shared.stop()
             // 시트 진입 시 권한 상태 확인 + 미결정이면 한 번 요청
             if speech.authorizationStatus == .notDetermined || speech.microphonePermission == .undetermined {
                 await speech.requestPermissions()

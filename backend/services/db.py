@@ -94,6 +94,41 @@ def get_db_connection():
         )
         """
     )
+
+    # ── 설화 LLM 가공 결과 캐시 ─────────────────────────────────────────────
+    # 1) metadata.hook : 설화별 영구 후크 (한 줄, 30~50자). NULL이면 lazy 생성 대상.
+    _metadata_cols = {
+        row[1] for row in conn.execute("PRAGMA table_info(metadata)").fetchall()
+    }
+    if _metadata_cols and "hook" not in _metadata_cols:
+        conn.execute("ALTER TABLE metadata ADD COLUMN hook TEXT")
+
+    # 2) 장소×설화 한 줄 연결 캐시
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS folklore_connection_cache (
+            code_no    TEXT NOT NULL,
+            place      TEXT NOT NULL,
+            connection TEXT NOT NULL,
+            cached_at  REAL,
+            PRIMARY KEY (code_no, place)
+        )
+        """
+    )
+
+    # 3) 장소×설화 스토리북(페이지 JSON) 캐시
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS folklore_story_cache (
+            code_no    TEXT NOT NULL,
+            place      TEXT NOT NULL,
+            pages_json TEXT NOT NULL,
+            cached_at  REAL,
+            PRIMARY KEY (code_no, place)
+        )
+        """
+    )
+
     conn.commit()
     return conn
 

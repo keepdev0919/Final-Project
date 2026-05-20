@@ -7,6 +7,7 @@ LLM 없이 DB 조회만으로 동작한다.
 from __future__ import annotations
 
 import math
+import random
 from typing import Any
 
 from services.db import get_db_connection
@@ -128,13 +129,22 @@ def run_course_list(
     if not rows:
         return {"result_courses": [], "error": "조건에 맞는 코스를 찾지 못했습니다."}
 
-    scored: list[tuple[int, dict]] = []
+    scored: list[tuple[float, dict]] = []
     for row in rows:
         folklore_score = _score_course(row["id"], category_scores, conn)
         scored.append((folklore_score, dict(row)))
 
-    scored.sort(key=lambda x: -x[0])
-    top_rows = [item[1] for item in scored[:top_n]]
+    # 점수 > 0인 코스만 풀에 포함 (카테고리 매칭이 전혀 없는 코스는 제외)
+    candidate_pool = [item[1] for item in scored if item[0] > 0]
+
+    # 풀에서 top_n개 무작위 추출. 풀 크기가 top_n보다 작으면 가능한 만큼만.
+    # 풀이 비어있으면 빈 리스트를 반환 (fallback 없이 자연스러운 "매칭 없음" 결과).
+    sample_size = min(top_n, len(candidate_pool))
+    top_rows = random.sample(candidate_pool, sample_size) if sample_size > 0 else []
+
+    # 매칭 0건이면 후속 SQL placeholder 빌드를 건너뛰고 즉시 반환
+    if not top_rows:
+        return {"result_courses": [], "error": ""}
 
     # 장소 목록 배치 조회
     course_ids = [r["id"] for r in top_rows]

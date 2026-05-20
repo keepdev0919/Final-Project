@@ -11,9 +11,6 @@ struct TasteDiscoveryView: View {
     @State private var selectedSide = ""
     @State private var selectedDays = 1
     @State private var navigateToList = false
-#if DEBUG
-    @State private var isDemoMode = false
-#endif
 
     var body: some View {
         NavigationStack {
@@ -131,22 +128,6 @@ struct TasteDiscoveryView: View {
                 withAnimation { step = 1 }
             }
             .padding(.horizontal, 24)
-
-#if DEBUG
-            Button {
-                isDemoMode.toggle()
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: isDemoMode ? "checkmark.circle.fill" : "circle")
-                        .foregroundColor(isDemoMode ? .orange : .secondary)
-                    Text(isDemoMode ? "데모 모드 ON — 결과 코스 고정됨" : "데모 모드")
-                        .font(.caption.weight(.medium))
-                        .foregroundColor(isDemoMode ? .orange : .secondary)
-                }
-                .padding(.horizontal, 24)
-            }
-            .buttonStyle(.plain)
-#endif
         }
     }
 
@@ -298,12 +279,6 @@ struct TasteDiscoveryView: View {
         vm.categoryScores = computeCategoryScores()
         vm.durationDays = selectedDays
         navigateToList = true
-#if DEBUG
-        if isDemoMode {
-            await vm.loadDemoCourse()
-            return
-        }
-#endif
         await vm.fetchList()
     }
 

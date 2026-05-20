@@ -19,6 +19,9 @@ backend/storage/metadata.db
 # 로컬 IP가 박히는 파일 (start_dev.sh가 자동 갱신)
 ios/JejuFolklore/Sources/App/Config.swift
 
+# Google Maps API 키 등 시크릿 (Secrets.example.xcconfig 보고 자기 키 채워서 만듦)
+ios/JejuFolklore/Resources/Secrets.xcconfig
+
 # Xcode 사용자 상태 파일
 *.xcuserstate
 

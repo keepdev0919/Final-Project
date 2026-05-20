@@ -198,7 +198,10 @@ def run_detail_agent(course_id: str, category_scores: dict[str, int]) -> dict:
         return {"error": f"코스 장소 데이터가 없습니다: {course_id}"}
 
     places_with_folklore = map_folklore_to_places(places, category_scores=category_scores, radius_m=3000)
-    narrative = generate_narrative(places_with_folklore, category_scores, course_title)
+    # LLM narrative 생성 비활성화 (시연 응답 속도/비용 절감용).
+    # 필요 시 아래 한 줄 활성화하고 빈 문자열 할당 줄 제거.
+    # narrative = generate_narrative(places_with_folklore, category_scores, course_title)
+    narrative = ""
 
     return {
         "id": course_id,

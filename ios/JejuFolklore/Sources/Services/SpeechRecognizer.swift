@@ -106,9 +106,12 @@ final class SpeechRecognizer: ObservableObject {
         }
 
         // AVAudioSession 구성
+        // 다른 카테고리(.playback 등)로 활성화돼 있을 수 있으므로 한 번 deactivate 후 재구성한다.
+        // 이렇게 하지 않으면 input node가 invalid format(sampleRate=0)을 캐시한 채로 남아서 받아쓰기 실패.
         #if os(iOS)
         let session = AVAudioSession.sharedInstance()
         do {
+            try? session.setActive(false, options: .notifyOthersOnDeactivation)
             try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
             try session.setActive(true, options: .notifyOthersOnDeactivation)
         } catch {
@@ -116,6 +119,9 @@ final class SpeechRecognizer: ObservableObject {
             return
         }
         #endif
+
+        // 새 세션 카테고리에 맞춰 audio engine 재초기화 — input node가 input 가능한 형태로 reconfigure됨
+        audioEngine.reset()
 
         // 인식 요청
         let req = SFSpeechAudioBufferRecognitionRequest()
@@ -128,7 +134,18 @@ final class SpeechRecognizer: ObservableObject {
 
         // 입력 노드에서 PCM 버퍼를 받아 요청에 전달
         let inputNode = audioEngine.inputNode
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
+        var recordingFormat = inputNode.outputFormat(forBus: 0)
+
+        // 첫 시도가 invalid(0/0)이면 세션 토글 + reset로 한 번 더 시도.
+        // TTS의 .playback 점유 직후 .playAndRecord로 막 바꾼 경우 input node가 즉시 reconfigure 안 되는 케이스 방어.
+        #if os(iOS)
+        if recordingFormat.sampleRate == 0 || recordingFormat.channelCount == 0 {
+            try? session.setActive(false, options: .notifyOthersOnDeactivation)
+            try? session.setActive(true, options: .notifyOthersOnDeactivation)
+            audioEngine.reset()
+            recordingFormat = inputNode.outputFormat(forBus: 0)
+        }
+        #endif
 
         // 시뮬레이터·일부 환경에서 outputFormat이 sampleRate=0 / channelCount=0인
         // invalid AVAudioFormat을 반환해서 installTap이 NSException으로 크래시하는 케이스 방어.
