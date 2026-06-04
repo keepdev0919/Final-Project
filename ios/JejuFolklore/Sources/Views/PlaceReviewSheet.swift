@@ -14,11 +14,13 @@ struct PlaceReviewSheet: View {
         ("역사적이에요","📜 역사적이에요"),
     ]
 
+    @EnvironmentObject private var authManager: AuthManager
     @State private var selectedKeys: Set<String> = []
     @State private var note: String = ""
     @State private var isSubmitting = false
     @StateObject private var speech = SpeechRecognizer()
     @State private var pulse = false
+    @State private var showLogin = false
 
     var body: some View {
         NavigationStack {
@@ -121,6 +123,9 @@ struct PlaceReviewSheet: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .presentationDetents([.medium, .large])
+        .sheet(isPresented: $showLogin) {
+            LoginSheet()
+        }
         .task {
             // TTS가 점유한 .playback AVAudioSession을 해제해야 마이크 캡처(.playAndRecord)가 가능.
             // 이 호출 없이는 input node가 invalid format(sampleRate=0)을 반환해 "마이크 초기화 실패" 에러가 뜸.
@@ -193,6 +198,10 @@ struct PlaceReviewSheet: View {
     }
 
     private func submit() async {
+        guard authManager.isLoggedIn else {
+            showLogin = true
+            return
+        }
         isSubmitting = true
         await APIClient.shared.submitReview(
             placeName: placeName,

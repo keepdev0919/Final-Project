@@ -2,10 +2,18 @@ import SwiftUI
 import SwiftData
 
 struct MyCourseListView: View {
+    @EnvironmentObject private var authManager: AuthManager
+    @Environment(\.modelContext) private var modelContext
     @Query(sort: \SavedCourse.savedAt, order: .reverse) private var courses: [SavedCourse]
+    @Query(filter: #Predicate<SavedCourse> { $0.userId == nil })
+    private var anonymousCourses: [SavedCourse]
     @State private var selectedCourse: SavedCourse?
     /// 방금 완료된 코스 ID — 비어있지 않으면 해당 셀 배경을 1.5초간 하이라이트.
     @State private var highlightedCourseId: String? = nil
+    @State private var showProfile = false
+    @State private var showLogin = false
+    @State private var showMigrationDialog = false
+    @State private var pendingMigrationUid: String?
 
     var body: some View {
         NavigationStack {
@@ -35,8 +43,96 @@ struct MyCourseListView: View {
                 }
             }
             .navigationTitle("내 코스")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    profileButton
+                }
+            }
             .sheet(item: $selectedCourse) { course in
                 SavedCourseDetailView(course: course)
+            }
+            .sheet(isPresented: $showProfile) {
+                ProfileSheet()
+            }
+            .sheet(isPresented: $showLogin) {
+                LoginSheet()
+            }
+            .onChange(of: authManager.isLoggedIn) { _, isLoggedIn in
+                handleLoginChange(isLoggedIn: isLoggedIn)
+            }
+            .confirmationDialog(
+                "기존 \(anonymousCourses.count)개 코스를 계정에 연결할까요?",
+                isPresented: $showMigrationDialog,
+                titleVisibility: .visible
+            ) {
+                Button("연결하기") {
+                    runMigration()
+                }
+                Button("나중에", role: .cancel) {
+                    pendingMigrationUid = nil
+                }
+            } message: {
+                Text("연결하면 다른 기기에서도 코스를 볼 수 있어요.")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var profileButton: some View {
+        Button {
+            if authManager.isLoggedIn {
+                showProfile = true
+            } else {
+                showLogin = true
+            }
+        } label: {
+            if authManager.isLoggedIn, let url = authManager.currentUser?.photoURL {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    default:
+                        Image(systemName: "person.crop.circle")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .frame(width: 28, height: 28)
+                .clipShape(Circle())
+            } else {
+                Image(systemName: "person.crop.circle")
+                    .font(.title3)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .accessibilityLabel(authManager.isLoggedIn ? "프로필" : "로그인")
+    }
+
+    /// 로그인 상태가 변할 때 익명 코스 마이그레이션 다이얼로그 노출 판단.
+    private func handleLoginChange(isLoggedIn: Bool) {
+        guard isLoggedIn,
+              let uid = authManager.currentUser?.uid,
+              !anonymousCourses.isEmpty else {
+            return
+        }
+        pendingMigrationUid = uid
+        showMigrationDialog = true
+    }
+
+    private func runMigration() {
+        guard let uid = pendingMigrationUid else { return }
+        let target = anonymousCourses
+        pendingMigrationUid = nil
+        Task { @MainActor in
+            do {
+                try await FirestoreSyncService.shared
+                    .migrateAnonymousCourses(to: uid, courses: target)
+                try? modelContext.save()
+            } catch {
+                print("[MyCourseListView] migration failed: \(error.localizedDescription)")
             }
         }
     }
@@ -116,8 +212,10 @@ struct SavedCourseRow: View {
 }
 
 struct SavedCourseDetailView: View {
-    let course: SavedCourse
+    @Bindable var course: SavedCourse
     @State private var startExplore = false
+    @State private var showEditTitle = false
+    @State private var showEditJournal = false
     @Environment(\.dismiss) private var dismiss
 
     private static let dateFormatter: DateFormatter = {
@@ -136,43 +234,48 @@ struct SavedCourseDetailView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    // 코스 장소 목록
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("코스 장소")
-                            .font(.headline)
-                            .padding(.horizontal, 16)
-                        VStack(spacing: 0) {
-                            ForEach(Array(course.places.enumerated()), id: \.offset) { idx, place in
-                                placeRow(index: idx + 1, place: place)
-                                if idx < course.places.count - 1 {
-                                    Divider().padding(.leading, 52)
-                                }
-                            }
-                        }
-                        .background(Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        .padding(.horizontal, 16)
-                    }
-
                     // 탐험 기록 (있을 때만)
                     if course.hasExploration {
                         explorationSection
                     }
 
-                    // 탐험 시작 / 다시 보기 버튼
-                    Button(course.hasExploration ? "다시 탐험하기" : "탐험 시작") {
-                        startExplore = true
+                    // 탐험 시작 — 아직 탐험 안 한 코스에만 노출.
+                    // (탐험 완료 코스의 "다시 탐험하기" 기능은 제거됨)
+                    if !course.hasExploration {
+                        Button("탐험 시작") {
+                            startExplore = true
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.orange)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.orange)
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
                 }
                 .padding(.vertical, 16)
             }
             .navigationTitle(course.title)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button {
+                            showEditTitle = true
+                        } label: {
+                            Label("코스 이름 변경", systemImage: "pencil")
+                        }
+                        if course.hasExploration {
+                            Button {
+                                showEditJournal = true
+                            } label: {
+                                Label("일지 수정", systemImage: "square.and.pencil")
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                }
+            }
             .navigationDestination(isPresented: $startExplore) {
                 ExploreView(
                     course: Course(
@@ -185,6 +288,12 @@ struct SavedCourseDetailView: View {
                     transport: "car"
                 )
             }
+            .sheet(isPresented: $showEditTitle) {
+                EditCourseTitleSheet(course: course)
+            }
+            .sheet(isPresented: $showEditJournal) {
+                EditJournalSheet(course: course)
+            }
         }
         // 탐험 완료 시 sheet 자체를 닫아 MyCourseList(탭 root)로 복귀.
         // sheet 내부의 NavigationStack에서 ExploreView dismiss만으로는 sheet가 닫히지 않음.
@@ -192,24 +301,6 @@ struct SavedCourseDetailView: View {
             startExplore = false
             dismiss()
         }
-    }
-
-    private func placeRow(index: Int, place: CoursePlace) -> some View {
-        HStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(Color.orange.opacity(0.15))
-                    .frame(width: 28, height: 28)
-                Text("\(index)")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(.orange)
-            }
-            Text(place.name)
-                .font(.subheadline)
-            Spacer()
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
     }
 
     private var explorationSection: some View {
@@ -266,6 +357,94 @@ struct SavedCourseDetailView: View {
             .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .padding(.horizontal, 16)
+        }
+    }
+}
+
+// MARK: - Edit Sheets
+
+struct EditCourseTitleSheet: View {
+    @Bindable var course: SavedCourse
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var authManager: AuthManager
+    @State private var draft: String = ""
+
+    private var trimmed: String {
+        draft.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("코스 이름") {
+                    TextField("코스 이름", text: $draft)
+                        .autocorrectionDisabled()
+                        .submitLabel(.done)
+                }
+            }
+            .navigationTitle("코스 이름 변경")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("취소") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("저장") {
+                        course.title = trimmed
+                        syncToFirestore()
+                        dismiss()
+                    }
+                    .disabled(trimmed.isEmpty || trimmed == course.title)
+                }
+            }
+            .onAppear { draft = course.title }
+        }
+        .presentationDetents([.medium])
+    }
+
+    private func syncToFirestore() {
+        guard let uid = authManager.currentUser?.uid else { return }
+        Task { @MainActor in
+            try? await FirestoreSyncService.shared.pushSavedCourse(course, uid: uid)
+        }
+    }
+}
+
+struct EditJournalSheet: View {
+    @Bindable var course: SavedCourse
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var authManager: AuthManager
+    @State private var draft: String = ""
+
+    var body: some View {
+        NavigationStack {
+            TextEditor(text: $draft)
+                .padding(16)
+                .scrollContentBackground(.hidden)
+                .background(Color(.systemBackground))
+                .navigationTitle("일지 수정")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("취소") { dismiss() }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("저장") {
+                            course.journalText = draft
+                            syncToFirestore()
+                            dismiss()
+                        }
+                        .disabled(draft == (course.journalText ?? ""))
+                    }
+                }
+                .onAppear { draft = course.journalText ?? "" }
+        }
+    }
+
+    private func syncToFirestore() {
+        guard let uid = authManager.currentUser?.uid else { return }
+        Task { @MainActor in
+            try? await FirestoreSyncService.shared.pushSavedCourse(course, uid: uid)
         }
     }
 }

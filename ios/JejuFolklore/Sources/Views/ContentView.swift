@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 /// 앱 탭 식별자. AppStorage 키 "selected_tab"에 raw value로 저장한다.
 enum AppTab: String {
@@ -15,6 +16,8 @@ struct ContentView: View {
     @State private var navigateToExplore = false
 
     @AppStorage("selected_tab") private var selectedTabRaw: String = AppTab.home.rawValue
+    @EnvironmentObject private var authManager: AuthManager
+    @Environment(\.modelContext) private var modelContext
 
     private var selectedTabBinding: Binding<AppTab> {
         Binding(
@@ -83,6 +86,14 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .exploreDidComplete)) { _ in
             navigateToExplore = false
             selectedTabRaw = AppTab.myCourse.rawValue
+        }
+        // Firestore 동기화 트리거: 로그인 ↔ 로그아웃에 따라 listener 시작/종료
+        .onChange(of: authManager.currentUser?.uid, initial: true) { _, newUid in
+            if let uid = newUid {
+                FirestoreSyncService.shared.startListening(uid: uid, modelContext: modelContext)
+            } else {
+                FirestoreSyncService.shared.stopListening()
+            }
         }
     }
 }
