@@ -33,6 +33,12 @@ packages:
   GoogleMaps:
     url: https://github.com/googlemaps/ios-maps-sdk
     from: 9.0.0
+  FirebaseSDK:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: 10.0.0
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    from: 7.0.0
 
 targets:
   JejuFolklore:
@@ -42,6 +48,8 @@ targets:
     sources:
       - path: JejuFolklore/Sources
       - path: JejuFolklore/Resources/Assets.xcassets
+      - path: JejuFolklore/Resources/GoogleService-Info.plist
+        optional: true
       - path: JejuFolklore/debug-route.gpx
         optional: true
     configFiles:
@@ -50,6 +58,18 @@ targets:
     dependencies:
       - package: GoogleMaps
         product: GoogleMaps
+      - package: FirebaseSDK
+        product: FirebaseAuth
+      - package: FirebaseSDK
+        product: FirebaseFirestore
+      - package: FirebaseSDK
+        product: FirebaseFirestoreSwift
+      - package: FirebaseSDK
+        product: FirebaseStorage
+      - package: GoogleSignIn
+        product: GoogleSignIn
+      - package: GoogleSignIn
+        product: GoogleSignInSwift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.keepdev.jejufolklore
@@ -76,3 +96,7 @@ targets:
         LSApplicationQueriesSchemes:
           - comgooglemaps
         GOOGLE_MAPS_API_KEY: $(GOOGLE_MAPS_API_KEY)
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLSchemes:
+              - com.googleusercontent.apps.107241453785-do85fcu2l0i2fdt0805tb646vhgv5g9f

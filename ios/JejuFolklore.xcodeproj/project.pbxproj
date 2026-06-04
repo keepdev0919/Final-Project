@@ -13,14 +13,18 @@
 		0EC1CB2AEEC08D50A8762866 /* ExploreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8528DFE3BA78C29CA022D3 /* ExploreView.swift */; };
 		155FB05FBE57A905102D4BA4 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A562565D326C0C4C39FA4D /* HomeViewModel.swift */; };
 		174F84207B32BD1FF0089EA3 /* CoursePreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */; };
+		181950EB48299EE76985B887 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D5CC6DDEC1C1B656071D157 /* AuthManager.swift */; };
 		1EFFDAF78ADAE81D2021D06E /* SavedCourse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E81A390764D24D99F14B2DA /* SavedCourse.swift */; };
 		1F8E431CBD4FDEDB15BB328D /* CoursePlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = A744E956106F34C9C2D95F2F /* CoursePlace.swift */; };
+		290137D764E6A47F84FD38EB /* LoginSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABFB1F82A4D609716075142E /* LoginSheet.swift */; };
 		2BDBCF5B8C7C61F1C9478ABC /* JejuFolkloreApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEF7C5A76ABA12369016601 /* JejuFolkloreApp.swift */; };
+		2EB651D81236DB74288380DA /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 93A7AD4147147A644C148CA6 /* GoogleSignIn */; };
 		2F421FD8AD3B408FB4CB94C4 /* PlaceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD5EDEE06A3A22C0EED714E /* PlaceDetail.swift */; };
 		344CFDCD02C0689B73F83D69 /* CourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */; };
 		38CBEDD8EFB51E3971426554 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C903EDA776C43559F19313 /* ChatMessage.swift */; };
 		39C40D093F71EB8D5254DAEF /* HomeAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08CDC2EF152D55835AA96119 /* HomeAPI.swift */; };
 		39E84B4B300BE84BCBDC781F /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */; };
+		3A1219C0BE883136CBF1FEBD /* ProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4000E728FBE0443E2CE67EA5 /* ProfileSheet.swift */; };
 		3C924367BF6D98281ABDEE6F /* PlaceAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997538FBFEB00536EF630FCB /* PlaceAPI.swift */; };
 		3E611EF2C36BAD2F21735019 /* CompanionChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46A0E0C2AC4070F7A0EAFF8 /* CompanionChatView.swift */; };
 		3F87278B10B282BE0924C3DC /* PlaceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */; };
@@ -31,17 +35,21 @@
 		4FF8E3BA2A1CBF3EB0E700D8 /* SessionRestoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE302B828FB176D1DA8415CD /* SessionRestoreView.swift */; };
 		511BDB16CB99BDB74A36F7AA /* CourseRecommendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */; };
 		522757289D4B9A4C480111F5 /* ExploreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */; };
+		59BC2160448B1CDAE4804A6D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 435CA89B62B4B29FDF95DF2A /* GoogleService-Info.plist */; };
 		67157E9A54F763785AB8AAE4 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB19D914698888F9F31CB4C /* Config.swift */; };
 		7485325AAD31ADF859E86B09 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 73D434DC7C36590FAF11FE46 /* GoogleMaps */; };
 		74DCBD57A66368EA7F46C223 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */; };
+		751B960A8F06079680845A12 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 4B18F75428772D8916E25374 /* FirebaseAuth */; };
 		8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFB45E01F6089646021CEA5 /* SharedComponents.swift */; };
 		88DD5A8EED77969C5A45054D /* TTSAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F6205B0B938C2482576817A /* TTSAPI.swift */; };
 		8A08DE3EE1EDECFC01390C82 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE1015A20E1B4F561042D346 /* ContentView.swift */; };
 		8C282DF964A29D9C75C3B99A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E11EACDCA05DCA02F59297D3 /* Assets.xcassets */; };
 		8E332C8B628EB5E1E42AC01C /* MyCourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */; };
+		99347349DD8C78539C1B7447 /* FirestoreSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0349BE64A4DE0DBB4EDA32 /* FirestoreSyncService.swift */; };
 		9CE3AAF8CFE0F62B647E2B1B /* CourseRecommendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */; };
 		A354561FC140C77CD26F19D8 /* GoogleMapPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC15B8EA8FB8D80D2EA8016 /* GoogleMapPreview.swift */; };
 		A981386C08A1E204A2AFC874 /* TravelJournalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB48E15DE9092E3D74AF2A89 /* TravelJournalView.swift */; };
+		AAE7C1FCF5B5E1B0894E0B23 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 56FD528AF8D8BAAD9FA0738D /* GoogleSignInSwift */; };
 		AC684B8C1956FFD93A8835F3 /* PlaceReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC21DDC81DEE2B5D42F38320 /* PlaceReview.swift */; };
 		B2F402633D5B5F4ABB981F0D /* DaySummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A9387AD77FAD744E124731E /* DaySummaryView.swift */; };
 		B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */; };
@@ -52,12 +60,15 @@
 		C73841BC51AF0A0EC4A72670 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F529E10D83F4E5A63726E5 /* LocationService.swift */; };
 		C74D798F99D1945551A212E6 /* TravelSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8400CD98E1FD2E1045AE84 /* TravelSession.swift */; };
 		C97C58E098FE7DDBBFA5E051 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D629F5C5C7EBC91E3B287 /* ChatView.swift */; };
+		D12BBA198F3A069A7B2D0090 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E3F0ADC1193435A1799743F4 /* FirebaseFirestoreSwift */; };
 		D449CF3942C6D17D5161645B /* PinDetailAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE5A8C878A19F0DF3217997 /* PinDetailAPI.swift */; };
 		D5F2DA5C2D7F02150C8C8789 /* HomeRecommendedCourseCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48324503CEDCE93C36D7EA0A /* HomeRecommendedCourseCard.swift */; };
 		D726750ECE035B9C28D50F72 /* Course.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3716E52689657C66A89C990A /* Course.swift */; };
+		D75C8DE79E08139D56DCC142 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8287E78AE638FE1F48F3E7E8 /* FirebaseStorage */; };
 		D797ABDBD47BA2407816B9AA /* ChatAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F2F5C21FAE77807D7721C05 /* ChatAPI.swift */; };
 		DA537D46F6F9CCF7654E489D /* DeviceIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */; };
 		DC2B2B7C9E6EC48C81603F8C /* FolkloreStory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA696E33103EBE2921AAE0CD /* FolkloreStory.swift */; };
+		E6EA2A2EE0C5198E6788CEEE /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 88F2B5856C2815B6FA279A89 /* FirebaseFirestore */; };
 		E997A2FA036599C45A3DF7BC /* TodayFolkloreCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA5042111C2AC6F8013280A /* TodayFolkloreCard.swift */; };
 		EF3F8D874A2F3E91CA567372 /* TodayFolklore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E429737D44A1DB1F43BA4C53 /* TodayFolklore.swift */; };
 		F475DC455EF699B2C68D1803 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8932708010A3431E486DF98 /* APIClient.swift */; };
@@ -81,11 +92,14 @@
 		34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseListView.swift; sourceTree = "<group>"; };
 		3716E52689657C66A89C990A /* Course.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
 		38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRecommendView.swift; sourceTree = "<group>"; };
+		4000E728FBE0443E2CE67EA5 /* ProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSheet.swift; sourceTree = "<group>"; };
 		41B83DC6328155E768AEA6E2 /* TravelAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelAPI.swift; sourceTree = "<group>"; };
+		435CA89B62B4B29FDF95DF2A /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		456D629F5C5C7EBC91E3B287 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		48324503CEDCE93C36D7EA0A /* HomeRecommendedCourseCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRecommendedCourseCard.swift; sourceTree = "<group>"; };
 		49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasteDiscoveryView.swift; sourceTree = "<group>"; };
 		4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JejuFolklore.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4D5CC6DDEC1C1B656071D157 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewModel.swift; sourceTree = "<group>"; };
 		50714B04510A0105DCCEE895 /* debug-route.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "debug-route.gpx"; sourceTree = "<group>"; };
 		5A9387AD77FAD744E124731E /* DaySummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaySummaryView.swift; sourceTree = "<group>"; };
@@ -96,6 +110,7 @@
 		73927792BFCCF6FA36E310AC /* StoryViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewerView.swift; sourceTree = "<group>"; };
 		7BFB45E01F6089646021CEA5 /* SharedComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedComponents.swift; sourceTree = "<group>"; };
 		80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRecommendViewModel.swift; sourceTree = "<group>"; };
+		8A0349BE64A4DE0DBB4EDA32 /* FirestoreSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreSyncService.swift; sourceTree = "<group>"; };
 		8A8DC0AEACC6D55FDF9997B9 /* FolkloreDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolkloreDetailView.swift; sourceTree = "<group>"; };
 		8E81A390764D24D99F14B2DA /* SavedCourse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCourse.swift; sourceTree = "<group>"; };
 		8F6205B0B938C2482576817A /* TTSAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSAPI.swift; sourceTree = "<group>"; };
@@ -105,6 +120,7 @@
 		A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		A744E956106F34C9C2D95F2F /* CoursePlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePlace.swift; sourceTree = "<group>"; };
 		AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		ABFB1F82A4D609716075142E /* LoginSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginSheet.swift; sourceTree = "<group>"; };
 		BA696E33103EBE2921AAE0CD /* FolkloreStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolkloreStory.swift; sourceTree = "<group>"; };
 		BCB19D914698888F9F31CB4C /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		BE302B828FB176D1DA8415CD /* SessionRestoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRestoreView.swift; sourceTree = "<group>"; };
@@ -132,6 +148,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				7485325AAD31ADF859E86B09 /* GoogleMaps in Frameworks */,
+				751B960A8F06079680845A12 /* FirebaseAuth in Frameworks */,
+				E6EA2A2EE0C5198E6788CEEE /* FirebaseFirestore in Frameworks */,
+				D12BBA198F3A069A7B2D0090 /* FirebaseFirestoreSwift in Frameworks */,
+				D75C8DE79E08139D56DCC142 /* FirebaseStorage in Frameworks */,
+				2EB651D81236DB74288380DA /* GoogleSignIn in Frameworks */,
+				AAE7C1FCF5B5E1B0894E0B23 /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -208,6 +230,7 @@
 			isa = PBXGroup;
 			children = (
 				E11EACDCA05DCA02F59297D3 /* Assets.xcassets */,
+				435CA89B62B4B29FDF95DF2A /* GoogleService-Info.plist */,
 				6A4C37778C65DA1DF7951735 /* Secrets.xcconfig */,
 			);
 			name = Resources;
@@ -229,9 +252,11 @@
 				8A8DC0AEACC6D55FDF9997B9 /* FolkloreDetailView.swift */,
 				2D901B468F50E9AB1B85E78B /* FolklorePlacePinsView.swift */,
 				AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */,
+				ABFB1F82A4D609716075142E /* LoginSheet.swift */,
 				EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */,
 				2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */,
 				0EB46F8631558DA14B8DE90F /* PlaceReviewSheet.swift */,
+				4000E728FBE0443E2CE67EA5 /* ProfileSheet.swift */,
 				BE302B828FB176D1DA8415CD /* SessionRestoreView.swift */,
 				7BFB45E01F6089646021CEA5 /* SharedComponents.swift */,
 				73927792BFCCF6FA36E310AC /* StoryViewerView.swift */,
@@ -247,9 +272,11 @@
 			children = (
 				C8932708010A3431E486DF98 /* APIClient.swift */,
 				A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */,
+				4D5CC6DDEC1C1B656071D157 /* AuthManager.swift */,
 				2F2F5C21FAE77807D7721C05 /* ChatAPI.swift */,
 				CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */,
 				27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */,
+				8A0349BE64A4DE0DBB4EDA32 /* FirestoreSyncService.swift */,
 				08CDC2EF152D55835AA96119 /* HomeAPI.swift */,
 				94F529E10D83F4E5A63726E5 /* LocationService.swift */,
 				CFE5A8C878A19F0DF3217997 /* PinDetailAPI.swift */,
@@ -302,6 +329,12 @@
 			name = JejuFolklore;
 			packageProductDependencies = (
 				73D434DC7C36590FAF11FE46 /* GoogleMaps */,
+				4B18F75428772D8916E25374 /* FirebaseAuth */,
+				88F2B5856C2815B6FA279A89 /* FirebaseFirestore */,
+				E3F0ADC1193435A1799743F4 /* FirebaseFirestoreSwift */,
+				8287E78AE638FE1F48F3E7E8 /* FirebaseStorage */,
+				93A7AD4147147A644C148CA6 /* GoogleSignIn */,
+				56FD528AF8D8BAAD9FA0738D /* GoogleSignInSwift */,
 			);
 			productName = JejuFolklore;
 			productReference = 4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */;
@@ -331,7 +364,9 @@
 			mainGroup = 75D21EA6AC81E560B87E62D9;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				DC5ED3C557176FCC202DA207 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				3B887012B207487E9482AEC2 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */,
+				260351A6C2E18FEED1232710 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 008A9C8980608A8515E098EF /* Products */;
@@ -349,6 +384,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8C282DF964A29D9C75C3B99A /* Assets.xcassets in Resources */,
+				59BC2160448B1CDAE4804A6D /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -362,6 +398,7 @@
 				F475DC455EF699B2C68D1803 /* APIClient.swift in Sources */,
 				4C1F407BDC88A1B264CEB27F /* ArrivalOverlayView.swift in Sources */,
 				BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */,
+				181950EB48299EE76985B887 /* AuthManager.swift in Sources */,
 				D797ABDBD47BA2407816B9AA /* ChatAPI.swift in Sources */,
 				38CBEDD8EFB51E3971426554 /* ChatMessage.swift in Sources */,
 				C97C58E098FE7DDBBFA5E051 /* ChatView.swift in Sources */,
@@ -381,6 +418,7 @@
 				DA537D46F6F9CCF7654E489D /* DeviceIdentity.swift in Sources */,
 				0EC1CB2AEEC08D50A8762866 /* ExploreView.swift in Sources */,
 				522757289D4B9A4C480111F5 /* ExploreViewModel.swift in Sources */,
+				99347349DD8C78539C1B7447 /* FirestoreSyncService.swift in Sources */,
 				0CF6CACB8348127FCA5D4145 /* FolkloreDetailView.swift in Sources */,
 				0B5C72C31D3300A23735A53C /* FolklorePlacePinsView.swift in Sources */,
 				DC2B2B7C9E6EC48C81603F8C /* FolkloreStory.swift in Sources */,
@@ -391,6 +429,7 @@
 				155FB05FBE57A905102D4BA4 /* HomeViewModel.swift in Sources */,
 				2BDBCF5B8C7C61F1C9478ABC /* JejuFolkloreApp.swift in Sources */,
 				C73841BC51AF0A0EC4A72670 /* LocationService.swift in Sources */,
+				290137D764E6A47F84FD38EB /* LoginSheet.swift in Sources */,
 				8E332C8B628EB5E1E42AC01C /* MyCourseListView.swift in Sources */,
 				4BBA96123849AB365EC9B2B4 /* Pin.swift in Sources */,
 				D449CF3942C6D17D5161645B /* PinDetailAPI.swift in Sources */,
@@ -400,6 +439,7 @@
 				3F87278B10B282BE0924C3DC /* PlaceDetailView.swift in Sources */,
 				AC684B8C1956FFD93A8835F3 /* PlaceReview.swift in Sources */,
 				F8D4029F14FE4EC28785AD5F /* PlaceReviewSheet.swift in Sources */,
+				3A1219C0BE883136CBF1FEBD /* ProfileSheet.swift in Sources */,
 				1EFFDAF78ADAE81D2021D06E /* SavedCourse.swift in Sources */,
 				4FF8E3BA2A1CBF3EB0E700D8 /* SessionRestoreView.swift in Sources */,
 				8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */,
@@ -606,6 +646,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		260351A6C2E18FEED1232710 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.0;
+			};
+		};
 		3B887012B207487E9482AEC2 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/googlemaps/ios-maps-sdk";
@@ -614,13 +662,51 @@
 				minimumVersion = 9.0.0;
 			};
 		};
+		DC5ED3C557176FCC202DA207 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		4B18F75428772D8916E25374 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DC5ED3C557176FCC202DA207 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		56FD528AF8D8BAAD9FA0738D /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 260351A6C2E18FEED1232710 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
 		73D434DC7C36590FAF11FE46 /* GoogleMaps */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 3B887012B207487E9482AEC2 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */;
 			productName = GoogleMaps;
+		};
+		8287E78AE638FE1F48F3E7E8 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DC5ED3C557176FCC202DA207 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		88F2B5856C2815B6FA279A89 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DC5ED3C557176FCC202DA207 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		93A7AD4147147A644C148CA6 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 260351A6C2E18FEED1232710 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		E3F0ADC1193435A1799743F4 /* FirebaseFirestoreSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DC5ED3C557176FCC202DA207 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestoreSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

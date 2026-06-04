@@ -1,4 +1,5 @@
 import Foundation
+import FirebaseAuth
 
 enum APIError: Error, LocalizedError {
     case invalidURL
@@ -37,6 +38,21 @@ final class APIClient {
 
     private init() {}
 
+    /// Firebase Auth 의 현재 사용자 ID 토큰을 비동기로 가져온다.
+    /// - Firebase가 구성되지 않았거나 로그인되지 않은 경우 nil을 반환한다.
+    private func currentIDToken() async -> String? {
+        guard FirebaseAuth.Auth.auth().app != nil else { return nil }
+        guard let user = Auth.auth().currentUser else { return nil }
+        return try? await user.getIDToken()
+    }
+
+    /// 요청 직전에 Authorization 헤더를 부착한다 (토큰이 있을 때만).
+    private func attachAuthHeader(_ request: inout URLRequest) async {
+        if let token = await currentIDToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+    }
+
     func get<T: Decodable>(_ path: String, query: [String: String] = [:]) async throws -> T {
         var components = URLComponents(string: Config.baseURL + path)!
         if !query.isEmpty {
@@ -45,6 +61,7 @@ final class APIClient {
         guard let url = components.url else { throw APIError.invalidURL }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
+        await attachAuthHeader(&request)
         return try await perform(request)
     }
 
@@ -54,6 +71,7 @@ final class APIClient {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(body)
+        await attachAuthHeader(&request)
         return try await perform(request)
     }
 
@@ -63,6 +81,7 @@ final class APIClient {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(body)
+        await attachAuthHeader(&request)
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
             let code = (response as? HTTPURLResponse)?.statusCode ?? 0
