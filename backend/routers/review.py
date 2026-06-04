@@ -1,10 +1,11 @@
 """장소 리뷰 엔드포인트."""
 import json
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from models.schemas import PlaceReviewRequest, PlaceReviewsResponse, VALID_REVIEW_TAGS
+from services.auth import get_current_user_optional
 from services.db import get_db_connection
 
 router = APIRouter(prefix="/place", tags=["review"])
@@ -13,7 +14,11 @@ limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/review", status_code=201)
 @limiter.limit("30/minute")
-def submit_review(request: Request, body: PlaceReviewRequest):
+async def submit_review(
+    request: Request,
+    body: PlaceReviewRequest,
+    current_user: dict | None = Depends(get_current_user_optional),
+):
     if not body.tags:
         raise HTTPException(status_code=400, detail="태그를 1개 이상 선택해주세요.")
     invalid = set(body.tags) - VALID_REVIEW_TAGS
@@ -22,17 +27,20 @@ def submit_review(request: Request, body: PlaceReviewRequest):
     if body.note and len(body.note) > 200:
         raise HTTPException(status_code=400, detail="노트는 200자 이내로 작성해주세요.")
 
+    user_id = current_user.get("uid") if current_user else None
+
     conn = get_db_connection()
     conn.execute(
         """
-        INSERT OR REPLACE INTO place_reviews (place_name, tags, note, device_id)
-        VALUES (?, ?, ?, ?)
+        INSERT OR REPLACE INTO place_reviews (place_name, tags, note, device_id, user_id)
+        VALUES (?, ?, ?, ?, ?)
         """,
         (
             body.place_name,
             json.dumps(body.tags, ensure_ascii=False),
             body.note,
             body.device_id,
+            user_id,
         ),
     )
     conn.commit()

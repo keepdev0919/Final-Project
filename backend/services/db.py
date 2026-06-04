@@ -38,11 +38,8 @@ def _load_env() -> None:
 _load_env()
 
 
-@lru_cache(maxsize=1)
-def get_db_connection():
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    # 관광지 정보 캐시 테이블 (없으면 최초 연결 시 한 번만 생성)
+def _ensure_schema(conn: sqlite3.Connection) -> None:
+    """스키마 보장. IF NOT EXISTS + PRAGMA로 idempotent. 매 스레드 첫 연결 시 호출."""
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS tourist_info_cache (
@@ -55,7 +52,6 @@ def get_db_connection():
         )
         """
     )
-    # place_detail_cache: 스키마 변경 감지 시 DROP + 재생성 (캐시라 데이터 손실 무방)
     _existing_cols = {
         row[1] for row in conn.execute("PRAGMA table_info(place_detail_cache)").fetchall()
     }
@@ -94,16 +90,18 @@ def get_db_connection():
         )
         """
     )
+    _review_cols = {
+        row[1] for row in conn.execute("PRAGMA table_info(place_reviews)").fetchall()
+    }
+    if "user_id" not in _review_cols:
+        conn.execute("ALTER TABLE place_reviews ADD COLUMN user_id TEXT")
 
-    # ── 설화 LLM 가공 결과 캐시 ─────────────────────────────────────────────
-    # 1) metadata.hook : 설화별 영구 후크 (한 줄, 30~50자). NULL이면 lazy 생성 대상.
     _metadata_cols = {
         row[1] for row in conn.execute("PRAGMA table_info(metadata)").fetchall()
     }
     if _metadata_cols and "hook" not in _metadata_cols:
         conn.execute("ALTER TABLE metadata ADD COLUMN hook TEXT")
 
-    # 2) 장소×설화 한 줄 연결 캐시
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS folklore_connection_cache (
@@ -115,8 +113,6 @@ def get_db_connection():
         )
         """
     )
-
-    # 3) 장소×설화 스토리북(페이지 JSON) 캐시
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS folklore_story_cache (
@@ -128,8 +124,23 @@ def get_db_connection():
         )
         """
     )
-
     conn.commit()
+
+
+# Thread-local connection: FastAPI 의 ThreadPool 워커마다 자기 connection 보유.
+# 같은 connection 객체를 여러 스레드가 동시에 execute() 하면
+# Python 3.14 sqlite3 에서 InterfaceError(SQLITE_MISUSE) 발생하므로 격리한다.
+_thread_local = threading.local()
+
+
+def get_db_connection() -> sqlite3.Connection:
+    conn = getattr(_thread_local, "conn", None)
+    if conn is not None:
+        return conn
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    _ensure_schema(conn)
+    _thread_local.conn = conn
     return conn
 
 

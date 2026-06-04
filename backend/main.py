@@ -7,6 +7,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 from routers import pins, chat, course, tts, tourist, place, travel, review, home
+from services import auth as _auth  # noqa: F401  (side effect: Firebase 초기화)
 
 limiter = Limiter(key_func=get_remote_address)
 
