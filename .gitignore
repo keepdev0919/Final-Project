@@ -22,6 +22,10 @@ ios/JejuFolklore/Sources/App/Config.swift
 # Google Maps API 키 등 시크릿 (Secrets.example.xcconfig 보고 자기 키 채워서 만듦)
 ios/JejuFolklore/Resources/Secrets.xcconfig
 
+# Firebase 키 파일 (Firebase Console 에서 다운로드)
+ios/JejuFolklore/Resources/GoogleService-Info.plist
+backend/firebase-admin.json
+
 # Xcode 사용자 상태 파일
 *.xcuserstate
 
