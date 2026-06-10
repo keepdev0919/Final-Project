@@ -79,18 +79,6 @@ class Course(BaseModel):
     narrative: str = ""
 
 
-class ChatMessage(BaseModel):
-    role: str       # user | assistant
-    content: str
-    sources: list[str] = []
-
-
-class ChatRequest(BaseModel):
-    message: str
-    history: list[ChatMessage] = []
-    course_id: Optional[str] = None
-
-
 class TTSRequest(BaseModel):
     text: str
     pin_id: Optional[str] = None
