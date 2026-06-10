@@ -110,23 +110,38 @@ def run_course_list(
     duration_min = max(1, duration_days - 1)
     duration_max = duration_days + 1
 
-    # 요청 지역 코스 우선 + 부족하면 "전체" 코스로 보완
     # 부실 코스 필터: place_count >= 3 AND >= duration_days
     # (1박 2일에 갈 곳이 1~2곳인 부실 일정이 단일 장소의 매핑 다양성 덕에
     #  점수 1등으로 올라가는 문제 방지)
-    rows = conn.execute(
-        """
-        SELECT id, title, duration_days
-        FROM curated_courses
-        WHERE region IN (?, '전체')
-          AND duration_days BETWEEN ? AND ?
-          AND place_count >= 3
-          AND place_count >= duration_days
-        ORDER BY CASE WHEN region = ? THEN 0 ELSE 1 END, composite_score DESC
-        LIMIT 50
-        """,
-        (region, duration_min, duration_max, region),
-    ).fetchall()
+    if region == "전체":
+        # "전체" 선택 시 region 제한 없이 모든 코스(1,090개)를 후보로
+        rows = conn.execute(
+            """
+            SELECT id, title, duration_days
+            FROM curated_courses
+            WHERE duration_days BETWEEN ? AND ?
+              AND place_count >= 3
+              AND place_count >= ?
+            ORDER BY composite_score DESC
+            LIMIT 50
+            """,
+            (duration_min, duration_max, duration_days),
+        ).fetchall()
+    else:
+        # 요청 지역 코스 우선 + 부족하면 "전체" 코스로 보완 (기존 4지선다 동작)
+        rows = conn.execute(
+            """
+            SELECT id, title, duration_days
+            FROM curated_courses
+            WHERE region IN (?, '전체')
+              AND duration_days BETWEEN ? AND ?
+              AND place_count >= 3
+              AND place_count >= ?
+            ORDER BY CASE WHEN region = ? THEN 0 ELSE 1 END, composite_score DESC
+            LIMIT 50
+            """,
+            (region, duration_min, duration_max, duration_days, region),
+        ).fetchall()
 
     if not rows:
         return {"result_courses": [], "error": "조건에 맞는 코스를 찾지 못했습니다."}
