@@ -13,6 +13,7 @@ from typing import Iterable
 from common import (
     DEFAULT_COLLECTION_NAME,
     EMBEDDING_MODEL,
+    PROCESSED_DIR,
     VECTOR_DB_DIR,
     get_db_connection,
     load_env_file,
@@ -21,6 +22,26 @@ from common import (
 
 OPENAI_EMBEDDING_URL = "https://api.openai.com/v1/embeddings"
 OPENAI_EMBEDDING_DIMS = 1536
+GPS_FOLKLORE_JSON = PROCESSED_DIR / "folklore_gps.json"
+
+
+def load_gps_attached_codes() -> set[str]:
+    """data/processed/folklore_gps.json 을 SSoT로 GPS 부착된 code_no set 반환.
+
+    lat/lng 가 모두 유효한 경우만 GPS 부착으로 인정.
+    """
+    if not GPS_FOLKLORE_JSON.exists():
+        print(f"[warn] GPS folklore SSoT not found: {GPS_FOLKLORE_JSON}")
+        return set()
+    with GPS_FOLKLORE_JSON.open("r", encoding="utf-8") as fp:
+        data = json.load(fp)
+    codes = {
+        entry["code_no"]
+        for entry in data
+        if entry.get("code_no") and entry.get("lat") is not None and entry.get("lng") is not None
+    }
+    print(f"[info] loaded {len(codes)} GPS-attached code_no from SSoT")
+    return codes
 
 
 def fetch_chunks(source_type: str | None, limit: int | None) -> list[sqlite3.Row]:
@@ -164,6 +185,8 @@ def ingest_rows(rows: list[sqlite3.Row], *, provider: str, model: str, collectio
         delete_collection_if_requested(client, collection_name, reset=True)
         _, collection = get_chroma_collection(collection_name)
 
+    gps_attached_codes = load_gps_attached_codes()
+
     embed_texts = get_embedder(provider, model)
     processed = 0
     skipped = 0
@@ -200,6 +223,7 @@ def ingest_rows(rows: list[sqlite3.Row], *, provider: str, model: str, collectio
                     "chunk_index": int(row["chunk_index"]),
                     "embedding_provider": provider,
                     "embedding_model": model,
+                    "has_gps": row["code_no"] in gps_attached_codes,
                 }
             )
 
