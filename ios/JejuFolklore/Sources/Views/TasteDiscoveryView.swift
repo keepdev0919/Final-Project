@@ -118,10 +118,15 @@ struct TasteDiscoveryView: View {
 
     private var regionStep: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("어느 지역을 여행하고 싶어요?")
-                .font(.title2.weight(.bold))
-                .padding(.horizontal, 24)
-                .padding(.top, 32)
+            VStack(alignment: .leading, spacing: 6) {
+                Text("어느 지역을 여행하고 싶어요?")
+                    .font(.title2.weight(.bold))
+                Text("4개 권역 또는 '전체'에서 골라주세요")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 32)
 
             JejuMapRegionPicker { region in
                 selectedRegion = region
