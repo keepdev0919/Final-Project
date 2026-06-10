@@ -21,7 +21,6 @@
 		2EB651D81236DB74288380DA /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 93A7AD4147147A644C148CA6 /* GoogleSignIn */; };
 		2F421FD8AD3B408FB4CB94C4 /* PlaceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD5EDEE06A3A22C0EED714E /* PlaceDetail.swift */; };
 		344CFDCD02C0689B73F83D69 /* CourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */; };
-		38CBEDD8EFB51E3971426554 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5C903EDA776C43559F19313 /* ChatMessage.swift */; };
 		39C40D093F71EB8D5254DAEF /* HomeAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08CDC2EF152D55835AA96119 /* HomeAPI.swift */; };
 		39E84B4B300BE84BCBDC781F /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */; };
 		3A1219C0BE883136CBF1FEBD /* ProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4000E728FBE0443E2CE67EA5 /* ProfileSheet.swift */; };
@@ -54,18 +53,15 @@
 		B2F402633D5B5F4ABB981F0D /* DaySummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A9387AD77FAD744E124731E /* DaySummaryView.swift */; };
 		B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */; };
 		BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */; };
-		BF7D8FB6935D109B375EF985 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C6027A4A228CB2943AF3A93 /* ChatViewModel.swift */; };
 		C12673C8CA7842A8759796C7 /* StoryViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73927792BFCCF6FA36E310AC /* StoryViewerView.swift */; };
 		C344E8EB8063A7D1A885FA40 /* TTSPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC4551DB86ABE4E92BB0191 /* TTSPlayerService.swift */; };
 		C73841BC51AF0A0EC4A72670 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F529E10D83F4E5A63726E5 /* LocationService.swift */; };
 		C74D798F99D1945551A212E6 /* TravelSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8400CD98E1FD2E1045AE84 /* TravelSession.swift */; };
-		C97C58E098FE7DDBBFA5E051 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456D629F5C5C7EBC91E3B287 /* ChatView.swift */; };
 		D12BBA198F3A069A7B2D0090 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E3F0ADC1193435A1799743F4 /* FirebaseFirestoreSwift */; };
 		D449CF3942C6D17D5161645B /* PinDetailAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE5A8C878A19F0DF3217997 /* PinDetailAPI.swift */; };
 		D5F2DA5C2D7F02150C8C8789 /* HomeRecommendedCourseCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48324503CEDCE93C36D7EA0A /* HomeRecommendedCourseCard.swift */; };
 		D726750ECE035B9C28D50F72 /* Course.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3716E52689657C66A89C990A /* Course.swift */; };
 		D75C8DE79E08139D56DCC142 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8287E78AE638FE1F48F3E7E8 /* FirebaseStorage */; };
-		D797ABDBD47BA2407816B9AA /* ChatAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F2F5C21FAE77807D7721C05 /* ChatAPI.swift */; };
 		DA537D46F6F9CCF7654E489D /* DeviceIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */; };
 		DC2B2B7C9E6EC48C81603F8C /* FolkloreStory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA696E33103EBE2921AAE0CD /* FolkloreStory.swift */; };
 		E6EA2A2EE0C5198E6788CEEE /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 88F2B5856C2815B6FA279A89 /* FirebaseFirestore */; };
@@ -80,7 +76,6 @@
 		03E5481B0ED3479BFF321C98 /* PinsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinsAPI.swift; sourceTree = "<group>"; };
 		08CDC2EF152D55835AA96119 /* HomeAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeAPI.swift; sourceTree = "<group>"; };
 		0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
-		0C6027A4A228CB2943AF3A93 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		0EB46F8631558DA14B8DE90F /* PlaceReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceReviewSheet.swift; sourceTree = "<group>"; };
 		101A2B03B831695C27D31659 /* ArrivalOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrivalOverlayView.swift; sourceTree = "<group>"; };
 		161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewViewModel.swift; sourceTree = "<group>"; };
@@ -88,14 +83,12 @@
 		27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceIdentity.swift; sourceTree = "<group>"; };
 		2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDetailView.swift; sourceTree = "<group>"; };
 		2D901B468F50E9AB1B85E78B /* FolklorePlacePinsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolklorePlacePinsView.swift; sourceTree = "<group>"; };
-		2F2F5C21FAE77807D7721C05 /* ChatAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAPI.swift; sourceTree = "<group>"; };
 		34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseListView.swift; sourceTree = "<group>"; };
 		3716E52689657C66A89C990A /* Course.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
 		38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRecommendView.swift; sourceTree = "<group>"; };
 		4000E728FBE0443E2CE67EA5 /* ProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSheet.swift; sourceTree = "<group>"; };
 		41B83DC6328155E768AEA6E2 /* TravelAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelAPI.swift; sourceTree = "<group>"; };
 		435CA89B62B4B29FDF95DF2A /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		456D629F5C5C7EBC91E3B287 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		48324503CEDCE93C36D7EA0A /* HomeRecommendedCourseCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRecommendedCourseCard.swift; sourceTree = "<group>"; };
 		49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasteDiscoveryView.swift; sourceTree = "<group>"; };
 		4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JejuFolklore.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -125,7 +118,6 @@
 		BCB19D914698888F9F31CB4C /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		BE302B828FB176D1DA8415CD /* SessionRestoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRestoreView.swift; sourceTree = "<group>"; };
 		C46A0E0C2AC4070F7A0EAFF8 /* CompanionChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionChatView.swift; sourceTree = "<group>"; };
-		C5C903EDA776C43559F19313 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
 		C8932708010A3431E486DF98 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		CB48E15DE9092E3D74AF2A89 /* TravelJournalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelJournalView.swift; sourceTree = "<group>"; };
 		CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseAPI.swift; sourceTree = "<group>"; };
@@ -171,7 +163,6 @@
 		2BE96A45088F306CED8D5579 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				0C6027A4A228CB2943AF3A93 /* ChatViewModel.swift */,
 				161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */,
 				80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */,
 				4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */,
@@ -183,7 +174,6 @@
 		3077A9125BAFCC44A04384F9 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				C5C903EDA776C43559F19313 /* ChatMessage.swift */,
 				3716E52689657C66A89C990A /* Course.swift */,
 				A744E956106F34C9C2D95F2F /* CoursePlace.swift */,
 				BA696E33103EBE2921AAE0CD /* FolkloreStory.swift */,
@@ -241,7 +231,6 @@
 			isa = PBXGroup;
 			children = (
 				101A2B03B831695C27D31659 /* ArrivalOverlayView.swift */,
-				456D629F5C5C7EBC91E3B287 /* ChatView.swift */,
 				C46A0E0C2AC4070F7A0EAFF8 /* CompanionChatView.swift */,
 				FE1015A20E1B4F561042D346 /* ContentView.swift */,
 				34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */,
@@ -273,7 +262,6 @@
 				C8932708010A3431E486DF98 /* APIClient.swift */,
 				A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */,
 				4D5CC6DDEC1C1B656071D157 /* AuthManager.swift */,
-				2F2F5C21FAE77807D7721C05 /* ChatAPI.swift */,
 				CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */,
 				27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */,
 				8A0349BE64A4DE0DBB4EDA32 /* FirestoreSyncService.swift */,
@@ -399,10 +387,6 @@
 				4C1F407BDC88A1B264CEB27F /* ArrivalOverlayView.swift in Sources */,
 				BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */,
 				181950EB48299EE76985B887 /* AuthManager.swift in Sources */,
-				D797ABDBD47BA2407816B9AA /* ChatAPI.swift in Sources */,
-				38CBEDD8EFB51E3971426554 /* ChatMessage.swift in Sources */,
-				C97C58E098FE7DDBBFA5E051 /* ChatView.swift in Sources */,
-				BF7D8FB6935D109B375EF985 /* ChatViewModel.swift in Sources */,
 				3E611EF2C36BAD2F21735019 /* CompanionChatView.swift in Sources */,
 				67157E9A54F763785AB8AAE4 /* Config.swift in Sources */,
 				8A08DE3EE1EDECFC01390C82 /* ContentView.swift in Sources */,
