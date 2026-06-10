@@ -117,6 +117,7 @@ def map_folklore_to_places(
                    place_lat, place_lng
             FROM place_folklore_mapping
             WHERE place_name = ?
+              AND source != 'gps_assist'   -- GPS 보조 매핑 제외 (장소 정합성 보장)
             ORDER BY specificity DESC
             LIMIT 20
             """,

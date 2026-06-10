@@ -62,7 +62,9 @@ def _score_course(
         SELECT pfm.final_category, pfm.specificity
         FROM course_places cp
         JOIN place_folklore_mapping pfm ON pfm.place_name = cp.place_name
-        WHERE cp.course_id = ? AND pfm.specificity >= 5
+        WHERE cp.course_id = ?
+          AND pfm.specificity >= 5
+          AND pfm.source != 'gps_assist'   -- GPS 보조 매핑 제외 (장소 정합성 보장)
         """,
         (course_id,),
     ).fetchall()

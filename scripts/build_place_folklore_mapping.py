@@ -135,10 +135,11 @@ def main() -> None:
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
 
-    # GPS 없는 설화 본문 로드
+    # GPS 없는 설화 본문 로드 (source_type 포함 — 민담은 채록 장소로 분류)
     no_gps_rows = conn.execute(
         """
-        SELECT m.code_no, m.title, m.summary, m.category, d.normalized_text
+        SELECT m.code_no, m.title, m.summary, m.category, m.source_type,
+               d.normalized_text
         FROM metadata m
         JOIN documents d ON m.code_no = d.code_no
         WHERE m.lat IS NULL
@@ -154,6 +155,7 @@ def main() -> None:
             "title": r["title"],
             "summary": r["summary"] or "",
             "final_category": r["category"] or "",
+            "source_type": r["source_type"] or "",
             "all_places": places,
         }
 
@@ -187,18 +189,35 @@ def main() -> None:
             folklore_summary TEXT,
             final_category   TEXT,
             matched_place    TEXT,   -- 매핑에 사용된 지명
-            specificity      INTEGER -- 지명 구체성 점수
+            specificity      INTEGER, -- 지명 구체성 점수
+            source           TEXT NOT NULL DEFAULT 'name_match'  -- 'name_match' | 'collection_site' | 'gps_assist'
         )
         """
     )
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_pfm_place ON place_folklore_mapping(place_name)"
     )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_pfm_source ON place_folklore_mapping(source)"
+    )
 
     rows_to_insert: list[tuple] = []
     seen: set[tuple] = set()  # (place_name, folklore_code_no) 중복 방지
 
-    def add_mapping(vj: dict, folklore: dict, matched_place: str, spec: int) -> None:
+    def add_mapping(
+        vj: dict,
+        folklore: dict,
+        matched_place: str,
+        spec: int,
+        source: str,
+    ) -> None:
+        """매핑 한 쌍 추가.
+
+        source: 'name_match' | 'collection_site' | 'gps_assist'
+            - name_match:     지명 텍스트 매칭 (설화 본문에서 추출한 지명이 명소 이름/주소에 포함)
+            - collection_site: 민담 채록 장소 매칭 (민담의 채록 메타데이터 기반)
+            - gps_assist:     GPS 보조 매핑 (지명 좌표 ↔ 명소 좌표 거리 ≤ 8km)
+        """
         key = (vj["place_name"], folklore["code_no"])
         if key in seen:
             return
@@ -213,9 +232,11 @@ def main() -> None:
             folklore.get("final_category", ""),
             matched_place,
             spec,
+            source,
         ))
 
-    # ─── GPS 있는 설화 매핑 ───────────────────────────────────────────────────
+    # ─── GPS 있는 설화 매핑 (지명 텍스트 매칭) ───────────────────────────────
+    # 설화는 본문 NER로 지명을 추출한 결과이므로 source='name_match'.
     gps_mapped = 0
     for f in gps_folklore:
         best = select_best_places(f.get("all_places", []))
@@ -224,20 +245,23 @@ def main() -> None:
         spec = PLACE_SPECIFICITY.get(best[0], 0)
         for p in best:
             for vj in vj_idx.get(p, []):
-                add_mapping(vj, f, p, spec)
+                add_mapping(vj, f, p, spec, source="name_match")
         if best:
             gps_mapped += 1
 
-    # ─── GPS 없는 설화 매핑 ───────────────────────────────────────────────────
+    # ─── GPS 없는 설화 매핑 (텍스트 매칭) ───────────────────────────────────
+    # 민담은 채록 장소 메타데이터로 분류, 그 외(설화)는 지명 텍스트 매칭.
     no_gps_mapped = 0
     for code_no, f in no_gps_map.items():
         best = select_best_places(f["all_places"])
         if not best:
             continue
         spec = PLACE_SPECIFICITY.get(best[0], 0)
+        # 민담(folktale) source_type → collection_site, 설화(legend) 등은 name_match
+        src = "collection_site" if f.get("source_type") == "folktale" else "name_match"
         for p in best:
             for vj in vj_idx.get(p, []):
-                add_mapping(vj, f, p, spec)
+                add_mapping(vj, f, p, spec, source=src)
         if best:
             no_gps_mapped += 1
 
@@ -271,7 +295,10 @@ def main() -> None:
                     continue
                 if haversine_m(plat, plng, vlat, vlng) <= GPS_ASSIST_RADIUS_M:
                     before = len(seen)
-                    add_mapping(vj, f, p + "(GPS)", GPS_ASSIST_SPECIFICITY)
+                    add_mapping(
+                        vj, f, p + "(GPS)", GPS_ASSIST_SPECIFICITY,
+                        source="gps_assist",
+                    )
                     if len(seen) > before:
                         gps_assist_added += 1
 
@@ -281,8 +308,8 @@ def main() -> None:
         INSERT INTO place_folklore_mapping
             (place_name, place_lat, place_lng, folklore_code_no,
              folklore_title, folklore_summary, final_category,
-             matched_place, specificity)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+             matched_place, specificity, source)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         rows_to_insert,
     )
@@ -294,6 +321,24 @@ def main() -> None:
     print(f"  GPS 없는 설화 매핑: {no_gps_mapped}개 설화")
     print(f"  GPS 보조 매핑 추가: {gps_assist_added}쌍")
     print(f"  총 (명소, 설화) 매핑 쌍: {total:,}개")
+
+    # ─── source별 분포 통계 ──────────────────────────────────────────────────
+    src_rows = conn.execute(
+        "SELECT source, COUNT(*) AS c FROM place_folklore_mapping GROUP BY source"
+    ).fetchall()
+    src_counts = {r["source"]: r["c"] for r in src_rows}
+    name_match_count = src_counts.get("name_match", 0)
+    collection_site_count = src_counts.get("collection_site", 0)
+    gps_assist_count = src_counts.get("gps_assist", 0)
+    print(f"  매핑 분포:")
+    print(f"    name_match:      {name_match_count:,}쌍")
+    print(f"    collection_site: {collection_site_count:,}쌍")
+    print(f"    gps_assist:      {gps_assist_count:,}쌍")
+    excluded = gps_assist_count
+    print(
+        f"  → 코스 추천 쿼리(source != 'gps_assist') 적용 시 사용 매핑: "
+        f"{total - excluded:,}쌍 (gps_assist {excluded:,}쌍 제외)"
+    )
 
     # ─── 결과 샘플 출력 ───────────────────────────────────────────────────────
     print("\n성산일출봉 매핑 샘플:")
