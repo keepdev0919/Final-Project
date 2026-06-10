@@ -1,0 +1,765 @@
+\documentclass[10pt,twocolumn,a4paper]{article}
+
+\usepackage{xetexko}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{float}
+
+\geometry{
+  a4paper,
+  top=22mm, bottom=22mm,
+  left=18mm, right=18mm,
+  columnsep=6mm
+}
+
+\setmainfont{Apple SD Gothic Neo}[
+  BoldFont = Apple SD Gothic Neo Bold,
+  ItalicFont = Apple SD Gothic Neo Regular
+]
+\setsansfont{Apple SD Gothic Neo}
+\setmonofont{Courier New}
+\setmainhangulfont{Apple SD Gothic Neo}[
+  BoldFont = Apple SD Gothic Neo Bold
+]
+
+% KCC 양식: 아라비아 숫자, 좌측 정렬, 굵게
+\titleformat{\section}[block]
+  {\normalsize\bfseries}
+  {\thesection.\,}{0.3em}{}
+\titlespacing{\section}{0pt}{8pt}{4pt}
+
+\titleformat{\subsection}[block]
+  {\normalsize\bfseries}
+  {\thesubsection\,}{0.3em}{}
+\titlespacing{\subsection}{0pt}{6pt}{3pt}
+
+\setlength{\parindent}{1em}
+\setlength{\parskip}{2pt}
+
+\renewcommand{\footnoterule}{\vspace{-3pt}\noindent\rule{0.4\columnwidth}{0.4pt}\vspace{3pt}}
+
+% 페이지 하단 가운데 페이지 번호만 표시 (헤더 없음)
+\pagestyle{plain}
+
+\begin{document}
+
+\twocolumn[{%
+\begin{center}
+  {\Large\bfseries RAG와 페르소나 LLM 기반}\\[4pt]
+  {\Large\bfseries 제주 설화·민담 여행 코스 추천 서비스 개발$^{*}$}\\[6pt]
+  {\normalsize --- 최종 보고서 ---}\\[8pt]
+
+  {\normalsize 조익준$^{\circ}$}\\[2pt]
+  {\normalsize 경희대학교 컴퓨터공학과}\\[2pt]
+  {\small\itshape \underline{keepdev0919@gmail.com}}\\[10pt]
+
+  {\normalsize\bfseries RAG and Persona-Based LLM Service for}\\[2pt]
+  {\normalsize\bfseries Jeju Folklore Travel Course Recommendation}\\[4pt]
+  {\normalsize Ikjun Cho$^{\circ}$}\\[2pt]
+  {\normalsize School of Computer Science and Engineering,}\\[2pt]
+  {\normalsize Kyung Hee University}\\[12pt]
+\end{center}
+\noindent\rule{\textwidth}{0.4pt}
+\vspace{4pt}
+}]
+
+% 첫 페이지 하단 각주 - 연구 지원 표시
+\thispagestyle{plain}
+\renewcommand{\thefootnote}{*}
+\footnotetext{본 연구는 경희대학교 컴퓨터공학과 졸업프로젝트로 수행되었으며,
+본 결과물은 2026 관광데이터 활용 공모전(예비 합격) 출품 예정 작품이다.}
+\renewcommand{\thefootnote}{\arabic{footnote}}
+\setcounter{footnote}{0}
+
+% ── 요약 ─────────────────────────────────────────────────
+\begin{center}
+{\normalsize\bfseries 요~~~약}
+\end{center}
+
+{\small\noindent
+본 연구는 제주도 방문 관광객을 대상으로, 실제 관광객이 검증한 여행 코스에
+LLM이 설화·민담 콘텐츠를 매핑하여 \emph{계획·탐험·기록}이 하나의 여정으로
+연결되는 iOS 모바일 서비스를 구현한다. LangGraph 인터페이스를 모방한 2단계
+LLM 함수 파이프라인이 지역·스타일·기간 입력을 받아 코스 후보 풀에서 무작위 3건을
+추천하고, 5종 페르소나 기반 AI 설화 동행자가 현장에서 RAG 기반 설화 해설을
+SSE(Server-Sent Events) 스트리밍과 페르소나 전용 TTS 음성으로 동시 제공한다.
+여행 후 GPT-4o가 방문 이력·대화 맥락·커뮤니티 리뷰를 종합하여 1인칭 일지와
+한국 민화 스타일 이미지를 단일 호출의 구조화 출력으로 동시 생성한다.
+데이터 파이프라인은 제주도청 공공 API에서 수집한 설화·민담을 지명 Geocoding으로
+좌표화하여 ChromaDB에 벡터화하고, 한국관광공사 KTO 분류와 키워드 규칙을
+결합한 3단계 필터로 Visit Jeju 장소 3{,}284개에서 관광지 820개를 선별하여
+설화 매핑 신뢰성을 약 77\% 개선하였다. 최종 보고 시점 기준으로 홈 화면,
+2단계 코스 추천, GPS 탐험, 5종 페르소나 동행자·TTS, 장소 리뷰, 설화 3단계
+가공 뷰어, 일지·민화 자동 생성, 세션 복원, ``내 코스'' 자동 이동 등 시연
+플로우 10단계 전 구간이 구현 완료되었다.}
+
+\vspace{6pt}
+{\small\noindent\textbf{키워드}\quad
+RAG, 페르소나 LLM, ChromaDB, LangGraph, iOS Swift, 위치 기반 서비스,
+제주 설화·민담, 멀티모달 생성, TTS, 여행 동행자}
+
+\vspace{8pt}
+
+% ── 1. 서론 ─────────────────────────────────────────────
+\section{서~~~론}
+
+제주도는 연간 1{,}500만 명 이상이 방문하는 국내 최대 관광지이나, 현행 관광
+앱의 대부분은 맛집·숙박·교통 중심의 정보 제공에 머물고 있다. 제주도에는
+설화 182건, 민담 323건 등 505건의 문화유산 콘텐츠가 공공 데이터로 개방되어
+있음에도, 이를 관광 경험과 결합한 서비스는 부재한 상황이다.
+
+최근 LLM(Large Language Model)의 발전과 함께, 특정 도메인 지식을 벡터
+데이터베이스에 저장하고 검색·생성을 결합하는 RAG 기술이 주목받고 있다.
+RAG는 모델의 환각(Hallucination) 문제를 억제하면서 도메인 특화 지식을
+활용할 수 있어, 정확성이 요구되는 문화유산 콘텐츠 분야에 적합하다. 또한
+LLM 워크플로우 프레임워크와 멀티모달 생성 모델의 발전은 단순한 정보
+조회를 넘어 ``계획-탐험-기록''의 전 여정에 AI가 개입할 수 있는 기술적
+토대를 제공한다.
+
+본 연구는 \textbf{``실제 검증된 여행 코스 위에 설화를 얹는다''} 는 컨셉으로,
+제주관광공사 Visit Jeju의 실제 관광객 여행 일정 데이터를 기반으로 LangGraph
+스타일 LLM 함수 파이프라인이 설화·민담이 풍부한 코스를 추천하고, 여행
+중에는 5종의 페르소나 기반 AI 설화 동행자가 장소에 깃든 이야기를 텍스트와
+음성으로 전달하며, 여행 후에는 일지와 민화 이미지가 자동 생성되는 iOS 앱을
+구현하는 것을 목표로 한다.
+
+본 연구의 졸업프로젝트로서의 학문적·실무적 기여는 다음 세 가지로 정리된다.
+첫째, \emph{Visit Jeju 실제 관광 코스 데이터와 KTO 분류를 결합}한 신뢰성
+있는 코스 큐레이션 위에 무형 문화유산을 레이어로 결합하는 역방향 매핑
+구조를 제안하여, LLM 자유 생성 코스의 비현실성과 단순 정보 나열식 가이드
+앱의 빈약함을 동시에 해결하였다. 둘째, \emph{5종 페르소나 LLM 챗봇과 RAG의
+결합}을 통해 같은 설화를 다양한 캐릭터로 재해석하여, 일반 챗봇이 결여한
+캐릭터 일관성과 현지감을 구현하였다. 셋째, \emph{GPT-4o 단일 호출의 구조화
+출력으로 일지와 민화 이미지 프롬프트를 동시 생성}하는 멀티모달 파이프라인을
+제시하여 사용자별 고유 결과물을 합리적 지연·비용 내에서 제공하였다.
+
+% ── 2. 관련 연구 ───────────────────────────────────────
+\section{관련 연구}
+
+\subsection{RAG(Retrieval-Augmented Generation)}
+
+RAG는 Lewis et al.(2020)이 제안한 방법으로\,[1], 외부 지식 저장소에서 관련
+문서를 검색(Retrieve)한 뒤 이를 문맥으로 제공하여 LLM이 더 정확한 답변을
+생성(Generate)하도록 한다. 벡터 임베딩 기반의 의미론적 검색을 통해 키워드
+검색의 한계를 극복하며, 특정 도메인에 특화된 지식베이스 구축에 활용된다.
+본 연구는 RAG를 활용하여 ChromaDB\,[5]에 저장된 제주 설화·민담을 실시간으로
+검색하고, 여행 현장 컨텍스트와 페르소나 말투에 맞는 해설을 생성하는 데
+적용한다.
+
+\subsection{위치 기반 문화 콘텐츠 서비스}
+
+Pok\'{e}mon GO, Ingress 등의 위치 기반 서비스는 GPS를 활용하여 사용자가
+실제 장소를 방문하도록 유도한 바 있다. 문화유산 분야에서는 Google Arts \&
+Culture, 국내 문화재청의 e뮤지엄 등이 위치 기반 콘텐츠를 제공하나, 지역
+설화·민담과 같은 무형 문화유산과 AI 코스 추천을 결합한 서비스는 미흡한
+실정이다. 본 연구는 실제 관광객 동선 데이터와 무형 문화유산을 결합하여,
+기존 서비스에서 미흡했던 설화·민담 기반 AI 코스 추천을 구현한다.
+
+\subsection{대화형 AI 인터페이스}
+
+ChatGPT, Claude 등의 등장 이후 사용자가 자연어로 정보를 탐색하는 대화형
+인터페이스가 보편화되고 있다. RAG를 결합한 도메인 특화 챗봇은 일반 LLM의
+지식 한계를 보완하면서 특정 주제에 깊이 있는 답변을 제공한다. 본 연구에서는
+이를 관광 맥락에 적용하여 현장형 AI 설화 동행자를 구현한다.
+
+\subsection{LLM 에이전트 및 LangGraph}
+
+Yao et al.(2023)이 제안한 ReAct(Reasoning + Acting) 패턴은\,[8] LLM이 추론
+단계와 도구 사용 단계를 반복하며 복잡한 작업을 수행하도록 한다. LangGraph\,[9]는
+이러한 LLM 워크플로우를 유향 그래프(StateGraph)로 명시적으로 정의하여,
+조건부 분기·루프·병렬 실행을 지원한다. 본 연구에서는 LangGraph의
+\texttt{invoke(state) → state} 인터페이스를 모방한 함수 파이프라인을 채택하여
+2단계 코스 추천을 구조화하였으며, ReAct 패턴은 사용하지 않는다. 코스 추천·
+동행자 채팅·일지 생성 등 응답 지연이 사용자 이탈에 직결되는 핵심 경험에는
+결정론적 함수와 단일 LLM 호출의 조합이 도구 자율 호출 라운드를 누적시키는
+ReAct보다 비용·지연·환각 통제 측면에서 우월하다고 판단하였다.
+
+\subsection{페르소나 기반 대화 인터페이스}
+
+Park et al.(2023)은 ``Generative Agents''에서 LLM이 기억·반영·계획 모듈을
+통해 일관된 개성을 유지하며 상호작용하는 시뮬레이션을 제시하였다\,[11].
+이후 캐릭터 일관성·말투·세계관을 시스템 프롬프트에 인코딩하여 유지하는
+페르소나 챗봇 연구가 활발히 진행되고 있다. 일반 LLM 챗봇은 ``유용한 비서''
+어조의 단일 페르소나에 수렴하기 쉬워, 문화 콘텐츠 전달에서 요구되는
+캐릭터별 정체성·방언·세계관 차이를 충분히 표현하지 못한다. 본 연구는
+설화 유형별로 5종의 페르소나를 분리하여 \emph{독립된 말투 가이드와 퓨샷
+예시}를 시스템 프롬프트에 인코딩하고, 사용자의 취향 카테고리 점수에 따라
+자동 배정함으로써 페르소나의 일관성과 적합성을 동시에 확보한다.
+
+\subsection{멀티모달 콘텐츠 생성 및 구조화 출력}
+
+GPT-4o와 같은 멀티모달 LLM은 텍스트뿐 아니라 이미지·오디오를 통합적으로
+다룬다\,[12]. 또한 함수 호출(function calling) 및 JSON 스키마 응답
+기능은 LLM의 출력을 다운스트림 시스템이 안정적으로 소비할 수 있는 구조화된
+형태로 강제한다. 이미지 생성 모델인 gpt-image-1\,[13]은 텍스트 프롬프트로
+일관된 화풍의 이미지를 생성하며, 텍스트 일지와 이미지 프롬프트를 단일 호출의
+구조화 출력으로 동시에 받아 다음 단계에 그대로 전달할 수 있다. 본 연구는
+이 패턴을 활용하여 LLM 호출 횟수와 지연을 최소화하면서 일지와 민화 이미지를
+함께 생성한다.
+
+% ── 3. 시스템 설계 ────────────────────────────────────
+\section{시스템 설계}
+
+\subsection{전체 아키텍처}
+
+본 시스템은 iOS 앱(Swift/SwiftUI), FastAPI 백엔드, 데이터 레이어의 3계층에
+Firebase 인증·동기화 레이어가 결합된 구조로 구성된다. iOS 앱은 REST/SSE를 통해
+백엔드와 통신하며, 백엔드는 2단계 코스 추천 파이프라인,
+설화 동행자 SSE 엔드포인트, GPS 핀 조회 API, TTS API,
+장소 리뷰 API, 일지·이미지 생성 API, 설화 3단계 가공 캐시 API로 구성되며, 사용자
+식별이 필요한 엔드포인트는 Firebase ID Token을 검증한다.
+데이터 레이어는 Visit Jeju 여행일정 DB(큐레이션 코스)\,[4], ChromaDB(설화·민담
+벡터 DB)\,[5], SQLite(메타데이터·GPS 좌표·리뷰·설화 가공 캐시)로 이루어지며, 사용자
+계정·로그인 세션과 저장 코스의 다기기 동기화는 Firebase Authentication(Google
+Sign-In)과 Firestore가 담당한다.
+
+\begin{footnotesize}
+\begin{verbatim}
+┌──────────── iOS App (Swift/SwiftUI) ────────────┐
+│ Home │ Course Wizard │ Explore │ MyCourse │Sheet│
+└──────┬─────────────┬──────────┬───────────┬─────┘
+       │REST         │REST      │SSE        │REST
+       ▼             ▼          ▼           ▼
+┌───────────────── FastAPI Backend ───────────────┐
+│ /course/list,detail   /travel/companion (SSE)   │
+│ /pins  /tts  /place/review  /tourist/info       │
+│ /folklore/connection  /folklore/story           │
+│ /travel/journal (+image)                        │
+└──┬──────────┬──────────┬──────────┬─────────────┘
+   │          │          │          │
+   ▼          ▼          ▼          ▼
+ChromaDB   SQLite     OpenAI    Google     Firebase
+(1,749)    courses    GPT-4o /  Maps SDK   Auth +
+chunks     9,134 +    gpt-      / KTO      Firestore
+           place_rev  image-1   TourAPI    (iOS SDK)
+\end{verbatim}
+\end{footnotesize}
+
+\begin{center}
+{\small 그림 1~~전체 시스템 아키텍처}
+\end{center}
+
+사용자 흐름은 \emph{계획·탐험·기록}의 단일 여정으로 구성된다. 홈에서는
+오늘의 설화 카드, 제주 지도와 설화 핀, 추천 코스 3선이 첫 화면에 노출되어
+앱의 정체성을 즉시 전달한다. 계획 단계에서는 취향(지역·스타일·기간·설화취향)을
+입력하면 1순위 코스가 즉시 상세 미리보기로 표시되며, ``새로운 추천'' 버튼으로
+2·3순위 코스를 순서대로 확인할 수 있다. 탐험 단계에서는 실시간 GPS 안내와
+함께 장소 도착 시 AI 설화 동행자가 말을 건다. 기록 단계에서는 여행 종료
+후 GPT-4o가 일지와 민화 이미지를 자동 생성한다. 앱 재시작 시 SessionRestoreView가
+진행 중인 탐험 세션을 자동 복원하여 앱 강제 종료에도 여행 연속성을 보장한다.
+
+\subsection{데이터 파이프라인}
+
+\textbf{Visit Jeju 여행 데이터.}\quad 제주관광공사 Visit Jeju 공공데이터\,[4]에서
+여행장소(GPS 좌표 포함)와 여행세부일정을 수집하였다. 장소명 기준 조인으로
+일정별 방문 장소의 GPS 좌표를 확보한 뒤, 공항·항구 중복 도배 코스 등
+저품질 코스를 필터링하여 큐레이션 코스 DB(9{,}134개 코스, 146{,}508개
+코스-장소 레코드)를 구성하였다.
+
+\textbf{비짓제주 장소 분류 --- KTO + 키워드 + 후처리 3단계 필터링.}\quad
+Visit Jeju 원본 데이터에는 장소 종류(관광지·식당·숙박 등) 정보가 없어,
+초기에는 모든 장소가 설화 매핑 대상이 되었다. 이로 인해 약 134{,}000건의
+장소-설화 매핑 중 상당수가 ``식당 ↔ 설화'' 같은 무의미한 매핑으로
+구성되었다. 이를 해결하기 위해 다음 3단계 필터를 도입하였다.
+
+\begin{enumerate}
+\setlength{\itemsep}{0pt}
+\item \textbf{KTO 정식 관광지 매칭}: 한국관광공사 TourAPI\,[10]의 제주
+공식 관광지 약 618개에 대해 GPS 거리·이름 유사도로 비짓제주 장소와
+매칭하여 약 456개를 라벨링하였다.
+\item \textbf{키워드 기반 분류}: 장소명에 ``오름·해변·박물관·4.3·사격장''
+등 지정 패턴이 포함되면 자연·문화·유적·체험 카테고리로 자동 분류하여
+약 1{,}400개를 추가 라벨링하였다.
+\item \textbf{후처리 강제 재분류}: ``○○점·갈비·회국수'' 등 식당
+패턴이 관광지로 잘못 분류된 경우를 보정하였다(29건).
+\end{enumerate}
+
+결과적으로 3{,}284개 장소를 12개 카테고리로 정리하고, 관광지(자연/문화/유적/
+체험/마을시설/종교) 820개만 설화 매핑 대상으로 한정하였다. 표 1은
+필터 전후의 매핑 신뢰성 변화를 보여준다.
+
+\begin{table}[H]
+\centering
+{\small 표 1~~장소 분류 필터의 매핑 신뢰성 효과}
+\label{tab:filter}
+\vspace{2pt}
+
+\small
+\begin{tabular}{lrr}
+\toprule
+지표 & 분류 전 & 분류 후 \\
+\midrule
+매핑 대상 장소 & 3{,}284 & \textbf{820} \\
+장소-설화 매핑 건수 & $\sim$134{,}000 & \textbf{$\sim$31{,}000} \\
+GPS 보조 매핑 노이즈 & $\sim$112{,}000 & $\sim$24{,}000 \\
+신뢰성 개선 & --- & \textbf{$-77\%$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{설화·민담 GPS 좌표 연결.}\quad 설화\,[2]는 텍스트 내 지명을 제주
+행정구역 화이트리스트 기반 매칭으로 추출한 뒤 Geocoding한다\,[7].
+민담\,[3]은 채록 메타데이터의 조사 장소를 파싱하여 Geocoding한다.
+GPS 좌표가 확보된 항목(269건 중 235건, 87\%)은 OpenAI Text Embedding\,[6]을
+이용해 청크로 분할하여 ChromaDB에 벡터화하고(1{,}749 청크), 좌표 미확보
+항목도 텍스트 검색용으로 ChromaDB에 함께 적재하였다.
+
+\subsection{홈 화면 설계}
+
+홈 화면은 앱 진입 시 ``이 앱이 무엇을 하는 서비스인가''를 5초 안에 전달하는
+역할을 한다. 초기 설계에서는 ``코스 만들기''와 ``내 코스''만 탭으로 존재했으나,
+두 탭 모두 사용자가 명확한 의도를 가지고 누르는 액션 탭이지 메인 화면이
+아니었다. 이에 ScrollView 기반으로 다음 3개 요소를 수직 배치한 홈 화면을
+신설하였다.
+
+\begin{enumerate}
+\setlength{\itemsep}{0pt}
+\item \textbf{오늘의 설화 카드}: 현재 날짜를 시드로 해시하여 매일 다른 설화를
+일관되게 노출. 동일 일자 내에는 항상 동일한 설화가 표시되어 ``오늘의 설화''
+정체성을 유지한다.
+\item \textbf{제주 지도 + 설화 핀}: 380pt 고정 높이의 지도 위에 설화
+위치 핀을 표시하여 무형 문화유산의 공간 분포를 직관적으로 전달한다.
+\item \textbf{추천 코스 3선}: 별도 취향 입력 없이도 대표 코스 3개를
+가로 카드로 노출하여 ``코스 만들기'' 위저드의 진입 부담을 낮춘다.
+\end{enumerate}
+
+\subsection{코스 추천: 2단계 LLM 워크플로우와 랜덤 풀}
+
+응답 지연을 최소화하기 위해 코스 추천을 두 단계의 함수 파이프라인으로
+분리하였다. 첫 번째 단계(\texttt{POST /course/list})에서는 \texttt{course\_list\_agent}
+모듈이 사용자의 취향 카테고리 점수가 0점을 초과하는 코스 전체를 SQLite에서
+후보 풀로 구성한 뒤, 그 안에서 \textbf{매번 무작위로 3개를 뽑아} GPT-4o가
+여행 스타일에 적합한 순서로 정렬·반환한다. 본 단계는 도구 자율 호출이
+없는 단일 LLM 호출 기반 워크플로우로, ReAct 패턴은 사용하지 않는다. 두
+번째 단계(\texttt{POST /course/detail})에서는 결정론적 함수가 선택된 코스의
+모든 장소에 대해 haversine 거리로 반경 3km 이내 설화를 매핑하고, GPT-4o가
+설화 취향과 장소 정보를 바탕으로 2문장 여행 내러티브를 \texttt{with\_structured\_output}
+스키마로 생성한다.
+
+\textbf{랜덤 풀 방식의 도입 배경.}\quad 초기 구현에서는 점수 상위 3개를
+결정론적으로 반환하여 동일 입력에 동일 결과가 나오는 문제가 있었다. 시연
+시 매번 같은 코스가 노출되어 다양성이 부족했고, 실사용 측면에서도 같은
+취향 사용자가 재방문 시 새로운 추천을 받지 못하는 한계가 있었다. 카테고리
+매칭이 전혀 안 되는 코스는 풀에서 배제하므로 추천의 의미는 유지하면서,
+같은 취향으로 다시 진입해도 매번 다른 조합을 보게 된다. 매칭이 0건이면
+빈 결과를 반환하여 클라이언트가 ``조건에 맞는 코스 없음'' 화면으로 자연스럽게
+유도된다(점수 무관 fallback 제거).
+
+\subsection{장소 상세 --- 설화 데이터 3단계 가공}
+
+장소 상세 화면의 설화는 원본이 학술적 어투의 채록 본풀이 텍스트로,
+\texttt{C\_M\_022}와 같은 내부 코드가 노출되고 긴 본문이 한꺼번에 펼쳐져
+여행 중 5초 안에 호기심을 끌기 어려웠다. 이를 다음 3단계로 점진적으로
+가공하였다.
+
+\begin{table}[H]
+\centering
+{\small 표 2~~설화 데이터 3단계 가공}
+\label{tab:lv}
+\vspace{2pt}
+
+\footnotesize
+\begin{tabularx}{\columnwidth}{lX}
+\toprule
+단계 & 내용 \\
+\midrule
+Lv1 & 카드에서 코드 접두사 제거. LLM이 생성한 호기심 자극형 후크 1줄을
+노출(예: ``심방으로 살다 다시 이승으로 돌아온 굴묵밭 할망''). 원본 요약은
+접어두기. \\
+Lv2 & 카드 상단에 ``이 마을의 본향당 신을 모시는 이야기''와 같이 \emph{장소와
+설화의 관계 1줄}을 추가. 백엔드 LLM이 장소명+설화 본문을 받아 생성. \\
+Lv3 & 카드 탭 시 인스타그램 스토리 느낌의 풀스크린 뷰어 진입. 5--7페이지의
+동화체 리라이팅 스토리, 좌우 스와이프, 페이지 인디케이터. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{영구 캐시 테이블.}\quad Lv2·Lv3는 LLM 호출이 필요하지만, 동일 (장소,
+설화) 조합은 항상 동일한 결과를 갖는다. 이에 백엔드에 \texttt{folklore\_connection\_cache}
+(Lv2 연결 문장)와 \texttt{folklore\_story\_cache}(Lv3 동화체 스토리) 두 테이블을
+신설하여 \emph{한 번 생성된 결과를 영구 저장}한다. 동일 키 재호출 시 LLM을
+호출하지 않고 캐시에서 즉시 반환하여 비용과 지연을 모두 최소화한다.
+
+\subsection{AI 설화 동행자: 5종 페르소나 시스템}
+
+여행 중 경험의 중심축으로 5종의 페르소나 기반 AI 설화 동행자를 구현하였다.
+본 시스템의 핵심 경험인 AI 설화 동행자는 \emph{단일 LLM 호출에 페르소나
+시스템 프롬프트와 ChromaDB RAG 컨텍스트를 결합}한 구조이며, 도구 자율 호출
+ReAct 패턴은 사용하지 않는다. 페르소나 정의(이름·말투·어휘·퓨샷 예시)는
+별도 설정으로 관리하고, 동행자는 해당 장소 주변 설화를 ChromaDB에서 벡터
+검색하여 맥락으로 주입받으며, FastAPI SSE를 통해 토큰 단위 스트리밍으로
+응답한다.
+
+\begin{table}[H]
+\centering
+{\small 표 3~~AI 설화 동행자 5종 페르소나}
+\label{tab:persona}
+\vspace{2pt}
+
+\footnotesize
+\begin{tabularx}{\columnwidth}{lXl}
+\toprule
+페르소나 & 설화 유형 & 말투 핵심 \\
+\midrule
+마을 할망       & 마을 공동체 전승       & 따뜻한 제주 사투리 \\
+당신·심방       & 무속신화·신격 전승     & 고어체 신탁 \\
+영등신·해녀     & 해양·어촌 전승         & 직선적 반말, 해녀 어휘 \\
+도깨비         & 생활민담·교훈담         & 장난기, 질문 되받기 \\
+도체비         & 초자연 존재담           & 문장 끊기, 자기 부정 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{독립 프롬프팅 --- 공유 사투리 가이드 배제.}\quad 캐릭터마다 말투
+가이드와 4--5개의 퓨샷 예시를 \emph{독립적으로} 설계하였다. 동일한 제주
+사투리 가이드를 공유하지 않고, 각 캐릭터의 설화 유형에 맞는 전용 어휘와
+발화 패턴을 별도로 정의한다. 예를 들어 해녀 페르소나는 ``물질·테왁·숨비소리·
+바릇·불턱·영등'' 등 6개의 해녀 전용 어휘 사전과 ``시원시원하고 직선적,
+돌려 말하지 않음''의 규칙을 갖는 반면, 심방 페르소나는 ``\textasciitilde
+이니라/하시라'' 고어체 어미를 사용하며 사투리는 최소화한다.
+
+\textbf{페르소나 자동 배정 + 수동 변경.}\quad 사용자의 취향 카테고리 최고
+점수가 ``무속신화''면 심방, ``해양·어촌''이면 해녀 등 자동 배정 규칙으로
+초기 동행자가 결정된다. 코스 미리보기 화면에 배정된 동행자 이름과
+``바꾸기'' 버튼이 표시되며, 탭하면 \texttt{CompanionPickerSheet} 바텀시트로
+5개 카드 중 직접 선택할 수 있다. 변경 결과는 탐험 진행 화면에 override로
+전달된다.
+
+\subsection{페르소나 TTS 시스템}
+
+5종 페르소나의 캐릭터성은 텍스트만으로 절반밖에 살지 않는다. 이에 페르소나
+전용 TTS 음성을 도입하여 텍스트와 음성을 동시에 출력한다.
+
+\begin{table}[H]
+\centering
+{\small 표 4~~페르소나별 TTS 음성 색깔}
+\label{tab:tts-voice}
+\vspace{2pt}
+
+\footnotesize
+\begin{tabularx}{\columnwidth}{lX}
+\toprule
+페르소나 & 음성 색깔 \\
+\midrule
+당신·심방 & 저음 남자, 위엄 있고 신비함 \\
+도깨비   & 스토리텔러 톤, 경쾌·익살 \\
+마을 할망 & 부드러운 여자, 정겨움 \\
+영등·해녀 & 강한 여자, 시원한 바다 톤 \\
+도체비   & 차분한 남자, 속삭이듯 신비함 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{TTS 재생 3 포인트.}\quad (1) 장소 도착 오버레이가 뜨자마자 페르소나
+자기 목소리로 자동 인사, (2) 채팅에서 AI 응답 시 글자가 한 자씩 노출되는
+동시에 페르소나 목소리로 발화, (3) 여행 일지 화면에서 재생 버튼 탭 시
+일지 전체를 차분한 내레이터 톤으로 낭독.
+
+\textbf{글자/음성 타이밍 동기화.}\quad 핵심 규칙은 ``글자 출력과 음성을
+거의 같은 타이밍에 끝나게 한다''이다. 글자 다 보인 뒤 1초 멍하니 기다리고
+음성이 시작되는 어색함을 제거하기 위해, 글자 노출 속도를 TTS 길이에 맞춰
+조정한다. 우측 상단 스피커 아이콘 한 번 탭으로 전체 음소거가 가능하며,
+설정은 앱 재실행 후에도 유지된다.
+
+\subsection{GPS 탐험 모드와 Google Maps SDK 전환}
+
+iOS CoreLocation 기반 지오펜스로 도착을 감지한다. 도보 모드에서는 반경
+100m 진입 후 30초 체류, 차량 모드에서는 반경 300m 진입 후 30초 체류 시
+도착으로 판정한다. 30초 체류 조건은 잠깐 지나치는 오탐을 방지한다. 도착
+판정 시 동행자 오버레이가 전체화면으로 등장하며, 사용자가 탭하면 해당
+장소의 설화를 주제로 한 채팅이 시작된다.
+
+\textbf{Apple Maps → Google Maps SDK 전환.}\quad 초기에는 Apple Maps를
+사용하였으나, (1) 임베드 미리보기에서 Apple 워터마크가 시연 시 그대로
+노출되고, (2) 길찾기가 Apple Maps 앱으로 빠지며, (3) 한국 사용자 다수가
+구글 지도를 쓰는 실사용 환경과 어긋난다는 문제가 있었다. GoogleMaps iOS
+SDK\,[7]를 도입하여 임베드 미리보기와 길찾기 양쪽을 Google Maps로 통일하였고,
+구글맵 앱 미설치 시 \texttt{https://www.google.com/maps/dir/...} 웹 URL로
+자동 폴백한다. 장소 상세 정보는 \texttt{GET /tourist/info}를 통해 KTO
+TourAPI\,[10]에서 사진·정보를 7일 캐시 기준으로 조회한다.
+
+\subsection{장소 리뷰 시스템}
+
+장소에 대한 다른 여행자들의 반응을 보여주는 커뮤니티 섹션을 구현하였다.
+설화 상세 화면 하단에 5개 태그(소름 돋아요·감동이에요·신기해요·무서워요·
+역사적이에요)의 통계 막대와 최근 감상 노트 3개가 노출된다. 데이터가 없으면
+섹션 자체를 숨겨 빈 상태를 노출하지 않는다.
+
+\textbf{자동 바텀시트.}\quad 탐험 중 GPS 도착 → 동행자 채팅 → 채팅 닫기의
+흐름이 끝나면 \texttt{PlaceReviewSheet}가 자동으로 올라온다. 태그 1개 이상
+선택 시 ``남기기'' 버튼이 활성화되고, ``건너뛰기''로 닫아도 된다. 리뷰는
+Firebase Authentication 로그인 사용자의 경우 \texttt{user\_id}(Firebase uid)로,
+미로그인 사용자의 경우 익명 \texttt{device\_id}(UUID)로 식별되어 저장되며,
+같은 사용자가 동일 장소를 재방문하면 덮어쓴다. 제출 실패는 조용히 처리되어 앱 동작에 영향을 주지 않는다.
+
+\textbf{일지 생성 시 GPT 프롬프트 주입.}\quad 제출된 리뷰는 \emph{여행 일지
+생성 시 GPT 프롬프트에 자동 주입}되어, 커뮤니티 반응이 일지 이야기 흐름에
+자연스럽게 녹는다. 이로써 같은 장소를 방문해도 사용자별 리뷰 선택에 따라
+일지 분위기가 달라진다.
+
+\subsection{여행 일지·민화 이미지 동시 생성}
+
+탐험 종료 후 방문 장소 요약 화면을 거쳐 여행 일지를 자동 생성한다. 입력은
+\emph{방문 장소 시퀀스·동행자 대화 로그·커뮤니티 반응 통계} 3가지이며,
+GPT-4o의 \textbf{단일 호출에서 구조화 출력(JSON 스키마)}으로 일지 텍스트와
+민화 이미지 프롬프트를 동시에 받는다. 이미지 프롬프트는 gpt-image-1\,[13]에
+그대로 전달되어 한 장의 민화 이미지로 렌더링된다.
+
+\textbf{이미지 프롬프트 규칙(요약).}\quad (1) 일지의 가장 인상 깊은 한 장면을
+영어 80--150단어로 묘사, (2) ``Korean traditional minhwa style, flat color,
+thick black outline, decorative composition, paper-textured background...''로
+반드시 시작, (3) 장소(오름·해안·당·해녀 잠수)·인물(심방 할머니·해녀·도깨비
+영혼)·분위기·상징(소나무·매화·파도·구름·산) 요소를 포함, (4) 사람 얼굴
+디테일 묘사 금지(민화의 단순화 표현 유지), (5) 영문 내 한글/한자 글씨 금지,
+(6) 폭력적 표현 금지.
+
+\textbf{단일 호출 동시 생성의 효과.}\quad 일지와 이미지 프롬프트를 별도
+호출로 처리할 경우 LLM 호출 2회와 그에 따른 비용·지연이 발생하지만, JSON
+스키마 강제로 단일 호출에서 동시에 받으면 호출 1회로 완결된다. 이미지
+생성이 실패해도 일지 텍스트는 정상 표시되어 부분 실패에도 견고하다. 전체
+응답 시간은 약 25--30초이며, 생성된 일지는 iOS ShareLink를 통해 외부
+공유가 가능하다.
+
+\subsection{세션 복원과 여행 완료 동선}
+
+\textbf{세션 복원.}\quad 탐험 도중 앱이 강제 종료되거나 디바이스가 재부팅되어도
+다음 실행 시 SessionRestoreView가 자동으로 진행 중 세션을 감지하여
+사용자에게 ``이전 여행을 계속하시겠습니까?'' 프롬프트를 표시한다. 세션 ID·
+현재 day·다음 방문 장소·동행자 상태·대화 히스토리를 모두 복원하여 여행
+연속성을 보장한다.
+
+\textbf{여행 완료 동선.}\quad 일지 ``완료'' 탭 시 즉시 ``내 코스'' 탭으로
+이동시키고, 그 안에서 방금 끝낸 코스를 자동 스크롤하여 1.5초간 배경 강조로
+하이라이트한다. 이전 구현에서는 코스 만들기 도중 노출되던 추천 리스트
+화면으로 빠져 마무리 임팩트가 사라지는 문제가 있었다. 본 동선은 \emph{일지
+완료 직후 앱이 종료되어도} 다음 실행 시 ``내 코스'' 탭이 자동 선택되고
+하이라이트가 보존되도록 견고하게 구현되었다.
+
+% ── 4. 설계 변경 이력 ──────────────────────────────────
+\section{설계 변경 이력}
+
+\subsection{플랫폼: Flutter → iOS Swift/SwiftUI}
+
+기초 조사서에는 Flutter 크로스플랫폼으로 계획하였으나, 이전 산책 앱 개발
+경험에서 Flutter의 위치 기반 기능 일부를 결국 Kotlin·Swift 네이티브로
+별도 구현해야 했던 교훈을 반영하여 iOS 네이티브 개발로 전환하였다.
+CoreLocation 지오펜스, 백그라운드 GPS, iOS 알림 딥링크 등 위치 기반 기능의
+정확도와 통합성이 향상되었다.
+
+\subsection{코스 추천 방식: 3차 재설계}
+
+코스 추천 로직은 세 차례의 재설계를 거쳤다. \emph{1차(설화→코스 역설계)}는
+설화 6노드 LangGraph로 설화 배경 장소를 먼저 추출하고 Visit Jeju로 동선을
+보완하는 방식이었으나, 설화 위치 분포가 희박할 때 코스가 비현실적으로
+구성되는 문제가 있었다. \emph{2차(설화 취향 점수)}는 사용자 설화 취향을
+내부 7개 카테고리 점수로 변환하여 필터링하는 구조였으나, 카테고리 분류가
+실제 설화 데이터 다양성을 반영하지 못하였다. \emph{3차(코스→설화 매핑,
+현재)}는 사용자가 먼저 정하는 지역·기간을 입력받아 Visit Jeju 실제 코스를
+먼저 선별하고 그 위에 설화를 레이어로 얹는 방식으로, 코스의 현실성은 실제
+데이터가 보장하고 설화는 코스를 풍부하게 만드는 역할로 분리되었다.
+
+\subsection{지도 SDK: Apple Maps → Google Maps}
+
+장소 상세의 임베드 미리보기와 길찾기 모두 Google Maps iOS SDK로 통일하였다.
+한국 사용자 다수의 실사용 환경에 부합하며, 시연 시 Apple 워터마크 노출
+문제도 해소되었다. 미설치 환경 대비 웹 URL 폴백을 함께 구현하였다.
+
+\subsection{사용자 입력 UI: 16조합 변환표 → 5개 카테고리 직접 선택}
+
+기존에는 ``이야기 결 4지선다 + 배경 4지선다''로 16조합 입력을 받아 내부
+변환표로 5개 설화 카테고리 점수로 환산하였다. 발표 시 변환표 그림까지
+설명해야 하는 부담이 있었고, 사용자 입장에서도 자신의 입력이 어떻게
+해석되는지 불투명하였다. 이에 5개 설화 카테고리를 친근한 텍스트로 직접
+노출하여 \emph{메인 1개 + 사이드 1개}를 선택하게 하고 점수는 메인 3점,
+사이드 1점으로 단순화하였다. 발표 슬라이드 한 줄로 설명이 끝난다.
+
+\subsection{장소 매핑: 전체 → KTO 관광지 분류 820개}
+
+3.2절에서 상술한 KTO + 키워드 + 후처리 3단계 필터를 도입하여, 3{,}284개
+장소 중 관광지 820개만 설화 매핑 대상으로 한정하였다. 식당·카페·숙박·
+상점에 설화 핀이 붙던 신뢰성 문제가 해소되었다.
+
+% ── 5. 구현 결과 ─────────────────────────────────────────
+\section{구현 결과}
+
+최종 보고 시점 기준으로 시연 플로우 10단계 전 구간이 구현 완료되었다.
+주요 기능은 표 5에 정리하였다.
+
+\begin{table}[H]
+\centering
+{\small 표 5~~구현 완료 기능 요약}
+\label{tab:impl}
+\vspace{2pt}
+
+\footnotesize
+\begin{tabularx}{\columnwidth}{lX}
+\toprule
+영역 & 구현 내용 \\
+\midrule
+홈 & 오늘의 설화(날짜 시드) + 지도/핀(380pt) + 추천 코스 3선 \\
+취향 입력 & 지역·기간·5카테고리(메인3+사이드1) 위저드 \\
+코스 추천 & 2단계 API + 후보 풀 랜덤 3건, 빈 결과 자연 처리 \\
+설화 가공 & Lv1 후크 / Lv2 장소-설화 연결 / Lv3 풀스크린 스토리(영구 캐시) \\
+탐험 모드 & CoreLocation 지오펜스(도보 100m/차량 300m, 30초 체류) \\
+지도 & Google Maps SDK + 웹 URL 폴백 \\
+동행자 & 5종 페르소나(자동 배정+수동 변경), SSE 스트리밍 RAG \\
+TTS & 페르소나별 음성 + 도착 인사·채팅·일지 낭독 3 포인트 \\
+리뷰 & 5태그 + device\_id 익명, 자동 바텀시트, 일지 프롬프트 주입 \\
+일지·이미지 & GPT-4o 단일 호출 JSON 출력 → 일지 + gpt-image-1 민화 \\
+세션 복원 & SessionRestoreView 자동 감지·복원 \\
+완료 동선 & ``내 코스'' 탭 자동 이동 + 1.5초 하이라이트 \\
+공유 & iOS ShareLink + UIActivityViewController \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\textbf{졸업 발표 시연 플로우 10단계.}\quad 본 시스템은 다음의 단일 여정을
+끊김 없이 보여줄 수 있다:
+(1) 취향 선택,
+(2) AI 코스 추천 수신,
+(3) 코스 미리보기 → 탐험 시작,
+(4) 지도 화면(이동 경로 점선·다음 장소 카드),
+(5) GPS 도착 시뮬레이션,
+(6) AI 동행자 오버레이 등장 → 탭,
+(7) 페르소나 채팅 2--3턴(텍스트+TTS),
+(8) 장소 이동 반복(최소 2곳),
+(9) 탐험 마치기 → Day 요약,
+(10) 일지·민화 이미지 자동 생성.
+
+\textbf{정량 지표.}\quad 표 6에 주요 정량 지표를 요약하였다.
+
+\begin{table}[H]
+\centering
+{\small 표 6~~데이터·매핑 정량 지표}
+\label{tab:metric}
+\vspace{2pt}
+
+\footnotesize
+\begin{tabularx}{\columnwidth}{Xr}
+\toprule
+지표 & 값 \\
+\midrule
+큐레이션 코스 & 9{,}134개 \\
+코스-장소 레코드 & 146{,}508개 \\
+비짓제주 장소 (분류 전) & 3{,}284개 \\
+설화 매핑 대상 관광지 (분류 후) & \textbf{820개} \\
+설화·민담 원본 & 505건 \\
+ChromaDB 벡터 청크 & 1{,}749개 \\
+GPS 매핑된 설화 & \textbf{235 / 269 (87\%)} \\
+장소-설화 매핑 (필터 전 → 후) & 134k → 31k ($-77\%$) \\
+일지+이미지 평균 응답 시간 & 25--30초 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ── 6. 토의 ─────────────────────────────────────────────
+\section{토~~~의}
+
+\subsection{설계 의사결정의 Trade-off}
+
+\textbf{왜 코스→설화 매핑인가.}\quad 설화→코스 역설계는 ``설화가 여행의
+이유''라는 컨셉적 매력이 있으나, 설화 GPS 분포가 희박한 지역에서는 코스가
+지리적으로 비현실적이 된다. 본 연구는 \emph{실제 관광객이 검증한 코스의
+현실성}을 1순위로 두고, 그 위에 설화를 레이어로 얹는 방향을 선택하였다.
+이는 ``AI 자유 생성의 자유도''와 ``실제 검증 데이터의 신뢰성'' 사이의 명시적
+trade-off이며, 모바일 관광 앱에서는 후자가 더 결정적이라고 판단하였다.
+
+\textbf{왜 페르소나 분리인가.}\quad 단일 챗봇으로 모든 설화 유형을 다루면
+프롬프트가 짧고 유지보수가 단순하지만, 캐릭터 일관성이 ``유용한 비서''
+어조로 수렴하여 무속신화·해녀·도깨비 등 서로 다른 세계관을 동일 어조로
+전달하게 된다. 본 연구는 \emph{설화 유형별 5종 페르소나}로 분리하여 캐릭터
+일관성과 적합성을 확보하였고, 자동 배정 규칙으로 사용자 선택 부담을 제거하면서
+수동 변경 UI로 자유도도 함께 제공하였다.
+
+\textbf{왜 영구 캐시인가.}\quad 설화 3단계 가공의 Lv2·Lv3는 LLM 호출이
+필요하지만, 동일 (장소, 설화) 조합은 \emph{항상 동일 결과를 가져야 일관성
+있는 여행 경험}이 된다. 매 요청마다 LLM을 호출하면 비용·지연뿐 아니라
+동일 카드에서 매번 다른 문구가 나오는 일관성 문제가 발생한다. 영구 캐시
+테이블 2종으로 ``한 번 생성, 영구 재사용'' 패턴을 적용하여 사용자 경험과
+운영 비용을 동시에 최적화하였다.
+
+\textbf{왜 핵심 기능에 ReAct 에이전트를 쓰지 않았는가.}\quad 코스 추천·동행자
+채팅·일지 생성 등 핵심 경험은 응답 지연이 사용자 이탈에 직결되므로 도구
+호출 라운드를 누적시키는 ReAct 패턴 대신 \emph{결정론적 함수와 단일 LLM
+호출의 조합}을 채택하였다. ReAct는 매 추론 라운드마다 LLM을 재호출하여
+지연이 누적되며, SSE 스트리밍과의 결합도 복잡해진다. 동행자 채팅은 사용자가
+``지금 이 장소의 이야기''를 즉시 듣고 싶어 하는 맥락이므로, 도구 자율
+호출의 자유도보다 한 번의 호출에 RAG 컨텍스트와 페르소나 프롬프트를 모두
+주입하는 결정론적 구조가 우월하다. 본 시스템은 비용·지연·환각 통제를 위해
+LLM 호출을 동행자 채팅, 일지·이미지 생성, 설화 3단계 가공이라는 세 지점에
+한정하고, 각 호출 모두 ReAct 없이 단일 호출로 완결되도록 설계하였다.
+
+\subsection{한계}
+
+본 연구는 다음 한계를 가진다. 첫째, 설화 GPS 매핑이 87\%(235/269)에 그쳐
+약 13\%의 설화는 좌표가 없어 텍스트 검색으로만 활용된다. 채록 메타데이터의
+조사 장소 정보가 불완전한 경우가 주된 원인이다. 둘째, 5종 페르소나에 대한
+사용자 평가 데이터가 부재하여, 어느 페르소나가 어떤 사용자 군에 가장
+효과적인지에 대한 정량적 근거가 아직 없다. 셋째, 실기기 현장 GPS 테스트가
+시뮬레이션 위주로 진행되어, 제주 현지의 다중 경로·도심 협곡 환경에서의
+지오펜스 신뢰성 검증이 충분하지 않다.
+
+% ── 7. 결론 및 향후 과제 ─────────────────────────────
+\section{결론 및 향후 과제}
+
+본 연구는 ``실제 검증된 여행 코스 위에 제주 설화를 얹는다''는 컨셉으로,
+계획·탐험·기록의 단일 여정을 책임지는 iOS 모바일 서비스를 설계·구현하였다.
+LangGraph 인터페이스를 모방한 2단계 코스 추천 함수 파이프라인, 5종 페르소나 LLM
+동행자와 페르소나 전용 TTS, 설화 3단계 가공과 영구 캐시, KTO+키워드 3단계
+장소 분류 필터, GPT-4o 단일 호출의 일지·민화 동시 생성, 세션 복원,
+``내 코스'' 자동 이동 동선 등 핵심 기능 파이프라인이 모두 완성되었다. 데이터 측면에서는 비짓제주
+3{,}284개 장소를 820개 관광지로 한정하여 설화 매핑 신뢰성을 77\% 개선하였고,
+설화·민담 505건을 ChromaDB 1{,}749 청크로 벡터화하였으며, 설화 GPS 매핑은
+87\%에 도달하였다.
+
+\textbf{향후 과제.}\quad 본 서비스는 졸업 발표 이후 App Store 출시를 통해
+실사용자 검증 단계로 진입한다. 시연 데모는 mock data 한계가 있으나, 실제
+사용자 사용 데이터로 가설을 검증하는 단계가 학문적·실무적 신뢰도를 결정한다.
+구체적으로 (1) TestFlight 베타와 매주 사용자 인터뷰로 페르소나 적합성·일지
+만족도를 정량 평가하고, (2) 2026 관광데이터 활용 공모전(예비 합격, 10월
+최종 심사)에 출품하며, (3) 외국인 관광객 대상 다국어 지원(KTO 영문
+관광정보 API 연동), (4) 사용자 행동 로그 기반 페르소나·코스 개인화,
+(5) 현장 GPS 정밀도 검증을 추진할 계획이다.
+
+% ── 참고문헌 ────────────────────────────────────────────
+\section*{참 고 문 헌}
+
+\begin{small}
+\begin{enumerate}
+\setlength{\itemsep}{1pt}
+\item P. Lewis et al., ``Retrieval-Augmented Generation for
+  Knowledge-Intensive NLP Tasks,'' \textit{NeurIPS}, 2020.
+\item 제주특별자치도, 제주 설화정보 공공데이터 API (E07), 2023.
+\item 제주특별자치도, 제주 민담정보 공공데이터 API (E08), 2023.
+\item 제주관광공사, 제주관광정보시스템(VISIT JEJU) 여행장소 및
+  여행세부일정 공공데이터, 2026.
+\item Chroma, ``Chroma: the AI-native open-source embedding database,''
+  2023. [Online]. Available: \textit{https://www.trychroma.com}
+\item OpenAI, ``Text Embedding Models,''
+  \textit{platform.openai.com/docs/guides/embeddings}, 2024.
+\item Google, ``Google Maps Platform -- Geocoding API \& Directions
+  API, iOS SDK,'' \textit{developers.google.com/maps}, 2024.
+\item S. Yao et al., ``ReAct: Synergizing Reasoning and Acting in
+  Language Models,'' \textit{ICLR}, 2023.
+\item LangChain, ``LangGraph: Build Stateful Multi-Actor
+  Applications,'' \textit{langchain-ai.github.io/langgraph}, 2024.
+\item 한국관광공사(KTO), TourAPI 공공데이터 서비스, 2024.
+\item J. S. Park et al., ``Generative Agents: Interactive Simulacra of
+  Human Behavior,'' \textit{Proc. UIST}, 2023.
+\item OpenAI, ``GPT-4o System Card,''
+  \textit{openai.com/index/gpt-4o-system-card}, 2024.
+\item OpenAI, ``Image Generation (gpt-image-1 / DALL$\cdot$E),''
+  \textit{platform.openai.com/docs/guides/images}, 2024.
+\item W3C, ``Server-Sent Events,''
+  \textit{html.spec.whatwg.org/multipage/server-sent-events.html}, 2024.
+\end{enumerate}
+\end{small}
+
+\end{document}
