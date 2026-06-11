@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>탐라담 — 졸업 발표 2026</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    background: #000;
+    color: #fff;
+    font-family: "Apple SD Gothic Neo", "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.015em;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #111;
+    padding: 40px 0;
+    gap: 40px;
+  }
+
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    background: #000;
+    color: #fff;
+    padding: 80px;
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px #1a1a1a;
+  }
+
+  /* 공통 메타 */
+  .page-num {
+    position: absolute;
+    top: 32px;
+    right: 48px;
+    font-size: 14px;
+    color: #666;
+    letter-spacing: 0.12em;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+
+  .footer {
+    display: none;
+  }
+
+  /* 헤드라인 (좌상단 또는 중앙 헤더) */
+  .head {
+    font-size: 44px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    color: #fff;
+  }
+
+  .head-sub {
+    margin-top: 14px;
+    font-size: 18px;
+    color: #aaa;
+    font-weight: 300;
+    letter-spacing: 0.01em;
+  }
+
+  .caption {
+    font-size: 14px;
+    color: #666;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+  }
+
+  .sub-text {
+    font-size: 16px;
+    color: #aaa;
+    font-weight: 300;
+  }
+
+  /* ───────────────────────────────────── */
+  /* 01. 표지 */
+  .cover {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .cover .title {
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+  }
+  .cover .subtitle {
+    margin-top: 36px;
+    font-size: 22px;
+    color: #aaa;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+  }
+  .cover .rule {
+    display: inline-block;
+    width: 28px;
+    height: 1px;
+    background: #aaa;
+    margin: 0 14px;
+    vertical-align: middle;
+  }
+  .cover .meta {
+    margin-top: 80px;
+    font-size: 18px;
+    color: #aaa;
+    letter-spacing: 0.04em;
+    font-weight: 400;
+  }
+  .cover .meta .sep {
+    display: inline-block;
+    margin: 0 14px;
+    color: #555;
+  }
+  .cover .date {
+    margin-top: 14px;
+    font-size: 15px;
+    color: #666;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+    letter-spacing: 0.06em;
+  }
+
+  /* ───────────────────────────────────── */
+  /* 02. 문제→가치 (큰 숫자 3개) */
+  .stats {
+    justify-content: center;
+    align-items: center;
+  }
+  .stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+    gap: 40px;
+    padding: 0 40px;
+  }
+  .stat-item {
+    flex: 1;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 72px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+    white-space: nowrap;
+  }
+  .stat-label {
+    margin-top: 22px;
+    font-size: 17px;
+    color: #aaa;
+    font-weight: 300;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+  }
+  .stats-tagline {
+    margin-top: 110px;
+    text-align: center;
+    font-size: 24px;
+    color: #fff;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  .stats-tagline .rule {
+    display: inline-block;
+    width: 32px;
+    height: 1px;
+    background: #aaa;
+    margin: 0 18px;
+    vertical-align: middle;
+  }
+
+  /* ───────────────────────────────────── */
+  /* 03. 아키텍처 */
+  .arch-wrap {
+    margin-top: 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .arch-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .arch-box {
+    border: 1px solid #fff;
+    padding: 22px 28px;
+    min-width: 180px;
+    text-align: center;
+    background: #000;
+  }
+  .arch-box.sub {
+    border: 1px solid #666;
+    color: #aaa;
+  }
+  .arch-box .title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+  .arch-box .body {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #aaa;
+    line-height: 1.5;
+    font-weight: 300;
+  }
+  .arch-arrow {
+    font-size: 24px;
+    color: #aaa;
+  }
+  .arch-arrow-down {
+    font-size: 24px;
+    color: #aaa;
+    margin: 18px 0;
+  }
+  .arch-bottom {
+    border: 1px solid #666;
+    padding: 22px 32px;
+    text-align: center;
+    min-width: 320px;
+    background: #000;
+  }
+  .arch-bottom .title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .arch-bottom .body {
+    margin-top: 6px;
+    font-size: 14px;
+    color: #aaa;
+    font-weight: 300;
+    line-height: 1.6;
+  }
+  .arch-caption {
+    margin-top: 36px;
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* ───────────────────────────────────── */
+  /* 04. 데이터 신뢰성 */
+  .data-wrap {
+    margin-top: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .data-table {
+    border-collapse: collapse;
+    width: 880px;
+    font-size: 18px;
+  }
+  .data-table th, .data-table td {
+    padding: 22px 28px;
+    text-align: left;
+    border-bottom: 1px solid #333;
+  }
+  .data-table th {
+    color: #aaa;
+    font-weight: 400;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid #fff;
+  }
+  .data-table td {
+    color: #fff;
+    font-weight: 300;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+  .data-table td.label {
+    color: #aaa;
+    font-weight: 300;
+  }
+  .data-table td.hi {
+    color: #fff;
+    font-weight: 700;
+  }
+  .data-table .dash {
+    color: #666;
+  }
+  .data-caption {
+    margin-top: 36px;
+    font-size: 15px;
+    color: #aaa;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+  }
+
+  /* ───────────────────────────────────── */
+  /* 05. 코스 추천 */
+  .course-wrap {
+    margin-top: 40px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .course-row {
+    display: flex;
+    align-items: stretch;
+    gap: 20px;
+  }
+  .course-box {
+    border: 1px solid #fff;
+    padding: 28px 24px;
+    width: 250px;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+  }
+  .course-box .endpoint {
+    font-size: 16px;
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    border-bottom: 1px solid #333;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+  .course-box .desc {
+    font-size: 16px;
+    color: #fff;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+  .course-arrow {
+    font-size: 28px;
+    color: #aaa;
+    align-self: center;
+  }
+  .course-caption {
+    margin-top: 40px;
+    font-size: 14px;
+    color: #666;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+  }
+
+  /* ───────────────────────────────────── */
+  /* 06. 장소 상세 3단계 */
+  .lv-wrap {
+    margin-top: 36px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+  }
+  .lv-box {
+    border: 1px solid #fff;
+    padding: 22px 32px;
+    width: 720px;
+    background: #000;
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .lv-tag {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.04em;
+    min-width: 50px;
+  }
+  .lv-body .title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .lv-body .quote {
+    margin-top: 8px;
+    font-size: 15px;
+    color: #aaa;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+  .lv-arrow {
+    font-size: 22px;
+    color: #aaa;
+  }
+  .lv-caption {
+    margin-top: 18px;
+    font-size: 14px;
+    color: #666;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+  }
+
+  /* ───────────────────────────────────── */
+  /* 07. 페르소나 + RAG */
+  .persona-wrap {
+    margin-top: 40px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .persona-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-self: center;
+    width: 920px;
+  }
+  .persona-row {
+    display: grid;
+    grid-template-columns: 24px 220px 280px 1fr;
+    align-items: center;
+    gap: 24px;
+    padding: 4px 0;
+  }
+  .chip {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .persona-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+  .persona-domain {
+    font-size: 15px;
+    color: #aaa;
+    font-weight: 300;
+  }
+  .persona-voice {
+    font-size: 15px;
+    color: #aaa;
+    font-weight: 300;
+  }
+  .persona-divider {
+    margin: 36px auto 0;
+    width: 920px;
+    height: 1px;
+    background: #333;
+  }
+  .rag-flow {
+    margin-top: 28px;
+    text-align: center;
+    font-size: 16px;
+    color: #aaa;
+    font-weight: 300;
+    letter-spacing: 0.01em;
+  }
+  .rag-flow .step {
+    color: #fff;
+    font-weight: 400;
+  }
+  .rag-flow .arrow {
+    color: #666;
+    margin: 0 14px;
+  }
+
+  /* ───────────────────────────────────── */
+  /* 08. 일지 + 민화 */
+  .journal-wrap {
+    margin-top: 40px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .journal-box {
+    border: 1px solid #fff;
+    padding: 36px 48px;
+    width: 720px;
+    background: #000;
+  }
+  .journal-call {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.02em;
+    padding-bottom: 28px;
+    border-bottom: 1px solid #333;
+  }
+  .journal-inner {
+    margin-top: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+  }
+  .journal-sub {
+    border: 1px solid #666;
+    padding: 18px 24px;
+    text-align: center;
+    min-width: 200px;
+  }
+  .journal-sub .t {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .journal-sub .b {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #aaa;
+    font-weight: 300;
+  }
+  .journal-plus {
+    font-size: 26px;
+    color: #aaa;
+    font-weight: 300;
+  }
+  .journal-arrow {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 24px;
+    color: #aaa;
+  }
+  .journal-final {
+    margin-top: 12px;
+    text-align: center;
+  }
+  .journal-final .name {
+    font-size: 16px;
+    color: #aaa;
+    font-weight: 300;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: 0.04em;
+  }
+  .journal-final .desc {
+    margin-top: 6px;
+    font-size: 18px;
+    color: #fff;
+    font-weight: 600;
+  }
+  .journal-caption {
+    margin-top: 36px;
+    font-size: 14px;
+    color: #666;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+  }
+
+  /* ───────────────────────────────────── */
+  /* 09. 시연 플로우 */
+  .flow-wrap {
+    margin-top: 44px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+  }
+  .flow-step {
+    border: 1px solid #fff;
+    padding: 14px 14px;
+    min-width: 132px;
+    text-align: center;
+    background: #000;
+  }
+  .flow-step .n {
+    font-size: 12px;
+    color: #aaa;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+    letter-spacing: 0.06em;
+  }
+  .flow-step .t {
+    margin-top: 6px;
+    font-size: 14px;
+    color: #fff;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .flow-arrow {
+    font-size: 18px;
+    color: #aaa;
+  }
+  .flow-pivot {
+    align-self: flex-end;
+    margin-right: 60px;
+    font-size: 22px;
+    color: #aaa;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+  .flow-divider {
+    margin: 44px auto 0;
+    width: 720px;
+    height: 1px;
+    background: #333;
+  }
+  .flow-cta {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.02em;
+  }
+
+  /* ───────────────────────────────────── */
+  /* 10. 기대 효과 */
+  .effect-wrap {
+    margin-top: 48px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .effect-row {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+    justify-content: center;
+  }
+  .effect-card {
+    border: 1px solid #666;
+    padding: 32px 24px;
+    width: 280px;
+    text-align: center;
+    background: #000;
+  }
+  .effect-card .title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+  .effect-card .body {
+    margin-top: 14px;
+    font-size: 14px;
+    color: #aaa;
+    font-weight: 300;
+    line-height: 1.6;
+  }
+  .effect-big {
+    margin-top: 56px;
+    border: 1px solid #fff;
+    padding: 28px 56px;
+    text-align: center;
+    background: #000;
+  }
+  .effect-big .top {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+  .effect-big .bot {
+    margin-top: 12px;
+    font-size: 15px;
+    color: #aaa;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+  }
+
+  /* ───────────────────────────────────── */
+  /* 11. 감사 */
+  .thanks {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .thanks .big {
+    font-size: 80px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+  .thanks .q {
+    margin-top: 28px;
+    font-size: 22px;
+    color: #aaa;
+    font-weight: 300;
+  }
+  .thanks .gh-label {
+    margin-top: 80px;
+    font-size: 14px;
+    color: #666;
+    letter-spacing: 0.14em;
+  }
+  .thanks .gh-url {
+    margin-top: 8px;
+    font-size: 18px;
+    color: #fff;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: 0.01em;
+  }
+  .qr-box {
+    margin: 28px auto 0;
+    width: 120px;
+    height: 120px;
+    border: 1px solid #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #555;
+    letter-spacing: 0.1em;
+  }
+
+  /* ───────────────────────────────────── */
+  /* PRINT (PDF) */
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  @media print {
+    html, body {
+      background: #000 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+    body {
+      padding: 0;
+      gap: 0;
+      background: #000 !important;
+    }
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      box-shadow: none;
+      page-break-after: always;
+      break-after: page;
+      background: #000 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .slide:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ───────────────────────────────────── -->
+<!-- 01. 표지 -->
+<section class="slide cover">
+  <div class="page-num">01 / 11</div>
+  <div>
+    <div class="title">제주 설화·민담 기반<br>AI 여행 가이드 서비스</div>
+    <div class="subtitle"><span class="rule"></span>RAG와 페르소나 LLM의 결합<span class="rule"></span></div>
+    <div class="meta">조익준<span class="sep">·</span>경희대학교 컴퓨터공학과</div>
+    <div class="date">2026 · 06 · 05</div>
+  </div>
+  <div class="footer">조익준 · 경희대 컴공</div>
+</section>
+
+<!-- ───────────────────────────────────── -->
+<!-- 02. 문제 → 가치 -->
+<section class="slide stats">
+  <div class="page-num">02 / 11</div>
+  <div style="width:100%;">
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-num">1,500만</div>
+        <div class="stat-label">연간 제주 방문</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">505</div>
+        <div class="stat-label">공공데이터<br>설화·민담 건수</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">이를 활용한<br>관광 앱</div>
+      </div>
+    </div>
+    <div class="stats-tagline"><span class="rule"></span>검증된 코스 위에 설화를 얹는다<span class="rule"></span></div>
+  </div>
+  <div class="footer">조익준 · 경희대 컴공</div>
+</section>
+
+<!-- ───────────────────────────────────── -->
+<!-- 03. 시스템 아키텍처 -->
+<section class="slide">
+  <div class="page-num">03 / 11</div>
+  <div class="head">시스템 아키텍처</div>
+  <div class="head-sub">3-tier + Firebase 인증·동기화 레이어</div>
+
+  <div class="arch-wrap">
+    <div class="arch-row">
+      <div class="arch-box">
+        <div class="title">iOS</div>
+        <div class="body">Swift / SwiftUI</div>
+      </div>
+      <div class="arch-arrow">↔</div>
+      <div class="arch-box">
+        <div class="title">FastAPI</div>
+        <div class="body">Python</div>
+      </div>
+      <div class="arch-arrow">↔</div>
+      <div class="arch-box">
+        <div class="title">ChromaDB<br>SQLite</div>
+        <div class="body">벡터 DB · 관계형 DB</div>
+      </div>
+    </div>
+
+    <div class="arch-arrow-down">↓</div>
+
+    <div class="arch-bottom">
+      <div class="title">Firebase</div>
+      <div class="body">Auth · Firestore<br>인증 · 코스 동기화</div>
+    </div>
+
+    <div class="arch-caption">
+      RAG&nbsp;&nbsp;·&nbsp;&nbsp;페르소나 LLM&nbsp;&nbsp;·&nbsp;&nbsp;위치 기반 검색
+    </div>
+  </div>
+  <div class="footer">조익준 · 경희대 컴공</div>
+</section>
+
+<!-- ───────────────────────────────────── -->
+<!-- 04. 데이터 신뢰성 -->
+<section class="slide">
+  <div class="page-num">04 / 11</div>
+  <div class="head">관광지만 남긴다 — 매핑 -77%</div>
+  <div class="head-sub">관광 가치 없는 장소를 제거하면 신호가 강해진다</div>
+
+  <div class="data-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>분류 전</th>
+          <th>분류 후</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="label">매핑 대상 장소</td>
+          <td>3,284 개</td>
+          <td class="hi">820 개 <span style="color:#aaa;font-weight:300;font-size:15px;">(관광지만)</span></td>
+        </tr>
+        <tr>
+          <td class="label">장소-설화 매핑</td>
+          <td>134,000 건</td>
+          <td class="hi">31,000 건</td>
+        </tr>
+        <tr>
+          <td class="label">감소율</td>
+          <td><span class="dash">—</span></td>
+          <td class="hi">-77 %</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="data-caption">KTO API + 키워드 + 후처리 — 3단계 필터링</div>
+  </div>
+  <div class="footer">조익준 · 경희대 컴공</div>
+</section>
+
+<!-- ───────────────────────────────────── -->
+<!-- 05. 코스 추천 -->
+<section class="slide">
+  <div class="page-num">05 / 11</div>
+  <div class="head">검증된 9,134 코스 → AI 선별 → 설화 매핑</div>
+  <div class="head-sub">베이스라인은 사람이 만든 코스, 그 위에 LLM이 큐레이션</div>
+
+  <div class="course-wrap">
+    <div class="course-row">
+      <div class="course-box">
+        <div class="endpoint">1단계 AI 선별</div>
+        <div class="desc">후보 30개<br>무작위 추출<br><br>→ GPT-4o<br>3개 선별</div>
+      </div>
+      <div class="course-arrow">→</div>
+      <div class="course-box">
+        <div class="endpoint">2단계 설화 매핑</div>
+        <div class="desc">반경 3km 내<br>설화 매핑<br><br>+ 내러티브</div>
+      </div>
+      <div class="course-arrow">→</div>
+      <div class="course-box">
+        <div class="endpoint">결과</div>
+        <div class="desc">Top 3 코스<br>+ 매핑된<br>설화</div>
+      </div>
+    </div>
+    <div class="course-caption">매번 랜덤 풀 — 같은 취향도 매번 다른 코스</div>
+  </div>
+  <div class="footer">조익준 · 경희대 컴공</div>
+</section>
+
+<!-- ───────────────────────────────────── -->
+<!-- 06. 장소 상세 3단계 -->
+<section class="slide">
+  <div class="page-num">06 / 11</div>
+  <div class="head">원문은 5초 안에 떠나게 한다</div>
+  <div class="head-sub">3단계 LLM 가공 — 후크 → 연결 → 풀스토리</div>
+
+  <div class="lv-wrap">
+    <div class="lv-box">
+      <div class="lv-tag">Lv 1</div>
+      <div class="lv-body">
+        <div class="title">호기심 후크</div>
+        <div class="quote">"심방으로 살다 다시 이승으로 돌아온 굴묵밭 할망"</div>
+      </div>
+    </div>
+    <div class="lv-arrow">↓</div>
+    <div class="lv-box">
+      <div class="lv-tag">Lv 2</div>
+      <div class="lv-body">
+        <div class="title">장소-설화 연결</div>
+        <div class="quote">"이 마을의 본향당 신을 모시는 이야기"</div>
+      </div>
+    </div>
+    <div class="lv-arrow">↓</div>
+    <div class="lv-box">
+      <div class="lv-tag">Lv 3</div>
+      <div class="lv-body">
+        <div class="title">풀스크린 스토리 뷰어</div>
+        <div class="quote">5~7페이지 동화체 리라이팅 (인스타 스토리 느낌)</div>
+      </div>
+    </div>
+    <div class="lv-caption">한 번 만들어두면 영구 저장 — 비용 최소화</div>
+  </div>
+  <div class="footer">조익준 · 경희대 컴공</div>
+</section>
+
+<!-- ───────────────────────────────────── -->
+<!-- 07. 페르소나 + RAG -->
+<section class="slide">
+  <div class="page-num">07 / 11</div>
+  <div class="head">같은 설화, 다섯 목소리</div>
+  <div class="head-sub">페르소나 LLM 5종 + ChromaDB RAG</div>
+
+  <div class="persona-wrap">
+    <div class="persona-list">
+      <div class="persona-row">
+        <span class="chip" style="background:#e0954f;"></span>
+        <span class="persona-name">마을 할망</span>
+        <span class="persona-domain">마을 공동체 전승</span>
+        <span class="persona-voice">따뜻한 제주 사투리</span>
+      </div>
+      <div class="persona-row">
+        <span class="chip" style="background:#8b6fbf;"></span>
+        <span class="persona-name">당신 · 심방</span>
+        <span class="persona-domain">무속신화 · 신격</span>
+        <span class="persona-voice">고어체 신탁</span>
+      </div>
+      <div class="persona-row">
+        <span class="chip" style="background:#3aa6a0;"></span>
+        <span class="persona-name">영등신 · 해녀</span>
+        <span class="persona-domain">해양 · 어촌</span>
+        <span class="persona-voice">직선적 반말, 해녀 어휘</span>
+      </div>
+      <div class="persona-row">
+        <span class="chip" style="background:#c75555;"></span>
+        <span class="persona-name">도깨비</span>
+        <span class="persona-domain">생활민담 · 교훈담</span>
+        <span class="persona-voice">"크크크", 질문 되받기</span>
+      </div>
+      <div class="persona-row">
+        <span class="chip" style="background:#5e6cb8;"></span>
+        <span class="persona-name">도체비</span>
+        <span class="persona-domain">초자연 존재담</span>
+        <span class="persona-voice">"아마도", 자기 부정</span>
+      </div>
+    </div>
+
+    <div class="persona-divider"></div>
+
+    <div class="rag-flow">
+      <span class="step">관련 설화 검색</span>
+      <span class="arrow">→</span>
+      <span class="step">페르소나 말투로 응답</span>
+      <span class="arrow">→</span>
+      <span class="step">5종 음성 출력</span>
+    </div>
+  </div>
+  <div class="footer">조익준 · 경희대 컴공</div>
+</section>
+
+<!-- ───────────────────────────────────── -->
+<!-- 08. 일지 + 민화 -->
+<section class="slide">
+  <div class="page-num">08 / 11</div>
+  <div class="head">대화가 곧 일지가 된다</div>
+  <div class="head-sub">텍스트 + 이미지 프롬프트를 단일 호출로 동시 생성</div>
+
+  <div class="journal-wrap">
+    <div class="journal-box">
+      <div class="journal-call">GPT-4o&nbsp;&nbsp;·&nbsp;&nbsp;1회 호출</div>
+      <div class="journal-inner">
+        <div class="journal-sub">
+          <div class="t">일지 텍스트</div>
+          <div class="b">300~500자</div>
+        </div>
+        <div class="journal-plus">+</div>
+        <div class="journal-sub">
+          <div class="t">이미지 프롬프트</div>
+          <div class="b">scene description</div>
+        </div>
+      </div>
+      <div class="journal-arrow">↓</div>
+      <div class="journal-final">
+        <div class="name">gpt-image-1</div>
+        <div class="desc">민화 한 장</div>
+      </div>
+    </div>
+    <div class="journal-caption">방문 장소 · 페르소나 대화 · 사용자 리뷰가 모두 컨텍스트</div>
+  </div>
+  <div class="footer">조익준 · 경희대 컴공</div>
+</section>
+
+<!-- ───────────────────────────────────── -->
+<!-- 09. 시연 플로우 → 데모 -->
+<section class="slide">
+  <div class="page-num">09 / 11</div>
+  <div class="head">계획 · 여행 · 기록</div>
+  <div class="head-sub">10단계 통합 여정</div>
+
+  <div class="flow-wrap">
+    <div class="flow-row">
+      <div class="flow-step"><div class="n">01</div><div class="t">취향 선택</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="n">02</div><div class="t">코스 추천</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="n">03</div><div class="t">미리보기</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="n">04</div><div class="t">탐험 시작</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="n">05</div><div class="t">지도 안내</div></div>
+    </div>
+
+    <div class="flow-pivot">↓</div>
+
+    <div class="flow-row">
+      <div class="flow-step"><div class="n">10</div><div class="t">일지 + 민화</div></div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-step"><div class="n">09</div><div class="t">탐험 마치기</div></div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-step"><div class="n">08</div><div class="t">채팅</div></div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-step"><div class="n">07</div><div class="t">동행자 등장</div></div>
+      <div class="flow-arrow">←</div>
+      <div class="flow-step"><div class="n">06</div><div class="t">도착</div></div>
+    </div>
+
+    <div class="flow-divider"></div>
+    <div class="flow-cta">▶&nbsp;&nbsp;지금 시연 영상을 보시죠</div>
+  </div>
+  <div class="footer">조익준 · 경희대 컴공</div>
+</section>
+
+<!-- ───────────────────────────────────── -->
+<!-- 10. 기대 효과 + 공모전 -->
+<section class="slide">
+  <div class="page-num">10 / 11</div>
+  <div class="head">기대 효과</div>
+  <div class="head-sub">문화유산 · 통합 여정 · 실데이터 신뢰성</div>
+
+  <div class="effect-wrap">
+    <div class="effect-row">
+      <div class="effect-card">
+        <div class="title">무형 문화유산<br>접근성 향상</div>
+        <div class="body">505 건의 설화를<br>관광 동선에 얹는다</div>
+      </div>
+      <div class="effect-card">
+        <div class="title">통합 여정</div>
+        <div class="body">계획 · 여행 · 기록을<br>한 앱에서 끊김 없이</div>
+      </div>
+      <div class="effect-card">
+        <div class="title">실데이터 신뢰성</div>
+        <div class="body">매핑 -77% 정제로<br>검증된 코스만 제공</div>
+      </div>
+    </div>
+
+    <div class="effect-big">
+      <div class="top">App Store 출시 → 2026 관광데이터 활용 공모전</div>
+      <div class="bot">예비심사 통과 · 10월 최종 심사</div>
+    </div>
+  </div>
+  <div class="footer">조익준 · 경희대 컴공</div>
+</section>
+
+<!-- ───────────────────────────────────── -->
+<!-- 11. 감사 -->
+<section class="slide thanks">
+  <div class="page-num">11 / 11</div>
+  <div>
+    <div class="big">감사합니다</div>
+  </div>
+  <div class="footer">조익준 · 경희대 컴공</div>
+</section>
+
+</body>
+</html>

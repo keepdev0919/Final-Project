@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>탐라담 — 최종 발표</title>
+<style>
+  /* ================= 기본 리셋 & 폰트 ================= */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #1a1a1a;
+    color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+  }
+
+  /* ================= 색상 변수 ================= */
+  :root {
+    --bg: #0b1020;
+    --bg-2: #11172e;
+    --bg-3: #181f3a;
+    --text: #ffffff;
+    --text-dim: #b6c0d4;
+    --text-mute: #7f8aa3;
+    --accent: #4f9eff;
+    --accent-2: #9b8cff;
+    --border: rgba(255,255,255,0.10);
+    --border-strong: rgba(255,255,255,0.22);
+    --persona-halmang: #ff9a4f;
+    --persona-simbang: #9b8cff;
+    --persona-haenyeo: #4fd1c5;
+    --persona-dokkaebi: #ff6b6b;
+    --persona-docheby: #6e7bff;
+  }
+
+  /* ================= 슬라이드 컨테이너 ================= */
+  .slide {
+    width: 1280px;
+    height: 720px;
+    background: var(--bg);
+    color: var(--text);
+    padding: 64px 80px;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+    background-image:
+      radial-gradient(circle at 100% 0%, rgba(79,158,255,0.10), transparent 40%),
+      radial-gradient(circle at 0% 100%, rgba(155,140,255,0.08), transparent 40%);
+  }
+  .slide:last-of-type { page-break-after: auto; }
+
+  /* ================= 슬라이드 공통 요소 ================= */
+  .page-num {
+    position: absolute;
+    top: 28px;
+    right: 36px;
+    font-size: 13px;
+    color: var(--text-mute);
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+  .footer {
+    position: absolute;
+    bottom: 24px;
+    right: 36px;
+    font-size: 12px;
+    color: var(--text-mute);
+    letter-spacing: 0.02em;
+  }
+  .slide h1 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .slide h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+  .section-tag {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .title-bar {
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius: 2px;
+    margin: 12px 0 28px 0;
+  }
+
+  /* ================= 표지 ================= */
+  .cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px;
+    background-image:
+      radial-gradient(circle at 80% 20%, rgba(79,158,255,0.18), transparent 50%),
+      radial-gradient(circle at 20% 80%, rgba(155,140,255,0.16), transparent 50%);
+  }
+  .cover .badge {
+    display: inline-block;
+    border: 1px solid var(--border-strong);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    margin-bottom: 28px;
+    width: fit-content;
+  }
+  .cover h1.title {
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, #ffffff 0%, #b6c0d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .cover .subtitle {
+    font-size: 22px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 56px;
+    letter-spacing: 0.02em;
+  }
+  .cover .meta {
+    display: flex;
+    gap: 60px;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    font-size: 16px;
+  }
+  .cover .meta div { color: var(--text-dim); }
+  .cover .meta div strong { color: var(--text); display: block; margin-bottom: 4px; font-size: 18px; }
+
+  /* ================= 목차 ================= */
+  .toc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 40px;
+    margin-top: 12px;
+  }
+  .toc-item {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 17px;
+  }
+  .toc-num {
+    color: var(--accent);
+    font-weight: 700;
+    width: 36px;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .toc-title { color: var(--text); }
+  .toc-page { margin-left: auto; color: var(--text-mute); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+  /* ================= 본문 레이아웃 ================= */
+  .content { font-size: 17px; color: var(--text-dim); }
+  .content p { margin-bottom: 10px; }
+  .content strong { color: var(--text); }
+  ul.bullet { list-style: none; padding: 0; }
+  ul.bullet li {
+    padding: 9px 0 9px 22px;
+    position: relative;
+    color: var(--text-dim);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  ul.bullet li:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 16px;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+  ul.bullet li strong { color: var(--text); }
+
+  /* ================= 카드/박스 ================= */
+  .card-grid { display: grid; gap: 16px; margin-top: 16px; }
+  .card-grid.col-2 { grid-template-columns: 1fr 1fr; }
+  .card-grid.col-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+  }
+  .card .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+  }
+  .card .card-body {
+    font-size: 14.5px;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .card .card-body strong { color: var(--text); }
+
+  /* ================= 통계 박스 ================= */
+  .stat-row { display: flex; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
+  .stat {
+    flex: 1;
+    min-width: 140px;
+    background: linear-gradient(135deg, rgba(79,158,255,0.10), rgba(155,140,255,0.08));
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+  }
+  .stat .num {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .lbl {
+    font-size: 13px;
+    color: var(--text-mute);
+    margin-top: 6px;
+  }
+
+  /* ================= 표 ================= */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 14px;
+    font-size: 14.5px;
+  }
+  table th, table td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  table th {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: rgba(79,158,255,0.06);
+  }
+  table td { color: var(--text-dim); }
+  table td strong { color: var(--text); }
+
+  /* ================= 다이어그램 ================= */
+  .arch {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 16px;
+  }
+  .arch-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .arch-label {
+    background: var(--bg-3);
+    border-left: 4px solid var(--accent);
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    color: var(--text);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+  }
+  .arch-content {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pill {
+    background: rgba(79,158,255,0.15);
+    color: #cfe2ff;
+    border: 1px solid rgba(79,158,255,0.3);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .pill.purple { background: rgba(155,140,255,0.15); color: #d9d2ff; border-color: rgba(155,140,255,0.3); }
+  .pill.green { background: rgba(79,209,197,0.15); color: #b9efe9; border-color: rgba(79,209,197,0.3); }
+
+  /* ================= 플로우 ================= */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .flow-step {
+    flex: 1;
+    min-width: 180px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    position: relative;
+  }
+  .flow-step .step-num {
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+  .flow-step .step-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .flow-step .step-desc {
+    font-size: 12.5px;
+    color: var(--text-mute);
+    line-height: 1.45;
+  }
+
+  /* 단계 10개를 5x2 그리드로 */
+  .flow-10 {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  /* ================= 페르소나 색상 사이드바 ================= */
+  .persona-row td:first-child { font-weight: 700; color: var(--text); }
+  .persona-halmang .left-accent { background: var(--persona-halmang); }
+  .persona-simbang .left-accent { background: var(--persona-simbang); }
+  .persona-haenyeo .left-accent { background: var(--persona-haenyeo); }
+  .persona-dokkaebi .left-accent { background: var(--persona-dokkaebi); }
+  .persona-docheby .left-accent { background: var(--persona-docheby); }
+
+  .pchip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .pchip.halmang { background: rgba(255,154,79,0.15); color: #ffcc99; border: 1px solid rgba(255,154,79,0.4); }
+  .pchip.simbang { background: rgba(155,140,255,0.15); color: #d9d2ff; border: 1px solid rgba(155,140,255,0.4); }
+  .pchip.haenyeo { background: rgba(79,209,197,0.15); color: #b9efe9; border: 1px solid rgba(79,209,197,0.4); }
+  .pchip.dokkaebi { background: rgba(255,107,107,0.15); color: #ffc5c5; border: 1px solid rgba(255,107,107,0.4); }
+  .pchip.docheby { background: rgba(110,123,255,0.15); color: #ccd2ff; border: 1px solid rgba(110,123,255,0.4); }
+
+  /* ================= 인용 ================= */
+  .cite { color: var(--text-mute); font-size: 12px; }
+  .quote {
+    border-left: 3px solid var(--accent);
+    padding: 10px 16px;
+    background: rgba(79,158,255,0.06);
+    border-radius: 0 8px 8px 0;
+    font-size: 15px;
+    color: var(--text);
+    font-style: italic;
+    margin: 14px 0;
+  }
+
+  /* ================= 강조 박스 ================= */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(79,158,255,0.12), rgba(155,140,255,0.10));
+    border: 1px solid rgba(79,158,255,0.3);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 16px 0;
+    font-size: 16px;
+    color: var(--text);
+  }
+  .highlight-box strong { color: var(--accent); }
+
+  /* ================= QR placeholder ================= */
+  .qr-placeholder {
+    width: 200px;
+    height: 200px;
+    background: var(--bg-2);
+    border: 2px dashed var(--border-strong);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-mute);
+    font-size: 14px;
+    margin: 20px auto;
+  }
+
+  /* ================= 참고문헌 ================= */
+  ol.refs { padding-left: 22px; }
+  ol.refs li {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 6px;
+  }
+  ol.refs li strong { color: var(--text); }
+
+  /* ================= 두 열 ================= */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 16px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 16px; }
+
+  /* ================= 작은 헤더 ================= */
+  h3.sub-h {
+    font-size: 17px;
+    color: var(--accent);
+    font-weight: 700;
+    margin: 14px 0 8px 0;
+  }
+
+  /* ================= print ================= */
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+  @media print {
+    html, body {
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    .slide {
+      width: 297mm;
+      height: 210mm;
+      padding: 12mm 16mm;
+      page-break-after: always;
+      break-after: page;
+      box-shadow: none;
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+    .slide:last-of-type { page-break-after: auto; }
+  }
+  @media screen {
+    body {
+      padding: 24px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+    .slide {
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      border-radius: 6px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========================================================== -->
+<!-- SLIDE 1: 표지 -->
+<!-- ========================================================== -->
+<section class="slide cover">
+  <span class="page-num">01 / 23</span>
+  <div class="badge">2026 경희대학교 컴퓨터공학과 졸업프로젝트 · 최종 발표</div>
+  <h1 class="title">AI 에이전트와 RAG를 활용한<br>제주 설화·민담 기반<br>여행 코스 추천 서비스</h1>
+  <div class="subtitle">— 탐라담 (Tamradam) —</div>
+  <div class="meta">
+    <div><strong>발표자</strong>조익준</div>
+    <div><strong>소속</strong>경희대학교 컴퓨터공학과</div>
+    <div><strong>일자</strong>2026. 06. 05.</div>
+    <div><strong>지도</strong>졸업프로젝트 지도교수</div>
+  </div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 2: 목차 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">02 / 23</span>
+  <span class="section-tag">Contents</span>
+  <h1>목 차</h1>
+  <div class="title-bar"></div>
+  <div class="toc-grid">
+    <div class="toc-item"><span class="toc-num">01</span><span class="toc-title">연구 배경</span><span class="toc-page">p.03</span></div>
+    <div class="toc-item"><span class="toc-num">02</span><span class="toc-title">문제 정의 & 핵심 가치</span><span class="toc-page">p.04</span></div>
+    <div class="toc-item"><span class="toc-num">03</span><span class="toc-title">관련 연구</span><span class="toc-page">p.05</span></div>
+    <div class="toc-item"><span class="toc-num">04</span><span class="toc-title">시스템 아키텍처</span><span class="toc-page">p.06</span></div>
+    <div class="toc-item"><span class="toc-num">05</span><span class="toc-title">데이터 파이프라인</span><span class="toc-page">p.07</span></div>
+    <div class="toc-item"><span class="toc-num">06</span><span class="toc-title">설계 변경 이력 — 3차 재설계</span><span class="toc-page">p.08</span></div>
+    <div class="toc-item"><span class="toc-num">07</span><span class="toc-title">코스 추천 — 2단계 API 파이프라인</span><span class="toc-page">p.09</span></div>
+    <div class="toc-item"><span class="toc-num">08</span><span class="toc-title">홈 화면 & 진입 임팩트</span><span class="toc-page">p.10</span></div>
+    <div class="toc-item"><span class="toc-num">09</span><span class="toc-title">장소 상세 — 설화 데이터 3단계 가공</span><span class="toc-page">p.11</span></div>
+    <div class="toc-item"><span class="toc-num">10</span><span class="toc-title">지도 SDK 전환</span><span class="toc-page">p.12</span></div>
+    <div class="toc-item"><span class="toc-num">11</span><span class="toc-title">GPS 탐험 모드 & 도착 감지</span><span class="toc-page">p.13</span></div>
+    <div class="toc-item"><span class="toc-num">12</span><span class="toc-title">AI 설화 동행자 5종 페르소나</span><span class="toc-page">p.14</span></div>
+    <div class="toc-item"><span class="toc-num">13</span><span class="toc-title">페르소나 TTS</span><span class="toc-page">p.15</span></div>
+    <div class="toc-item"><span class="toc-num">14</span><span class="toc-title">장소 리뷰 시스템</span><span class="toc-page">p.16</span></div>
+    <div class="toc-item"><span class="toc-num">15</span><span class="toc-title">여행 일지 자동 생성 + 민화 이미지</span><span class="toc-page">p.17</span></div>
+    <div class="toc-item"><span class="toc-num">16</span><span class="toc-title">세션 복원 & 마무리 동선</span><span class="toc-page">p.18</span></div>
+    <div class="toc-item"><span class="toc-num">17</span><span class="toc-title">시연 플로우 10단계</span><span class="toc-page">p.19</span></div>
+    <div class="toc-item"><span class="toc-num">18</span><span class="toc-title">데모 영상</span><span class="toc-page">p.20</span></div>
+    <div class="toc-item"><span class="toc-num">19</span><span class="toc-title">기대 효과</span><span class="toc-page">p.21</span></div>
+    <div class="toc-item"><span class="toc-num">20</span><span class="toc-title">향후 연구 & 공모전 출품</span><span class="toc-page">p.22</span></div>
+    <div class="toc-item"><span class="toc-num">21</span><span class="toc-title">참고문헌</span><span class="toc-page">p.23</span></div>
+  </div>
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 3: 연구 배경 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">03 / 23</span>
+  <span class="section-tag">01 · Background</span>
+  <h1>연구 배경</h1>
+  <div class="title-bar"></div>
+
+  <div class="content">
+    <p style="font-size:18px; color:var(--text);">제주는 <strong>연 1,500만 명</strong>이 찾는 한국 최대 관광지이자, <strong>중요 무형 문화유산의 보고</strong>이다.</p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="num">1,500만</div><div class="lbl">연간 제주 방문자</div></div>
+    <div class="stat"><div class="num">182</div><div class="lbl">제주 설화 (E07)</div></div>
+    <div class="stat"><div class="num">323</div><div class="lbl">제주 민담 (E08)</div></div>
+    <div class="stat"><div class="num">505</div><div class="lbl">공공 콘텐츠 총합</div></div>
+    <div class="stat"><div class="num">9,134</div><div class="lbl">Visit Jeju 검증 코스</div></div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:24px;">
+    <strong>문제:</strong> 설화·민담 데이터는 <strong>공공 API로 개방</strong>되어 있지만, 실제 관광 경험과 결합된 형태로 소비되지 못한다.<br>
+    텍스트 그대로는 길고 어려우며, 어떤 장소에서 어떤 이야기를 들어야 할지 알 수 없다.
+  </div>
+
+  <div class="content" style="margin-top:14px;">
+    <p>최근 <strong>LLM · RAG · AI 에이전트</strong> 기술의 발전으로, 정적인 텍스트 데이터를 <strong>현장 맥락에 맞게 가공·전달</strong>하는 것이 비로소 현실적으로 가능해졌다. <span class="cite">[Lewis 2020] [Yao 2023]</span></p>
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 4: 문제 정의 & 핵심 가치 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">04 / 23</span>
+  <span class="section-tag">02 · Problem & Value</span>
+  <h1>문제 정의 & 핵심 가치</h1>
+  <div class="title-bar"></div>
+
+  <div class="quote">
+    "실제 검증된 여행 코스 위에 설화를 얹는다."
+  </div>
+
+  <div class="card-grid col-2">
+    <div class="card">
+      <div class="card-title">기존 접근의 한계</div>
+      <div class="card-body">
+        · 설화 기반 코스를 처음부터 LLM이 만들면 <strong>지명·동선이 비현실적</strong><br>
+        · 설화 본문은 길고 어려운 어휘 → 일반 관광객 접근성 낮음<br>
+        · 위치 기반 콘텐츠는 있으나 <strong>무형 문화유산과 결합 부재</strong>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">탐라담의 해법</div>
+      <div class="card-body">
+        · <strong>Visit Jeju 9,134개 실제 코스</strong> 위에 설화를 매핑<br>
+        · 코스 현실성은 <strong>실제 데이터</strong>가 보장<br>
+        · 설화는 <strong>현장에서 AI 동행자가 이야기</strong>로 들려줌<br>
+        · 여행 후 GPT-4o가 <strong>여행 일지 + 민화 이미지</strong> 생성
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>4-Step Value Loop:</strong> &nbsp; 검증된 코스 추천 &nbsp;→&nbsp; 설화 매핑 &nbsp;→&nbsp; 현장 AI 동행자 &nbsp;→&nbsp; 일지·민화 기록
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 5: 관련 연구 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">05 / 23</span>
+  <span class="section-tag">03 · Related Work</span>
+  <h1>관련 연구</h1>
+  <div class="title-bar"></div>
+
+  <table>
+    <thead>
+      <tr><th style="width:24%;">분야</th><th style="width:30%;">대표 연구·사례</th><th>본 연구에의 적용</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>RAG</strong><br>(Retrieval-Augmented Generation)</td>
+        <td>Lewis et al., NeurIPS 2020 <span class="cite">[1]</span></td>
+        <td>설화·장소 청크 1,749개를 ChromaDB에 임베딩, 동행자 답변에 컨텍스트 주입</td>
+      </tr>
+      <tr>
+        <td><strong>위치 기반<br>문화 콘텐츠</strong></td>
+        <td>Pokémon GO, Google Arts & Culture</td>
+        <td>지오펜스로 현장 도착 감지 → 해당 장소의 설화·동행자 자동 발현</td>
+      </tr>
+      <tr>
+        <td><strong>LLM 에이전트</strong></td>
+        <td>ReAct (Yao et al., ICLR 2023) <span class="cite">[8]</span>,<br>LangGraph <span class="cite">[9]</span></td>
+        <td>LangGraph 기반 <code>course_list_agent</code>로 후보 풀 → 선별 단계 그래프 구현</td>
+      </tr>
+      <tr>
+        <td><strong>대화형 AI</strong></td>
+        <td>ChatGPT, Claude</td>
+        <td>GPT-4o를 5종 페르소나로 분기, SSE 토큰 스트리밍으로 대화 UX 제공</td>
+      </tr>
+      <tr>
+        <td><strong>임베딩 / 벡터 DB</strong></td>
+        <td>OpenAI text-embedding-3-small <span class="cite">[6]</span>, Chroma <span class="cite">[5]</span></td>
+        <td>다국어 임베딩 + 로컬 영구 저장으로 비용·지연 최소화</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 6: 시스템 아키텍처 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">06 / 23</span>
+  <span class="section-tag">04 · System Architecture</span>
+  <h1>시스템 아키텍처 — 3계층</h1>
+  <div class="title-bar"></div>
+
+  <div class="arch">
+    <div class="arch-row">
+      <div class="arch-label">Client</div>
+      <div class="arch-content">
+        <span class="pill">iOS Native</span>
+        <span class="pill">Swift 5.9</span>
+        <span class="pill">SwiftUI</span>
+        <span class="pill">CoreLocation</span>
+        <span class="pill">MapKit / Google Maps SDK</span>
+        <span class="pill">AVFoundation (TTS)</span>
+      </div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">Application</div>
+      <div class="arch-content">
+        <span class="pill purple">FastAPI</span>
+        <span class="pill purple">Python 3.11</span>
+        <span class="pill purple">LangGraph 에이전트</span>
+        <span class="pill purple">OpenAI GPT-4o / TTS / gpt-image-1</span>
+        <span class="pill purple">SSE 스트리밍</span>
+      </div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-label">Data</div>
+      <div class="arch-content">
+        <span class="pill green">ChromaDB (벡터 1,749 청크)</span>
+        <span class="pill green">SQLite (캐시·리뷰)</span>
+        <span class="pill green">Visit Jeju API · KTO TourAPI</span>
+        <span class="pill green">제주 설화/민담 공공데이터 (E07/E08)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:18px;">
+    <strong>구현 변경 이력:</strong> 초기 기획에서는 Flutter 크로스플랫폼이었으나, 위치·지도·오프라인 처리의 안정성을 위해 <strong>iOS Swift/SwiftUI 네이티브</strong>로 전환하여 단일 플랫폼에 집중하였다.
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 7: 데이터 파이프라인 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">07 / 23</span>
+  <span class="section-tag">05 · Data Pipeline</span>
+  <h1>데이터 파이프라인</h1>
+  <div class="title-bar"></div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="num">9,134</div><div class="lbl">Visit Jeju 코스</div></div>
+    <div class="stat"><div class="num">3,284</div><div class="lbl">장소(POI)</div></div>
+    <div class="stat"><div class="num">820</div><div class="lbl">관광지 분류(매핑 대상)</div></div>
+    <div class="stat"><div class="num">505</div><div class="lbl">설화 + 민담</div></div>
+    <div class="stat"><div class="num">1,749</div><div class="lbl">ChromaDB 청크</div></div>
+  </div>
+
+  <h3 class="sub-h" style="margin-top:18px;">처리 단계</h3>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="step-num">STEP 1</div>
+      <div class="step-title">장소 분류</div>
+      <div class="step-desc">3,284 장소를 KTO TourAPI cat3 + 키워드 휴리스틱으로 12개 카테고리 분류</div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">STEP 2</div>
+      <div class="step-title">필터링</div>
+      <div class="step-desc">관광지 카테고리 <strong>820개</strong>만 설화 매핑 후보 — 식당·카페 등은 의미적 매칭 부적합</div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">STEP 3</div>
+      <div class="step-title">매핑 정제</div>
+      <div class="step-desc">초기 매핑 <strong>134k → 31k (-77%)</strong>. 단순 텍스트 일치 제거 → 신뢰성 회복</div>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">STEP 4</div>
+      <div class="step-title">임베딩 & 색인</div>
+      <div class="step-desc">OpenAI text-embedding-3-small → ChromaDB 1,749 청크 영구 저장</div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:14px;">
+    <strong>핵심 통찰:</strong> "더 많은 매핑 = 더 좋은 추천"이 아니다. <strong>잘못된 매칭을 적극적으로 제거</strong>해야 비로소 의미 있는 추천이 가능했다.
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 8: 설계 변경 이력 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">08 / 23</span>
+  <span class="section-tag">06 · Design Pivots</span>
+  <h1>설계 변경 이력 — 3차 재설계</h1>
+  <div class="title-bar"></div>
+
+  <table>
+    <thead>
+      <tr><th style="width:14%;">차수</th><th style="width:28%;">접근</th><th>한계 또는 채택 사유</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1차</strong></td>
+        <td>설화 → 코스 <strong>역설계</strong><br><span class="cite">설화 N개 선택 → LLM이 동선 생성</span></td>
+        <td>LLM이 생성한 좌표·동선이 비현실적. 같은 장소가 떨어진 일정에 반복 등장. 실제 가용 시간 미고려.</td>
+      </tr>
+      <tr>
+        <td><strong>2차</strong></td>
+        <td>설화 취향 <strong>점수 기반</strong><br><span class="cite">취향 벡터 ↔ 코스 벡터 유사도</span></td>
+        <td>점수 분포가 평탄해 변별력 부족. "왜 이 코스인지" 사용자에게 설명 불가능. 매번 동일 결과 → 재방문 동기 결핍.</td>
+      </tr>
+      <tr style="background:rgba(79,158,255,0.06);">
+        <td><strong>3차 (현재)</strong></td>
+        <td>코스 → 설화 <strong>매핑</strong><br><span class="cite">검증 코스 위에 설화 레이어</span></td>
+        <td><strong>채택.</strong> 코스 현실성은 Visit Jeju 데이터가 보장, 설화는 컨텍스트 레이어로 분리. 추천 다양성·설명력·확장성 모두 확보.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-box" style="margin-top:18px;">
+    <strong>교훈:</strong> LLM에게 모든 것을 맡기지 않는다. <strong>검증된 데이터가 보장할 수 있는 영역</strong>과 <strong>LLM이 가치를 더하는 영역</strong>을 분리하는 것이 핵심이었다.
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 9: 코스 추천 2단계 API -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">09 / 23</span>
+  <span class="section-tag">07 · Course Recommendation</span>
+  <h1>코스 추천 — 2단계 API 파이프라인</h1>
+  <div class="title-bar"></div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">① <code>POST /course/list</code> — 후보 3개 선별</div>
+      <div class="card-body">
+        · <strong>LangGraph</strong> <code>course_list_agent</code><br>
+        · 취향·지역·일수 필터링 → 후보 풀에서 <strong>30개 무작위 추출</strong><br>
+        · GPT-4o가 30개를 읽고 <strong>3개를 선별</strong> + 추천 이유 1줄<br>
+        · <strong>매번 다른 결과</strong> (시연 다양성·재방문 동기 확보)<br>
+        · 평균 응답 ~8초
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">② <code>POST /course/detail</code> — 상세 + 내러티브</div>
+      <div class="card-body">
+        · <strong>결정론적 함수</strong> (선택된 코스 ID에 종속)<br>
+        · Haversine 거리 계산 → 코스 장소 반경 <strong>3km 내 설화 매핑</strong><br>
+        · GPT-4o가 <strong>코스 내러티브 2문장</strong> 생성 (LLM 호출 1회)<br>
+        · 같은 코스는 같은 결과 → SQLite 캐시 적중률 高<br>
+        · <strong>비용 안정</strong> · 평균 응답 ~3초
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sub-h">파이프라인 다이어그램</h3>
+  <div class="flow">
+    <div class="flow-step"><div class="step-num">USER</div><div class="step-title">취향 입력</div><div class="step-desc">카테고리 · 지역 · 일수</div></div>
+    <div class="flow-step"><div class="step-num">LIST</div><div class="step-title">랜덤 풀 추출</div><div class="step-desc">필터 후 30개 무작위</div></div>
+    <div class="flow-step"><div class="step-num">LIST</div><div class="step-title">GPT-4o 선별</div><div class="step-desc">3개 + 이유 1줄</div></div>
+    <div class="flow-step"><div class="step-num">DETAIL</div><div class="step-title">설화 매핑</div><div class="step-desc">반경 3km Haversine</div></div>
+    <div class="flow-step"><div class="step-num">DETAIL</div><div class="step-title">내러티브 1회 생성</div><div class="step-desc">2문장 (캐시)</div></div>
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 10: 홈 화면 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">10 / 23</span>
+  <span class="section-tag">08 · Home Screen</span>
+  <h1>홈 화면 — 첫 진입 임팩트</h1>
+  <div class="title-bar"></div>
+
+  <div class="content" style="margin-bottom:8px;">
+    "검증된 추천 + 설화 문화 큐레이션" 임을 <strong>홈 화면 한 번에</strong> 전달한다.
+  </div>
+
+  <div class="card-grid col-3">
+    <div class="card">
+      <div class="card-title">① 오늘의 설화 카드</div>
+      <div class="card-body">
+        · 날짜를 시드로 사용한 <strong>결정론적 셔플</strong> — 같은 날 같은 설화<br>
+        · 호기심 후크 1줄 + 한 문장 요약<br>
+        · 탭 시 풀스크린 스토리 뷰어로 진입
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">② 제주 지도 + 설화 핀</div>
+      <div class="card-body">
+        · 지도 위에 설화 위치 핀 표시<br>
+        · <strong>"이 섬은 이야기로 덮여 있다"</strong>는 시각적 메시지<br>
+        · 핀 탭 → 해당 설화 상세
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">③ 추천 코스 3선</div>
+      <div class="card-body">
+        · <code>/course/list</code> 결과 카드<br>
+        · 코스 이름 + AI 추천 이유 1줄<br>
+        · CTA → 상세 미리보기 → 탐험 시작
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:16px;">
+    <strong>설계 의도:</strong> 가입·튜토리얼 없이 <strong>첫 화면에서 가치를 즉시 체감</strong>하도록 했다. (앱스토어 평가 화면 1초의 법칙)
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 11: 장소 상세 — 설화 데이터 3단계 가공 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">11 / 23</span>
+  <span class="section-tag">09 · Place Detail</span>
+  <h1>장소 상세 — 설화 데이터 3단계 가공</h1>
+  <div class="title-bar"></div>
+
+  <div class="content" style="margin-bottom:6px;">
+    원본 설화는 길고 어려운 어휘 + 코드(◆, [1] 등) 혼재. <strong>3단계 점진적 노출</strong>로 인지 부담을 분산한다.
+  </div>
+
+  <table>
+    <thead>
+      <tr><th style="width:10%;">레벨</th><th style="width:24%;">노출 형태</th><th style="width:30%;">처리 방식</th><th>예시</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Lv1</strong></td>
+        <td>장소 카드 부제 (호기심 후크 1줄)</td>
+        <td>원문 전처리: 코드 제거 + 1줄 후크 추출 (LLM 1회 → 캐시)</td>
+        <td>"심방으로 살다 다시 이승으로 돌아온 굴묵밭 할망"</td>
+      </tr>
+      <tr>
+        <td><strong>Lv2</strong></td>
+        <td>장소-설화 연결 1줄</td>
+        <td>장소 ↔ 설화 관계 요약 LLM 호출 → <code>folklore_connection_cache</code> 영구 저장</td>
+        <td>"이 마을의 본향당 신을 모시는 이야기"</td>
+      </tr>
+      <tr>
+        <td><strong>Lv3</strong></td>
+        <td>풀스크린 스토리 뷰어</td>
+        <td>5~7페이지 동화체 리라이팅 → <code>folklore_story_cache</code> 영구 저장. 인스타 스토리 UX (좌우 스와이프, 자동 진행)</td>
+        <td>아동도 읽을 수 있는 동화 문체로 변환된 본문 + 페이지별 표지</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-box" style="margin-top:14px;">
+    <strong>비용 최적화:</strong> Lv1·Lv2·Lv3 결과는 모두 <strong>백엔드 영구 캐시</strong>. 동일 장소·설화 조합은 LLM 0회 호출. → 출시 후 사용자 1만 명에서도 LLM 비용 선형 증가하지 않음.
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 12: 지도 SDK 전환 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">12 / 23</span>
+  <span class="section-tag">10 · Map SDK Migration</span>
+  <h1>지도 SDK — Apple Maps → Google Maps 전환</h1>
+  <div class="title-bar"></div>
+
+  <table>
+    <thead>
+      <tr><th style="width:24%;">항목</th><th>Apple Maps (초기)</th><th>Google Maps (현재)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>워터마크/브랜딩</strong></td><td>네이티브 통합, 단정함</td><td>로고 통일, 다른 화면과 시각 정합성 유지</td></tr>
+      <tr><td><strong>외부 길찾기 일관성</strong></td><td>Apple 지도 앱 전환</td><td>Google 지도 앱 → 미설치 시 <strong>웹 URL 폴백</strong></td></tr>
+      <tr><td><strong>POI 매칭</strong></td><td>국내 POI 일부 누락</td><td>Visit Jeju POI와 잘 매칭, 사진/리뷰 풍부</td></tr>
+      <tr><td><strong>커스텀 마커</strong></td><td>제약 있음</td><td>코스 점선 경로 + 일자별 색상 마커 자유롭게 표현</td></tr>
+    </tbody>
+  </table>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">전환 결과</div>
+      <div class="card-body">
+        · 코스 미리보기·탐험 모드·장소 상세 모두 단일 SDK<br>
+        · 일자별 점선 경로 + 일자 탭 필터 (commit <code>44af671</code>)<br>
+        · 외부 길찾기 URL은 미설치 사용자도 100% 작동
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">유의 사항</div>
+      <div class="card-body">
+        · API 키 관리: <code>Info.plist</code> + <code>.env</code> 분리<br>
+        · iOS 시뮬레이터 GPS 시드 함께 점검<br>
+        · 무료 할당 초과 모니터링 — 시연용 부담 없음
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 13: GPS 탐험 모드 & 도착 감지 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">13 / 23</span>
+  <span class="section-tag">11 · Explore Mode</span>
+  <h1>GPS 탐험 모드 & 도착 감지</h1>
+  <div class="title-bar"></div>
+
+  <div class="card-grid col-2">
+    <div class="card">
+      <div class="card-title">기술 스택</div>
+      <div class="card-body">
+        · iOS <strong>CoreLocation</strong> — 백그라운드 위치 권한<br>
+        · 지오펜스(Geofence) — 코스 내 장소마다 자동 등록/해제<br>
+        · 배터리 보존을 위해 정확도 동적 조정 (이동 중 ↑, 정지 시 ↓)
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">도착 판정 로직</div>
+      <div class="card-body">
+        · <strong>도보 100m / 차량 300m</strong> 진입<br>
+        · 동시에 <strong>30초 이상 체류</strong> (오탐 방지)<br>
+        · 두 조건 동시 충족 시 도착 이벤트 발화<br>
+        · 시뮬레이터에서는 <strong>도착 시뮬레이션 버튼</strong>으로 즉시 트리거
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    도착 이벤트 발화 즉시 <strong>AI 동행자 오버레이가 전체화면으로 등장</strong>. 사용자는 별도 조작 없이 "도착했다 → 이야기가 시작된다"는 마법 같은 순간을 경험한다.
+  </div>
+
+  <div class="card" style="margin-top:14px;">
+    <div class="card-title">트레이드오프 — "차량 이동 중 오탐 방지" 설계 이유</div>
+    <div class="card-body">
+      이동 경로상 코스 외 장소를 잠시 스치고 지나갈 때 오버레이가 뜨면 운전 위험 + UX 망가짐.
+      30초 체류 + 반경 조건으로 <strong>실제 "방문"한 경우에만</strong> 발화하도록 했다.
+    </div>
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 14: AI 설화 동행자 5종 페르소나 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">14 / 23</span>
+  <span class="section-tag">12 · AI Personas</span>
+  <h1>AI 설화 동행자 — 5종 페르소나</h1>
+  <div class="title-bar"></div>
+
+  <table>
+    <thead>
+      <tr><th style="width:18%;">페르소나</th><th style="width:22%;">담당 영역</th><th style="width:30%;">말투·특징</th><th>예시 대사</th></tr>
+    </thead>
+    <tbody>
+      <tr class="persona-row persona-halmang">
+        <td><span class="pchip halmang">👵 마을 할망</span></td>
+        <td>마을 공동체·생활사</td>
+        <td>따뜻한 제주 사투리, 다정한 어조</td>
+        <td>"왓수꽝, 이 동네 옛날엔 말이주…"</td>
+      </tr>
+      <tr class="persona-row persona-simbang">
+        <td><span class="pchip simbang">🪬 당신·심방</span></td>
+        <td>무속신화·신격</td>
+        <td>고어체 신탁, 의식적 표현</td>
+        <td>"그 신은 본향당에 좌정하시니라."</td>
+      </tr>
+      <tr class="persona-row persona-haenyeo">
+        <td><span class="pchip haenyeo">🤿 영등신·해녀 선배</span></td>
+        <td>해양·어촌·바다 의례</td>
+        <td>직선적 반말, 해녀 전문 어휘</td>
+        <td>"숨 짧아도 물질 못하는 건 아냐."</td>
+      </tr>
+      <tr class="persona-row persona-dokkaebi">
+        <td><span class="pchip dokkaebi">👺 도깨비</span></td>
+        <td>생활민담·교훈담</td>
+        <td>"크크크", 질문 되받기, 장난기</td>
+        <td>"너는 왜 그런 걸 묻는 거야? 크크크"</td>
+      </tr>
+      <tr class="persona-row persona-docheby">
+        <td><span class="pchip docheby">👻 도체비</span></td>
+        <td>초자연 존재담</td>
+        <td>"아마도", "아닌가?" 자기 부정 화법</td>
+        <td>"그것이 진짜였을까…? 아닌가?"</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="two-col" style="margin-top:14px;">
+    <div class="card">
+      <div class="card-title">페르소나 자동 배정 / 수동 변경</div>
+      <div class="card-body">
+        · 장소에 매핑된 설화의 카테고리 점수 최고값 → 자동 배정<br>
+        · 사용자가 <code>CompanionPickerSheet</code>로 수동 변경 가능
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">백엔드 구현</div>
+      <div class="card-body">
+        · 페르소나별 <strong>독립 프롬프트</strong>(말투 가이드 + 퓨샷 예시)<br>
+        · ChromaDB 벡터 검색 → 컨텍스트 주입 → GPT-4o<br>
+        · SSE 토큰 스트리밍으로 타이핑 효과 <span class="cite">[Lewis 2020]</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 15: 페르소나 TTS -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">15 / 23</span>
+  <span class="section-tag">13 · Persona TTS</span>
+  <h1>페르소나 TTS — 5종 다른 목소리</h1>
+  <div class="title-bar"></div>
+
+  <div class="content">
+    <p style="font-size:18px; color:var(--text); margin-bottom:14px;">
+      말투만 다른 것이 아니라 <strong>목소리도 다르다.</strong> OpenAI TTS API의 5종 보이스를 페르소나별로 매핑.
+    </p>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th style="width:22%;">페르소나</th><th style="width:22%;">OpenAI Voice</th><th>매핑 근거</th></tr>
+    </thead>
+    <tbody>
+      <tr class="persona-row persona-halmang"><td><span class="pchip halmang">👵 마을 할망</span></td><td><code>shimmer</code></td><td>부드럽고 따뜻한 여성 톤</td></tr>
+      <tr class="persona-row persona-simbang"><td><span class="pchip simbang">🪬 당신·심방</span></td><td><code>onyx</code></td><td>낮고 무거운 신탁 톤</td></tr>
+      <tr class="persona-row persona-haenyeo"><td><span class="pchip haenyeo">🤿 영등신·해녀</span></td><td><code>nova</code></td><td>또렷하고 직선적, 강한 인상</td></tr>
+      <tr class="persona-row persona-dokkaebi"><td><span class="pchip dokkaebi">👺 도깨비</span></td><td><code>echo</code></td><td>장난기 + 명료한 발성</td></tr>
+      <tr class="persona-row persona-docheby"><td><span class="pchip docheby">👻 도체비</span></td><td><code>fable</code></td><td>이야기꾼 느낌, 모호한 분위기</td></tr>
+    </tbody>
+  </table>
+
+  <div class="two-col" style="margin-top:14px;">
+    <div class="card">
+      <div class="card-title">동시 재생 타이밍</div>
+      <div class="card-body">
+        SSE 텍스트 토큰 스트리밍과 TTS 청크 재생을 <strong>거의 동시</strong>에 맞춤. 글자 타이핑과 음성이 어긋나지 않도록 페이싱 조절.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">사용자 제어</div>
+      <div class="card-body">
+        우상단 스피커 아이콘 1탭 → <strong>전체 음소거</strong>. 설정은 <code>UserDefaults</code>로 영구 저장 — 카페·도서관에서도 부담 없음.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 16: 장소 리뷰 시스템 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">16 / 23</span>
+  <span class="section-tag">14 · Place Review</span>
+  <h1>장소 리뷰 — 감상을 데이터로</h1>
+  <div class="title-bar"></div>
+
+  <div class="content">
+    <p>동행자 채팅 종료 직후 <strong>자동으로 바텀시트(<code>PlaceReviewSheet</code>)</strong>가 등장. 감상이 휘발되기 전에 즉시 저장.</p>
+  </div>
+
+  <div class="card-grid col-3">
+    <div class="card">
+      <div class="card-title">5종 태그</div>
+      <div class="card-body">
+        <span class="pill" style="margin:2px;">소름 😨</span>
+        <span class="pill" style="margin:2px;">감동 🥹</span>
+        <span class="pill" style="margin:2px;">신기 🤔</span>
+        <span class="pill" style="margin:2px;">무서워요 😱</span>
+        <span class="pill" style="margin:2px;">역사적 🏛</span>
+        <br><br>다중 선택 가능
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">한 줄 감상</div>
+      <div class="card-body">
+        최대 <strong>200자</strong> 자유 입력. 입력 부담 최소화 — 한 줄이라도 남기는 것이 목표.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">익명 저장</div>
+      <div class="card-body">
+        가입 없이 <strong>device_id</strong> 단위로 백엔드 SQLite 저장. 진입 마찰 0, 데이터는 축적.
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>핵심 가치:</strong> 사용자가 남긴 태그·한 줄 감상은 <strong>여행 일지 생성 시 GPT 프롬프트에 자동 주입</strong>된다. → 일지가 천편일률적 회고가 아닌 <strong>"나만의 기록"</strong>이 되는 결정적 입력.
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 17: 여행 일지 + 민화 이미지 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">17 / 23</span>
+  <span class="section-tag">15 · Travel Journal</span>
+  <h1>여행 일지 자동 생성 + 민화 이미지</h1>
+  <div class="title-bar"></div>
+
+  <div class="card-grid col-2">
+    <div class="card">
+      <div class="card-title">📓 여행 일지 — GPT-4o</div>
+      <div class="card-body">
+        · 입력: 방문 장소 + 설화 + 사용자 태그·감상<br>
+        · 출력: <strong>1인칭 회고 300~500자</strong> (구조화 JSON)<br>
+        · 단일 호출로 <strong>일지 + 이미지 프롬프트 동시</strong> 생성<br>
+        · 사용자의 감상 단어가 자연스럽게 일지에 녹아듦
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎨 민화 이미지 — gpt-image-1</div>
+      <div class="card-body">
+        · <strong>한국 전통 민화 스타일</strong> 강제 프롬프트<br>
+        · 평면 색감 · 두꺼운 검은 외곽선 · 종이 질감<br>
+        · "AI 슬롭"이 아닌 <strong>고유한 시각 아이덴티티</strong><br>
+        · 해당 코스의 핵심 장소·설화 모티프 반영
+      </div>
+    </div>
+  </div>
+
+  <div class="card-grid col-2" style="margin-top:14px;">
+    <div class="card">
+      <div class="card-title">성능 · 사용자 경험</div>
+      <div class="card-body">
+        · 응답 시간 ~25~30초 → "이야기 정리 중…" 로딩 화면으로 기대감 연출<br>
+        · 단일 호출로 일관성 확보 (일지와 이미지가 동일 코스 이해)
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">공유 (SNS Loop)</div>
+      <div class="card-body">
+        · iOS <code>ShareLink</code> 네이티브 공유 시트<br>
+        · 일지 + 민화 이미지를 <strong>공유 카드</strong>로 묶어 인스타·카톡 공유<br>
+        · 자연스러운 바이럴 채널 (SNS 쇼츠 마케팅 핵심)
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 18: 세션 복원 & 마무리 동선 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">18 / 23</span>
+  <span class="section-tag">16 · Session Restore</span>
+  <h1>세션 복원 & 마무리 동선</h1>
+  <div class="title-bar"></div>
+
+  <div class="card-grid col-2">
+    <div class="card">
+      <div class="card-title">🔄 SessionRestoreView</div>
+      <div class="card-body">
+        · 탐험 도중 <strong>앱 강제 종료 / 기기 재부팅</strong> 발생해도<br>
+        · 재실행 시 <strong>"진행 중인 탐험 이어하기"</strong> 화면 자동 등장<br>
+        · 진행 중인 코스 / 방문한 장소 / 다음 목표 복원<br>
+        · 여행이 일회성이 아닌 <strong>연속된 경험</strong>이 되도록
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏁 여행 완료 직후 동선</div>
+      <div class="card-body">
+        · 완료 즉시 <strong>"내 코스" 탭으로 자동 이동</strong><br>
+        · 방금 끝낸 코스에 <strong>1.5초 하이라이트 애니메이션</strong><br>
+        · "방금 한 일이 여기 저장됐다"는 <strong>심리적 닫힘</strong> 제공<br>
+        · 다음에 다시 보고 싶을 때 어디로 가야 할지 학습됨
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <strong>UX 철학:</strong> 위치 기반 앱은 <strong>중단/재개의 연속</strong>. "방금 어디까지 했더라"는 불안을 시스템 차원에서 제거해야 신뢰가 쌓인다.
+  </div>
+
+  <div class="card" style="margin-top:14px;">
+    <div class="card-title">최근 정리 작업 (졸업 시연 안정화)</div>
+    <div class="card-body">
+      · 레거시 "완성!" 로딩 다이얼로그 제거 (commit <code>12e3518</code>)<br>
+      · 레거시 "테스트" 디버그 탭 / DebugExploreView 제거 (commit <code>3450312</code>)<br>
+      · 홈 리뉴얼 + 설화 내러티브 LLM + 장소 상세 Google Maps (commit <code>4a7d566</code>)
+    </div>
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 19: 시연 플로우 10단계 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">19 / 23</span>
+  <span class="section-tag">17 · Demo Flow</span>
+  <h1>시연 플로우 — 10단계</h1>
+  <div class="title-bar"></div>
+
+  <div class="flow-10">
+    <div class="flow-step"><div class="step-num">STEP 01</div><div class="step-title">취향 선택</div><div class="step-desc">설화 카테고리 + 지역 + 일수</div></div>
+    <div class="flow-step"><div class="step-num">STEP 02</div><div class="step-title">AI 코스 추천</div><div class="step-desc">/course/list ~ 10초 이내, 3개</div></div>
+    <div class="flow-step"><div class="step-num">STEP 03</div><div class="step-title">코스 미리보기</div><div class="step-desc">상세 + 내러티브 → 탐험 시작</div></div>
+    <div class="flow-step"><div class="step-num">STEP 04</div><div class="step-title">지도 이동</div><div class="step-desc">점선 경로 + 일자 색상 마커</div></div>
+    <div class="flow-step"><div class="step-num">STEP 05</div><div class="step-title">도착 시뮬레이션</div><div class="step-desc">시뮬레이터 도착 버튼 트리거</div></div>
+    <div class="flow-step"><div class="step-num">STEP 06</div><div class="step-title">AI 동행자 오버레이</div><div class="step-desc">페르소나 자동 발현 (전체화면)</div></div>
+    <div class="flow-step"><div class="step-num">STEP 07</div><div class="step-title">채팅 2~3턴</div><div class="step-desc">페르소나 말투 + TTS 동시 재생</div></div>
+    <div class="flow-step"><div class="step-num">STEP 08</div><div class="step-title">장소 이동 반복</div><div class="step-desc">중간 리뷰 바텀시트 자동 등장</div></div>
+    <div class="flow-step"><div class="step-num">STEP 09</div><div class="step-title">탐험 마치기 / Day 요약</div><div class="step-desc">완료 → "내 코스" 탭 자동 이동</div></div>
+    <div class="flow-step"><div class="step-num">STEP 10</div><div class="step-title">일지 + 민화 이미지</div><div class="step-desc">25~30초 → SNS 공유 카드</div></div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:14px;">
+    <strong>시연 강조 포인트:</strong> 단계 02 추천 다양성 / 단계 06 도착 즉시 발화 / 단계 10 민화 결과물의 시각적 임팩트.
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 20: 데모 영상 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">20 / 23</span>
+  <span class="section-tag">18 · Demo Video</span>
+  <h1>데모 영상</h1>
+  <div class="title-bar"></div>
+
+  <div class="two-col" style="margin-top:30px;">
+    <div>
+      <h3 class="sub-h">📽 영상 구성 (약 3분)</h3>
+      <ul class="bullet">
+        <li><strong>0:00–0:20</strong> 홈 화면 (오늘의 설화 + 지도 + 코스 3선)</li>
+        <li><strong>0:20–0:50</strong> 취향 선택 → AI 코스 추천 (실시간 응답)</li>
+        <li><strong>0:50–1:30</strong> 코스 상세 + 탐험 시작 + 지도 이동</li>
+        <li><strong>1:30–2:20</strong> 도착 → AI 동행자 등장 + TTS 음성</li>
+        <li><strong>2:20–2:45</strong> 장소 리뷰 + 탐험 마치기</li>
+        <li><strong>2:45–3:00</strong> 여행 일지 + 민화 이미지 출력 + 공유</li>
+      </ul>
+      <div class="card" style="margin-top:14px;">
+        <div class="card-title">시연 환경</div>
+        <div class="card-body">iPhone 15 Pro 시뮬레이터 / iOS 17 / 도착 시뮬레이션 버튼 활용</div>
+      </div>
+    </div>
+    <div style="text-align:center; padding-top:20px;">
+      <div class="qr-placeholder">QR Code<br><span style="font-size:11px;">데모 영상 링크</span></div>
+      <p style="font-size:14px; color:var(--text-mute); margin-top:8px;">※ 실제 데모 영상은 별도 제출 파일을 참고해 주십시오.</p>
+    </div>
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 21: 기대 효과 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">21 / 23</span>
+  <span class="section-tag">19 · Impact</span>
+  <h1>기대 효과</h1>
+  <div class="title-bar"></div>
+
+  <div class="card-grid col-3">
+    <div class="card">
+      <div class="card-title">① 무형 문화유산 접근성</div>
+      <div class="card-body">
+        공공 API로 잠자던 설화·민담 505건을 <strong>현장 맥락</strong>에서 소비. 어휘 장벽을 동화체 리라이팅 + AI 동행자 대화로 해소.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">② 계획-경험-기록 통합 여정</div>
+      <div class="card-body">
+        하나의 앱에서 <strong>여행 전</strong>(코스 추천) · <strong>여행 중</strong>(AI 동행자) · <strong>여행 후</strong>(일지·민화·공유)를 단일 흐름으로 묶음.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">③ 안정적 코스 생성</div>
+      <div class="card-body">
+        Visit Jeju <strong>9,134개 실제 코스</strong>를 기반으로 함 → LLM 환각으로 인한 비현실적 동선·잘못된 좌표 문제를 구조적으로 차단.
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:16px;">
+    <strong>차별점 요약:</strong> "LLM이 다 만든다" 가 아닌 <strong>"검증된 데이터 위에 LLM이 가치를 더한다"</strong>. 신뢰성과 매력을 분리해 동시에 달성한 설계.
+  </div>
+
+  <h3 class="sub-h">정량적 검증 계획</h3>
+  <ul class="bullet">
+    <li>App Store 출시 후 <strong>리텐션 (D1/D7/D30)</strong> · <strong>코스 완주율</strong> · <strong>일지 생성 비율</strong> 측정</li>
+    <li>TestFlight 베타 100명 대상 매주 <strong>심층 인터뷰 5건</strong>으로 정성 피드백 수집</li>
+    <li>2026 관광데이터 공모전 최종 심사 자료에 반영</li>
+  </ul>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 22: 향후 연구 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">22 / 23</span>
+  <span class="section-tag">20 · Future Work</span>
+  <h1>향후 연구 & 공모전 출품</h1>
+  <div class="title-bar"></div>
+
+  <div class="card-grid col-2">
+    <div class="card">
+      <div class="card-title">🌐 다국어 확장</div>
+      <div class="card-body">
+        제주는 외국인 관광객 비중이 매우 높음. 영어·중국어·일본어로 설화 동화체 리라이팅 + 페르소나 말투 이식 연구.<br>
+        → 무형 문화유산의 <strong>국제적 확산</strong> 기반.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 사용자 행동 기반 개인화</div>
+      <div class="card-body">
+        리뷰 태그·체류 시간·재방문 패턴을 학습하여 <strong>사용자별 추천 가중치</strong> 자동 조정. 동행자 페르소나 추천도 개인화.
+      </div>
+    </div>
+  </div>
+
+  <div class="card-grid col-2" style="margin-top:14px;">
+    <div class="card" style="border-color: rgba(155,140,255,0.4);">
+      <div class="card-title">🏆 2026 관광데이터 활용 공모전 출품</div>
+      <div class="card-body">
+        · <strong>예비 심사 합격 완료</strong><br>
+        · 최종 심사: <strong>2026년 10월</strong> (한국관광공사 주관)<br>
+        · 시상 규모: 대상·금상·은상·동상 (상금·창업 지원)<br>
+        · 본 졸업프로젝트의 직접 연장 — 추가 비용·시간 효율 ↑
+      </div>
+    </div>
+    <div class="card" style="border-color: rgba(79,158,255,0.4);">
+      <div class="card-title">🚀 App Store 출시 → 실사용자 검증</div>
+      <div class="card-body">
+        · 졸업 발표 직후 출시 신청 (Phase 1 완료)<br>
+        · TestFlight 베타 100명 → 공개 출시 → MAU 500~1000 목표<br>
+        · <strong>"출시했고 X명이 쓰고 있다"</strong>가 가장 강력한 심사 자료
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:14px;">
+    <strong>로드맵:</strong> 졸업 시연(6월) → App Store 등록(6월) → TestFlight(7월) → 공개 출시(8월) → 사용자 데이터 정리(9~10월) → 최종 심사(10~11월)
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+<!-- ========================================================== -->
+<!-- SLIDE 23: 참고문헌 -->
+<!-- ========================================================== -->
+<section class="slide">
+  <span class="page-num">23 / 23</span>
+  <span class="section-tag">21 · References</span>
+  <h1>참고문헌</h1>
+  <div class="title-bar"></div>
+
+  <ol class="refs">
+    <li>P. Lewis et al., <strong>"Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks,"</strong> <em>NeurIPS</em>, 2020.</li>
+    <li>제주특별자치도, <strong>제주 설화정보 공공데이터 API (E07),</strong> 2023.</li>
+    <li>제주특별자치도, <strong>제주 민담정보 공공데이터 API (E08),</strong> 2023.</li>
+    <li>제주관광공사, <strong>제주관광정보시스템(VISIT JEJU) 여행장소 및 여행세부일정 공공데이터,</strong> 2026.</li>
+    <li>Chroma, <strong>"Chroma: the AI-native open-source embedding database,"</strong> 2023. <em>https://www.trychroma.com</em></li>
+    <li>OpenAI, <strong>"Text Embedding Models,"</strong> <em>platform.openai.com/docs/guides/embeddings</em>, 2024.</li>
+    <li>Google, <strong>"Google Maps Platform — Geocoding API & Directions API,"</strong> <em>developers.google.com/maps</em>, 2024.</li>
+    <li>S. Yao et al., <strong>"ReAct: Synergizing Reasoning and Acting in Language Models,"</strong> <em>ICLR</em>, 2023.</li>
+    <li>LangChain, <strong>"LangGraph: Build Stateful Multi-Actor Applications,"</strong> <em>langchain-ai.github.io/langgraph</em>, 2024.</li>
+    <li>한국관광공사(KTO), <strong>TourAPI 공공데이터 서비스,</strong> 2024.</li>
+  </ol>
+
+  <div style="margin-top:30px; padding-top:18px; border-top:1px solid var(--border); font-size:13px; color:var(--text-mute);">
+    <strong style="color:var(--text);">감사합니다.</strong><br><br>
+    본 연구는 경희대학교 컴퓨터공학과 졸업프로젝트로 수행되었으며,<br>
+    2026 관광데이터 활용 공모전(웹·앱 개발 부문) 출품을 준비 중입니다.
+  </div>
+
+  <div class="footer">조익준 | 경희대 컴공</div>
+</section>
+
+</body>
+</html>
