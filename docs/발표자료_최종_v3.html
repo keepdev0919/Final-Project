@@ -647,6 +647,10 @@
 
     /* ───────────────────────────────────── */
     /* 07. 인스타 스토리 뷰어 */
+    .story-layout.dual {
+      grid-template-columns: 1fr 500px;
+    }
+
     .story-layout {
       margin-top: 28px;
       flex: 1;
@@ -1381,7 +1385,7 @@
     <div class="head">장소 상세 — 동화체 인스타 스토리 뷰어</div>
     <div class="head-sub">학술 원문 그대로는 5초 안에 떠난다 — 점진적 깊이로 가공</div>
 
-    <div class="story-layout">
+    <div class="story-layout dual">
       <div class="story-text-block">
         <div class="story-quote">
           원본 설화는 5초 안에 떠난다.<br>
@@ -1401,11 +1405,11 @@
 
       <div class="story-shots">
         <div>
-          <img class="shot" src="../데모 캡쳐/특정 장소 화면.png" alt="장소 상세 (설화 목록)">
+          <img class="shot" src="../데모 캡쳐/특정 장소 화면.png" alt="장소 상세 (설화 목록)" style="width:230px;">
           <div class="lbl">장소 상세</div>
         </div>
         <div>
-          <img class="shot" src="../데모 캡쳐/인스타 스토리 형식.png" alt="인스타 스토리 풀스크린 뷰어">
+          <img class="shot" src="../데모 캡쳐/인스타 스토리 형식.png" alt="인스타 스토리 풀스크린 뷰어" style="width:230px;">
           <div class="lbl">스토리 뷰어</div>
         </div>
       </div>
