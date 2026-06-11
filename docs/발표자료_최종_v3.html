@@ -353,6 +353,110 @@
       font-size: 14px;
     }
 
+    /* 04 신규 — 소스 카드 그리드 */
+    .source-wrap {
+      margin-top: 28px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .source-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 18px;
+    }
+
+    .source-card {
+      border: 1px solid #fff;
+      padding: 22px 22px;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .source-card .src-name {
+      font-size: 16px;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .source-card .src-sub {
+      font-size: 12px;
+      color: #aaa;
+      font-weight: 300;
+      margin-top: -10px;
+    }
+
+    .source-card .src-block {
+      border-top: 1px solid #333;
+      padding-top: 10px;
+    }
+
+    .source-card .src-label {
+      font-size: 11px;
+      color: #888;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    .source-card .src-value {
+      font-size: 14px;
+      color: #fff;
+      font-weight: 400;
+      line-height: 1.55;
+    }
+
+    .source-card .src-value .hi {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .source-card .src-value .dim {
+      color: #aaa;
+      font-weight: 300;
+      font-size: 13px;
+    }
+
+    .source-merge {
+      margin-top: 4px;
+      text-align: center;
+      font-size: 14px;
+      color: #aaa;
+      font-weight: 300;
+      letter-spacing: 0.02em;
+    }
+
+    .source-result {
+      border: 1px solid #666;
+      padding: 18px 32px;
+      background: #000;
+      text-align: center;
+    }
+
+    .source-result .label {
+      font-size: 12px;
+      color: #888;
+      letter-spacing: 0.08em;
+    }
+
+    .source-result .value {
+      margin-top: 6px;
+      font-size: 17px;
+      color: #fff;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+    }
+
+    .source-result .value .hi {
+      color: #fff;
+      font-weight: 800;
+    }
+
     .data-caption {
       margin-top: 28px;
       font-size: 14px;
@@ -1089,45 +1193,69 @@
     <div class="head">데이터 가공 — 공공데이터를 신뢰성 있는 매핑으로</div>
     <div class="head-sub">설화·민담·관광지 3종을 정제·연결해 베이스라인을 만든다</div>
 
-    <div class="data-wrap">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th style="width:38%;">항목</th>
-            <th>결과</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="label">공공데이터 출처</td>
-            <td>
-              설화 182 + 민담 323 = <span class="hi">505건</span>
-              <span class="dim"> · 비짓제주 9,134 코스 · 3,284 장소 · KTO API</span>
-            </td>
-          </tr>
-          <tr>
-            <td class="label">비짓제주 정제<span class="dim"> (식당·카페·숙박 제외)</span></td>
-            <td>3,284 → <span class="hi">820 관광지</span></td>
-          </tr>
-          <tr>
-            <td class="label">사전 매핑 테이블</td>
-            <td>
-              820 관광지 중 <span class="hi">524개</span> ↔ <span class="hi">397 설화·민담</span> = <span class="hi">6,726건
-                매핑</span>
-              <div class="dim" style="margin-top:6px; font-size:14px;">한 설화가 평균 17개 장소에 등장</div>
-            </td>
-          </tr>
-          <tr>
-            <td class="label">데이터 저장</td>
-            <td>
-              <span class="hi">ChromaDB</span><span class="dim"> (RAG 검색)</span>
-              &nbsp;·&nbsp;
-              <span class="hi">SQLite</span><span class="dim"> (구조화 데이터)</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="data-caption">KTO API + 자체 키워드 사전으로 자동 분류</div>
+    <div class="source-wrap">
+      <div class="source-grid">
+        <!-- 출처 1: 제주특별자치도 -->
+        <div class="source-card">
+          <div class="src-name">제주특별자치도 공공데이터</div>
+          <div class="src-sub">설화·민담 API (E07 / E08)</div>
+          <div class="src-block">
+            <div class="src-label">받은 데이터</div>
+            <div class="src-value">설화 182 + 민담 323 = <span class="hi">505건</span></div>
+          </div>
+          <div class="src-block">
+            <div class="src-label">우리가 한 일</div>
+            <div class="src-value">본문 청크 분할 → 임베딩<br>본문 지명으로 관광지 매칭</div>
+          </div>
+          <div class="src-block">
+            <div class="src-label">결과</div>
+            <div class="src-value">매핑된 <span class="hi">397건</span><span class="dim"> = ChromaDB </span><span class="hi">1,262 청크</span></div>
+          </div>
+        </div>
+
+        <!-- 출처 2: Visit Jeju -->
+        <div class="source-card">
+          <div class="src-name">Visit Jeju</div>
+          <div class="src-sub">제주관광공사 공공데이터</div>
+          <div class="src-block">
+            <div class="src-label">받은 데이터</div>
+            <div class="src-value">코스 <span class="hi">9,134</span> · 장소 <span class="hi">3,284</span></div>
+          </div>
+          <div class="src-block">
+            <div class="src-label">우리가 한 일</div>
+            <div class="src-value">부실 코스 제거<br>식당·카페·숙박 자동 제외</div>
+          </div>
+          <div class="src-block">
+            <div class="src-label">결과</div>
+            <div class="src-value">관광지 <span class="hi">820개</span> · curated <span class="hi">1,090 코스</span></div>
+          </div>
+        </div>
+
+        <!-- 출처 3: KTO TourAPI -->
+        <div class="source-card">
+          <div class="src-name">KTO TourAPI</div>
+          <div class="src-sub">한국관광공사</div>
+          <div class="src-block">
+            <div class="src-label">받은 데이터</div>
+            <div class="src-value">장소 사진 · 관광 안내 정보</div>
+          </div>
+          <div class="src-block">
+            <div class="src-label">우리가 한 일</div>
+            <div class="src-value">장소 클릭 시 실시간 조회<br>7일 캐시로 호출 최소화</div>
+          </div>
+          <div class="src-block">
+            <div class="src-label">결과</div>
+            <div class="src-value">장소 상세 화면에서 <span class="hi">풍부한 정보 노출</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="source-merge">↓ 사전 매핑 테이블로 통합</div>
+
+      <div class="source-result">
+        <div class="label">사전 매핑 테이블 (SQLite)</div>
+        <div class="value">820 관광지 중 <span class="hi">524개</span> ↔ <span class="hi">397 설화·민담</span> = <span class="hi">6,726건 매핑</span></div>
+      </div>
     </div>
   </section>
 
