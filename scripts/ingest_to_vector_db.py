@@ -13,7 +13,6 @@ from typing import Iterable
 from common import (
     DEFAULT_COLLECTION_NAME,
     EMBEDDING_MODEL,
-    PROCESSED_DIR,
     VECTOR_DB_DIR,
     get_db_connection,
     load_env_file,
@@ -22,25 +21,24 @@ from common import (
 
 OPENAI_EMBEDDING_URL = "https://api.openai.com/v1/embeddings"
 OPENAI_EMBEDDING_DIMS = 1536
-GPS_FOLKLORE_JSON = PROCESSED_DIR / "folklore_gps.json"
 
 
-def load_gps_attached_codes() -> set[str]:
-    """data/processed/folklore_gps.json 을 SSoT로 GPS 부착된 code_no set 반환.
+def load_mapped_code_set() -> set[str]:
+    """place_folklore_mapping 테이블을 SSoT로 장소 매핑된 설화·민담 code_no set 반환.
 
-    lat/lng 가 모두 유효한 경우만 GPS 부착으로 인정.
+    `source != 'gps_assist'` 조건으로 진짜 장소-설화 매핑(이름 매치, 채록지 등)
+    이 존재하는 397건만 정합성 기준으로 인정한다.
     """
-    if not GPS_FOLKLORE_JSON.exists():
-        print(f"[warn] GPS folklore SSoT not found: {GPS_FOLKLORE_JSON}")
-        return set()
-    with GPS_FOLKLORE_JSON.open("r", encoding="utf-8") as fp:
-        data = json.load(fp)
-    codes = {
-        entry["code_no"]
-        for entry in data
-        if entry.get("code_no") and entry.get("lat") is not None and entry.get("lng") is not None
-    }
-    print(f"[info] loaded {len(codes)} GPS-attached code_no from SSoT")
+    with get_db_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT DISTINCT folklore_code_no
+            FROM place_folklore_mapping
+            WHERE source != 'gps_assist'
+            """
+        ).fetchall()
+    codes = {row["folklore_code_no"] for row in rows if row["folklore_code_no"]}
+    print(f"[info] loaded {len(codes)} place-mapped code_no from place_folklore_mapping")
     return codes
 
 
@@ -185,7 +183,7 @@ def ingest_rows(rows: list[sqlite3.Row], *, provider: str, model: str, collectio
         delete_collection_if_requested(client, collection_name, reset=True)
         _, collection = get_chroma_collection(collection_name)
 
-    gps_attached_codes = load_gps_attached_codes()
+    mapped_code_set = load_mapped_code_set()
 
     embed_texts = get_embedder(provider, model)
     processed = 0
@@ -223,7 +221,7 @@ def ingest_rows(rows: list[sqlite3.Row], *, provider: str, model: str, collectio
                     "chunk_index": int(row["chunk_index"]),
                     "embedding_provider": provider,
                     "embedding_model": model,
-                    "has_gps": row["code_no"] in gps_attached_codes,
+                    "is_mapped": row["code_no"] in mapped_code_set,
                 }
             )
 
