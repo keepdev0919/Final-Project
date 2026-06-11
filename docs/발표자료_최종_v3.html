@@ -1078,6 +1078,21 @@
       color: #fff;
     }
 
+    /* 13. 감사합니다 (마지막 슬라이드) */
+    .thanks-slide {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .thanks-slide .thanks-text {
+      font-size: 120px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: #fff;
+      line-height: 1;
+    }
+
     /* ───────────────────────────────────── */
     /* PRINT (PDF) */
     @page {
@@ -1125,7 +1140,7 @@
   <!-- ───────────────────────────────────── -->
   <!-- 01. 표지 -->
   <section class="slide cover">
-    <div class="page-num">01 / 12</div>
+    <div class="page-num">01 / 13</div>
     <div>
       <div class="title">제주 설화·민담 기반<br>AI 여행 가이드 서비스</div>
       <div class="subtitle"><span class="rule"></span>검증된 코스 위에 설화를 얹다<span class="rule"></span></div>
@@ -1137,7 +1152,7 @@
   <!-- ───────────────────────────────────── -->
   <!-- 02. 문제 → 가치 (청크 1) -->
   <section class="slide stats">
-    <div class="page-num">02 / 12</div>
+    <div class="page-num">02 / 13</div>
     <div style="width:100%;">
       <div class="stats-row">
         <div class="stat-item">
@@ -1163,7 +1178,7 @@
   <!-- ───────────────────────────────────── -->
   <!-- 03. 시스템 아키텍처 -->
   <section class="slide">
-    <div class="page-num">03 / 12</div>
+    <div class="page-num">03 / 13</div>
     <div class="head">시스템 아키텍처</div>
     <div class="head-sub">3-tier + Firebase 인증·동기화 레이어</div>
 
@@ -1201,7 +1216,7 @@
   <!-- ───────────────────────────────────── -->
   <!-- 04. 데이터 가공 (청크 2) -->
   <section class="slide">
-    <div class="page-num">04 / 12</div>
+    <div class="page-num">04 / 13</div>
     <div class="head">데이터 가공 — 공공데이터를 신뢰성 있는 매핑으로</div>
     <div class="head-sub">설화·민담·관광지 3종을 정제·연결해 베이스라인을 만든다</div>
 
@@ -1276,7 +1291,7 @@
   <!-- ───────────────────────────────────── -->
   <!-- 05. 케이스 스터디 — 각시당본풀이 한 건의 가공 과정 -->
   <section class="slide case-study">
-    <div class="page-num">05 / 12</div>
+    <div class="page-num">05 / 13</div>
     <div class="head">예: 「각시당본풀이」 한 건의 가공 과정</div>
 
     <div class="case-study-wrap">
@@ -1331,7 +1346,7 @@
   <!-- ───────────────────────────────────── -->
   <!-- 06. 코스 추천 (청크 3) -->
   <section class="slide">
-    <div class="page-num">06 / 12</div>
+    <div class="page-num">06 / 13</div>
     <div class="head">코스 추천 — SQL과 결정론적 점수만으로</div>
     <div class="head-sub">사용자 3개 입력 → 50개 후보 → 점수 → 무작위 3개</div>
 
@@ -1392,7 +1407,7 @@
   <!-- ───────────────────────────────────── -->
   <!-- 06.5 케이스 스터디 — 코스 점수 계산 -->
   <section class="slide case-study">
-    <div class="page-num">07 / 12</div>
+    <div class="page-num">07 / 13</div>
     <div class="head">예: 코스 「조금 이른 여름휴가」의 점수 계산</div>
     <div class="head-sub">카테고리 점유율 × 사용자 점수가 실제로 어떻게 계산되나</div>
 
@@ -1457,7 +1472,7 @@
   <!-- ───────────────────────────────────── -->
   <!-- 07. 동행자 + RAG (청크 4) -->
   <section class="slide">
-    <div class="page-num">08 / 12</div>
+    <div class="page-num">08 / 13</div>
     <div class="head">여행 중 동행자 — 도착 감지 → ChromaDB 검색 → 페르소나 응답</div>
     <div class="head-sub">5종 페르소나 × OpenAI TTS · 글자·음성 동기화</div>
 
@@ -1523,7 +1538,7 @@
   <!-- ───────────────────────────────────── -->
   <!-- 07. 인스타 스토리 뷰어 -->
   <section class="slide">
-    <div class="page-num">09 / 12</div>
+    <div class="page-num">09 / 13</div>
     <div class="head">장소 상세 — 동화체 인스타 스토리 뷰어</div>
     <div class="head-sub">학술 원문 그대로는 5초 안에 떠난다 — 점진적 깊이로 가공</div>
 
@@ -1561,7 +1576,7 @@
   <!-- ───────────────────────────────────── -->
   <!-- 08. 일지 + 민화 (청크 5) -->
   <section class="slide">
-    <div class="page-num">10 / 12</div>
+    <div class="page-num">10 / 13</div>
     <div class="head">일지 + 민화 — 대화가 곧 일지가 된다</div>
     <div class="head-sub">단일 LLM 호출로 텍스트·이미지 의미적 일관성 강제</div>
 
@@ -1608,7 +1623,7 @@
   <!-- ───────────────────────────────────── -->
   <!-- 09. 시연 플로우 → 데모 영상 -->
   <section class="slide">
-    <div class="page-num">11 / 12</div>
+    <div class="page-num">11 / 13</div>
     <div class="head">시연 플로우 — 계획 · 여행 · 기록</div>
     <div class="head-sub">10단계를 한 앱에서 끊김 없이</div>
 
@@ -1671,7 +1686,7 @@
   <!-- ───────────────────────────────────── -->
   <!-- 10. 기대 효과 + 공모전 + 감사 -->
   <section class="slide">
-    <div class="page-num">12 / 12</div>
+    <div class="page-num">12 / 13</div>
     <div class="head" style="text-align:center;">기대 효과</div>
 
     <div class="effect-wrap">
@@ -1700,9 +1715,14 @@
         <div class="top">App Store 출시 → 2026 관광데이터 활용 공모전</div>
         <div class="bot">예비심사 통과 · 10월 최종 심사 · 11월 시상</div>
       </div>
-
-      <div class="thanks-big">감사합니다</div>
     </div>
+  </section>
+
+  <!-- ───────────────────────────────────── -->
+  <!-- 11. 감사합니다 (마지막 슬라이드) -->
+  <section class="slide thanks-slide">
+    <div class="page-num">13 / 13</div>
+    <div class="thanks-text">감사합니다</div>
   </section>
 
 </body>
