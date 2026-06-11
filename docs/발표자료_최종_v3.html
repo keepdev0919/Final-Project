@@ -914,8 +914,12 @@
     }
 
     /* ───────────────────────────────────── */
-    /* 09. 시연 플로우 */
+    /* 09. 시연 플로우 — 캡쳐 제거 후 중앙 흐름만 */
     .demo-layout {
+      justify-content: center;
+    }
+
+    .demo-layout-removed {
       margin-top: 28px;
       flex: 1;
       display: grid;
@@ -1339,7 +1343,7 @@
             <div class="n">02</div>
             <div class="body">
               <div class="t">후보 50개 추출</div>
-              <div class="d">region · duration 조건으로 SQLite에서 추출 (카테고리 무관)</div>
+              <div class="d">지역 · 일자 조건으로 SQLite에서 추출 (카테고리 무관)</div>
             </div>
           </div>
           <div class="course-arrow">↓</div>
@@ -1463,8 +1467,8 @@
           <div class="rag-step">
             <div class="n">②</div>
             <div class="body">
-              <div class="t">장소명 임베딩 → ChromaDB top-3</div>
-              <div class="d">distance 0.75 컷 — 무관 청크 차단 (환각 억제)</div>
+              <div class="t">도착한 장소명으로 ChromaDB RAG 검색 → 관련 설화 본문 가져오기</div>
+              <div class="d">distance 0.75 컷으로 무관 청크 차단 (환각 억제)</div>
             </div>
           </div>
           <div class="rag-step">
@@ -1602,11 +1606,6 @@
     <div class="head-sub">10단계를 한 앱에서 끊김 없이</div>
 
     <div class="demo-layout">
-      <div class="demo-shot-col">
-        <img class="shot" src="../데모 캡쳐/홈화면.png" alt="홈화면">
-        <div class="lbl">시작 — 홈</div>
-      </div>
-
       <div class="flow-center">
         <div class="flow-grid">
           <div class="flow-step">
@@ -1653,12 +1652,6 @@
             <div class="t">일지 + 민화</div>
           </div>
         </div>
-        <div class="flow-cta">▶ 지금 시연 영상을 보시죠</div>
-      </div>
-
-      <div class="demo-shot-col">
-        <img class="shot" src="../데모 캡쳐/내코스.png" alt="내 코스">
-        <div class="lbl">기록 — 내 코스</div>
       </div>
     </div>
   </section>
