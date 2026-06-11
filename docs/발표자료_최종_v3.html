@@ -698,6 +698,26 @@
       justify-self: center;
     }
 
+    .story-shots {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .story-shots .shot {
+      width: 230px;
+      height: auto;
+    }
+
+    .story-shots .lbl {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 13px;
+      color: #aaa;
+      letter-spacing: 0.04em;
+    }
+
     /* ───────────────────────────────────── */
     /* 08. 일지 + 민화 */
     .journal-layout {
@@ -1343,8 +1363,8 @@
           <div class="lbl">탐험 중 지도</div>
         </div>
         <div>
-          <img class="shot" src="../데모 캡쳐/특정 장소 화면.png" alt="장소 도착" style="width:230px;">
-          <div class="lbl">장소 도착</div>
+          <img class="shot" src="../데모 캡쳐/도착했을때.png" alt="도착 트리거" style="width:230px;">
+          <div class="lbl">도착 트리거</div>
         </div>
         <div>
           <img class="shot" src="../데모 캡쳐/동행자 대화창.png" alt="동행자 대화창" style="width:230px;">
@@ -1379,7 +1399,16 @@
         </div>
       </div>
 
-      <img class="shot story-shot" src="../데모 캡쳐/인스타 스토리 형식.png" alt="인스타 스토리 형식 설화 뷰어">
+      <div class="story-shots">
+        <div>
+          <img class="shot" src="../데모 캡쳐/특정 장소 화면.png" alt="장소 상세 (설화 목록)">
+          <div class="lbl">장소 상세</div>
+        </div>
+        <div>
+          <img class="shot" src="../데모 캡쳐/인스타 스토리 형식.png" alt="인스타 스토리 풀스크린 뷰어">
+          <div class="lbl">스토리 뷰어</div>
+        </div>
+      </div>
     </div>
   </section>
 
