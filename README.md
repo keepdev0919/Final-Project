@@ -1,183 +1,108 @@
-# 제주 설화 여행 앱
+# 제주 설화·민담 기반 AI 여행 가이드 서비스
 
-사용자가 설화 테마를 고르면, AI 에이전트가 실제 설화 밀도가 높은 제주 여행 코스를 골라 이야기를 엮어주는 iOS 앱이다.
+> 검증된 제주 여행 코스를 따라가며 그 장소의 설화를 AI 동행자에게서 듣는 iOS 앱.
 
-> "설화가 코스를 만든다." 코스에 설화를 얹는 게 아니라, 설화가 있는 곳으로 코스가 간다.
-
-## 서비스 흐름
-
-```
-iOS: 설화 테마 선택 (신비로운 제주 / 신성한 제주 / 바다의 제주 / 사람의 제주)
-  ↓
-FastAPI /course/list
-  ↓
-LangGraph course_list_agent
-  - search_jeju_courses: Visit Jeju DB에서 코스 후보 조회
-  - get_folklore_near_place: ChromaDB 벡터 검색 + GPS 3km 반경으로 설화 확인
-  - 설화 밀도 높은 코스 3개 선택
-  ↓
-iOS: 코스 카드 3개 표시 → 사용자 선택
-  ↓
-FastAPI /course/detail
-  ↓
-LangGraph course_detail_agent
-  - 코스 장소별 설화 핀 매핑
-  - GPT-4o로 설화 내러티브 생성
-  ↓
-iOS: 지도 + 설화 핀 + 내러티브 표시
-```
-
-## 구성 요소
-
-| 구성 | 위치 | 설명 |
-|------|------|------|
-| iOS 앱 | `ios/` | SwiftUI, TasteDiscovery → 코스 선택 → 지도 |
-| FastAPI 백엔드 | `backend/` | 5개 라우터 (course, pins, chat, tts, tourist) |
-| LangGraph 에이전트 | `backend/agents/` | course_list_agent, course_detail_agent |
-| 설화 벡터 DB | `storage/vector_db/` | ChromaDB, 1,749청크, text-embedding-3-small |
-| 코스 DB | `storage/metadata.db` | Visit Jeju 9,134개 코스, 146,508개 장소 |
-
-## 앱 실행
-
-```bash
-# 백엔드
-source .venv/bin/activate
-cd backend
-uvicorn main:app --host 0.0.0.0 --port 8000
-```
-
-iOS는 Xcode에서 `ios/JejuFolklore.xcodeproj` 열고 실행.
-
-### Google Maps SDK 설정 (iOS)
-
-`PlaceDetailView` 의 지도 미리보기와 길찾기는 Google Maps iOS SDK 를 사용한다.
-
-1. https://console.cloud.google.com/ 에서 프로젝트 생성 후 **Maps SDK for iOS** 활성화
-2. API 키 발급 (iOS 앱 번들 ID `com.keepdev.jejufolklore` 로 제한 권장)
-3. 키를 다음 중 한 방식으로 주입:
-
-   - **방식 A (권장, 환경변수):** Xcode → Edit Scheme → Run → Arguments → Environment Variables 에
-     `GOOGLE_MAPS_API_KEY = <발급받은 키>` 추가
-   - **방식 B (Info.plist):** `Info.plist` 에 `GOOGLE_MAPS_API_KEY` 키로 문자열 추가 (커밋 금지)
-
-4. `xcodegen generate` 로 SPM 의존성 (`https://github.com/googlemaps/ios-maps-sdk`) 을 재해석한 뒤 빌드
-
-키가 없으면 지도 미리보기가 회색으로 표시되고 콘솔에 경고가 찍힌다. 길찾기 버튼은 키 없이도
-구글맵 앱/웹 으로 폴백한다.
+**조익준** · 경희대학교 컴퓨터공학과 · 2026 졸업프로젝트
 
 ---
 
-## 데이터 파이프라인
+## 프로젝트 소개
 
-아래는 설화 벡터 DB를 구축하는 파이프라인이다. 이미 구축되어 있으면 실행 불필요.
+연간 **1,500만 명**이 찾는 제주, 그러나 대부분의 관광 앱은 맛집·숙박 정보에 머문다. 한편 제주특별자치도가 개방한 **설화 182건 + 민담 323건 = 총 505건의 무형 문화유산 공공데이터**는 활용 사례 없이 잠들어 있다. 이 두 결핍을 한 번에 푸는 것이 본 프로젝트의 출발점이다.
 
-## 현재 데이터 상태
+**탐라담**은 "AI가 코스를 만들지 않는다"는 결정에서 출발했다. LLM이 처음부터 동선을 생성하면 비현실적 코스가 나오기 때문이다. 대신 Visit Jeju의 **검증된 9,134개 코스 위에 AI가 설화를 얹는다.** 동선 생성은 데이터에, 큐레이션·해석은 AI에 위임함으로써 LLM의 약점(환각·비현실성)을 우회한 설계다.
 
-- 설화·민담: `505건` (설화 182 + 민담 323)
-- GPS 매핑 완료: `235건 / 269건 (87%)`
-- ChromaDB 청크: `1,749개`
-- Visit Jeju 코스: `9,134개`
+차별점은 세 가지다. ① **사전 매핑 테이블 기반 코스 추천** — 6,726건의 장소-설화 매핑을 미리 구축해 추천 시 LLM 호출 0회, 응답이 빠르다. ② **5종 페르소나 AI 동행자** (마을 할망·심방·해녀·도깨비·도체비) — GPS 도착 자동 감지로 같은 설화를 다섯 말투·다섯 음성으로 풀어낸다. ③ **계획·여행·기록의 단일 여정** — 마지막에는 GPT-4o가 일지 텍스트와 민화 이미지 프롬프트를 단일 호출로 생성하고 gpt-image-1이 민화 한 장을 렌더링해 SNS 공유까지 끊김 없이 이어진다.
 
-## 현재 구현 범위 (파이프라인)
+---
 
-- 공공 API 기반 메타데이터 수집
-- PDF/E-Book 원문 다운로드
-- 텍스트 추출 및 정규화
-- 청킹
-- OpenAI 임베딩 생성
-- ChromaDB 적재
-- CLI 기반 챗 엔진
-- 평가 질문셋 기반 일괄 검증
+## 주요 기능
 
-## 현재 데이터 상태
+- **5종 페르소나 AI 동행자** — 마을 할망·심방·해녀·도깨비·도체비, 페르소나별 말투 + TTS 음성 5종
+- **GPS 도착 자동 감지** — CoreLocation 기반, 도착 시 동행자 오버레이 전체화면 등장
+- **사전 매핑 테이블 기반 코스 추천** — 6,726건 장소-설화 매핑, **추천 시 LLM 호출 0회**
+- **ChromaDB 의미 검색 (RAG)** — `has_gps=True` 필터로 "근처에 있다 ≠ 그 명소의 설화" 문제 차단
+- **일지 + 민화 단일 호출 동시 생성** — GPT-4o 한 번에 일지 텍스트 + 민화 프롬프트 → gpt-image-1 렌더링
+- **설화 데이터 3단계 가공** — Lv1 후크 / Lv2 본문 연결 / Lv3 인스타 스토리 형식
+- **Firebase Auth + Firestore 동기화** — 다기기 저장 코스/일지 동기화
+- **OpenAI TTS 5종 음성** — 페르소나별 음성 매핑
 
-- 메타데이터: `505건`
-  - 설화 `182건`
-  - 민담 `323건`
-- 원문 파일: `504개`
-- 추출 문서: `505건`
-- 정규화 문서: `505건`
-- 청크: `1749개`
-- 평가 결과 리포트 생성 가능
+---
 
-## 핵심 스크립트
+## 데이터 파이프라인 — 핵심 수치
 
-- `scripts/fetch_metadata.py`: 설화/민담 API 메타데이터 수집
-- `scripts/download_sources.py`: PDF 또는 E-Book 원문 다운로드
-- `scripts/extract_text.py`: 원문에서 텍스트 추출 및 정제
-- `scripts/normalize_text.py`: 검색용 정규화본 생성
-- `scripts/audit_normalization.py`: 정규화 감사
-- `scripts/build_chunks.py`: 청크 생성
-- `scripts/ingest_to_vector_db.py`: ChromaDB 적재
-- `scripts/chat_engine.py`: 검색 + 답변 생성 CLI
-- `scripts/evaluation_runner.py`: 평가 질문셋 일괄 실행
-
-## 빠른 실행
-
-가상환경 활성화:
-
-```bash
-source .venv/bin/activate
+```
+공공데이터  : 설화 182 + 민담 323 = 505건       (제주특별자치도 E07/E08 API)
+검증 코스   : 9,134개 코스, 146,508 코스-장소    (Visit Jeju)
+GPS 부착    : 설화·민담 228건 (45%)              (본문 지명 추출 + Geocoding)
+관광지 정제  : 3,284 → 820 관광지                (식당·카페·숙박 제외, -77% 노이즈)
+사전 매핑   : 820 관광지 ↔ 6,726건               (30,947건 중 정합성 필터 후, -78%)
+벡터 검색   : 1,749 청크 / 동행자 검색 961개     (text-embedding-3-small, 1,536-dim)
 ```
 
-전체 파이프라인:
+> **시스템 전체 정합성 원칙** — `ChromaDB(동행자 채팅)`은 `has_gps=True` 메타데이터 필터, `사전 매핑(코스 추천)`은 정합성 필터를 적용해 두 검색 경로 모두에서 "장소-설화 정합성"을 100% 보장한다.
+
+---
+
+## 기술 스택
+
+| 영역 | 사용 |
+|---|---|
+| iOS | Swift 6, SwiftUI, CoreLocation, Google Maps SDK |
+| 백엔드 | FastAPI, Python, LangChain / LangGraph |
+| LLM | GPT-4o, gpt-4o-mini, gpt-image-1 (OpenAI) |
+| 임베딩 | text-embedding-3-small (1,536차원) |
+| DB | ChromaDB (벡터), SQLite (구조화 메타데이터) |
+| 인증 / 동기화 | Firebase Auth, Firestore |
+| 음성 | OpenAI TTS (페르소나 5종 음성) |
+
+---
+
+## 스크린샷
+
+| 홈 | 코스 추천 | 동행자 채팅 |
+|---|---|---|
+| ![홈](데모%20캡쳐/홈화면.png) | ![코스](데모%20캡쳐/top3%203가지%20코스%20추천.png) | ![동행자](데모%20캡쳐/특정%20장소%20화면.png) |
+| **인스타 스토리 형식** | **일지 + 민화 생성** | **내 코스** |
+| ![스토리](데모%20캡쳐/인스타%20스토리%20형식.png) | ![일지](데모%20캡쳐/일지%20생성.png) | ![내코스](데모%20캡쳐/내코스.png) |
+
+---
+
+## 실행
+
+### 백엔드 (FastAPI)
 
 ```bash
-python3 scripts/fetch_metadata.py --source all --page-size 100
-python3 scripts/download_sources.py
-python3 scripts/extract_text.py
-python3 scripts/normalize_text.py
-python3 scripts/audit_normalization.py --source all
-python3 scripts/build_chunks.py --chunk-size 900 --overlap 120
-python3 scripts/ingest_to_vector_db.py --provider openai
+cd backend
+pip install -r requirements.txt
+cp .env.example .env   # OPENAI_API_KEY, Firebase 키 등 입력
+./start_dev.sh         # uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-챗봇 실행:
+### iOS (Xcode)
 
 ```bash
-python3 scripts/chat_engine.py --show-retrieval
+cd ios
+xcodegen generate
+open JejuFolklore.xcodeproj
+# Xcode에서 빌드 / 실행
 ```
 
-평가 질문셋 실행:
+> Google Maps SDK 키는 Xcode Scheme의 Environment Variables 에 `GOOGLE_MAPS_API_KEY` 로 주입한다 (커밋 금지).
 
-```bash
-python3 scripts/evaluation_runner.py --limit 5
-```
+---
 
-## 주요 경로
+## 부가 정보
 
-- `data/raw/api/`: API 원본 XML
-- `data/raw/documents/`: 다운로드한 PDF/HTML 원문
-- `data/extracted/`: 추출 텍스트
-- `data/normalized/`: 검색용 정규화 텍스트
-- `data/processed/`: 메타데이터 및 평가 질문셋
-- `reports/`: 정규화 감사 및 수동 검증 문서
-- `reports/evaluations/`: 평가 실행 결과 JSONL/Markdown
-- `storage/metadata.db`: 메타데이터, 문서, 청크 SQLite DB
-- `storage/vector_db/`: ChromaDB 로컬 인덱스
+- **프로젝트 기간**: 2026년 3월 ~ 6월
+- **출품 예정**: 2026 관광데이터 활용 공모전 (예비심사 통과, 10월 최종 심사)
+- **출시 계획**: App Store
+- **시연 시나리오 단일 진실 소스**: [`docs/발표_마스터.md`](docs/발표_마스터.md)
 
-## 문서
+---
 
-- [jeju_rag_pipeline.md](/Users/choikjun/Desktop/keepdev/졸프/jeju_rag_pipeline.md): 전체 RAG 파이프라인 설명
-- [jeju_folklore_rag_design.md](/Users/choikjun/Desktop/keepdev/졸프/jeju_folklore_rag_design.md): 데이터 수집 및 설계 정리
-- [jeju_chatbot_direction.md](/Users/choikjun/Desktop/keepdev/졸프/jeju_chatbot_direction.md): 서비스 방향 정리
-- [evaluation_question_set.md](/Users/choikjun/Desktop/keepdev/졸프/reports/evaluation_question_set.md): 평가 질문셋 문서
-- [chat_engine_manual_validation.md](/Users/choikjun/Desktop/keepdev/졸프/reports/chat_engine_manual_validation.md): 수동 검증 기록
+## 데이터 출처
 
-## 주의 사항
-
-- `.env`에 `OPENAI_API_KEY`가 필요하다.
-- 벡터 적재와 챗 엔진은 `openai`, `chromadb` 설치가 필요하다.
-- PDF 추출은 시스템의 `pdftotext` 명령을 사용한다.
-- 현재 추출 파이프라인은 `pdftotext` 기반이며 OCR 고도화는 이번 범위에서 제외했다.
-- 챗 엔진은 `--max-distance` 기본값(`0.62`)으로 낮은 관련성 청크를 제거해 환각을 억제한다.
-- 출처는 모델 자유 생성이 아니라 `제목 (코드: 번호)` 형식으로 후처리해 붙인다.
-
-## 프로젝트 성격
-
-이 프로젝트의 목표는 `원문 보존 시스템`이 아니라, `제주 설화·민담을 쉽게 설명해주는 해설형 RAG 챗봇`이다.
-
-따라서 원문은 보존하되,
-- 검색과 임베딩은 정규화 텍스트 기준
-- 사용자 답변은 현대 한국어 기준
-으로 구성한다.
+- 제주특별자치도 **설화 (E07)** · **민담 (E08)** OpenAPI
+- 제주관광공사 **Visit Jeju** 공공데이터 (검증 코스 9,134개)
+- 한국관광공사 **TourAPI (KTO)** — 관광지 메타데이터 보강
