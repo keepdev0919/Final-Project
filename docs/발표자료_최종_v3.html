@@ -491,42 +491,43 @@
     }
 
     .case-col-title {
-      font-size: 13px;
+      font-size: 16px;
       color: #aaa;
-      font-weight: 400;
-      letter-spacing: 0.08em;
+      font-weight: 500;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      padding-bottom: 12px;
+      padding-bottom: 14px;
       border-bottom: 1px solid #333;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .case-flow,
     .case-result {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
     .case-node {
-      font-size: 15px;
+      font-size: 18px;
       color: #fff;
-      font-weight: 400;
+      font-weight: 500;
       line-height: 1.45;
       letter-spacing: -0.005em;
     }
 
     .case-node .sub {
       display: block;
-      margin-top: 3px;
-      font-size: 12px;
+      margin-top: 5px;
+      font-size: 15px;
       color: #aaa;
       font-weight: 300;
       letter-spacing: 0.01em;
+      line-height: 1.5;
     }
 
     .case-arrow {
-      font-size: 16px;
+      font-size: 18px;
       color: #aaa;
       line-height: 1.4;
       padding-left: 2px;
@@ -534,8 +535,8 @@
 
     .case-arrow .arr-note {
       margin-left: 10px;
-      font-size: 12px;
-      color: #666;
+      font-size: 14px;
+      color: #888;
       font-weight: 300;
       letter-spacing: 0.01em;
     }
@@ -1209,7 +1210,8 @@
           </div>
           <div class="src-block">
             <div class="src-label">결과</div>
-            <div class="src-value">매핑된 <span class="hi">397건</span><span class="dim"> = ChromaDB </span><span class="hi">1,262 청크</span></div>
+            <div class="src-value">매핑된 <span class="hi">397건</span><span class="dim"> = ChromaDB </span><span
+                class="hi">1,262 청크</span></div>
           </div>
         </div>
 
@@ -1254,7 +1256,8 @@
 
       <div class="source-result">
         <div class="label">사전 매핑 테이블 (SQLite)</div>
-        <div class="value">820 관광지 중 <span class="hi">524개</span> ↔ <span class="hi">397 설화·민담</span> = <span class="hi">6,726건 매핑</span></div>
+        <div class="value">820 관광지 중 <span class="hi">524개</span> ↔ <span class="hi">397 설화·민담</span> = <span
+            class="hi">6,726건 매핑</span></div>
       </div>
     </div>
   </section>
@@ -1298,7 +1301,6 @@
             </div>
             <div class="case-arrow">↓<span class="arr-note">임베딩 · ChromaDB 검색</span></div>
             <div class="case-node">「각시당본풀이」 청크 0 매칭
-              <span class="sub">distance <span class="hi">0.4</span> &lt; <span class="hi">0.75</span> → 통과</span>
             </div>
             <div class="case-arrow">↓<span class="arr-note">페르소나 프롬프트 주입</span></div>
             <div class="case-node">검색된 본문이 프롬프트로
