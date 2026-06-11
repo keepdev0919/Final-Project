@@ -324,6 +324,93 @@
   }
 
   /* ───────────────────────────────────── */
+  /* 04.5 케이스 스터디 — 각시당본풀이 */
+  .case-study-wrap {
+    margin-top: 28px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .case-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: stretch;
+  }
+  .case-col {
+    border: 1px solid #666;
+    padding: 24px 28px;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+  }
+  .case-col-title {
+    font-size: 13px;
+    color: #aaa;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #333;
+    margin-bottom: 16px;
+  }
+  .case-flow,
+  .case-result {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .case-node {
+    font-size: 15px;
+    color: #fff;
+    font-weight: 400;
+    line-height: 1.45;
+    letter-spacing: -0.005em;
+  }
+  .case-node .sub {
+    display: block;
+    margin-top: 3px;
+    font-size: 12px;
+    color: #aaa;
+    font-weight: 300;
+    letter-spacing: 0.01em;
+  }
+  .case-arrow {
+    font-size: 16px;
+    color: #aaa;
+    line-height: 1.4;
+    padding-left: 2px;
+  }
+  .case-arrow .arr-note {
+    margin-left: 10px;
+    font-size: 12px;
+    color: #666;
+    font-weight: 300;
+    letter-spacing: 0.01em;
+  }
+  .case-node .hi {
+    color: #fff;
+    font-weight: 700;
+  }
+  .case-tagline {
+    margin-top: 28px;
+    text-align: center;
+    font-size: 18px;
+    color: #fff;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  .case-tagline .hi {
+    color: #fff;
+    font-weight: 700;
+  }
+  .case-tagline .arr {
+    color: #aaa;
+    margin-right: 8px;
+  }
+
+  /* ───────────────────────────────────── */
   /* 05. 코스 추천 */
   .course-layout {
     margin-top: 28px;
@@ -784,7 +871,7 @@
 <!-- ───────────────────────────────────── -->
 <!-- 01. 표지 -->
 <section class="slide cover">
-  <div class="page-num">01 / 10</div>
+  <div class="page-num">01 / 11</div>
   <div>
     <div class="title">제주 설화·민담 기반<br>AI 여행 가이드 서비스</div>
     <div class="subtitle"><span class="rule"></span>검증된 코스 위에 설화를 얹다<span class="rule"></span></div>
@@ -796,7 +883,7 @@
 <!-- ───────────────────────────────────── -->
 <!-- 02. 문제 → 가치 (청크 1) -->
 <section class="slide stats">
-  <div class="page-num">02 / 10</div>
+  <div class="page-num">02 / 11</div>
   <div style="width:100%;">
     <div class="stats-row">
       <div class="stat-item">
@@ -822,7 +909,7 @@
 <!-- ───────────────────────────────────── -->
 <!-- 03. 시스템 아키텍처 -->
 <section class="slide">
-  <div class="page-num">03 / 10</div>
+  <div class="page-num">03 / 11</div>
   <div class="head">시스템 아키텍처</div>
   <div class="head-sub">3-tier + Firebase 인증·동기화 레이어</div>
 
@@ -860,7 +947,7 @@
 <!-- ───────────────────────────────────── -->
 <!-- 04. 데이터 가공 (청크 2) -->
 <section class="slide">
-  <div class="page-num">04 / 10</div>
+  <div class="page-num">04 / 11</div>
   <div class="head">데이터 가공 — 공공데이터를 신뢰성 있는 매핑으로</div>
   <div class="head-sub">설화·민담·관광지 3종을 정제·연결해 베이스라인을 만든다</div>
 
@@ -901,14 +988,62 @@
         </tr>
       </tbody>
     </table>
-    <div class="data-caption">KTO 분류 + 키워드 사전 + 후처리 — 3단계 필터링 적용</div>
+    <div class="data-caption">KTO API + 자체 키워드 사전으로 자동 분류</div>
   </div>
 </section>
 
 <!-- ───────────────────────────────────── -->
-<!-- 05. 코스 추천 (청크 3) -->
+<!-- 05. 케이스 스터디 — 각시당본풀이 한 건의 가공 과정 -->
+<section class="slide case-study">
+  <div class="page-num">05 / 11</div>
+  <div class="head">예: 「각시당본풀이」 한 건의 가공 과정</div>
+  <div class="head-sub">추상 수치(505 · 1,749)가 실제로 어떻게 만들어지나</div>
+
+  <div class="case-study-wrap">
+    <div class="case-grid">
+      <!-- 좌: 가공 흐름 -->
+      <div class="case-col case-flow-col">
+        <div class="case-col-title">가공 흐름</div>
+        <div class="case-flow">
+          <div class="case-node">원본 <span class="hi">1,162자</span></div>
+          <div class="case-arrow">↓<span class="arr-note">HTML 제거 · 공백 정리</span></div>
+          <div class="case-node">정제된 본문</div>
+          <div class="case-arrow">↓<span class="arr-note"><span class="hi" style="color:#fff;font-weight:700">900자 + 120 overlap</span></span></div>
+          <div class="case-node">청크 <span class="hi">2개</span>로 분할</div>
+          <div class="case-arrow">↓<span class="arr-note">text-embedding-3-small</span></div>
+          <div class="case-node">각 청크 → <span class="hi">1,536차원</span> 벡터</div>
+          <div class="case-arrow">↓<span class="arr-note">ChromaDB 적재</span></div>
+          <div class="case-node">검색 가능 상태</div>
+        </div>
+      </div>
+
+      <!-- 우: 결과 활용 -->
+      <div class="case-col case-result-col">
+        <div class="case-col-title">결과 활용</div>
+        <div class="case-result">
+          <div class="case-node">사용자 발화
+            <span class="sub">"삼도동 옛 무속 신앙"</span>
+          </div>
+          <div class="case-arrow">↓<span class="arr-note">임베딩</span></div>
+          <div class="case-node">ChromaDB 의미 검색</div>
+          <div class="case-arrow">↓<span class="arr-note">「각시당본풀이」 청크 0 매칭</span></div>
+          <div class="case-node">distance <span class="hi">0.4</span><span class="sub">&lt; <span class="hi">0.75</span> 통과</span></div>
+          <div class="case-arrow">↓<span class="arr-note">페르소나 프롬프트 주입</span></div>
+          <div class="case-node">GPT-4o 페르소나 응답</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="case-tagline">
+      <span class="arr">→</span>505건 전체로 보면 총 <span class="hi">1,749 청크</span> + <span class="hi">1,749 벡터</span>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────────────── -->
+<!-- 06. 코스 추천 (청크 3) -->
 <section class="slide">
-  <div class="page-num">05 / 10</div>
+  <div class="page-num">06 / 11</div>
   <div class="head">코스 추천 — SQL과 결정론적 점수만으로</div>
   <div class="head-sub">사용자 3개 입력 → 50개 후보 → 점수 → 무작위 3개</div>
 
@@ -970,7 +1105,7 @@
 <!-- ───────────────────────────────────── -->
 <!-- 06. 동행자 + RAG (청크 4) -->
 <section class="slide">
-  <div class="page-num">06 / 10</div>
+  <div class="page-num">07 / 11</div>
   <div class="head">여행 중 동행자 — 도착 감지 → ChromaDB 검색 → 페르소나 응답</div>
   <div class="head-sub">5종 페르소나 × OpenAI TTS · 글자·음성 동기화</div>
 
@@ -1036,7 +1171,7 @@
 <!-- ───────────────────────────────────── -->
 <!-- 07. 인스타 스토리 뷰어 -->
 <section class="slide">
-  <div class="page-num">07 / 10</div>
+  <div class="page-num">08 / 11</div>
   <div class="head">장소 상세 — 동화체 인스타 스토리 뷰어</div>
   <div class="head-sub">학술 원문 그대로는 5초 안에 떠난다 — 점진적 깊이로 가공</div>
 
@@ -1065,7 +1200,7 @@
 <!-- ───────────────────────────────────── -->
 <!-- 08. 일지 + 민화 (청크 5) -->
 <section class="slide">
-  <div class="page-num">08 / 10</div>
+  <div class="page-num">09 / 11</div>
   <div class="head">일지 + 민화 — 대화가 곧 일지가 된다</div>
   <div class="head-sub">단일 LLM 호출로 텍스트·이미지 의미적 일관성 강제</div>
 
@@ -1112,7 +1247,7 @@
 <!-- ───────────────────────────────────── -->
 <!-- 09. 시연 플로우 → 데모 영상 -->
 <section class="slide">
-  <div class="page-num">09 / 10</div>
+  <div class="page-num">10 / 11</div>
   <div class="head">시연 플로우 — 계획 · 여행 · 기록</div>
   <div class="head-sub">10단계를 한 앱에서 끊김 없이</div>
 
@@ -1151,7 +1286,7 @@
 <!-- ───────────────────────────────────── -->
 <!-- 10. 기대 효과 + 공모전 + 감사 -->
 <section class="slide">
-  <div class="page-num">10 / 10</div>
+  <div class="page-num">11 / 11</div>
   <div class="head" style="text-align:center;">기대 효과</div>
 
   <div class="effect-wrap">
