@@ -69,7 +69,9 @@
 - 원문 텍스트: `data/extracted/legend/*.txt`, `data/extracted/folktale/*.txt`
 - 청크 임베딩: `storage/vector_db/` (ChromaDB, 1,749 청크, text-embedding-3-small)
 - GPS 좌표: `data/processed/folklore_gps.json`
-- 카테고리 분류본: `docs/experiments/gps-folklore-final.csv` (수동 분류 228건) + `docs/experiments/folktale_categorized_212.csv` (자동 분류 212건)
+- 카테고리 분류본: **`data/processed/folklore_gps.json`의 `final_category` 필드 (228건)** ← 실사용 원본
+  - ⚠️ 중간 산출물 CSV(`docs/experiments/gps-folklore-final.csv`, `folktale_categorized_212.csv`)는 2026-08-12 재편 시 삭제됨. `*.csv`가 gitignore라 git 이력에도 없다. 분류 결과는 위 JSON에 남아있으므로 실사용에는 영향 없음.
+  - 분류 과정 분석 문서(`docs/experiments/*.md`)는 커밋 `c60aefa` 이전 이력에서 복원 가능.
 
 ---
 

@@ -15,7 +15,7 @@
 ### 방향 1차 재정립: 5종 페르소나 폐기 → 쌍방향 도슨트
 
 - v1(설화 페르소나 동행자)에 창업자 확신 부재 인정 → 재설계. 5종 페르소나 폐기, 가이드 1명 통합. 내레이션 중심 + Q&A 인터럽트로 재설계. 3층 BM(B2C/B2B·B2G/마켓플레이스) 도입.
-- 상세: `docs/legacy/방향성_재정립_2026-07-14.md` (07-20으로 대체됨)
+- 상세: `docs/legacy/방향성_재정립_2026-07-14.md` — 07-20 재정립으로 대체 후 2026-08-12 재편 시 삭제
 
 ## 2026-04-21
 
@@ -89,7 +89,7 @@ GPS 설화 최종 분류(228개, 5개 카테고리) 결과를 바탕으로 역�
 - 메인 화면을 지도(HomeView)에서 Taste Discovery 온보딩으로 교체
 - 4단계 퀴즈(분위기→장소→일수→이동수단)로 내부 테마를 자동 추론
 - 탭 구조: 지도/코스추천/내코스/챗봇 → 코스만들기/내코스/챗봇
-- → [결정 기록](decisions/001-ux-redesign-taste-discovery.md)
+- → 결정 기록 `decisions/001-ux-redesign-taste-discovery.md` (2026-08-12 재편 시 삭제)
 
 ### 버그 수정: API 422 오류
 - iOS JSONEncoder snake_case 설정 누락으로 `durationDays` → `duration_days` 변환 안 됨
@@ -98,20 +98,20 @@ GPS 설화 최종 분류(228개, 5개 카테고리) 결과를 바탕으로 역�
 ### 버그 수정: ChromaDB 500 오류
 - 인제스트(1536-dim OpenAI)와 쿼리(384-dim 로컬 모델) 간 임베딩 차원 불일치
 - `embed_query()` 함수 추가, `query_texts` → `query_embeddings` 방식으로 변경
-- → [결정 기록](decisions/002-chromadb-embedding-dimension-fix.md)
+- → 결정 기록 `decisions/002-chromadb-embedding-dimension-fix.md` (2026-08-12 재편 시 삭제)
 
 ### 설화 키워드 데이터 기반 재설계
 - 505개 설화 파일 전수 분석으로 실제 출현 단어 추출
 - 직관 키워드 → 실제 텍스트 기반 문장형 쿼리로 교체
 - 예상 커버리지: 82.6% (417/505개)
-- → [실험 결과](legacy/experiments/001-folklore-keyword-coverage-analysis.md)
-- → [결정 기록](decisions/003-keyword-query-data-driven-redesign.md)
+- → 실험 결과 `experiments/001-folklore-keyword-coverage-analysis.md` (2026-08-12 재편 시 삭제)
+- → 결정 기록 `decisions/003-keyword-query-data-driven-redesign.md` (2026-08-12 재편 시 삭제)
 
 ### 설화 카테고리 점수 기반 브리지 구현
 - 기존 4단계 iOS 온보딩은 유지한 채, 내부적으로 7개 설화 카테고리 점수 계산 로직 추가
 - iOS `theme` 요청과 함께 `category_scores` 전송
 - 백엔드 코스 추천 파이프라인이 `category_scores`를 우선 사용하고, 없으면 기존 5개 테마 흐름으로 fallback
-- → [결정 기록](decisions/005-user-question-redesign-from-folklore-analysis.md)
+- → 결정 기록 `decisions/005-user-question-redesign-from-folklore-analysis.md` (2026-08-12 재편 시 삭제)
 
 ### 개발 워크플로우
 - `start_dev.sh` 추가: 로컬 IP 자동 감지 후 Config.swift 업데이트 + 백엔드 실행
