@@ -26,8 +26,10 @@
 | `docs/기획/콘텐츠_장소_로드맵.md` | 장소 확장 백로그 (성산 1호 확정, 나머지 후보) |
 | **`docs/관광데이터 개발 공모전/_심사요약.md`** | **공모전 요건 SSoT** — 배점·제출항목·마감·시상 (2026-08-12 공식 공지 반영) |
 | `docs/관광데이터 개발 공모전/공모전-2026-tourapi.md` | 공모전 안내 원문 정리 (⚠️ 전략·서비스 정의 부분은 구방향) |
-| `TODOS.md` | 공모전 마감 역산 준비 항목 (TODO-101~105) |
-| ~~`docs/기획/Sprint1_PRD_v0.1.md`~~ | 🔴 **구방향 아카이브** — 실행 정본 아님. v0.2 미작성 (스코프 결정 대기) |
+| `docs/기획/공공데이터.md` | 공공데이터 소스 카탈로그 (기능설명서 §4·5 작성 시 참조) |
+
+> **실행 항목(앱스토어 등록·운영계정·테스트 계정 등)은 `_심사요약.md` §10 체크리스트에서 관리한다.** 별도 TODOS 파일 없음.
+> **PRD 없음** — 구 Sprint1_PRD(구방향)는 2026-08-12 삭제. 신규 PRD는 공모전 40일 스코프 결정 후 작성.
 
 ## 현재 코드 vs 목표
 
@@ -61,14 +63,13 @@
 
 ```
 /Users/choikjun/Desktop/keepdev/탐라담/     ← 독립 프로젝트 (여기)
-├── backend/  ios/  data/  storage/  scripts/  tests/  openspec/  reports/
+├── backend/  ios/  data/  storage/  scripts/  tests/
 ├── docs/
-│   ├── 기획/                    ← 방향·리서치·성산 콘텐츠 (위 표)
-│   ├── 관광데이터 개발 공모전/    ← 공모전 안내·자료·심사요약·OpenAPI 매뉴얼
+│   ├── 기획/                    ← 방향·리서치·성산 콘텐츠·공공데이터 (위 표)
+│   ├── 관광데이터 개발 공모전/    ← 공모전 안내·심사요약(요건 SSoT)·OpenAPI 매뉴얼
 │   ├── kto-api/  · data-overview.md · changelog.md
 ├── submissions/공모전-2026-tourapi/   ← 공모전 제출본(제안서 등)
-├── README.md · TODOS.md · CLAUDE.md
-└── 레퍼런스/
+└── CLAUDE.md                ← README는 구방향(설화·졸프) 내용이라 2026-08-12 삭제. 필요 시 새 방향으로 신규 작성.
 
 관련 외부 폴더:
 - keepdev/overedge/     ← KAIST 강좌 이론·실습 자료 (분리됨, 참고용)
