@@ -17,7 +17,7 @@ import sqlite3
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.parent
-CSV_PATH = BASE_DIR / "VISIT JEJU_여행세부일정.CSV"
+CSV_PATH = BASE_DIR / "data" / "raw" / "VISIT JEJU_여행세부일정.CSV"
 GEOCODED_PATH = BASE_DIR / "data" / "processed" / "visitjeju_places_geocoded.json"
 DB_PATH = BASE_DIR / "storage" / "metadata.db"
 
