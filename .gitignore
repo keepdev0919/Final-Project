@@ -5,6 +5,7 @@ __pycache__/
 .DS_Store
 .codex/
 .claude/
+.bkit/
 
 # 대용량 DB / 벡터 스토어
 storage/metadata.db
@@ -41,6 +42,11 @@ build/
 *.synctex.gz
 *.fls
 *.fdb_latexmk
+
+# 공모전 원본 배포자료 (대용량 바이너리 45MB · 로컬 보관, 요약은 _심사요약 md에)
+docs/관광데이터 개발 공모전/**/*.docx
+docs/관광데이터 개발 공모전/**/*.xlsx
+docs/관광데이터 개발 공모전/**/*.zip
 
 # 원본 데이터 파일
 *.csv
