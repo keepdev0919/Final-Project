@@ -1,75 +1,81 @@
+# 탐라담 — 프로젝트 지침
 
-## Skill routing
+**탐라담** — 전문 가이드 없이도 관광지를 현장에서 깊게 경험하게 하는 AI 여행 동행 iOS 앱.
+개발자: 조익준 (경희대 컴공, 2026 졸업).
 
-When the user's request matches an available skill, ALWAYS invoke it using the Skill
-tool as your FIRST action. Do NOT answer directly, do NOT use other tools first.
-The skill has specialized workflows that produce better results than ad-hoc answers.
+> **🎯 유일한 1차 목표 (2026-08-12 확정): 2026 관광데이터 활용 공모전.**
+> 이 서비스는 **한국관광공사 관광데이터 활용 공모전(웹·앱 개발 부문)** 수상을 향해 디벨롭한다. 여기에만 집중한다.
+> **KAIST OverEdge·IR Day 트랙은 폐기** — 더 이상 고려하지 않는다. (관련 IR·시드투자·10/29 언급이 옛 문서에 남아있으면 무시.)
 
-Key routing rules:
-- Product ideas, "is this worth building", brainstorming → invoke office-hours
-- Bugs, errors, "why is this broken", 500 errors → invoke investigate
-- Ship, deploy, push, create PR → invoke ship
-- QA, test the site, find bugs → invoke qa
-- Code review, check my diff → invoke review
-- Update docs after shipping → invoke document-release
-- Weekly retro → invoke retro
-- Design system, brand → invoke design-consultation
-- Visual audit, design polish → invoke design-review
-- Architecture review → invoke plan-eng-review
-- Save progress, checkpoint, resume → invoke checkpoint
-- Code quality, health check → invoke health
+## 제품 정의
 
-## 오케스트레이션 모드
+- **한 줄 정의:** 제주를 방문하는 **소규모 여행자**가 가진 **전문 가이드 없이 관광지를 깊이 경험하기 어려운 문제**를 **현장 참여형 AI 스토리 경험**으로 해결하는 **여행 서비스.** *정보가 아니라 경험을 판다.*
+- **문제 정의:** 전문 관광가이드는 **비용 부담**이 크고, 단체 가이드는 **개인의 속도·관심사에 맞는 설명·상호작용**을 못 준다 → 관광지의 **역사·이야기·문화 맥락**을 충분히 이해 못 한 채 여행을 마침.
+- **해자:** "현장에서 눈앞의 것에 반응하는 대화" (ChatGPT·안내판·비짓제주가 못 하는 것). 설화·민담은 콘텐츠 재료 하나('데이터1')로 강등.
+- **무료:** 비짓제주 검증 코스 추천. **유료:** 장소 단건 — 현장 참여형 스토리 경험.
+- **작동 방식:** 오디오 내레이션이 코어(눈은 풍경에) + 필요할 때 온디맨드 대화(음성 우선, 텍스트 폴백). 장소 = 관찰 지점 경로, 각 지점 = "무엇을 보라 → 왜? → 숨은 사연 → 다르게 보임" 흐름.
 
-사용자가 "시작해"라고 하면 아래 순서로 진행한다:
+## 방향 SSoT — 여기부터 확인
 
-1. COMPANY.md를 읽어 현재 완성도와 시연 플로우를 확인한다
-2. BACKLOG.md를 읽어 우선순위를 파악한다
-3. CRITICAL 항목부터 순서대로 작업한다
-4. 각 작업은 Agent 툴로 서브에이전트에게 위임한다:
-   - 백엔드 코드 작업 → subagent_type: "Backend Architect"
-   - iOS/Swift 작업 → subagent_type: "Mobile App Builder"
-   - QA/검증 → subagent_type: "API Tester"
-   - 미팅 노트 기록 → subagent_type: "general-purpose"
-5. 작업 완료 후 BACKLOG.md 해당 항목을 ✅로 업데이트한다
-6. docs/미팅/YYYY-MM-DD.md에 오늘 작업 내용을 기록한다 (서기 에이전트 위임)
+| 문서 | 용도 |
+|---|---|
+| **`docs/기획/방향성_재정립_2026-07-20.md`** | **현행 방향 SSoT (최우선)** — 확정/보류 사항 전부 |
+| `docs/기획/리서치_현장가이드-인터랙션-비즈니스_2026-07-20.md` | 방향의 근거 (해설학·Detour·GPS 앵커링 등 검증 리서치) |
+| `docs/기획/성산일출봉_자료풀.md` | 성산 콘텐츠 원재료 |
+| `docs/기획/성산_파일럿_아름다움뒤의상처_v0.1.md` | 비트 명세 v1 틀 + 파일럿 콘텐츠 (초안) |
+| `docs/기획/콘텐츠_장소_로드맵.md` | 장소 확장 백로그 (성산 1호 확정, 나머지 후보) |
+| `docs/관광데이터 개발 공모전/공모전-2026-tourapi.md` | **공모전 정본** — 일정·요건·심사 |
+| `docs/관광데이터 개발 공모전/_심사요약_2026-07-20.md` | 공모전 심사 배점·제출 요건 다이제스트 |
+| `docs/기획/Sprint1_PRD_v0.1.md` | 실행 정본 PRD (v0.2 갱신 예정) |
 
-**판단 기준**: 졸업 발표 10단계 시연 플로우를 끊김 없이 실행할 수 있는가.
+## 현재 코드 vs 목표
+
+- **현재 코드베이스 (구방향, 재설계 대상):** 결정론적 코스 추천(LLM 0회) + 설화 RAG 채팅 + 일지/민화.
+- **목표 (새 방향):** 현장 참여형 AI 스토리 경험 = **관찰 지점 경로 + 각 지점 반응형 대화 루프** (비트 명세 콘텐츠 템플릿 + 재사용 런타임 엔진). RAG는 옆길 질문 보조로 강등. 앵커링 = GPS 웨이포인트 + 자기보고(카메라 백로그). 상세 → 방향 SSoT.
+
+## 전략 & 로드맵
+
+**핵심 전략:** 출시 + 사용자 데이터가 무기. **성산일출봉 1개를 단건 결제 가치가 있을 만큼 압도적으로 완성 → 현장 검증 → 제작 프로세스 템플릿화 → 확장** (양산 지양).
+
+| 단계 | 상태 | 핵심 |
+|---|---|---|
+| ▶ 지금 | 진행 | 성산일출봉 1개 완성 (비트 명세 v1 → 엔진 → 콘텐츠) |
+| 다음 | | 현장 검증 → 유료 가치 검증 → 제작 프로세스 템플릿화 |
+| **공모전 심사** | | 1차 서류 마감(9월경) · 최종 발표심사(10월). 앱스토어 등록 완료 + KTO OpenAPI 실시간 호출이 자격 요건 (상세 → `_심사요약`) |
+
+## 가드레일 — 매 작업 시 두 질문
+
+1. **"이게 방향 SSoT의 확정 방향(경험 판매 · 현장 반응 대화 해자 · 성산 1개 완성)에 기여하는가?"**
+2. **"이게 공모전 목표(완성된 서비스 · KTO OpenAPI 실시간 활용 · 제주 특화)에 기여하는가?"**
+
+답이 모호하면 **미루거나 폐기.** 산발적 기능 추가가 가장 큰 리스크 (사용자 본인이 요청한 가드레일).
+
+## 작업 원칙
+
+- **한국어로 답변.**
+- 잠정 아이디어를 정본 문서에 "확정"으로 굳히지 말 것 — 사용자 명시 결정·리서치 검증만 확정, 나머지는 "가설/재론"으로 표기.
+- 큰 작업 후 곧장 다음 단계로 밀지 말고, 한 일을 사용자가 이해할 수 있게 정리해 확인받고 진행.
+
+## 폴더 구조 (2026-08-12 재편)
+
+```
+/Users/choikjun/Desktop/keepdev/탐라담/     ← 독립 프로젝트 (여기)
+├── backend/  ios/  data/  storage/  scripts/  tests/  openspec/  reports/
+├── docs/
+│   ├── 기획/                    ← 방향·리서치·성산 콘텐츠 (위 표)
+│   ├── 관광데이터 개발 공모전/    ← 공모전 안내·자료·심사요약·OpenAPI 매뉴얼
+│   ├── kto-api/  · data-overview.md · changelog.md
+├── submissions/공모전-2026-tourapi/   ← 공모전 제출본(제안서 등)
+├── README.md · TODOS.md · CLAUDE.md
+└── 레퍼런스/
+
+관련 외부 폴더:
+- keepdev/overedge/     ← KAIST 강좌 이론·실습 자료 (분리됨, 참고용)
+- 6-1/졸프/             ← 경희대 졸업프로젝트 흔적 (미팅·발표·보고서, 분리됨)
+```
+
+**원칙:** 새 문서·기능은 이 폴더 안에서 관리. 종료된 트랙(졸프)·강좌 자료는 위 외부 폴더에 분리 보관.
 
 ---
 
-## 프로젝트 컨텍스트 — 졸업 + 공모전 동시 진행
-
-이 프로젝트(**탐라담**, 가칭 — 제주 설화 기반 AI 여행 가이드 앱)는 두 가지 목표를 동시에 갖는다:
-
-1. **경희대 컴공 졸업프로젝트 시연** (졸업 발표일 임박)
-2. **2026 관광데이터 활용 공모전 (웹·앱 개발 부문)** — 예비심사 합격, 최종 심사 2026-10월
-   - 자세한 일정·시상규모·전략: `docs/기획/공모전-2026-tourapi.md`
-
-### 핵심 전략
-
-**5개월 개발 only는 함정.** 졸업 발표 후 빠르게 App Store 출시 → 실제 사용자 피드백 받으며 디벨롭. 심사 위원이 가장 좋아하는 것은 "출시했고 X명이 쓰고 있고 데이터로 가설을 검증했다"이며, mock data 데모는 이걸 절대 못 이긴다.
-
-### 5단계 로드맵 (2026)
-
-| Phase | 기간 | 핵심 목표 |
-|---|---|---|
-| 1 | 5월말~6월초 | 졸업 시연 + App Store 등록 시작 |
-| 2 | 6월중~7월중 | TestFlight 베타 100명, 매주 인터뷰 5건 |
-| 3 | 7월말~8월말 | 공개 출시 + SNS 쇼츠 마케팅, MAU 500~1000 |
-| 4 | 9월~10월초 | 사용자 데이터 정리 + 심사 자료 작성 |
-| 5 | 10월~11월 | 1차/최종 심사 + 시상식 |
-
-### 가드레일 — 매 작업 시 두 질문 필수
-
-1. **"이게 `docs/기획/lean-canvas.md` 의 어느 칸에 기여하는가?"** (Problem / Solution / UVP / Channels / Revenue 등)
-2. **"이게 현재 Phase 의 검증 목표에 기여하는가?"**
-
-답이 모호하면 그 작업은 **미루거나 폐기**. 산발적 기능 추가 자체가 가장 큰 리스크 (사용자 본인이 인지·요청한 가드레일).
-
-### 우선 참조 문서
-
-- `docs/기획/lean-canvas.md` — 9칸 비즈니스 모델 (어떤 서비스를 만드는가의 정의)
-- `docs/기획/공모전-2026-tourapi.md` — 공모전 일정·시상·요건·전략
-- `docs/미팅/YYYY-MM-DD.md` — 주차별 진행 기록
-
+*2026-08-12: 공모전 올인으로 방향 집중. 탐라담을 overedge에서 분리·독립. KAIST 트랙 폐기. CLAUDE.md 재작성.*
