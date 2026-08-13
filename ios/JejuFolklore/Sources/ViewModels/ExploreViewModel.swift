@@ -13,14 +13,12 @@ final class ExploreViewModel: ObservableObject {
 
     let course: Course
     let transport: String
-    let companion: CompanionCharacter
 
     private var travelSession: TravelSession
 
-    init(course: Course, transport: String, categoryScores: [String: Int], overrideCompanion: CompanionCharacter? = nil) {
+    init(course: Course, transport: String, categoryScores: [String: Int]) {
         self.course = course
         self.transport = transport
-        self.companion = overrideCompanion ?? CompanionCharacter.from(categoryScores: categoryScores)
 
         // 앱 종료 후 복원: 같은 코스의 저장된 세션이 있으면 이어받는다
         if let existing = TravelStore.shared.load(), existing.courseId == course.id {
@@ -29,7 +27,6 @@ final class ExploreViewModel: ObservableObject {
         } else {
             self.travelSession = TravelSession(
                 courseId: course.id,
-                companion: self.companion,
                 course: course,
                 transport: transport
             )
@@ -106,8 +103,8 @@ final class ExploreViewModel: ObservableObject {
 
     private func sendArrivalNotification(placeName: String) {
         let content = UNMutableNotificationContent()
-        content.title = "설화 장소에 도착했습니다"
-        content.body = "\(placeName) — \(companion.displayName)가 기다리고 있어요"
+        content.title = "이야기가 있는 곳에 도착했어요"
+        content.body = "\(placeName) — 준비된 이야기를 들어보세요"
         content.sound = .default
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request)

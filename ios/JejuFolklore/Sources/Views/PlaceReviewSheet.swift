@@ -3,7 +3,6 @@ import Speech
 
 struct PlaceReviewSheet: View {
     let placeName: String
-    let companion: CompanionCharacter
     let onDone: () -> Void
 
     private static let tags: [(key: String, display: String)] = [
@@ -47,7 +46,7 @@ struct PlaceReviewSheet: View {
                                 .frame(maxWidth: .infinity)
                                 .background(
                                     selectedKeys.contains(tag.key)
-                                        ? companion.themeColor.opacity(0.15)
+                                        ? Color.orange.opacity(0.15)
                                         : Color(.secondarySystemBackground)
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -55,7 +54,7 @@ struct PlaceReviewSheet: View {
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(
                                             selectedKeys.contains(tag.key)
-                                                ? companion.themeColor
+                                                ? Color.orange
                                                 : Color.clear,
                                             lineWidth: 2
                                         )
@@ -114,7 +113,7 @@ struct PlaceReviewSheet: View {
                         Task { await submit() }
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(companion.themeColor)
+                    .tint(Color.orange)
                     .disabled(selectedKeys.isEmpty || isSubmitting)
                     .frame(maxWidth: .infinity)
                 }
@@ -158,7 +157,7 @@ struct PlaceReviewSheet: View {
                 }
 
                 Circle()
-                    .fill(speech.isRecording ? Color.red : companion.themeColor)
+                    .fill(speech.isRecording ? Color.red : Color.orange)
                     .frame(width: 44, height: 44)
 
                 Image(systemName: speech.isRecording ? "stop.fill" : "mic.fill")

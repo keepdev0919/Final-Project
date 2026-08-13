@@ -43,15 +43,14 @@ struct ExploreView: View {
         }
         return idx ?? 0
     }
-    init(course: Course, transport: String, categoryScores: [String: Int] = [:], overrideCompanion: CompanionCharacter? = nil) {
+    init(course: Course, transport: String, categoryScores: [String: Int] = [:]) {
         self.course = course
         self.transport = transport
         self.categoryScores = categoryScores
         _vm = StateObject(wrappedValue: ExploreViewModel(
             course: course,
             transport: transport,
-            categoryScores: categoryScores,
-            overrideCompanion: overrideCompanion
+            categoryScores: categoryScores
         ))
     }
 
@@ -63,7 +62,6 @@ struct ExploreView: View {
             if vm.showArrivalOverlay, let place = vm.arrivedPlace {
                 ArrivalOverlayView(
                     place: place,
-                    companion: vm.companion,
                     onDismiss: { vm.dismissArrivalOverlay() }
                 )
                 .transition(.opacity)
@@ -99,7 +97,6 @@ struct ExploreView: View {
             if let place = reviewTargetPlace {
                 PlaceReviewSheet(
                     placeName: place.name,
-                    companion: vm.companion,
                     onDone: {
                         showPlaceReview = false
                         reviewTargetPlace = nil

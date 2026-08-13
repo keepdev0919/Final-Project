@@ -2,11 +2,9 @@ import SwiftUI
 
 struct ArrivalOverlayView: View {
     let place: CoursePlace
-    let companion: CompanionCharacter
     let onDismiss: () -> Void
 
     @State private var appeared = false
-    @State private var greetingTask: Task<Void, Never>?
 
     var body: some View {
         ZStack {
@@ -14,16 +12,12 @@ struct ArrivalOverlayView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 28) {
-                // 동행자 이모지 + 이름
+                // 도착 표시. 단계 1에서 여기에 곱닥이 캐릭터가 들어간다.
                 VStack(spacing: 8) {
-                    Text(companion.emoji)
+                    Image(systemName: "mappin.circle.fill")
                         .font(.system(size: 72))
-                        .scaleEffect(appeared ? 1 : 0.5)
-                        .opacity(appeared ? 1 : 0)
-
-                    Text(companion.displayName)
-                        .font(.headline.weight(.semibold))
                         .foregroundColor(.orange)
+                        .scaleEffect(appeared ? 1 : 0.5)
                         .opacity(appeared ? 1 : 0)
                 }
 
@@ -40,14 +34,6 @@ struct ArrivalOverlayView: View {
                         .multilineTextAlignment(.center)
                 }
                 .opacity(appeared ? 1 : 0)
-
-                // 동행자 첫마디
-                Text("\"\(companion.greeting)\"")
-                    .font(.subheadline.italic())
-                    .foregroundColor(.white.opacity(0.7))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-                    .opacity(appeared ? 1 : 0)
 
                 // 버튼
                 //
@@ -73,20 +59,6 @@ struct ArrivalOverlayView: View {
             withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
                 appeared = true
             }
-            // 페르소나 인사말 자동 재생 (반복 시연 시 캐시로 즉시).
-            let voice = companion.ttsVoice
-            let greeting = companion.greeting
-            let cacheKey = "greeting_\(companion.rawValue)"
-            greetingTask = Task {
-                await TTSPlayerService.shared.speak(
-                    text: greeting,
-                    voice: voice,
-                    cacheKey: cacheKey
-                )
-            }
-        }
-        .onDisappear {
-            greetingTask?.cancel()
         }
     }
 }
@@ -95,7 +67,6 @@ struct ArrivalOverlayView: View {
     let mockPlace = CoursePlace(name: "성산일출봉", lat: 33.4584, lng: 126.9426, day: 1, folklorePins: [])
     ArrivalOverlayView(
         place: mockPlace,
-        companion: .hallam,
         onDismiss: {}
     )
 }

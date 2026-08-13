@@ -14,7 +14,7 @@ struct SessionRestoreView: View {
                 .padding(.top, 12)
 
             VStack(spacing: 20) {
-                Text(session.companion.emoji)
+                Image(systemName: "figure.walk.circle.fill")
                     .font(.system(size: 48))
 
                 VStack(spacing: 6) {

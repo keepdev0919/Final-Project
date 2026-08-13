@@ -1,74 +1,6 @@
 import Foundation
 import SwiftUI
 
-// MARK: - CompanionCharacter
-
-enum CompanionCharacter: String, Codable, CaseIterable {
-    case hallam   = "마을 할망"
-    case dang     = "당신·심방"
-    case haenyeo  = "영등신·해녀 선배"
-    case dokkaebi = "도깨비"
-    case dochebi  = "도체비"
-
-    var displayName: String { rawValue }
-
-    var emoji: String {
-        switch self {
-        case .hallam:   return "👵"
-        case .dang:     return "🪬"
-        case .haenyeo:  return "🤿"
-        case .dokkaebi: return "👺"
-        case .dochebi:  return "👻"
-        }
-    }
-
-    var themeColor: Color {
-        switch self {
-        case .hallam:   return .orange
-        case .dang:     return .purple
-        case .haenyeo:  return .blue
-        case .dokkaebi: return .green
-        case .dochebi:  return .gray
-        }
-    }
-
-    var bubbleColor: Color { themeColor.opacity(0.15) }
-
-    var greeting: String {
-        switch self {
-        case .hallam:   return "아이고, 어서 오라게."
-        case .dang:     return "이 땅에 발을 들였도다."
-        case .haenyeo:  return "왔어? 여기 처음이야?"
-        case .dokkaebi: return "크크크, 왔네?"
-        case .dochebi:  return "왔어요? 아니... 왔나?"
-        }
-    }
-
-    /// OpenAI tts-1 voice 매핑 (페르소나 차별화).
-    /// alloy/echo/fable/nova/onyx/shimmer 중 선택.
-    var ttsVoice: String {
-        switch self {
-        case .dang:     return "onyx"     // 저음, 위엄 — 당신·심방
-        case .dokkaebi: return "fable"    // 스토리텔러, 경쾌 — 도깨비
-        case .hallam:   return "shimmer"  // 부드러운 여성 — 마을 할망
-        case .haenyeo:  return "nova"     // 강한 여성 — 영등신·해녀
-        case .dochebi:  return "echo"     // 차분, 신비 — 도체비
-        }
-    }
-
-    static func from(categoryScores: [String: Int]) -> CompanionCharacter {
-        let categoryMap: [String: CompanionCharacter] = [
-            "무속신화·신격 전승": .dang,
-            "생활민담·교훈담":   .dokkaebi,
-            "마을 공동체 전승":  .hallam,
-            "해양·어촌 전승":    .haenyeo,
-            "초자연 존재담":     .dochebi,
-        ]
-        let best = categoryScores.max { $0.value < $1.value }
-        return best.flatMap { categoryMap[$0.key] } ?? .hallam
-    }
-}
-
 // MARK: - MessageRole
 
 enum MessageRole: String, Codable {
@@ -104,16 +36,14 @@ struct PlaceChatLog: Codable, Identifiable {
 
 struct TravelSession: Codable {
     let courseId: String
-    let companion: CompanionCharacter
     let startedAt: Date
     var visitedPlaceNames: [String]
     private(set) var chatLogs: [PlaceChatLog]
     let courseSnapshot: Course      // 앱 종료 후 복원용
     var transport: String
 
-    init(courseId: String, companion: CompanionCharacter, course: Course, transport: String) {
+    init(courseId: String, course: Course, transport: String) {
         self.courseId = courseId
-        self.companion = companion
         self.startedAt = Date()
         self.visitedPlaceNames = []
         self.chatLogs = []
@@ -150,8 +80,12 @@ final class TravelStore {
     }
 
     func load() -> TravelSession? {
-        guard let data = UserDefaults.standard.data(forKey: key),
-              let session = try? decoder.decode(TravelSession.self, from: data) else {
+        guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
+        guard let session = try? decoder.decode(TravelSession.self, from: data) else {
+            // 저장 형식이 바뀌어 못 읽는 데이터는 버린다.
+            // 2026-08-13에 companion(5종 페르소나) 필드를 제거해 기존 세션이
+            // 디코딩 실패한다. 남겨두면 매번 실패를 반복한다.
+            UserDefaults.standard.removeObject(forKey: key)
             return nil
         }
         return session
