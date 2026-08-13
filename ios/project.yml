@@ -48,6 +48,7 @@ targets:
     sources:
       - path: JejuFolklore/Sources
       - path: JejuFolklore/Resources/Assets.xcassets
+      - path: JejuFolklore/Resources/Fonts
       - path: JejuFolklore/Resources/GoogleService-Info.plist
         optional: true
       - path: JejuFolklore/debug-route.gpx
@@ -80,6 +81,13 @@ targets:
     info:
       path: JejuFolklore/Resources/Info.plist
       properties:
+        CFBundleDisplayName: 놀멍봅서
+        # 갈무리 픽셀 폰트 (SIL OFL 1.1). 등록이 빠지면 파일이 있어도 iOS가 못 찾고
+        # 시스템 폰트로 조용히 폴백된다. tests/test_pixel_font_bundled.py 참조.
+        UIAppFonts:
+          - Fonts/Galmuri9.ttf
+          - Fonts/Galmuri11.ttf
+          - Fonts/Galmuri14.ttf
         UILaunchScreen:
           UIColorName: ""
         UISupportedInterfaceOrientations:
