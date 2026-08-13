@@ -12,6 +12,11 @@ struct LoginSheet: View {
     @State private var errorMessage: String?
     @State private var isWorking: Bool = false
 
+    // 심사·테스트 계정 로그인. 일반 사용자에게 권하는 경로가 아니라 접혀 있다.
+    @State private var showReviewLogin = false
+    @State private var reviewId = ""
+    @State private var reviewPw = ""
+
     var body: some View {
         VStack(spacing: 24) {
             Spacer(minLength: 12)
@@ -64,6 +69,8 @@ struct LoginSheet: View {
             }
             .padding(.horizontal, 24)
 
+            reviewLoginSection
+
             if let errorMessage {
                 Text(errorMessage)
                     .font(.footnote)
@@ -95,6 +102,52 @@ struct LoginSheet: View {
     }
 
     // MARK: - Actions
+
+    // MARK: - 심사·테스트 계정 로그인
+
+    /// 공모전 심사위원과 애플 앱스토어 심사자가 쓰는 경로.
+    ///
+    /// 요건상 지정 형식 계정으로 로그인이 되어야 하고, 실패 시 심사에서 제외된다.
+    /// 일반 사용자에게 권하는 방식이 아니므로 기본으로 접어 둔다.
+    private var reviewLoginSection: some View {
+        DisclosureGroup("심사·테스트 계정으로 로그인", isExpanded: $showReviewLogin) {
+            VStack(spacing: 8) {
+                TextField("아이디", text: $reviewId)
+                    .textFieldStyle(.roundedBorder)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .textContentType(.username)
+
+                SecureField("비밀번호", text: $reviewPw)
+                    .textFieldStyle(.roundedBorder)
+                    .textContentType(.password)
+
+                Button("로그인") {
+                    Task { await performReviewSignIn() }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.orange)
+                .frame(maxWidth: .infinity)
+                .disabled(reviewId.isEmpty || reviewPw.isEmpty || isWorking)
+            }
+            .padding(.top, 8)
+        }
+        .font(.footnote)
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, 24)
+    }
+
+    private func performReviewSignIn() async {
+        isWorking = true
+        errorMessage = nil
+        defer { isWorking = false }
+        do {
+            try await authManager.signInWithReviewAccount(userId: reviewId, password: reviewPw)
+            dismiss()
+        } catch {
+            errorMessage = "아이디 또는 비밀번호를 확인해주세요."
+        }
+    }
 
     private func performAppleSignIn() async {
         errorMessage = nil

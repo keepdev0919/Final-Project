@@ -20,6 +20,36 @@ final class AuthManager: NSObject, ObservableObject {
 
     var isLoggedIn: Bool { currentUser != nil }
 
+    // MARK: - 심사용 ID/PW 로그인
+
+    /// 심사용 계정으로 로그인한다.
+    ///
+    /// 공모전 요건상 심사위원이 지정 형식 계정으로 로그인해 서비스 전체를 확인할 수
+    /// 있어야 하고, 로그인 실패 시 심사에서 제외된다. 같은 계정을 애플 앱스토어
+    /// 심사용 로그인 정보로도 제출한다.
+    ///
+    /// 백엔드가 자격 증명을 확인하고 Firebase 커스텀 토큰을 발급한다 — 그 뒤는
+    /// 소셜 로그인 사용자와 완전히 같은 경로를 타므로 Firestore 동기화와 향후
+    /// 결제 기간 기록이 별도 분기 없이 동작한다.
+    func signInWithReviewAccount(userId: String, password: String) async throws {
+        // APIClient의 인코더는 convertToSnakeCase, 디코더는 convertFromSnakeCase다.
+        // 따라서 Swift 쪽은 camelCase로 써야 한다 —
+        // userId → user_id (전송), custom_token → customToken (수신).
+        struct Body: Encodable {
+            let userId: String
+            let password: String
+        }
+        struct Response: Decodable {
+            let customToken: String
+        }
+
+        let response: Response = try await APIClient.shared.post(
+            "/auth/local",
+            body: Body(userId: userId, password: password)
+        )
+        _ = try await Auth.auth().signIn(withCustomToken: response.customToken)
+    }
+
     // MARK: - Apple Sign-In 임시 상태
 
     /// Apple 로그인 콜백에서 사용할 raw nonce. 요청 직전에 새로 생성된다.

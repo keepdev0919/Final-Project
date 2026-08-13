@@ -122,3 +122,22 @@ async def require_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
+
+
+def create_custom_token(uid: str) -> Optional[str]:
+    """Firebase 커스텀 토큰 발급. 초기화되지 않았으면 None.
+
+    심사용 ID/PW 로그인(`routers/auth_local.py`)이 쓴다. 백엔드가 자격 증명을
+    확인한 뒤 이 토큰을 발급하고, iOS가 `Auth.auth().signIn(withCustomToken:)`으로
+    로그인한다. 이렇게 하면 기존 Firebase 사용자 체계(Firestore 동기화, 향후
+    결제 기간 기록)를 그대로 쓸 수 있어 별도 사용자 테이블이 필요 없다.
+    """
+    if not _firebase_ready or _firebase_auth is None:
+        return None
+    try:
+        token = _firebase_auth.create_custom_token(uid)
+        # firebase_admin은 bytes를 반환한다
+        return token.decode("utf-8") if isinstance(token, bytes) else str(token)
+    except Exception as e:  # pragma: no cover - Firebase 장애 시
+        print(f"[auth] create_custom_token 실패: {type(e).__name__}: {e}")
+        return None
