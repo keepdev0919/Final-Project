@@ -1,8 +1,26 @@
 """코스 리스트 에이전트.
 
-curated_courses 테이블에서 지역×기간 조건으로 풀을 가져온 뒤,
-place_folklore_mapping 기반 카테고리 점수로 상위 3개를 반환한다.
-LLM 없이 DB 조회만으로 동작한다.
+`curated_courses`에서 지역×기간 조건으로 후보를 가져와 **코스 품질 점수**
+(`composite_score`) 상위 풀에서 무작위로 top_n개를 반환한다. LLM 없이 DB 조회만으로
+동작한다.
+
+## 설화 의존 제거 (2026-08-13)
+
+이전 버전은 `place_folklore_mapping`을 조회해 **사용자의 설화 카테고리 취향 점수**로
+코스를 정렬했다(`_score_course`). 취향 퀴즈에서 받은 5종 카테고리 순위가 입력이었다.
+
+제거한 이유:
+- 코스는 "어디를 갈지", 설화는 "그 장소의 이야기"다. 추천 기준으로 쓸 근거가 없다
+- 장소에 강하게 얽힌 설화가 실제로 거의 없다 (설화-장소 매핑 작업에서 확인)
+- 설화는 로컬 파일 데이터라 공모전 데이터 활용 점수에 기여하지 않는다
+  (공지 FAQ: "OpenAPI 형태만 인정, 파일데이터 활용은 인정되지 않음")
+
+코스 품질 기준은 `backend/scripts/build_curated_courses.py`가 미리 계산해
+`composite_score`에 담아둔다 — 경로 효율 40% + 하루 장소 수 적정성 35% +
+관광지 비율 25%.
+
+⚠️ `category_scores` 파라미터는 **호출부 호환을 위해 남아 있지만 무시된다.**
+취향 퀴즈 제거(단계 1)와 함께 API 스키마에서 없앨 예정이다.
 """
 from __future__ import annotations
 
@@ -15,15 +33,6 @@ from services.db import get_db_connection
 
 # ─── 유틸 (테스트에서도 사용) ──────────────────────────────────────────────────
 
-CATEGORY_QUERIES = {
-    "무속신화·신격 전승": "제주 무속신화 본풀이 신격 전승",
-    "생활민담·교훈담": "제주 생활민담 교훈담 해학 이야기",
-    "마을 공동체 전승": "제주 마을 공동체 전승 본향당 마을신",
-    "해양·어촌 전승": "제주 바다 해녀 어촌 해양 전승",
-    "초자연 존재담": "제주 도체비 귀신 초자연 존재 이야기",
-}
-
-
 def _haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     R = 6_371_000
     φ1, φ2 = math.radians(lat1), math.radians(lat2)
@@ -33,74 +42,27 @@ def _haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
-def _scores_to_theme_text(scores: dict[str, int]) -> str:
-    sorted_cats = sorted(scores.items(), key=lambda x: -x[1])
-    lines = []
-    for cat, score in sorted_cats:
-        if score > 0:
-            query = CATEGORY_QUERIES.get(cat, cat)
-            lines.append(f"- {cat} ({score}점): {query}")
-    return "\n".join(lines) if lines else "특별한 취향 없음 (다양한 설화 포함)"
-
-
-# ─── 코스 스코어링 ─────────────────────────────────────────────────────────────
-
-def _score_course(
-    course_id: str,
-    category_scores: dict[str, int],
-    conn,
-) -> float:
-    """카테고리 점유율 × specificity 가중 점수.
-
-    - DISTINCT 대신 매핑 row 단위로 카운트 → 매핑이 많은 카테고리가 큰 영향
-    - specificity 가중치: spec=5 → 1.0, spec=10 → 2.0
-    - 점유율 정규화: 코스 매핑 분포 중 이 카테고리의 비율 사용
-    - 결과 점수 = Σ(사용자_점수 × 카테고리_점유율) × 10  (정수 비교용 스케일)
-    """
-    rows = conn.execute(
-        """
-        SELECT pfm.final_category, pfm.specificity
-        FROM course_places cp
-        JOIN place_folklore_mapping pfm ON pfm.place_name = cp.place_name
-        WHERE cp.course_id = ?
-          AND pfm.specificity >= 5
-          AND pfm.source != 'gps_assist'   -- GPS 보조 매핑 제외 (장소 정합성 보장)
-        """,
-        (course_id,),
-    ).fetchall()
-
-    if not rows:
-        return 0.0
-
-    # specificity 가중치로 카테고리별 누적
-    cat_weighted: dict[str, float] = {}
-    total_weight = 0.0
-    for r in rows:
-        w = r["specificity"] / 5.0  # spec=5 → 1.0, spec=10 → 2.0
-        cat_weighted[r["final_category"]] = cat_weighted.get(r["final_category"], 0.0) + w
-        total_weight += w
-
-    if total_weight == 0:
-        return 0.0
-
-    # 점유율 × 사용자 점수
-    score = 0.0
-    for cat, w in cat_weighted.items():
-        share = w / total_weight  # 0~1
-        score += category_scores.get(cat, 0) * share
-
-    return score * 10  # 정렬 변별력 위해 스케일 업
-
-
 # ─── 퍼블릭 API ───────────────────────────────────────────────────────────────
+
+# 상위 몇 개를 무작위 추출 풀로 쓸지. 매번 같은 코스만 나오지 않게 하되
+# 품질이 낮은 코스가 섞이지 않을 만큼만.
+CANDIDATE_POOL_SIZE = 12
+
 
 def run_course_list(
     region: str,
     duration_days: int,
-    category_scores: dict[str, int],
+    category_scores: dict[str, int] | None = None,
     top_n: int = 3,
 ) -> dict[str, Any]:
-    """curated_courses에서 조건에 맞는 코스를 가져와 취향 점수로 정렬 후 반환.
+    """curated_courses에서 조건에 맞는 코스를 품질 순으로 가져와 반환.
+
+    Args:
+        region: 동부 | 서부 | 남부 | 북부 | 전체
+        duration_days: 여행 일수
+        category_scores: **무시된다.** 설화 취향 기반 정렬을 제거했다(위 모듈 문서 참조).
+            호출부 호환을 위해 시그니처만 유지한다.
+        top_n: 반환할 코스 수
 
     Returns:
         {"result_courses": [...], "error": ""}  — router와 동일한 인터페이스
@@ -111,10 +73,8 @@ def run_course_list(
     duration_max = duration_days + 1
 
     # 부실 코스 필터: place_count >= 3 AND >= duration_days
-    # (1박 2일에 갈 곳이 1~2곳인 부실 일정이 단일 장소의 매핑 다양성 덕에
-    #  점수 1등으로 올라가는 문제 방지)
+    # (1박 2일에 갈 곳이 1~2곳인 일정을 배제)
     if region == "전체":
-        # "전체" 선택 시 region 제한 없이 모든 코스(1,090개)를 후보로
         rows = conn.execute(
             """
             SELECT id, title, duration_days
@@ -123,12 +83,12 @@ def run_course_list(
               AND place_count >= 3
               AND place_count >= ?
             ORDER BY composite_score DESC
-            LIMIT 50
+            LIMIT ?
             """,
-            (duration_min, duration_max, duration_days),
+            (duration_min, duration_max, duration_days, CANDIDATE_POOL_SIZE),
         ).fetchall()
     else:
-        # 요청 지역 코스 우선 + 부족하면 "전체" 코스로 보완 (기존 4지선다 동작)
+        # 요청 지역 코스 우선, 부족하면 "전체"로 분류된 코스로 보완
         rows = conn.execute(
             """
             SELECT id, title, duration_days
@@ -138,30 +98,18 @@ def run_course_list(
               AND place_count >= 3
               AND place_count >= ?
             ORDER BY CASE WHEN region = ? THEN 0 ELSE 1 END, composite_score DESC
-            LIMIT 50
+            LIMIT ?
             """,
-            (region, duration_min, duration_max, duration_days, region),
+            (region, duration_min, duration_max, duration_days, region, CANDIDATE_POOL_SIZE),
         ).fetchall()
 
     if not rows:
         return {"result_courses": [], "error": "조건에 맞는 코스를 찾지 못했습니다."}
 
-    scored: list[tuple[float, dict]] = []
-    for row in rows:
-        folklore_score = _score_course(row["id"], category_scores, conn)
-        scored.append((folklore_score, dict(row)))
-
-    # 점수 > 0인 코스만 풀에 포함 (카테고리 매칭이 전혀 없는 코스는 제외)
-    candidate_pool = [item[1] for item in scored if item[0] > 0]
-
-    # 풀에서 top_n개 무작위 추출. 풀 크기가 top_n보다 작으면 가능한 만큼만.
-    # 풀이 비어있으면 빈 리스트를 반환 (fallback 없이 자연스러운 "매칭 없음" 결과).
-    sample_size = min(top_n, len(candidate_pool))
-    top_rows = random.sample(candidate_pool, sample_size) if sample_size > 0 else []
-
-    # 매칭 0건이면 후속 SQL placeholder 빌드를 건너뛰고 즉시 반환
-    if not top_rows:
-        return {"result_courses": [], "error": ""}
+    # 품질 상위 풀에서 무작위 추출 — 같은 조건으로 다시 받으면 다른 코스를 보여준다.
+    # 정렬은 SQL의 composite_score DESC가 이미 했다.
+    sample_size = min(top_n, len(rows))
+    top_rows = random.sample(rows, sample_size)
 
     # 장소 목록 배치 조회
     course_ids = [r["id"] for r in top_rows]
@@ -212,7 +160,6 @@ class _FakeGraph:
         result = run_course_list(
             region=state.get("region", "전체"),
             duration_days=state.get("duration_days", 3),
-            category_scores=state.get("category_scores", {}),
         )
         return {**state, **result}
 

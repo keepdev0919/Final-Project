@@ -1,13 +1,16 @@
 """코스 상세 에이전트.
 
-course_id로 장소 목록을 조회하고, 사전 매핑 테이블(place_folklore_mapping)에서
-설화를 가져온다. 매핑 결과 + 스타일 힌트를 LLM에 전달해 여행 내러티브를 생성한다.
+course_id로 장소 목록과 코스 제목을 조회해 Course 딕셔너리를 만든다.
+LLM 없이 DB 조회만으로 동작한다.
 
-흐름:
-    1. SQLite에서 course_id로 장소 목록 조회
-    2. place_folklore_mapping 테이블에서 장소명으로 관련 설화 조회
-    3. category_scores로 재정렬 후 상위 3개 선택
-    4. 매핑 결과를 LLM에 전달 → 내러티브 생성
+## 설화 의존 제거 (2026-08-13)
+
+이전에는 `place_folklore_mapping`에서 장소별 설화를 가져와 붙이고, 그 설화를 엮어
+LLM으로 여행 내러티브를 생성했다. 코스 추천에서 설화를 분리하기로 결정해 둘 다 제거했다
+(근거는 `attach_empty_folklore_pins` 문서 참조).
+
+`folklore_pins`와 `narrative` **필드는 남긴다** — iOS 모델과 Pydantic 스키마가
+요구하기 때문이다. 필드 제거는 단계 1의 설화 전면 제거와 함께 한다.
 """
 from __future__ import annotations
 
@@ -86,8 +89,26 @@ def get_places_for_course(course_id: str) -> list[dict]:
 
 
 def get_course_title(course_id: str) -> tuple[str, int]:
-    """SQLite에서 코스 제목 조회."""
+    """코스 제목·일수 조회.
+
+    **`curated_courses`를 먼저 본다.** 원본 `courses.title`은 비짓제주 사용자가 쓴
+    개인 메모라 그대로 노출할 수 없다 — "^^", "z", "우리의 첫 비행기 여행♥".
+    `build_curated_courses.py`가 `{지역} {일수}일 · {대표장소} 외 N곳` 형태로 생성해
+    저장해 두므로 그것을 쓴다.
+
+    이 조회가 원본을 보면 목록과 상세의 제목이 달라진다 — 목록은 curated 제목을,
+    상세는 원본 제목을 보여주는 불일치가 실제로 발생했다(2026-08-13 수정).
+
+    큐레이션에 없는 코스(직접 저장 등)는 원본으로 폴백한다.
+    """
     conn = get_db_connection()
+    row = conn.execute(
+        "SELECT title, duration_days FROM curated_courses WHERE id = ?",
+        (course_id,),
+    ).fetchone()
+    if row:
+        return (row["title"], row["duration_days"] or 1)
+
     row = conn.execute(
         "SELECT title, duration_days FROM courses WHERE id = ?",
         (course_id,),
@@ -95,97 +116,21 @@ def get_course_title(course_id: str) -> tuple[str, int]:
     return (row["title"] if row else "", row["duration_days"] if row else 1)
 
 
-def map_folklore_to_places(
-    places: list[dict],
-    category_scores: dict[str, int] | None = None,
-    radius_m: int = 3000,  # 하위 호환용 파라미터 (미사용)
-) -> list[dict]:
-    """각 장소에 연결된 설화를 사전 매핑 테이블(place_folklore_mapping)에서 조회.
+def attach_empty_folklore_pins(places: list[dict]) -> list[dict]:
+    """장소 목록에 빈 `folklore_pins`를 붙인다.
 
-    category_scores가 있으면 사용자 취향 카테고리 점수 + 지명 구체성(specificity)으로 정렬.
+    설화 매핑을 2026-08-13에 제거했다. 이전에는 `place_folklore_mapping`을 조회해
+    장소마다 설화 3개를 붙였다(`map_folklore_to_places`). 제거 이유:
+
+    - 코스는 "어디를 갈지", 설화는 "그 장소의 이야기"다. 코스 추천에 넣을 근거가 없다
+    - 장소에 강하게 얽힌 설화가 실제로 거의 없다 (설화-장소 매핑 작업에서 확인)
+    - 설화는 로컬 파일 데이터라 공모전 데이터 활용 점수에 기여하지 않는다
+
+    ⚠️ `folklore_pins` 키 자체는 남긴다 — iOS `CoursePlace`가 이 필드를 디코딩하고,
+    Pydantic 스키마(`models/schemas.py`의 `CoursePlace.folklore_pins`)도 요구한다.
+    필드를 없애는 것은 iOS 모델 변경을 수반하므로 단계 1의 설화 전면 제거와 함께 한다.
     """
-    conn = get_db_connection()
-    scores = category_scores or {}
-    max_score = max(scores.values(), default=1) or 1
-
-    result = []
-    for place in places:
-        rows = conn.execute(
-            """
-            SELECT folklore_code_no, folklore_title, folklore_summary,
-                   final_category, matched_place, specificity,
-                   place_lat, place_lng
-            FROM place_folklore_mapping
-            WHERE place_name = ?
-              AND source != 'gps_assist'   -- GPS 보조 매핑 제외 (장소 정합성 보장)
-            ORDER BY specificity DESC
-            LIMIT 20
-            """,
-            (place["place_name"],),
-        ).fetchall()
-
-        candidates = []
-        for r in rows:
-            # place_lat / place_lng 가 NULL인 행은 Pin 모델 검증 실패 원인이므로 제외
-            if r["place_lat"] is None or r["place_lng"] is None:
-                continue
-            cat_score = scores.get(r["final_category"] or "", 0)
-            spec = r["specificity"] or 0
-            # 정렬 키: 카테고리 취향 내림차순 우선, 지명 구체성 내림차순 보조
-            sort_key = (-cat_score / max_score, -spec)
-            candidates.append({
-                "code_no": r["folklore_code_no"],
-                "title": r["folklore_title"] or "",
-                "source_type": "legend",
-                "final_category": r["final_category"] or "",
-                "summary": r["folklore_summary"] or "",
-                "lat": r["place_lat"],
-                "lng": r["place_lng"],
-                "_sort_key": sort_key,
-            })
-
-        candidates.sort(key=lambda x: x.pop("_sort_key"))
-        result.append({
-            **place,
-            "folklore_pins": candidates[:3],
-        })
-
-    return result
-
-
-def generate_narrative(places_with_folklore: list[dict], category_scores: dict[str, int], course_title: str) -> str:
-    """LLM에게 매핑된 설화 데이터를 전달해 여행 내러티브 생성."""
-    sorted_cats = sorted(category_scores.items(), key=lambda x: -x[1])
-    style_desc = " / ".join(
-        CATEGORY_DESCRIPTIONS.get(cat, cat)
-        for cat, score in sorted_cats[:2]
-        if score > 0
-    ) or "제주 설화 전반"
-
-    place_summaries = []
-    for p in places_with_folklore:
-        folklore_titles = [f["title"] for f in p.get("folklore_pins", [])]
-        folklore_text = f" (관련 설화: {', '.join(folklore_titles)})" if folklore_titles else " (설화 없음)"
-        place_summaries.append(f"- Day {p['day']}: {p['place_name']}{folklore_text}")
-
-    places_text = "\n".join(place_summaries)
-
-    prompt = (
-        f"코스 제목: {course_title}\n"
-        f"설화 취향: {style_desc}\n\n"
-        f"방문 장소와 설화:\n{places_text}\n\n"
-        f"위 코스를 여행하는 사람이 읽을 여행 내러티브를 작성해주세요."
-    )
-
-    structured_llm = llm.with_structured_output(NarrativeOutput)
-    try:
-        result: NarrativeOutput = structured_llm.invoke([
-            SystemMessage(content=NARRATIVE_SYSTEM_PROMPT),
-            HumanMessage(content=prompt),
-        ])
-        return result.narrative
-    except Exception:
-        return ""
+    return [{**place, "folklore_pins": []} for place in places]
 
 
 def run_detail_agent(course_id: str, category_scores: dict[str, int]) -> dict:
@@ -198,10 +143,9 @@ def run_detail_agent(course_id: str, category_scores: dict[str, int]) -> dict:
     if not places:
         return {"error": f"코스 장소 데이터가 없습니다: {course_id}"}
 
-    places_with_folklore = map_folklore_to_places(places, category_scores=category_scores, radius_m=3000)
-    # LLM narrative 생성 비활성화 (시연 응답 속도/비용 절감용).
-    # 필요 시 아래 한 줄 활성화하고 빈 문자열 할당 줄 제거.
-    # narrative = generate_narrative(places_with_folklore, category_scores, course_title)
+    places_with_folklore = attach_empty_folklore_pins(places)
+    # 내러티브는 설화를 엮어 만들던 것이라 함께 제거했다. 필드는 스키마 호환을 위해
+    # 빈 문자열로 유지한다 — iOS Course 모델이 narrative를 디코딩한다.
     narrative = ""
 
     return {
