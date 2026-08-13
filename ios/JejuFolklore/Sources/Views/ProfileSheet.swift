@@ -5,6 +5,12 @@ import FirebaseAuth
 ///
 /// - 로그인 상태: 프로필 사진/이름/이메일/로그아웃 버튼 노출.
 /// - 비로그인 상태: 로그인 안내 + 버튼 → `LoginSheet` 표시.
+/// 개인정보 처리방침 URL.
+///
+/// ⚠️ **배포 전에 실제 주소로 교체할 것.** example.com을 그대로 두고 제출하면
+/// 앱스토어에서 거절된다. 원문은 `docs/legal/privacy-policy.md`에 있다.
+private let privacyPolicyURL = URL(string: "https://example.com/privacy")!
+
 struct ProfileSheet: View {
     @EnvironmentObject var authManager: AuthManager
     @Environment(\.dismiss) private var dismiss
@@ -106,10 +112,17 @@ struct ProfileSheet: View {
 
             // KTO 데이터 출처 표기. 공지가 지정한 형식만 허용된다 —
             // 텍스트만 가능하고 공사 CI/BI 로고는 사용 금지.
+            // 앱스토어 제출에 처리방침 URL이 필수다.
+            Link("개인정보 처리방침", destination: privacyPolicyURL)
+                .font(.footnote)
+                .padding(.top, 12)
+
+            // KTO 데이터 출처 표기. 공지가 지정한 형식만 허용된다 —
+            // 텍스트만 가능하고 공사 CI/BI 로고는 사용 금지.
             Text("출처: ⓒ한국관광공사")
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
-                .padding(.top, 12)
+                .padding(.top, 8)
                 .padding(.bottom, 16)
         }
         .padding(.top, 16)

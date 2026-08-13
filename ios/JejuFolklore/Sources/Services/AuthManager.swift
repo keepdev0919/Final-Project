@@ -41,7 +41,13 @@ final class AuthManager: NSObject, ObservableObject {
         let uid = user.uid
 
         do {
-            try await APIClient.shared.delete("/account")
+            // 기기 식별자를 함께 보낸다 — 로그인 전에 남긴 리뷰는 user_id가 비어 있고
+            // device_id만 있어서, uid로만 지우면 서버에 남는다.
+            struct Body: Encodable { let deviceId: String }
+            try await APIClient.shared.delete(
+                "/account",
+                body: Body(deviceId: DeviceIdentity.shared.id)
+            )
         } catch {
             print("[AuthManager] 서버 데이터 삭제 실패(계속 진행): \(error.localizedDescription)")
         }

@@ -41,13 +41,13 @@
 		<true/>
 	</dict>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>탐험 모드에서 백그라운드 GPS 추적 및 장소 도착 알림을 위해 항상 위치 접근이 필요합니다.</string>
+	<string>화면이 꺼져 있거나 앱이 백그라운드일 때도 관광지 도착을 감지해 이야기를 안내하기 위해 위치 접근이 필요합니다. 위치는 기기 안에서만 확인하며 서버로 보내지 않습니다.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>여행 중 근처 설화를 찾고 장소 도착을 감지하기 위해 위치를 사용합니다.</string>
+	<string>관광지에 도착했을 때 준비된 이야기를 안내하기 위해 위치를 사용합니다. 위치는 기기 안에서만 확인하며 서버로 보내지 않습니다.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>리뷰 입력 시 음성 받아쓰기를 위해 마이크를 사용합니다.</string>
+	<string>이야기를 들으며 음성으로 답하거나 리뷰를 남길 때 마이크를 사용합니다.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>음성을 텍스트로 변환하기 위해 음성 인식을 사용합니다.</string>
+	<string>말한 내용을 글자로 바꾸기 위해 음성 인식을 사용합니다. 음성은 저장하지 않습니다.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
