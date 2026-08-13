@@ -8,7 +8,7 @@ from slowapi.util import get_remote_address
 
 logger = logging.getLogger(__name__)
 
-from models.schemas import CourseListRequest, CourseDetailRequest, CourseListItem, Course, CoursePlace, Pin
+from models.schemas import CourseListRequest, CourseDetailRequest, CourseListItem, Course, CoursePlace
 from agents.course_list_agent import course_list_graph
 from agents.course_detail_agent import run_detail_agent
 
@@ -22,7 +22,6 @@ def list_courses(request: Request, body: CourseListRequest):
     state = course_list_graph.invoke({
         "messages": [],
         "region": body.region,
-        "category_scores": body.category_scores,
         "duration_days": body.duration_days,
         "result_courses": [],
         "error": "",
@@ -60,7 +59,7 @@ def list_courses(request: Request, body: CourseListRequest):
 @limiter.limit("10/minute")
 def detail_course(request: Request, body: CourseDetailRequest):
     try:
-        result = run_detail_agent(course_id=body.course_id, category_scores=body.category_scores)
+        result = run_detail_agent(course_id=body.course_id)
 
         if result.get("error"):
             status = 404 if "찾을 수 없습니다" in result["error"] else 500
@@ -76,34 +75,11 @@ def detail_course(request: Request, body: CourseDetailRequest):
                 )
                 continue
 
-            folklore_pins = []
-            for f in p.get("folklore_pins", []):
-                # NULL lat/lng 핀 제외 (course_detail_agent에서도 거르지만 이중 방어)
-                f_lat = f.get("lat")
-                f_lng = f.get("lng")
-                if f_lat is None or f_lng is None:
-                    logger.warning(
-                        "[DETAIL] folklore pin skipped due to NULL coords: code_no=%s title=%s",
-                        f.get("code_no"), f.get("title"),
-                    )
-                    continue
-                folklore_pins.append(Pin(
-                    code_no=f.get("code_no", ""),
-                    title=f.get("title", ""),
-                    source_type=f.get("source_type", "legend"),
-                    summary=f.get("summary", ""),
-                    lat=f_lat,
-                    lng=f_lng,
-                    primary_place=p["place_name"],
-                    distance_m=f.get("distance_m"),
-                ))
-
             places.append(CoursePlace(
                 name=p["place_name"],
                 lat=p["lat"],
                 lng=p["lng"],
                 day=p["day"],
-                folklore_pins=folklore_pins,
             ))
 
         return Course(
@@ -113,7 +89,6 @@ def detail_course(request: Request, body: CourseDetailRequest):
             places=places,
             estimated_minutes=len(places) * 60,
             source_course_id=body.course_id,
-            narrative=result.get("narrative", ""),
         )
     except HTTPException:
         raise

@@ -110,32 +110,9 @@ DETAIL_MOCK_RESULT = {
     "title": "동부 해안 1일 코스",
     "duration_days": 1,
     "places": [
-        {
-            "place_name": "성산일출봉",
-            "lat": 33.458,
-            "lng": 126.942,
-            "day": 1,
-            "folklore_pins": [
-                {
-                    "code_no": "L_001",
-                    "title": "설문대할망 전설",
-                    "source_type": "legend",
-                    "summary": "제주를 창조한 할망 이야기",
-                    "lat": 33.460,
-                    "lng": 126.940,
-                    "distance_m": 250,
-                }
-            ],
-        },
-        {
-            "place_name": "섭지코지",
-            "lat": 33.430,
-            "lng": 126.930,
-            "day": 1,
-            "folklore_pins": [],
-        },
+        {"place_name": "성산일출봉", "lat": 33.458, "lng": 126.942, "day": 1},
+        {"place_name": "섭지코지", "lat": 33.430, "lng": 126.930, "day": 1},
     ],
-    "narrative": "성산의 붉은 일출과 함께 설문대할망의 전설이 깨어납니다...",
     "error": "",
 }
 
@@ -164,29 +141,14 @@ def test_course_detail_returns_200(client, mock_detail_agent):
     assert res.status_code == 200
 
 
-def test_course_detail_has_narrative(client, mock_detail_agent):
-    """응답에 narrative 포함."""
-    res = client.post("/course/detail", json=DETAIL_PAYLOAD)
-    body = res.json()
-    assert "narrative" in body
-    assert len(body["narrative"]) > 0
+def test_course_detail_returns_places_in_order(client, mock_detail_agent):
+    """장소가 순서대로 나와야 한다.
 
-
-def test_course_detail_has_folklore_pins(client, mock_detail_agent):
-    """설화 있는 장소에 folklore_pins 포함."""
-    res = client.post("/course/detail", json=DETAIL_PAYLOAD)
-    places = res.json()["places"]
-    first = places[0]
-    assert len(first["folklore_pins"]) == 1
-    assert first["folklore_pins"][0]["code_no"] == "L_001"
-
-
-def test_course_detail_empty_folklore_place(client, mock_detail_agent):
-    """설화 없는 장소 → folklore_pins=[] (graceful)."""
-    res = client.post("/course/detail", json=DETAIL_PAYLOAD)
-    places = res.json()["places"]
-    second = places[1]
-    assert second["folklore_pins"] == []
+    설화 필드(folklore_pins·narrative)를 확인하던 테스트 3건은 2026-08-14에
+    필드와 함께 제거했다. 근거는 tests/test_folklore_removed.py 참조.
+    """
+    places = client.post("/course/detail", json=DETAIL_PAYLOAD).json()["places"]
+    assert [p["name"] for p in places] == ["성산일출봉", "섭지코지"]
 
 
 def test_course_detail_not_found(client):
