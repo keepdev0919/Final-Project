@@ -57,8 +57,13 @@ class LocalLoginResponse(BaseModel):
     custom_token: str
 
 
+# 분당 20회. 무차별 대입을 막으면서도 심사위원이 오타 몇 번으로 잠기지 않을 수준.
+#
+# ⚠️ 한계: slowapi의 get_remote_address는 프록시 뒤에서 모든 요청을 단일 IP로
+# 집계한다. 배포 환경에 프록시가 있으면 여러 심사위원이 한 통에 묶여 락아웃될 수
+# 있다. 그 환경에서는 X-Forwarded-For 기반 key_func로 바꿀 것.
 @router.post("/local", response_model=LocalLoginResponse)
-@limiter.limit("10/minute")
+@limiter.limit("20/minute")
 def local_login(request: Request, body: LocalLoginRequest):
     """심사 계정 자격 증명을 확인하고 Firebase 커스텀 토큰을 발급한다."""
     expected_id = os.getenv("REVIEW_ACCOUNT_ID", "")
@@ -69,8 +74,14 @@ def local_login(request: Request, body: LocalLoginRequest):
     #
     # compare_digest로 비교하는 이유: 앞자리부터 순차 비교하는 == 는 응답 시간에
     # 일치 길이가 드러나 비밀번호를 한 글자씩 추측할 여지를 준다.
-    id_ok = bool(expected_id) and hmac.compare_digest(body.user_id, expected_id)
-    pw_ok = bool(expected_pw) and hmac.compare_digest(body.password, expected_pw)
+    # ★ bytes로 비교한다. compare_digest에 비ASCII 문자열을 넣으면 TypeError가 나고,
+    # 전역 예외 핸들러를 타 500 + 예외 메시지 노출로 이어진다(한글 아이디로 재현됨).
+    id_ok = bool(expected_id) and hmac.compare_digest(
+        body.user_id.encode("utf-8"), expected_id.encode("utf-8")
+    )
+    pw_ok = bool(expected_pw) and hmac.compare_digest(
+        body.password.encode("utf-8"), expected_pw.encode("utf-8")
+    )
     if not (id_ok and pw_ok):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

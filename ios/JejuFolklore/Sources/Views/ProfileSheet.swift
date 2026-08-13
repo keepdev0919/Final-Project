@@ -190,8 +190,10 @@ struct ProfileSheet: View {
             try await authManager.deleteAccount()
             dismiss()
         } catch {
-            // 재인증이 필요한 경우(오래된 세션) 등에서 실패할 수 있다.
-            errorMessage = "계정 삭제에 실패했어요. 다시 로그인한 뒤 시도해주세요."
+            // 마지막 로그인이 오래되면 Firebase가 requiresRecentLogin으로 거부한다.
+            // deleteAccount는 Auth 삭제를 서버 삭제보다 먼저 하므로, 이 실패 시점에
+            // 계정과 서버 데이터가 남아 있다 — 재시도가 실제로 의미를 갖는다.
+            errorMessage = "계정 삭제에 실패했어요. 로그아웃 후 다시 로그인한 뒤 시도해주세요."
         }
     }
 

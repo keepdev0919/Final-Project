@@ -128,6 +128,11 @@ final class SpeechRecognizer: ObservableObject {
         req.shouldReportPartialResults = true
         req.taskHint = .dictation
         if #available(iOS 13, *) {
+            // false = Apple 서버 인식. 한국어 온디바이스 인식은 기기·OS에 따라
+            // 지원이 갈리고 정확도가 낮아 서버 인식을 쓴다.
+            //
+            // ⚠️ 이 값을 true로 바꾸면 개인정보 처리방침의 Apple 위탁 항목을
+            // 함께 수정할 것 — `docs/legal/privacy-policy.md` §3.
             req.requiresOnDeviceRecognition = false
         }
         self.request = req

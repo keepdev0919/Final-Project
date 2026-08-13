@@ -27,39 +27,54 @@ final class AuthManager: NSObject, ObservableObject {
     /// 애플은 로그인 기능이 있는 앱에 앱 내 계정 삭제 경로를 요구하고, 없으면
     /// 앱스토어 심사에서 거절한다.
     ///
-    /// **순서가 중요하다** — Firebase Auth 레코드를 마지막에 지운다. 먼저 지우면
-    /// 토큰이 무효해져 서버 삭제와 Firestore 삭제 권한이 사라진다.
+    /// ## 순서 — Auth 삭제를 서버 삭제보다 먼저 한다
     ///
-    /// 1. 서버 데이터 (장소 리뷰) — `DELETE /account`
-    /// 2. Firestore 데이터 (저장한 코스)
-    /// 3. Firebase Auth 사용자 레코드
+    /// 1. ID 토큰 확보 (Auth 삭제 후에도 서버 인증에 쓴다)
+    /// 2. `stopListening()` — 리스너가 살아 있으면 삭제 중 로컬에 다시 쓸 수 있다
+    /// 3. Firestore 삭제 — 보안 규칙이 `request.auth.uid`를 보므로 Auth가 살아 있어야 한다
+    /// 4. **Firebase Auth 삭제** ← 실패하면 여기서 중단한다
+    /// 5. 서버 삭제 — 1에서 받은 토큰을 쓴다
     ///
-    /// 중간 단계가 실패해도 계속 진행한다 — 일부만 남는 것보다 계정을 확실히
-    /// 지우는 것이 사용자 의도에 가깝다. 실패는 로그로만 남긴다.
+    /// **4를 5보다 먼저 두는 이유:** `user.delete()`는 마지막 로그인이 오래되면
+    /// `requiresRecentLogin`으로 실패한다. 서버·Firestore를 먼저 다 지우고 4에서
+    /// 실패하면 **데이터는 사라졌는데 계정만 남고, 재시도해도 지울 것이 없어**
+    /// 되돌릴 수 없는 반쪽 상태가 된다.
+    ///
+    /// 순서를 바꾸면 4에서 실패해도 계정과 서버 데이터가 남아 **재시도가 실제로
+    /// 의미를 갖는다.** 3은 멱등하므로 재시도해도 문제없다.
     func deleteAccount() async throws {
         guard let user = Auth.auth().currentUser else { return }
         let uid = user.uid
+        let deviceId = DeviceIdentity.shared.id
 
-        do {
-            // 기기 식별자를 함께 보낸다 — 로그인 전에 남긴 리뷰는 user_id가 비어 있고
-            // device_id만 있어서, uid로만 지우면 서버에 남는다.
-            struct Body: Encodable { let deviceId: String }
-            try await APIClient.shared.delete(
-                "/account",
-                body: Body(deviceId: DeviceIdentity.shared.id)
-            )
-        } catch {
-            print("[AuthManager] 서버 데이터 삭제 실패(계속 진행): \(error.localizedDescription)")
-        }
+        // 1. Auth 삭제 뒤에도 서버를 호출할 수 있도록 토큰을 미리 받는다
+        let idToken = try await user.getIDToken()
 
+        // 2. 삭제 중 원격 변경이 로컬로 되돌아오지 않게 리스너를 끊는다
+        FirestoreSyncService.shared.stopListening()
+
+        // 3. Firestore — Auth가 살아 있어야 권한이 있다
         do {
             try await FirestoreSyncService.shared.deleteAllUserData(uid: uid)
         } catch {
             print("[AuthManager] Firestore 삭제 실패(계속 진행): \(error.localizedDescription)")
         }
 
-        // 마지막 — 이걸 지우면 위 두 작업의 권한이 사라진다
+        // 4. Auth 레코드. 실패하면 throw되어 아래 서버 삭제까지 가지 않는다
         try await user.delete()
+
+        // 5. 서버 데이터 — 미리 받아둔 토큰으로 인증한다
+        do {
+            struct Body: Encodable { let deviceId: String }
+            try await APIClient.shared.delete(
+                "/account",
+                body: Body(deviceId: deviceId),
+                bearerToken: idToken
+            )
+        } catch {
+            print("[AuthManager] 서버 데이터 삭제 실패: \(error.localizedDescription)")
+        }
+
         currentUser = nil
     }
 

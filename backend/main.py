@@ -39,7 +39,13 @@ async def global_exception_handler(request: Request, exc: Exception):
     print(f"[GLOBAL 500] {request.method} {request.url.path}")
     print(f"  {type(exc).__name__}: {exc}")
     print(tb)
-    return JSONResponse(status_code=500, content={"detail": f"{type(exc).__name__}: {exc}"})
+    # 예외 종류·메시지를 응답에 담지 않는다. 내부 구조와 라이브러리 정보가 새고,
+    # 인증 엔드포인트에서는 입력에 따라 다른 메시지가 나와 오라클이 된다.
+    # 진단 정보는 위 서버 로그로만 남긴다.
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요."},
+    )
 
 
 @app.get("/health")

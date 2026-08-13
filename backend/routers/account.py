@@ -59,8 +59,15 @@ def delete_account(
 
     conn = get_db_connection()
     if device_id:
+        # ★ device_id 조건에 `user_id IS NULL`을 반드시 붙인다.
+        #
+        # review.py는 로그인 상태에서도 device_id를 함께 저장한다. 조건이 없으면
+        # 같은 기기를 쓴 **다른 계정의 리뷰까지** 지워진다. device_id는 클라이언트가
+        # 주장하는 값이라 검증 수단이 없으므로, 소유자가 확실한 것(user_id 일치)과
+        # 소유자가 없는 것(익명 리뷰)만 지운다.
         cur = conn.execute(
-            "DELETE FROM place_reviews WHERE user_id = ? OR device_id = ?",
+            "DELETE FROM place_reviews "
+            "WHERE user_id = ? OR (device_id = ? AND user_id IS NULL)",
             (uid, device_id),
         )
     else:

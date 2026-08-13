@@ -90,7 +90,7 @@ targets:
           - location
           - audio
         NSMicrophoneUsageDescription: "이야기를 들으며 음성으로 답하거나 리뷰를 남길 때 마이크를 사용합니다."
-        NSSpeechRecognitionUsageDescription: "말한 내용을 글자로 바꾸기 위해 음성 인식을 사용합니다. 음성은 저장하지 않습니다."
+        NSSpeechRecognitionUsageDescription: "말한 내용을 글자로 바꾸기 위해 Apple 음성 인식을 사용합니다. 이 앱은 음성을 저장하지 않습니다."
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
         LSApplicationQueriesSchemes:

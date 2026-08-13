@@ -94,7 +94,19 @@ final class APIClient {
     ///
     /// 계정 삭제(`DELETE /account`)에 쓴다. 인증 헤더는 attachAuthHeader가 붙인다 —
     /// 서버가 토큰의 uid로 삭제 대상을 정하므로 헤더가 없으면 401이 된다.
-    func delete<B: Encodable>(_ path: String, body: B? = nil as String?) async throws {
+    /// DELETE 요청. 응답 본문을 쓰지 않는다.
+    ///
+    /// `bearerToken`을 넘기면 그 토큰을 쓰고, 넘기지 않으면 현재 로그인 사용자의
+    /// 토큰을 붙인다. 계정 삭제는 **Firebase Auth 레코드를 지운 뒤** 서버를
+    /// 호출하므로 미리 받아둔 토큰을 명시해야 한다.
+    ///
+    /// 본문을 넘기지 않을 때는 `delete("/x")`로 호출한다 — 타입 추론이 된다.
+    /// `body: nil`을 명시하면 제네릭 추론이 실패하므로 인자를 생략할 것.
+    func delete<B: Encodable>(
+        _ path: String,
+        body: B? = nil as String?,
+        bearerToken: String? = nil
+    ) async throws {
         guard let url = URL(string: Config.baseURL + path) else { throw APIError.invalidURL }
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
@@ -102,7 +114,11 @@ final class APIClient {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try encoder.encode(body)
         }
-        await attachAuthHeader(&request)
+        if let bearerToken {
+            request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        } else {
+            await attachAuthHeader(&request)
+        }
 
         let data: Data
         let response: URLResponse
