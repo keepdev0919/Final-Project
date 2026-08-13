@@ -3,7 +3,6 @@ import SwiftUI
 struct ArrivalOverlayView: View {
     let place: CoursePlace
     let companion: CompanionCharacter
-    let onEnterChat: () -> Void
     let onDismiss: () -> Void
 
     @State private var appeared = false
@@ -51,21 +50,18 @@ struct ArrivalOverlayView: View {
                     .opacity(appeared ? 1 : 0)
 
                 // 버튼
+                //
+                // 단계 1에서 여기가 "이야기 듣기" 진입점이 된다. 설화 채팅을
+                // 제거(2026-08-13)한 지금은 확인 버튼 하나만 둔다.
                 VStack(spacing: 12) {
-                    Button(action: onEnterChat) {
-                        Text("동행자와 대화하기")
+                    Button(action: onDismiss) {
+                        Text("확인")
                             .font(.body.weight(.semibold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
                             .background(Color.orange)
                             .clipShape(RoundedRectangle(cornerRadius: 14))
-                    }
-
-                    Button(action: onDismiss) {
-                        Text("나중에")
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.6))
                     }
                 }
                 .padding(.horizontal, 32)
@@ -100,7 +96,6 @@ struct ArrivalOverlayView: View {
     ArrivalOverlayView(
         place: mockPlace,
         companion: .hallam,
-        onEnterChat: {},
         onDismiss: {}
     )
 }

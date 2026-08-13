@@ -25,7 +25,6 @@
 		39E84B4B300BE84BCBDC781F /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */; };
 		3A1219C0BE883136CBF1FEBD /* ProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4000E728FBE0443E2CE67EA5 /* ProfileSheet.swift */; };
 		3C924367BF6D98281ABDEE6F /* PlaceAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997538FBFEB00536EF630FCB /* PlaceAPI.swift */; };
-		3E611EF2C36BAD2F21735019 /* CompanionChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C46A0E0C2AC4070F7A0EAFF8 /* CompanionChatView.swift */; };
 		3F87278B10B282BE0924C3DC /* PlaceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */; };
 		4B5F8136E4813312F1CE5976 /* CourseAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */; };
 		4BBA96123849AB365EC9B2B4 /* Pin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B2D361FC201D7B53D1D5374 /* Pin.swift */; };
@@ -67,7 +66,6 @@
 		EF3F8D874A2F3E91CA567372 /* TodayFolklore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E429737D44A1DB1F43BA4C53 /* TodayFolklore.swift */; };
 		F475DC455EF699B2C68D1803 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8932708010A3431E486DF98 /* APIClient.swift */; };
 		F8D4029F14FE4EC28785AD5F /* PlaceReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EB46F8631558DA14B8DE90F /* PlaceReviewSheet.swift */; };
-		FCF7F0B54F1DC31F15E28D22 /* TravelAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B83DC6328155E768AEA6E2 /* TravelAPI.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -85,7 +83,6 @@
 		3716E52689657C66A89C990A /* Course.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
 		38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRecommendView.swift; sourceTree = "<group>"; };
 		4000E728FBE0443E2CE67EA5 /* ProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSheet.swift; sourceTree = "<group>"; };
-		41B83DC6328155E768AEA6E2 /* TravelAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelAPI.swift; sourceTree = "<group>"; };
 		435CA89B62B4B29FDF95DF2A /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		48324503CEDCE93C36D7EA0A /* HomeRecommendedCourseCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRecommendedCourseCard.swift; sourceTree = "<group>"; };
 		49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasteDiscoveryView.swift; sourceTree = "<group>"; };
@@ -114,7 +111,6 @@
 		BA696E33103EBE2921AAE0CD /* FolkloreStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolkloreStory.swift; sourceTree = "<group>"; };
 		BCB19D914698888F9F31CB4C /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		BE302B828FB176D1DA8415CD /* SessionRestoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRestoreView.swift; sourceTree = "<group>"; };
-		C46A0E0C2AC4070F7A0EAFF8 /* CompanionChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionChatView.swift; sourceTree = "<group>"; };
 		C8932708010A3431E486DF98 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseAPI.swift; sourceTree = "<group>"; };
 		CFC15B8EA8FB8D80D2EA8016 /* GoogleMapPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleMapPreview.swift; sourceTree = "<group>"; };
@@ -227,7 +223,6 @@
 			isa = PBXGroup;
 			children = (
 				101A2B03B831695C27D31659 /* ArrivalOverlayView.swift */,
-				C46A0E0C2AC4070F7A0EAFF8 /* CompanionChatView.swift */,
 				FE1015A20E1B4F561042D346 /* ContentView.swift */,
 				34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */,
 				72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */,
@@ -265,7 +260,6 @@
 				03E5481B0ED3479BFF321C98 /* PinsAPI.swift */,
 				997538FBFEB00536EF630FCB /* PlaceAPI.swift */,
 				0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */,
-				41B83DC6328155E768AEA6E2 /* TravelAPI.swift */,
 				8F6205B0B938C2482576817A /* TTSAPI.swift */,
 				6DC4551DB86ABE4E92BB0191 /* TTSPlayerService.swift */,
 			);
@@ -381,7 +375,6 @@
 				4C1F407BDC88A1B264CEB27F /* ArrivalOverlayView.swift in Sources */,
 				BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */,
 				181950EB48299EE76985B887 /* AuthManager.swift in Sources */,
-				3E611EF2C36BAD2F21735019 /* CompanionChatView.swift in Sources */,
 				67157E9A54F763785AB8AAE4 /* Config.swift in Sources */,
 				8A08DE3EE1EDECFC01390C82 /* ContentView.swift in Sources */,
 				D726750ECE035B9C28D50F72 /* Course.swift in Sources */,
@@ -427,7 +420,6 @@
 				B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */,
 				EF3F8D874A2F3E91CA567372 /* TodayFolklore.swift in Sources */,
 				E997A2FA036599C45A3DF7BC /* TodayFolkloreCard.swift in Sources */,
-				FCF7F0B54F1DC31F15E28D22 /* TravelAPI.swift in Sources */,
 				C74D798F99D1945551A212E6 /* TravelSession.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -11,10 +11,6 @@ final class ExploreViewModel: ObservableObject {
     @Published var lastArrivedPlace: CoursePlace?
     @Published var showArrivalOverlay = false
 
-    // Companion chat
-    @Published var activeChatPlace: CoursePlace?
-    @Published var showCompanionChat = false
-
     let course: Course
     let transport: String
     let companion: CompanionCharacter
@@ -90,12 +86,6 @@ final class ExploreViewModel: ObservableObject {
 
     func dismissArrivalOverlay() {
         showArrivalOverlay = false
-    }
-
-    func openCompanionChat(for place: CoursePlace) {
-        showArrivalOverlay = false
-        activeChatPlace = place
-        showCompanionChat = true
     }
 
     var orderedVisitedPlaceNames: [String] { travelSession.visitedPlaceNames }

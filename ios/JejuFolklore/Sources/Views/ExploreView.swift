@@ -64,7 +64,6 @@ struct ExploreView: View {
                 ArrivalOverlayView(
                     place: place,
                     companion: vm.companion,
-                    onEnterChat: { vm.openCompanionChat(for: place) },
                     onDismiss: { vm.dismissArrivalOverlay() }
                 )
                 .transition(.opacity)
@@ -92,18 +91,10 @@ struct ExploreView: View {
         }
         .onAppear { vm.startExploring() }
         .onDisappear { if !hasStopped { vm.stopExploring() } }
-        .sheet(isPresented: $vm.showCompanionChat, onDismiss: {
-            let place = vm.lastArrivedPlace
-            vm.activeChatPlace = nil
-            if let place {
-                reviewTargetPlace = place
-                showPlaceReview = true
-            }
-        }) {
-            if let place = vm.activeChatPlace {
-                CompanionChatView(place: place, companion: vm.companion, vm: vm)
-            }
-        }
+        // ⚠️ 장소 리뷰는 현재 진입 경로가 없다. 예전에는 설화 채팅을 닫을 때
+        // 떴는데, 채팅을 제거(2026-08-13)하면서 트리거가 사라졌다. 도착 직후에
+        // 리뷰를 묻는 것은 어색하므로 억지로 붙이지 않고, 단계 1에서 "이야기를
+        // 다 들은 뒤"에 연결한다. 그때까지 이 시트는 도달 불가 상태다.
         .sheet(isPresented: $showPlaceReview) {
             if let place = reviewTargetPlace {
                 PlaceReviewSheet(
@@ -369,20 +360,6 @@ struct ExploreView: View {
                 .foregroundColor(.primary)
             }
 
-            if let currentPlace = vm.lastArrivedPlace {
-                Button { vm.openCompanionChat(for: currentPlace) } label: {
-                    HStack(spacing: 4) {
-                        Text(vm.companion.emoji)
-                        Text("대화")
-                            .font(.caption.weight(.semibold))
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(Color.orange)
-                    .foregroundColor(.white)
-                    .clipShape(Capsule())
-                }
-            }
         }
     }
 
