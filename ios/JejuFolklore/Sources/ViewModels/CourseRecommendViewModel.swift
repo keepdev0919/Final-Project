@@ -9,7 +9,6 @@ enum LoadingStep: String {
 @MainActor
 final class CourseRecommendViewModel: ObservableObject {
     @Published var selectedRegion: String = ""
-    @Published var categoryScores: [String: Int] = [:]
     @Published var durationDays: Int = 1
 
     @Published var courseList: [CourseListItem] = []
@@ -27,7 +26,7 @@ final class CourseRecommendViewModel: ObservableObject {
     var isLoading: Bool { isLoadingList || isLoadingDetail }
 
     func fetchList() async {
-        guard !selectedRegion.isEmpty, !categoryScores.isEmpty else { return }
+        guard !selectedRegion.isEmpty else { return }
         errorMessage = nil
         courseList = []
         isLoadingList = true
@@ -36,7 +35,6 @@ final class CourseRecommendViewModel: ObservableObject {
         do {
             let items = try await CourseAPI.list(
                 region: selectedRegion,
-                categoryScores: categoryScores,
                 durationDays: durationDays
             )
             courseList = items
@@ -67,7 +65,7 @@ final class CourseRecommendViewModel: ObservableObject {
         loadingStep = .generating
 
         do {
-            let course = try await CourseAPI.detail(courseId: courseId, categoryScores: categoryScores)
+            let course = try await CourseAPI.detail(courseId: courseId)
             selectedCourse = course
             loadingStep = .idle
         } catch {
@@ -85,7 +83,6 @@ final class CourseRecommendViewModel: ObservableObject {
 
     func reset() {
         selectedRegion = ""
-        categoryScores = [:]
         durationDays = 1
         courseList = []
         currentCourseIndex = 0

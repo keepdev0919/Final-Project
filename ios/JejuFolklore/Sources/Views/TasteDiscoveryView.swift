@@ -7,8 +7,6 @@ struct TasteDiscoveryView: View {
     @StateObject private var vm = CourseRecommendViewModel()
     @State private var step = 0
     @State private var selectedRegion = ""
-    @State private var selectedMain = ""
-    @State private var selectedSide = ""
     @State private var selectedDays = 1
     @State private var navigateToList = false
 
@@ -22,9 +20,7 @@ struct TasteDiscoveryView: View {
                     Group {
                         switch step {
                         case 0: regionStep
-                        case 1: q1Step
-                        case 2: q2Step
-                        case 3: daysStep
+                        case 1: daysStep
                         default: EmptyView()
                         }
                     }
@@ -78,7 +74,7 @@ struct TasteDiscoveryView: View {
 
                 Spacer()
 
-                Text("\(step + 1) / 4")
+                Text("\(step + 1) / 2")
                     .font(.caption.weight(.medium))
                     .foregroundColor(.secondary)
 
@@ -107,7 +103,7 @@ struct TasteDiscoveryView: View {
                 Rectangle().fill(Color.secondary.opacity(0.12))
                 Rectangle()
                     .fill(Color.orange)
-                    .frame(width: geo.size.width * CGFloat(step + 1) / 4)
+                    .frame(width: geo.size.width * CGFloat(step + 1) / 2)
                     .animation(.spring(response: 0.4), value: step)
             }
         }
@@ -136,91 +132,7 @@ struct TasteDiscoveryView: View {
         }
     }
 
-    // MARK: - Step 2: 메인 결 선택
-
-    private var q1Step: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text("어떤 결의 이야기에 끌려요?")
-                    .font(.title2.weight(.bold))
-                Text("메인으로 1개 골라주세요")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 32)
-
-            ScrollView {
-                VStack(spacing: 10) {
-                    ForEach(CategoryOption.all) { option in
-                        CategoryCardView(
-                            option: option,
-                            isSelected: selectedMain == option.key,
-                            isDisabled: false
-                        ) {
-                            selectedMain = option.key
-                            withAnimation { step = 2 }
-                        }
-                    }
-                }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 20)
-            }
-        }
-    }
-
-    // MARK: - Step 3: 사이드 결 선택 (Skip 가능)
-
-    private var q2Step: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("사이드 결도 있어요?")
-                        .font(.title2.weight(.bold))
-                    Text("선택사항이에요")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                Spacer()
-                Button {
-                    selectedSide = ""
-                    withAnimation { step = 3 }
-                } label: {
-                    Text("Skip")
-                        .font(.callout.weight(.semibold))
-                        .foregroundColor(.orange)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(Color.orange.opacity(0.12))
-                        .clipShape(Capsule())
-                }
-            }
-            .padding(.horizontal, 24)
-            .padding(.top, 32)
-
-            ScrollView {
-                VStack(spacing: 10) {
-                    ForEach(CategoryOption.all) { option in
-                        let isMain = option.key == selectedMain
-                        CategoryCardView(
-                            option: option,
-                            isSelected: selectedSide == option.key,
-                            isDisabled: isMain
-                        ) {
-                            if !isMain {
-                                selectedSide = option.key
-                                withAnimation { step = 3 }
-                            }
-                        }
-                    }
-                }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 20)
-            }
-        }
-    }
-
-    // MARK: - Step 4: 기간 선택
+    // MARK: - Step 2: 기간 선택
 
     private var daysStep: some View {
         VStack(alignment: .leading, spacing: 32) {
@@ -251,37 +163,10 @@ struct TasteDiscoveryView: View {
 
     // MARK: - Helpers
 
-    private func tasteButton(_ label: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(label)
-                .font(.body.weight(.semibold))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 18)
-                .background(Color(UIColor.secondarySystemBackground))
-                .foregroundColor(.primary)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func computeCategoryScores() -> [String: Int] {
-        // 메인 카테고리 +3, 사이드 카테고리 +1 (비어있으면 점수 없음)
-        var scores: [String: Int] = [:]
-        if !selectedMain.isEmpty {
-            scores[selectedMain] = 3
-        }
-        if !selectedSide.isEmpty && selectedSide != selectedMain {
-            scores[selectedSide] = 1
-        }
-        return scores
-    }
-
     // MARK: - Actions
 
     private func startSearch() async {
         vm.selectedRegion = selectedRegion
-        vm.categoryScores = computeCategoryScores()
         vm.durationDays = selectedDays
         navigateToList = true
         await vm.fetchList()
@@ -290,8 +175,6 @@ struct TasteDiscoveryView: View {
     private func resetToStart() {
         step = 0
         selectedRegion = ""
-        selectedMain = ""
-        selectedSide = ""
         selectedDays = 1
         vm.reset()
     }

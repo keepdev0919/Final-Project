@@ -44,13 +44,16 @@ class PinDetail(BaseModel):
 
 class CourseListRequest(BaseModel):
     region: str                          # 동부 | 서부 | 남부 | 북부 | 전체
-    category_scores: dict[str, int]      # 카테고리별 취향 점수
     duration_days: int                   # 1~5
+    # ⚠️ 설화 취향 점수. 2026-08-13에 코스 추천에서 설화를 분리해 **무시된다.**
+    # 선택 필드로 남긴 이유: 이미 배포된 클라이언트가 보내도 422로 막히지 않게.
+    # 단계 1의 설화 전면 제거 때 삭제한다.
+    category_scores: dict[str, int] = {}
 
 
 class CourseDetailRequest(BaseModel):
     course_id: str
-    category_scores: dict[str, int]      # 카테고리별 취향 점수
+    category_scores: dict[str, int] = {}  # 위와 동일 — 무시된다
 
 
 class CoursePlace(BaseModel):
