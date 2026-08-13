@@ -104,7 +104,12 @@ def _fetch_intro(content_id: str, content_type_id: str) -> dict:
 @router.get("/detail")
 @limiter.limit("30/minute")
 def get_place_detail(request: Request, name: str, lat: float, lng: float):
-    """장소명 + GPS로 KTO 사진·설명·이용팁 조회 (7일 캐시)."""
+    """장소명 + 관광지 좌표로 KTO 사진·설명·이용팁 조회 (1시간 캐시).
+
+    받는 lat/lng는 **관광지 자체의 좌표**다(호출부: PlaceDetailView가
+    place.lat/place.lng를 넘긴다). 사용자 위치가 아니므로 개인위치정보에
+    해당하지 않는다. 이 성질을 깨뜨리지 말 것.
+    """
     conn = get_db_connection()
 
     _lat = round(lat, 5)

@@ -35,6 +35,10 @@ MOBILE_APP = "Nolmeongbopseo"
 
 # 공지가 지정한 출처 표기. 텍스트만 허용되며 공사 CI/BI 로고는 사용 금지.
 # TourAPI 단독 표기도 지양 대상이다.
+#
+# ⚠️ 미완: 이 문자열이 아직 사용자에게 표시되지 않는다. 상수만 있는 상태로는
+# 출처 표기 요건이 충족되지 않는다. 표시 위치는 단계 0 Task 9(ProfileSheet)
+# 예정 — 그때까지 이 요건은 미충족이다.
 KTO_ATTRIBUTION = "출처: ⓒ한국관광공사"
 
 
@@ -53,7 +57,7 @@ def _kto_get(service: str, operation: str, params: dict) -> dict:
 @router.get("/info")
 @limiter.limit("30/minute")
 def get_tourist_info(request: Request, content_id: str):
-    """contentId로 관광정보 조회 (7일 캐시)."""
+    """contentId로 관광정보 조회 (1시간 캐시 — CACHE_TTL 주석 참조)."""
     conn = get_db_connection()
     cached = conn.execute(
         "SELECT * FROM tourist_info_cache WHERE content_id=?", (content_id,)
