@@ -11,6 +11,8 @@ struct ProfileSheet: View {
 
     @State private var showLoginSheet = false
     @State private var errorMessage: String?
+    @State private var showDeleteConfirm = false
+    @State private var isDeleting = false
 
     var body: some View {
         NavigationStack {
@@ -91,9 +93,39 @@ struct ProfileSheet: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
             .padding(.horizontal, 24)
-            .padding(.bottom, 16)
+
+            // 계정 삭제 — 애플은 로그인 있는 앱에 앱 내 삭제 경로를 요구한다.
+            // 없으면 앱스토어 심사에서 거절된다.
+            Button("계정 삭제") {
+                showDeleteConfirm = true
+            }
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            .disabled(isDeleting)
+            .padding(.top, 4)
+
+            // KTO 데이터 출처 표기. 공지가 지정한 형식만 허용된다 —
+            // 텍스트만 가능하고 공사 CI/BI 로고는 사용 금지.
+            Text("출처: ⓒ한국관광공사")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+                .padding(.top, 12)
+                .padding(.bottom, 16)
         }
         .padding(.top, 16)
+        .alert("계정을 삭제할까요?", isPresented: $showDeleteConfirm) {
+            Button("삭제", role: .destructive) {
+                Task { await deleteAccount() }
+            }
+            Button("취소", role: .cancel) {}
+        } message: {
+            Text("저장한 코스와 남긴 리뷰가 모두 지워집니다. 되돌릴 수 없어요.")
+        }
+        .overlay {
+            if isDeleting {
+                ProgressView().progressViewStyle(.circular)
+            }
+        }
     }
 
     // MARK: - Logged Out
@@ -136,6 +168,19 @@ struct ProfileSheet: View {
     }
 
     // MARK: - Actions
+
+    private func deleteAccount() async {
+        errorMessage = nil
+        isDeleting = true
+        defer { isDeleting = false }
+        do {
+            try await authManager.deleteAccount()
+            dismiss()
+        } catch {
+            // 재인증이 필요한 경우(오래된 세션) 등에서 실패할 수 있다.
+            errorMessage = "계정 삭제에 실패했어요. 다시 로그인한 뒤 시도해주세요."
+        }
+    }
 
     private func signOut() {
         errorMessage = nil

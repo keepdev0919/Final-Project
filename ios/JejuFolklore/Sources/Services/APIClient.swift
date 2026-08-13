@@ -90,6 +90,29 @@ final class APIClient {
         return data
     }
 
+    /// DELETE 요청. 응답 본문을 쓰지 않는다.
+    ///
+    /// 계정 삭제(`DELETE /account`)에 쓴다. 인증 헤더는 attachAuthHeader가 붙인다 —
+    /// 서버가 토큰의 uid로 삭제 대상을 정하므로 헤더가 없으면 401이 된다.
+    func delete(_ path: String) async throws {
+        guard let url = URL(string: Config.baseURL + path) else { throw APIError.invalidURL }
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        await attachAuthHeader(&request)
+
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
+        _ = data
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            throw APIError.invalidResponse((response as? HTTPURLResponse)?.statusCode ?? 0)
+        }
+    }
+
     private func perform<T: Decodable>(_ request: URLRequest) async throws -> T {
         let data: Data
         let response: URLResponse

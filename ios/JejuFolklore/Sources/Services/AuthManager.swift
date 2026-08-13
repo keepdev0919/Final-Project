@@ -20,6 +20,43 @@ final class AuthManager: NSObject, ObservableObject {
 
     var isLoggedIn: Bool { currentUser != nil }
 
+    // MARK: - 계정 삭제
+
+    /// 계정과 관련 데이터를 모두 삭제한다. **되돌릴 수 없다.**
+    ///
+    /// 애플은 로그인 기능이 있는 앱에 앱 내 계정 삭제 경로를 요구하고, 없으면
+    /// 앱스토어 심사에서 거절한다.
+    ///
+    /// **순서가 중요하다** — Firebase Auth 레코드를 마지막에 지운다. 먼저 지우면
+    /// 토큰이 무효해져 서버 삭제와 Firestore 삭제 권한이 사라진다.
+    ///
+    /// 1. 서버 데이터 (장소 리뷰) — `DELETE /account`
+    /// 2. Firestore 데이터 (저장한 코스)
+    /// 3. Firebase Auth 사용자 레코드
+    ///
+    /// 중간 단계가 실패해도 계속 진행한다 — 일부만 남는 것보다 계정을 확실히
+    /// 지우는 것이 사용자 의도에 가깝다. 실패는 로그로만 남긴다.
+    func deleteAccount() async throws {
+        guard let user = Auth.auth().currentUser else { return }
+        let uid = user.uid
+
+        do {
+            try await APIClient.shared.delete("/account")
+        } catch {
+            print("[AuthManager] 서버 데이터 삭제 실패(계속 진행): \(error.localizedDescription)")
+        }
+
+        do {
+            try await FirestoreSyncService.shared.deleteAllUserData(uid: uid)
+        } catch {
+            print("[AuthManager] Firestore 삭제 실패(계속 진행): \(error.localizedDescription)")
+        }
+
+        // 마지막 — 이걸 지우면 위 두 작업의 권한이 사라진다
+        try await user.delete()
+        currentUser = nil
+    }
+
     // MARK: - 심사용 ID/PW 로그인
 
     /// 심사용 계정으로 로그인한다.

@@ -83,6 +83,26 @@ final class FirestoreSyncService: ObservableObject {
         try await ref.delete()
     }
 
+    /// 계정 삭제용 — 이 사용자의 Firestore 데이터를 전부 지운다.
+    ///
+    /// 애플이 요구하는 계정 삭제 요건의 일부다. 서버(SQLite) 데이터는
+    /// `DELETE /account`가 지우고, 여기서는 Firestore를 지운다.
+    /// Firebase Auth 레코드 삭제보다 **먼저** 호출해야 한다 — Auth를 먼저 지우면
+    /// Firestore 쓰기 권한이 사라진다.
+    func deleteAllUserData(uid: String) async throws {
+        let snapshot = try await db
+            .collection("users").document(uid)
+            .collection("savedCourses")
+            .getDocuments()
+
+        for doc in snapshot.documents {
+            try await doc.reference.delete()
+        }
+
+        // 사용자 문서 자체도 지운다 (하위 컬렉션을 비운 뒤)
+        try await db.collection("users").document(uid).delete()
+    }
+
     // MARK: - Anonymous Migration
 
     /// 익명 상태에서 로컬에 저장된 코스들을 로그인 계정으로 이관.

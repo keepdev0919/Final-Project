@@ -6,7 +6,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-from routers import pins, course, tts, tourist, place, review, home, auth_local
+from routers import pins, course, tts, tourist, place, review, home, auth_local, account
 from services import auth as _auth  # noqa: F401  (side effect: Firebase 초기화)
 
 limiter = Limiter(key_func=get_remote_address)
@@ -30,6 +30,7 @@ app.include_router(place.router)
 app.include_router(review.router)
 app.include_router(home.router)
 app.include_router(auth_local.router)
+app.include_router(account.router)
 
 
 @app.exception_handler(Exception)
