@@ -75,7 +75,7 @@
 
 ---
 
-## 본 프로젝트 (탐라담)와의 관련
+## 본 프로젝트 (놀멍봅서)와의 관련
 
 ✅ **공모 대상 일치**: 한국관광공사 KTO TourAPI 4.0 (KorService2) 필수 활용
 - 현재 사용 중: `locationBasedList2`, `detailCommon2`, `detailImage2`, `detailIntro2` 등
