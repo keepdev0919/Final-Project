@@ -57,6 +57,21 @@ class PlaceReviewsResponse(BaseModel):
     recent_notes: list[str]
 
 
-class JournalResponse(BaseModel):
-    journal_text: str
-    image_url: Optional[str] = None  # 이미지 생성 실패 시 None
+class JourneySummary(BaseModel):
+    """여정 = 장소 1개 상품. 이야기 본문은 묶음 B에서 별도 스키마로 붙인다.
+
+    값의 근거는 tests/test_journey.py의 docstring에 있다.
+    """
+    journey_id: str
+    title: str
+    subtitle: str = ""
+    theme: str = ""
+    story_count: int
+    free_story_count: int
+    total_minutes: int
+    price_krw: int
+    valid_days: int = 90
+    cover_image: Optional[str] = None
+    kto_content_id: str
+    lat: float
+    lng: float
