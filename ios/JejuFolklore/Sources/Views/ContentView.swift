@@ -2,10 +2,14 @@ import SwiftUI
 import SwiftData
 
 /// 앱 탭 식별자. AppStorage 키 "selected_tab"에 raw value로 저장한다.
+///
+/// 설계 §1의 탭 4개. 구 값("create"·"myCourse")이 저장돼 있으면
+/// `AppTab(rawValue:)`가 nil이 되어 홈으로 떨어진다 — 앱이 깨지지는 않는다.
 enum AppTab: String {
     case home = "home"
-    case create = "create"
-    case myCourse = "myCourse"
+    case story = "story"
+    case course = "course"
+    case mine = "mine"
 }
 
 struct ContentView: View {
@@ -31,22 +35,29 @@ struct ContentView: View {
             NavigationStack {
                 HomeView()
             }
-            .tabItem { Label("홈", systemImage: "house.fill") }
+            .tabItem { Label { Text("홈") } icon: { PixelIcon(.home, size: 24) } }
             .tag(AppTab.home)
 
             NavigationStack {
-                TasteDiscoveryView()
+                StoryListView()
             }
-            .tabItem { Label("코스 만들기", systemImage: "sparkles") }
-            .tag(AppTab.create)
+            .tabItem { Label { Text("스토리") } icon: { PixelIcon(.photo, size: 24) } }
+            .tag(AppTab.story)
 
             NavigationStack {
-                MyCourseListView()
+                CourseHubView()
             }
-            .tabItem { Label("내 코스", systemImage: "bookmark.fill") }
-            .tag(AppTab.myCourse)
+            .tabItem { Label { Text("코스") } icon: { PixelIcon(.map, size: 24) } }
+            .tag(AppTab.course)
+
+            NavigationStack {
+                MineView()
+                    .environmentObject(authManager)
+            }
+            .tabItem { Label { Text("내 것") } icon: { PixelIcon(.person, size: 24) } }
+            .tag(AppTab.mine)
         }
-        .tint(.orange)
+        .tint(PixelColor.primary)
         // SessionRestore 경로: 이전에는 NavigationStack push였지만, 탭별 NavigationStack 분리 이후
         // 어떤 탭에 push할지 모호해서 fullScreenCover로 띄운다. ExploreView 내부 navigationDestination을
         // 위해 자체 NavigationStack 감싸기.
@@ -85,7 +96,7 @@ struct ContentView: View {
         // 탐험 완료 시 navigation stack을 비워 TabView root로 복귀.
         .onReceive(NotificationCenter.default.publisher(for: .exploreDidComplete)) { _ in
             navigateToExplore = false
-            selectedTabRaw = AppTab.myCourse.rawValue
+            selectedTabRaw = AppTab.course.rawValue
         }
         // Firestore 동기화 트리거: 로그인 ↔ 로그아웃에 따라 listener 시작/종료
         .onChange(of: authManager.currentUser?.uid, initial: true) { _, newUid in

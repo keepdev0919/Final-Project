@@ -7,17 +7,15 @@ struct Course: Codable, Identifiable, Equatable {
     let places: [CoursePlace]
     let estimatedMinutes: Int
     let sourceCourseId: String
-    let narrative: String
 
     init(id: String, title: String, durationDays: Int, places: [CoursePlace],
-         estimatedMinutes: Int, sourceCourseId: String = "", narrative: String = "") {
+         estimatedMinutes: Int, sourceCourseId: String = "") {
         self.id = id
         self.title = title
         self.durationDays = durationDays
         self.places = places
         self.estimatedMinutes = estimatedMinutes
         self.sourceCourseId = sourceCourseId
-        self.narrative = narrative
     }
 }
 

@@ -70,3 +70,32 @@ def test_no_route_takes_user_coordinates():
         f"사용자 좌표를 받을 수 있는 경로가 추가됐다: {offenders}. "
         "위치 판정은 단말에서만 한다."
     )
+
+
+def test_home_recommendations_carry_full_course_fields(client):
+    """홈 추천 코스가 iOS `Course` 모델이 요구하는 필드를 모두 담아야 한다.
+
+    iOS `Course`는 `estimatedMinutes`·`sourceCourseId`를 비옵셔널로 선언한다.
+    Swift의 합성 Codable은 이 키가 없으면 **디코딩 전체를 실패**시키는데,
+    호출부가 `try?`로 감싸고 있어 예외가 삼켜지고 목록이 조용히 빈다.
+    실제로 홈의 "추천 코스" 섹션이 계속 비어 있었다(2026-08-14 발견).
+
+    화면이 멀쩡히 뜨면서 내용만 사라지는 종류의 고장이라 테스트로 잡는다.
+    """
+    from unittest.mock import patch
+    from models.schemas import CourseListItem, CoursePlace
+
+    with patch("routers.home.list_courses") as mock_list:
+        mock_list.return_value = [
+            CourseListItem(
+                id="c1", title="테스트 코스", duration_days=2,
+                places=[CoursePlace(name="성산일출봉", lat=33.4, lng=126.9, day=1)],
+            )
+        ]
+        body = client.get("/home/recommendations").json()
+
+    assert body["courses"], "추천 코스가 비었다"
+    for course in body["courses"]:
+        for required in ("id", "title", "duration_days", "places",
+                         "estimated_minutes", "source_course_id"):
+            assert required in course, f"'{required}' 누락 — iOS 디코딩이 통째로 실패한다"

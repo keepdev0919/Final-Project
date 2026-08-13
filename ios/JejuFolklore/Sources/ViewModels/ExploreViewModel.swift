@@ -37,7 +37,7 @@ final class ExploreViewModel: ObservableObject {
     func startExploring() {
         requestNotificationPermission()
         LocationService.shared.requestAlwaysAuthorization()
-        LocationService.shared.onArrival = { [weak self] placeName, pin in
+        LocationService.shared.onArrival = { [weak self] placeName in
             Task { @MainActor [weak self] in
                 self?.handleArrival(placeName: placeName)
             }

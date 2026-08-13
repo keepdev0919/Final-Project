@@ -134,14 +134,6 @@ struct CoursePreviewView: View {
             )
 
             if isSheetExpanded {
-                // 내러티브 — 드래그 핸들 아래 항상 고정 표시
-                if !course.narrative.isEmpty {
-                    NarrativeCard(text: course.narrative)
-                        .padding(.horizontal, 16)
-                        .padding(.top, 12)
-                        .padding(.bottom, 4)
-                }
-
                 // Day 탭 필터
                 if days.count > 1 {
                     dayTabBar
@@ -378,8 +370,7 @@ private struct MapWithPolyline: UIViewRepresentable {
         for item in annotationItems {
             let annotation = NumberedAnnotation(
                 index: item.index,
-                coordinate: CLLocationCoordinate2D(latitude: item.place.lat, longitude: item.place.lng),
-                hasfolklore: !item.place.folklorePins.isEmpty
+                coordinate: CLLocationCoordinate2D(latitude: item.place.lat, longitude: item.place.lng)
             )
             mapView.addAnnotation(annotation)
         }
@@ -433,10 +424,10 @@ private struct MapWithPolyline: UIViewRepresentable {
 
             // 번호 원형 마커를 UIHostingController로 렌더링
             let marker = UIHostingController(
-                rootView: NumberedMarker(number: numbered.index + 1, hasfolklore: numbered.hasfolklore)
+                rootView: NumberedMarker(number: numbered.index + 1)
             )
             marker.view.backgroundColor = .clear
-            marker.view.frame = CGRect(x: 0, y: 0, width: numbered.hasfolklore ? 44 : 32, height: 32)
+            marker.view.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
             view.addSubview(marker.view)
             view.frame = marker.view.frame
             return view
@@ -449,12 +440,10 @@ private struct MapWithPolyline: UIViewRepresentable {
 private final class NumberedAnnotation: NSObject, MKAnnotation {
     let index: Int
     let coordinate: CLLocationCoordinate2D
-    let hasfolklore: Bool
 
-    init(index: Int, coordinate: CLLocationCoordinate2D, hasfolklore: Bool) {
+    init(index: Int, coordinate: CLLocationCoordinate2D) {
         self.index = index
         self.coordinate = coordinate
-        self.hasfolklore = hasfolklore
     }
 }
 
@@ -473,236 +462,64 @@ struct IndexedPlace: Identifiable {
 
 struct NumberedMarker: View {
     let number: Int
-    var hasfolklore: Bool = false
 
     var body: some View {
-        HStack(spacing: 2) {
-            Text("\(number)")
-                .font(.caption.weight(.bold))
-                .foregroundColor(.white)
-                .frame(width: 28, height: 28)
-                .background(Color.orange)
-                .clipShape(Circle())
-                .shadow(radius: 3)
-
-            if hasfolklore {
-                Text("📖")
-                    .font(.system(size: 12))
-                    .shadow(radius: 1)
-            }
-        }
+        Text("\(number)")
+            .font(.caption.weight(.bold))
+            .foregroundColor(.white)
+            .frame(width: 28, height: 28)
+            .background(Color.orange)
+            .clipShape(Circle())
+            .shadow(radius: 3)
     }
 }
 
-struct NarrativeCard: View {
-    let text: String
-    @State private var isExpanded = false
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
-                Image(systemName: "book.pages")
-                    .font(.caption)
-                    .foregroundColor(.orange)
-                Text("여행 이야기")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(.orange)
-                Spacer()
-                Button {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        isExpanded.toggle()
-                    }
-                } label: {
-                    Text(isExpanded ? "접기" : "더 보기")
-                        .font(.caption.weight(.medium))
-                        .foregroundColor(.orange)
-                }
-            }
-            Text(text)
-                .font(.subheadline)
-                .foregroundColor(.primary)
-                .lineSpacing(4)
-                .lineLimit(isExpanded ? nil : 3)
-                .animation(.easeInOut(duration: 0.25), value: isExpanded)
-        }
-        .padding(14)
-        .background(Color.orange.opacity(0.07))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.orange.opacity(0.2), lineWidth: 1)
-        )
-    }
-}
-
-// MARK: - PlaceCard (설화 expand 포함)
+// MARK: - PlaceCard
 
 struct PlaceCard: View {
     let index: Int
     let place: CoursePlace
-    @State private var isExpanded = false
-    @State private var selectedPin: Pin?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // 장소 기본 정보 행
-            HStack(alignment: .top, spacing: 12) {
-                NumberedMarker(number: index, hasfolklore: false)
-                    .padding(.top, 2)
+        HStack(alignment: .top, spacing: 12) {
+            NumberedMarker(number: index)
+                .padding(.top, 2)
 
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(place.name)
-                        .font(.subheadline.weight(.semibold))
-                    if let time = place.startTime, !time.isEmpty {
-                        Text(time)
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    }
-                }
-
-                Spacer()
-
-                // 설화가 있으면 오른쪽에 뱃지
-                if !place.folklorePins.isEmpty {
-                    Text("설화 \(place.folklorePins.count)개")
-                        .font(.caption2.weight(.medium))
-                        .foregroundColor(.orange)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.orange.opacity(0.1))
-                        .clipShape(Capsule())
+            VStack(alignment: .leading, spacing: 3) {
+                Text(place.name)
+                    .font(.subheadline.weight(.semibold))
+                if let time = place.startTime, !time.isEmpty {
+                    Text(time)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
                 }
             }
-            .padding(12)
 
-            // 설화 expand 토글 (설화가 있을 때만)
-            if !place.folklorePins.isEmpty {
-                Divider()
-                    .padding(.horizontal, 12)
-
-                Button {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        isExpanded.toggle()
-                    }
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "book.closed")
-                            .font(.caption)
-                            .foregroundColor(.orange)
-                        Text(isExpanded ? "설화 접기" : "설화 \(place.folklorePins.count)개 보기")
-                            .font(.caption.weight(.medium))
-                            .foregroundColor(.orange)
-                        Spacer()
-                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 9)
-                }
-
-                if isExpanded {
-                    VStack(spacing: 0) {
-                        ForEach(place.folklorePins) { pin in
-                            FolklorePinRow(pin: pin, onTap: { selectedPin = $0 })
-                        }
-                    }
-                    .transition(.opacity.combined(with: .move(edge: .top)))
-                }
-            }
+            Spacer()
         }
+        .padding(12)
         .background(Color(uiColor: .secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .sheet(item: $selectedPin) { pin in
-            FolkloreDetailView(pin: pin)
-        }
-    }
-}
-
-// MARK: - FolklorePinRow
-
-private struct FolklorePinRow: View {
-    let pin: Pin
-    let onTap: (Pin) -> Void
-
-    var body: some View {
-        Button { onTap(pin) } label: {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack(spacing: 6) {
-                        Text(pin.sourceTypeLabel)
-                            .font(.caption2.weight(.semibold))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 3)
-                            .background(Color.orange.opacity(0.8))
-                            .clipShape(Capsule())
-
-                        Text(pin.displayTitle)
-                            .font(.caption.weight(.semibold))
-                            .foregroundColor(.primary)
-                            .lineLimit(2)
-                    }
-
-                    if !pin.summary.isEmpty {
-                        Text(pin.summary)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .lineSpacing(3)
-                            .lineLimit(3)
-                    }
-                }
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                    .padding(.top, 2)
-            }
-        }
-        .buttonStyle(.plain)
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.orange.opacity(0.04))
-        .overlay(
-            Rectangle()
-                .fill(Color.orange.opacity(0.3))
-                .frame(width: 3),
-            alignment: .leading
-        )
     }
 }
 
 // MARK: - Preview (API 없이 바로 확인)
 
 #Preview {
-    let mockPin = Pin(
-        codeNo: "mock-001",
-        title: "설문대할망 전설",
-        sourceType: "legend",
-        summary: "제주도를 창조한 거인 신 설문대할망의 이야기. 한라산을 베개 삼아 누웠을 만큼 거대했다고 전해진다.",
-        lat: 33.499,
-        lng: 126.531,
-        primaryPlace: "한라산",
-        distanceM: 450
-    )
     let mockCourse = Course(
         id: "preview-001",
         title: "2박3일 제주 해안 여행",
         durationDays: 3,
         places: [
-            CoursePlace(name: "성산일출봉", lat: 33.4584, lng: 126.9426, day: 1, folklorePins: [mockPin]),
-            CoursePlace(name: "섭지코지", lat: 33.4299, lng: 126.9279, day: 1, folklorePins: [mockPin, mockPin]),
-            CoursePlace(name: "우도", lat: 33.5029, lng: 126.9516, day: 2, folklorePins: []),
-            CoursePlace(name: "협재해수욕장", lat: 33.3941, lng: 126.2393, day: 2, folklorePins: [mockPin]),
-            CoursePlace(name: "한림공원", lat: 33.4069, lng: 126.2448, day: 3, folklorePins: []),
-            CoursePlace(name: "용두암", lat: 33.5160, lng: 126.5059, day: 3, folklorePins: [mockPin]),
+            CoursePlace(name: "성산일출봉", lat: 33.4584, lng: 126.9426, day: 1),
+            CoursePlace(name: "섭지코지", lat: 33.4299, lng: 126.9279, day: 1),
+            CoursePlace(name: "우도", lat: 33.5029, lng: 126.9516, day: 2),
+            CoursePlace(name: "협재해수욕장", lat: 33.3941, lng: 126.2393, day: 2),
+            CoursePlace(name: "한림공원", lat: 33.4069, lng: 126.2448, day: 3),
+            CoursePlace(name: "용두암", lat: 33.5160, lng: 126.5059, day: 3),
         ],
         estimatedMinutes: 360,
-        sourceCourseId: "preview-001",
-        narrative: "제주의 동쪽 끝, 성산일출봉에서 여행이 시작됩니다. 바다 위로 솟아오른 분화구를 오르며 제주의 탄생 신화를 품은 땅을 밟습니다. 섭지코지의 바람을 맞으며 걷다 보면, 옛 어부들이 바다의 신에게 빌었던 기도 소리가 들리는 듯합니다. 우도의 맑은 바다는 천지왕이 창조했다는 전설처럼 눈이 시릴 만큼 푸릅니다."
+        sourceCourseId: "preview-001"
     )
     NavigationStack {
         CoursePreviewView(course: mockCourse)

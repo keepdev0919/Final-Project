@@ -75,6 +75,11 @@ def get_recommendations(request: Request) -> dict[str, Any]:
         c_dict["preview_image"] = preview
         # iOS 모델 호환: course_id 키도 같이 노출
         c_dict["course_id"] = c_dict.get("id", "")
+        # ⚠️ iOS `Course`가 비옵셔널로 요구하는 필드다. 빠지면 Swift의 합성 Codable이
+        # 디코딩 전체를 실패시키고, 호출부의 `try?`가 예외를 삼켜 목록이 조용히 빈다.
+        # 계산식은 /course/detail과 맞춘다. tests/test_folklore_removed.py 참조.
+        c_dict["estimated_minutes"] = len(places) * 60
+        c_dict["source_course_id"] = c_dict.get("id", "")
         out.append(c_dict)
 
     return {"courses": out}

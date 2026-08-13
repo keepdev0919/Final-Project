@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>놀멍봅서</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -48,6 +50,12 @@
 	<string>이야기를 들으며 음성으로 답하거나 리뷰를 남길 때 마이크를 사용합니다.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>말한 내용을 글자로 바꾸기 위해 Apple 음성 인식을 사용합니다. 이 앱은 음성을 저장하지 않습니다.</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Fonts/Galmuri9.ttf</string>
+		<string>Fonts/Galmuri11.ttf</string>
+		<string>Fonts/Galmuri14.ttf</string>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>

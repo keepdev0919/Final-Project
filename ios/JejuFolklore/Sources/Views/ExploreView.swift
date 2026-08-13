@@ -17,7 +17,6 @@ struct ExploreView: View {
     @State private var hasStopped = false
     @State private var explorationCompleted = false
     @State private var mapPosition: MapCameraPosition = .userLocation(fallback: .automatic)
-    @State private var selectedFolklorePlace: CoursePlace?
     @State private var selectedPlace: CoursePlace?
     @State private var isListExpanded = true
     @State private var reviewTargetPlace: CoursePlace? = nil
@@ -116,7 +115,7 @@ struct ExploreView: View {
                         // 2) NotificationCenter post → 부모 view들(CoursePreviewView,
                         //    SavedCourseDetailView)이 받아서 자신도 dismiss → TabView root 도달.
                         // 3) 마지막으로 자신을 dismiss().
-                        UserDefaults.standard.set(AppTab.myCourse.rawValue, forKey: "selected_tab")
+                        UserDefaults.standard.set(AppTab.course.rawValue, forKey: "selected_tab")
                         // 방금 완료한 코스 ID를 저장 → MyCourseListView.onAppear가 읽고 스크롤+하이라이트.
                         UserDefaults.standard.set(course.id, forKey: "just_completed_course_id")
                         TravelStore.shared.clear()
@@ -125,9 +124,6 @@ struct ExploreView: View {
                     }
                 }
             }
-        }
-        .sheet(item: $selectedFolklorePlace) { place in
-            FolklorePlacePinsView(place: place)
         }
     }
 
@@ -144,15 +140,8 @@ struct ExploreView: View {
                 let place = course.places[i]
                 let isVisited = vm.visitedPlaceNames.contains(place.name)
                 Annotation("", coordinate: CLLocationCoordinate2D(latitude: place.lat, longitude: place.lng)) {
-                    Button {
-                        if !place.folklorePins.isEmpty {
-                            selectedFolklorePlace = place
-                        }
-                    } label: {
-                        NumberedMarker(number: i + 1, hasfolklore: !place.folklorePins.isEmpty)
-                            .opacity(isVisited ? 0.35 : 1.0)
-                    }
-                    .buttonStyle(.plain)
+                    NumberedMarker(number: i + 1)
+                        .opacity(isVisited ? 0.35 : 1.0)
                 }
             }
             if placeCoordinates.count >= 2 {

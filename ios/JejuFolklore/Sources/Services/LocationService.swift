@@ -12,7 +12,7 @@ final class LocationService: NSObject, ObservableObject {
     private let manager = CLLocationManager()
     private var visitedPlaceIDs: Set<String> = []
 
-    var onArrival: ((String, Pin?) -> Void)?  // (placeName, firstPin)
+    var onArrival: ((String) -> Void)?  // (placeName)
 
     // 탐험 중인 코스 장소 목록
     private var activePlaces: [CoursePlace] = []
@@ -82,7 +82,7 @@ final class LocationService: NSObject, ObservableObject {
                     if Date().timeIntervalSince(enteredAt) >= dwellRequired {
                         visitedPlaceIDs.insert(placeID)
                         pendingArrivals.removeValue(forKey: placeID)
-                        onArrival?(place.name, place.folklorePins.first)
+                        onArrival?(place.name)
                     }
                 } else {
                     pendingArrivals[placeID] = Date()

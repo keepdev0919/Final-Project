@@ -23,7 +23,7 @@ struct ArrivalOverlayView: View {
 
                 // 도착 메시지
                 VStack(spacing: 8) {
-                    Text("설화 장소에 도착했습니다")
+                    Text("이야기가 준비된 곳이에요")
                         .font(.title2.weight(.bold))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
@@ -37,8 +37,8 @@ struct ArrivalOverlayView: View {
 
                 // 버튼
                 //
-                // 단계 1에서 여기가 "이야기 듣기" 진입점이 된다. 설화 채팅을
-                // 제거(2026-08-13)한 지금은 확인 버튼 하나만 둔다.
+                // 묶음 B에서 여기가 "이야기 듣기" 진입점이 된다.
+                // 지금은 확인 버튼 하나만 둔다.
                 VStack(spacing: 12) {
                     Button(action: onDismiss) {
                         Text("확인")
@@ -64,7 +64,7 @@ struct ArrivalOverlayView: View {
 }
 
 #Preview {
-    let mockPlace = CoursePlace(name: "성산일출봉", lat: 33.4584, lng: 126.9426, day: 1, folklorePins: [])
+    let mockPlace = CoursePlace(name: "성산일출봉", lat: 33.4584, lng: 126.9426, day: 1)
     ArrivalOverlayView(
         place: mockPlace,
         onDismiss: {}

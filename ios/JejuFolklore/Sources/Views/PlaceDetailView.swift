@@ -11,11 +11,6 @@ struct PlaceDetailView: View {
     @State private var currentPhotoIndex = 0
     @State private var placeReviews: PlaceReviewsResponse? = nil
 
-    /// Lv2: codeNo → 장소-설화 연결 한 줄 캐시
-    @State private var connections: [String: String] = [:]
-    /// Lv3: 풀스크린 스토리 뷰어 트리거
-    @State private var presentedStoryPin: Pin? = nil
-
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
@@ -26,7 +21,6 @@ struct PlaceDetailView: View {
                 Divider()
                 if let detail {
                     overviewSection(detail)
-                    folkloreSection
                     basicInfoSection(detail)
                     introSection(detail)
                     if let reviews = placeReviews, reviews.total > 0 {
@@ -45,11 +39,7 @@ struct PlaceDetailView: View {
         .task {
             async let detailTask: () = loadDetail()
             async let reviewTask: () = loadReviews()
-            async let connectionTask: () = loadConnections()
-            _ = await (detailTask, reviewTask, connectionTask)
-        }
-        .fullScreenCover(item: $presentedStoryPin) { pin in
-            StoryViewerView(pin: pin, placeName: place.name)
+            _ = await (detailTask, reviewTask)
         }
     }
 
@@ -132,105 +122,6 @@ struct PlaceDetailView: View {
             }
             .padding(20)
             Divider()
-        }
-    }
-
-    // MARK: - Folklore (Lv1 + Lv2 + Lv3)
-
-    @ViewBuilder
-    private var folkloreSection: some View {
-        if !place.folklorePins.isEmpty {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 6) {
-                    Image(systemName: "book.closed.fill")
-                        .font(.subheadline)
-                        .foregroundColor(.orange)
-                    Text("이 곳에 깃든 이야기")
-                        .font(.headline)
-                        .foregroundColor(.orange)
-                }
-
-                ForEach(place.folklorePins) { pin in
-                    folkloreCard(pin: pin)
-                }
-            }
-            .padding(20)
-            Divider()
-        }
-    }
-
-    private func folkloreCard(pin: Pin) -> some View {
-        let connection = connections[pin.codeNo]
-        return VStack(alignment: .leading, spacing: 10) {
-            // Lv2: 장소-설화 연결 한 줄 (있을 때만)
-            if let connection, !connection.isEmpty {
-                HStack(alignment: .top, spacing: 6) {
-                    Image(systemName: "mappin.circle.fill")
-                        .font(.caption)
-                        .foregroundColor(.orange)
-                        .padding(.top, 1)
-                    Text(connection)
-                        .font(.caption)
-                        .foregroundColor(.orange)
-                        .lineSpacing(2)
-                }
-            }
-
-            // 카테고리 배지 + Lv1: 코드 접두사 제거된 제목
-            HStack(spacing: 6) {
-                Text(pin.sourceTypeLabel)
-                    .font(.caption2.weight(.semibold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(Color.orange.opacity(0.85))
-                    .clipShape(Capsule())
-                Text(pin.displayTitle)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.primary)
-                    .lineLimit(2)
-            }
-
-            // Lv1: 후크 한 줄 크게 (없으면 summary 의 첫 줄을 폴백)
-            let hookText = (pin.hook?.trimmingCharacters(in: .whitespacesAndNewlines))
-                ?? firstLine(of: pin.summary)
-            if let hookText, !hookText.isEmpty {
-                Text(hookText)
-                    .font(.body.weight(.semibold))
-                    .foregroundColor(.primary)
-                    .lineSpacing(5)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            // Lv3: "이야기 보기" 버튼 → 풀스크린 스토리 뷰어
-            Button {
-                presentedStoryPin = pin
-            } label: {
-                HStack(spacing: 6) {
-                    Text("이야기 보기")
-                        .font(.footnote.weight(.semibold))
-                    Image(systemName: "chevron.right")
-                        .font(.caption2.weight(.semibold))
-                }
-                .foregroundColor(.orange)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 7)
-                .background(Color.orange.opacity(0.12))
-                .clipShape(Capsule())
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.orange.opacity(0.05))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.orange.opacity(0.2), lineWidth: 1)
-        )
-        .contentShape(RoundedRectangle(cornerRadius: 12))
-        .onTapGesture {
-            presentedStoryPin = pin
         }
     }
 
@@ -386,30 +277,6 @@ struct PlaceDetailView: View {
         placeReviews = try? await APIClient.shared.fetchReviews(placeName: place.name)
     }
 
-    /// Lv2: 각 핀별 장소-설화 연결 한 줄을 병렬로 불러온다.
-    /// 백엔드 미구현이면 그냥 비어 있는 상태가 유지된다 (크래시 X).
-    private func loadConnections() async {
-        let pins = place.folklorePins
-        let placeName = place.name
-        guard !pins.isEmpty else { return }
-        await withTaskGroup(of: (String, String?).self) { group in
-            for pin in pins {
-                let codeNo = pin.codeNo
-                group.addTask {
-                    let result = try? await PinsAPI.connection(
-                        codeNo: codeNo,
-                        place: placeName
-                    )
-                    return (codeNo, result)
-                }
-            }
-            for await (codeNo, line) in group {
-                if let line, !line.isEmpty {
-                    connections[codeNo] = line
-                }
-            }
-        }
-    }
 
     // MARK: - Community
 
@@ -490,18 +357,8 @@ private struct InfoRow: View {
 
 #Preview {
     NavigationStack {
-        let mockPin = Pin(
-            codeNo: "001",
-            title: "용두암 전설",
-            sourceType: "legend",
-            summary: "용이 승천하려다 굳어버린 바위라는 전설이 전해진다.",
-            lat: 33.516, lng: 126.505,
-            primaryPlace: "용두암", distanceM: 30
+        PlaceDetailView(
+            place: CoursePlace(name: "용두암", lat: 33.5160, lng: 126.5059, day: 1)
         )
-        let place = CoursePlace(
-            name: "용두암", lat: 33.5160, lng: 126.5059,
-            day: 1, folklorePins: [mockPin]
-        )
-        PlaceDetailView(place: place)
     }
 }
