@@ -31,7 +31,10 @@ struct StoryListView: View {
         .background(PixelColor.background.ignoresSafeArea())
         .navigationTitle("스토리")
         .navigationBarTitleDisplayMode(.inline)
-        .task { await vm.loadHome() }
+        .task {
+            LocationService.shared.requestCurrentLocationOnce()
+            await vm.loadHome()
+        }
         .sheet(item: $presentedJourney) { journey in
             JourneyPlaceholderSheet(journey: journey)
         }

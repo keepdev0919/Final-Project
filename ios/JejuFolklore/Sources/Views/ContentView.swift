@@ -35,26 +35,34 @@ struct ContentView: View {
             NavigationStack {
                 HomeView()
             }
-            .tabItem { Label { Text("홈") } icon: { PixelIcon(.home, size: 24) } }
+            .tabItem {
+                Label { Text("홈") } icon: { Image(uiImage: PixelIcon.uiImage(.home)) }
+            }
             .tag(AppTab.home)
 
             NavigationStack {
                 StoryListView()
             }
-            .tabItem { Label { Text("스토리") } icon: { PixelIcon(.photo, size: 24) } }
+            .tabItem {
+                Label { Text("스토리") } icon: { Image(uiImage: PixelIcon.uiImage(.photo)) }
+            }
             .tag(AppTab.story)
 
             NavigationStack {
                 CourseHubView()
             }
-            .tabItem { Label { Text("코스") } icon: { PixelIcon(.map, size: 24) } }
+            .tabItem {
+                Label { Text("코스") } icon: { Image(uiImage: PixelIcon.uiImage(.map)) }
+            }
             .tag(AppTab.course)
 
             NavigationStack {
                 MineView()
                     .environmentObject(authManager)
             }
-            .tabItem { Label { Text("내 것") } icon: { PixelIcon(.person, size: 24) } }
+            .tabItem {
+                Label { Text("내 것") } icon: { Image(uiImage: PixelIcon.uiImage(.person)) }
+            }
             .tag(AppTab.mine)
         }
         .tint(PixelColor.primary)

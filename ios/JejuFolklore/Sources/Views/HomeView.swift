@@ -40,7 +40,8 @@ struct HomeView: View {
         .navigationTitle("놀멍봅서")
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            LocationService.shared.requestWhenInUseAuthorization()
+            // "지금 여기예요" 배지 판정용. 지속 추적이 아니라 1회성이다.
+            LocationService.shared.requestCurrentLocationOnce()
             await vm.loadHome()
         }
         .sheet(item: $presentedCourse) { course in
