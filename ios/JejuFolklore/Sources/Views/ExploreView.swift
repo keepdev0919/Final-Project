@@ -6,7 +6,6 @@ import MapKit
 struct ExploreView: View {
     let course: Course
     let transport: String
-    let categoryScores: [String: Int]
 
     @StateObject private var vm: ExploreViewModel
     @StateObject private var location = LocationService.shared
@@ -43,14 +42,12 @@ struct ExploreView: View {
         }
         return idx ?? 0
     }
-    init(course: Course, transport: String, categoryScores: [String: Int] = [:]) {
+    init(course: Course, transport: String) {
         self.course = course
         self.transport = transport
-        self.categoryScores = categoryScores
         _vm = StateObject(wrappedValue: ExploreViewModel(
             course: course,
-            transport: transport,
-            categoryScores: categoryScores
+            transport: transport
         ))
     }
 
@@ -93,6 +90,11 @@ struct ExploreView: View {
         // 떴는데, 채팅을 제거(2026-08-13)하면서 트리거가 사라졌다. 도착 직후에
         // 리뷰를 묻는 것은 어색하므로 억지로 붙이지 않고, 단계 1에서 "이야기를
         // 다 들은 뒤"에 연결한다. 그때까지 이 시트는 도달 불가 상태다.
+        //
+        // 파급: 이 시트가 유일한 사용처였던 것들도 함께 클라이언트 0이 된다.
+        //   - Services/SpeechRecognizer.swift (음성 받아쓰기)
+        //   - backend/routers/review.py (POST /place/review, GET /place/reviews/{name})
+        // 셋 다 단계 1에서 함께 되살아난다. 죽은 코드로 보고 지우지 말 것.
         .sheet(isPresented: $showPlaceReview) {
             if let place = reviewTargetPlace {
                 PlaceReviewSheet(

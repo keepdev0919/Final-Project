@@ -32,8 +32,7 @@ struct CourseListView: View {
                     course: course,
                     hasNext: vm.hasNextCourse,
                     onNext: { shouldLoadNext = true },
-                    onReset: { vm.reset() },
-                    categoryScores: vm.categoryScores
+                    onReset: { vm.reset() }
                 )
             }
         }

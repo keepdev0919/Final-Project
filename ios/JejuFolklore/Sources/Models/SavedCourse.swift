@@ -83,12 +83,22 @@ final class SavedCourse {
         return try? JSONDecoder().decode([String].self, from: data)
     }
 
-    /// 탐험을 끝낸 코스인지 여부.
+    /// 탐험 기록이 있는지 여부. **기록 표시용**이다.
     ///
     /// 예전에는 `journalText != nil`로 판정했다. 일지·민화 생성을 제거(2026-08-13)한
     /// 뒤에는 일지가 항상 nil이므로 완료 시각으로 판정한다.
     var hasExploration: Bool {
         exploredAt != nil
+    }
+
+    /// 실제로 한 곳 이상 방문했는지. **"탐험 시작" 버튼의 게이트로 쓴다.**
+    ///
+    /// 게이트에 `hasExploration`을 쓰면 안 된다. "탐험 마치기"를 누르는 순간
+    /// `exploredAt`이 채워지므로, 장소를 0곳 방문한 채 실수로 한 번 누른 것만으로도
+    /// 그 코스가 영구히 탐험 불가가 되고 되돌릴 UI가 없다.
+    /// (일지 생성 시절에는 일지를 완성해야 true였기에 이 문제가 없었다.)
+    var hasVisitedAnyPlace: Bool {
+        !(visitedPlaceNames ?? []).isEmpty
     }
 
     /// 탐험 결과를 기록. 단계 1의 기록 화면이 이 데이터를 읽는다.

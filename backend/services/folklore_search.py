@@ -1,4 +1,8 @@
-"""장소명 기반 설화 RAG 검색 — chat.py와 travel.py에서 공유."""
+"""장소명 기반 설화 RAG 검색.
+⚠️ **현재 import하는 곳이 없다.** 유일한 사용처였던 routers/travel.py(설화 RAG
+채팅)를 2026-08-13에 제거했다. **지우지 말 것** — 방향 SSoT가 RAG를 "옆길 자유
+질문 보조"로 강등했을 뿐 폐기하지는 않았고, 단계 1 이후 그 용도로 되살린다.
+"""
 from services.db import get_chroma_collection, embed_query
 
 

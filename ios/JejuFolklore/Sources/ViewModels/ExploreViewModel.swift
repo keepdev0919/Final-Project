@@ -8,7 +8,6 @@ final class ExploreViewModel: ObservableObject {
 
     // Arrival overlay
     @Published var arrivedPlace: CoursePlace?
-    @Published var lastArrivedPlace: CoursePlace?
     @Published var showArrivalOverlay = false
 
     let course: Course
@@ -16,7 +15,7 @@ final class ExploreViewModel: ObservableObject {
 
     private var travelSession: TravelSession
 
-    init(course: Course, transport: String, categoryScores: [String: Int]) {
+    init(course: Course, transport: String) {
         self.course = course
         self.transport = transport
 
@@ -76,7 +75,6 @@ final class ExploreViewModel: ObservableObject {
         TravelStore.shared.save(travelSession)
 
         arrivedPlace = place
-        lastArrivedPlace = place
         showArrivalOverlay = true
         sendArrivalNotification(placeName: placeName)
     }

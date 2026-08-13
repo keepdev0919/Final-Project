@@ -9,7 +9,6 @@ struct CoursePreviewView: View {
     let hasNext: Bool
     let onNext: (() -> Void)?
     let onReset: (() -> Void)?
-    let categoryScores: [String: Int]
     @StateObject private var vm: CoursePreviewViewModel
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -18,12 +17,11 @@ struct CoursePreviewView: View {
     @State private var isSheetExpanded = true
     @State private var selectedPlace: CoursePlace?
 
-    init(course: Course, hasNext: Bool = false, onNext: (() -> Void)? = nil, onReset: (() -> Void)? = nil, categoryScores: [String: Int] = [:]) {
+    init(course: Course, hasNext: Bool = false, onNext: (() -> Void)? = nil, onReset: (() -> Void)? = nil) {
         self.course = course
         self.hasNext = hasNext
         self.onNext = onNext
         self.onReset = onReset
-        self.categoryScores = categoryScores
         _vm = StateObject(wrappedValue: CoursePreviewViewModel(course: course))
     }
 
@@ -60,8 +58,7 @@ struct CoursePreviewView: View {
         .navigationDestination(isPresented: $navigateToExplore) {
             ExploreView(
                 course: course,
-                transport: "car",
-                categoryScores: categoryScores
+                transport: "car"
             )
         }
         // 탐험 완료 시 자신도 dismiss → TabView root까지 연쇄적으로 pop.

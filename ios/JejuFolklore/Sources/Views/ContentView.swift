@@ -53,7 +53,7 @@ struct ContentView: View {
         .fullScreenCover(isPresented: $navigateToExplore) {
             if let course = resumeCourse {
                 NavigationStack {
-                    ExploreView(course: course, transport: resumeTransport, categoryScores: [:])
+                    ExploreView(course: course, transport: resumeTransport)
                 }
             }
         }

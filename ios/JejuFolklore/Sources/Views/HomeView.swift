@@ -83,7 +83,7 @@ struct HomeView: View {
         // 추천 코스 → CoursePreview
         .sheet(item: $presentedCourse) { course in
             NavigationStack {
-                CoursePreviewView(course: course, hasNext: false, categoryScores: [:])
+                CoursePreviewView(course: course, hasNext: false)
             }
         }
         // 복수 핀 → 설화 목록 시트

@@ -233,9 +233,13 @@ struct SavedCourseDetailView: View {
                         explorationSection
                     }
 
-                    // 탐험 시작 — 아직 탐험 안 한 코스에만 노출.
+                    // 탐험 시작 — 아직 한 곳도 방문하지 않은 코스에만 노출.
                     // (탐험 완료 코스의 "다시 탐험하기" 기능은 제거됨)
-                    if !course.hasExploration {
+                    //
+                    // 게이트가 hasExploration이 아니라 hasVisitedAnyPlace인 이유는
+                    // SavedCourse의 해당 주석 참조 — 실수로 "탐험 마치기"를 누른
+                    // 경우를 영구 잠금으로 만들지 않기 위함이다.
+                    if !course.hasVisitedAnyPlace {
                         Button("탐험 시작") {
                             startExplore = true
                         }
@@ -290,7 +294,7 @@ struct SavedCourseDetailView: View {
     private var explorationSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("여행 일지")
+                Text("탐험 기록")
                     .font(.headline)
                 Spacer()
                 if let exploredAt = course.exploredAt {
