@@ -9,13 +9,11 @@ from fastapi import APIRouter, HTTPException, Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from services.db import get_db_connection
-from routers.tourist import _kto_get  # tourist.py와 중복 방지
+from routers.tourist import _kto_get, CACHE_TTL  # tourist.py와 중복 방지
 
 router = APIRouter(prefix="/place", tags=["place"])
 limiter = Limiter(key_func=get_remote_address)
 logger = logging.getLogger(__name__)
-
-CACHE_TTL = 7 * 24 * 3600  # 7일
 
 
 def _find_content_id(name: str, lat: float, lng: float) -> tuple[str, str] | None:
