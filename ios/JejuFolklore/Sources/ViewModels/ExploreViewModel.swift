@@ -15,13 +15,6 @@ final class ExploreViewModel: ObservableObject {
     @Published var activeChatPlace: CoursePlace?
     @Published var showCompanionChat = false
 
-    // Travel journal
-    @Published var journalText: String = ""
-    @Published var journalImageURL: URL?
-    @Published var isGeneratingJournal = false
-    @Published var showJournal = false
-    @Published var showDaySummary = false
-
     let course: Course
     let transport: String
     let companion: CompanionCharacter
@@ -117,23 +110,6 @@ final class ExploreViewModel: ObservableObject {
         travelSession.appendMessage(msg, to: placeName)
         TravelStore.shared.save(travelSession)
         objectWillChange.send()
-    }
-
-    // MARK: - Journal generation
-
-    func generateJournal() async {
-        isGeneratingJournal = true
-        showJournal = true
-        journalImageURL = nil
-        do {
-            let result = try await TravelAPI.generateJournal(session: travelSession)
-            journalText = result.text
-            journalImageURL = result.imageUrl
-        } catch {
-            journalText = "여행 일지를 생성하지 못했어요. 나중에 다시 시도해주세요."
-            journalImageURL = nil
-        }
-        isGeneratingJournal = false
     }
 
     // MARK: - Notification

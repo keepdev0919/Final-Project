@@ -215,7 +215,6 @@ struct SavedCourseDetailView: View {
     @Bindable var course: SavedCourse
     @State private var startExplore = false
     @State private var showEditTitle = false
-    @State private var showEditJournal = false
     @Environment(\.dismiss) private var dismiss
 
     private static let dateFormatter: DateFormatter = {
@@ -224,11 +223,6 @@ struct SavedCourseDetailView: View {
         f.dateFormat = "yyyy년 M월 d일"
         return f
     }()
-
-    private var journalUIImage: UIImage? {
-        guard let data = course.journalImageData else { return nil }
-        return UIImage(data: data)
-    }
 
     var body: some View {
         NavigationStack {
@@ -264,13 +258,6 @@ struct SavedCourseDetailView: View {
                         } label: {
                             Label("코스 이름 변경", systemImage: "pencil")
                         }
-                        if course.hasExploration {
-                            Button {
-                                showEditJournal = true
-                            } label: {
-                                Label("일지 수정", systemImage: "square.and.pencil")
-                            }
-                        }
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
@@ -290,9 +277,6 @@ struct SavedCourseDetailView: View {
             }
             .sheet(isPresented: $showEditTitle) {
                 EditCourseTitleSheet(course: course)
-            }
-            .sheet(isPresented: $showEditJournal) {
-                EditJournalSheet(course: course)
             }
         }
         // 탐험 완료 시 sheet 자체를 닫아 MyCourseList(탭 root)로 복귀.
@@ -318,22 +302,6 @@ struct SavedCourseDetailView: View {
             .padding(.horizontal, 16)
 
             VStack(alignment: .leading, spacing: 12) {
-                // 민화 이미지
-                if let image = journalUIImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                }
-
-                // 일지 텍스트
-                if let text = course.journalText, !text.isEmpty {
-                    Text(text)
-                        .font(.body)
-                        .foregroundColor(.primary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
                 // 방문한 장소들
                 if let visited = course.visitedPlaceNames, !visited.isEmpty {
                     Divider()
@@ -400,45 +368,6 @@ struct EditCourseTitleSheet: View {
             .onAppear { draft = course.title }
         }
         .presentationDetents([.medium])
-    }
-
-    private func syncToFirestore() {
-        guard let uid = authManager.currentUser?.uid else { return }
-        Task { @MainActor in
-            try? await FirestoreSyncService.shared.pushSavedCourse(course, uid: uid)
-        }
-    }
-}
-
-struct EditJournalSheet: View {
-    @Bindable var course: SavedCourse
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var authManager: AuthManager
-    @State private var draft: String = ""
-
-    var body: some View {
-        NavigationStack {
-            TextEditor(text: $draft)
-                .padding(16)
-                .scrollContentBackground(.hidden)
-                .background(Color(.systemBackground))
-                .navigationTitle("일지 수정")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("취소") { dismiss() }
-                    }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("저장") {
-                            course.journalText = draft
-                            syncToFirestore()
-                            dismiss()
-                        }
-                        .disabled(draft == (course.journalText ?? ""))
-                    }
-                }
-                .onAppear { draft = course.journalText ?? "" }
-        }
     }
 
     private func syncToFirestore() {

@@ -1,21 +1,17 @@
 import Foundation
 import SwiftData
 import FirebaseFirestore
-import FirebaseStorage
 
 /// Firestore와 SwiftData(SavedCourse) 간 양방향 동기화 서비스.
 ///
 /// - Cloud Firestore의 오프라인 캐시 + 서버 타임스탬프 기반 Last-Write-Wins 전략을 활용한다.
 /// - 로그인 사용자의 `users/{uid}/savedCourses/{courseId}` 컬렉션을 구독해
 ///   원격 변경분을 로컬 SwiftData로 upsert한다.
-/// - 이미지(journalImageData)는 Storage `users/{uid}/journal-images/{courseId}.jpg`에
-///   업로드 후 downloadURL을 `journalImageUrl`로 저장한다 (현 단계는 placeholder, 텍스트만 동작).
 @MainActor
 final class FirestoreSyncService: ObservableObject {
     static let shared = FirestoreSyncService()
 
     private let db = Firestore.firestore()
-    private let storage = Storage.storage()
     private var listener: ListenerRegistration?
 
     private init() {}
@@ -68,22 +64,6 @@ final class FirestoreSyncService: ObservableObject {
 
         var data = course.toFirestoreData()
 
-        // 이미지 업로드: 데이터가 있고 아직 URL이 없을 때만 업로드 (placeholder 구현)
-        if let imageData = course.journalImageData, course.journalImageUrl == nil {
-            do {
-                let url = try await uploadJournalImage(
-                    data: imageData,
-                    uid: uid,
-                    courseId: course.id
-                )
-                data["journalImageUrl"] = url
-                course.journalImageUrl = url
-            } catch {
-                // 이미지 업로드 실패해도 메타 데이터는 푸시
-                print("[FirestoreSync] image upload failed: \(error.localizedDescription)")
-            }
-        }
-
         // userId가 비어있으면 현재 uid로 채워서 푸시
         if data["userId"] == nil {
             data["userId"] = uid
@@ -124,40 +104,4 @@ final class FirestoreSyncService: ObservableObject {
         context.delete(existing)
     }
 
-    /// Journal 이미지를 Storage에 업로드하고 downloadURL을 반환한다.
-    private func uploadJournalImage(
-        data: Data,
-        uid: String,
-        courseId: String
-    ) async throws -> String {
-        let ref = storage.reference()
-            .child("users/\(uid)/journal-images/\(courseId).jpg")
-
-        let metadata = StorageMetadata()
-        metadata.contentType = "image/jpeg"
-
-        return try await withCheckedThrowingContinuation { continuation in
-            ref.putData(data, metadata: metadata) { _, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                    return
-                }
-                ref.downloadURL { url, error in
-                    if let error {
-                        continuation.resume(throwing: error)
-                        return
-                    }
-                    guard let url else {
-                        continuation.resume(throwing: NSError(
-                            domain: "FirestoreSyncService",
-                            code: -1,
-                            userInfo: [NSLocalizedDescriptionKey: "downloadURL missing"]
-                        ))
-                        return
-                    }
-                    continuation.resume(returning: url.absoluteString)
-                }
-            }
-        }
-    }
 }

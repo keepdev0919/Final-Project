@@ -12,6 +12,8 @@ final class SavedCourse {
     var placesData: Data   // JSON-encoded [CoursePlace]
 
     // MARK: - Exploration archive fields (Optional for auto-migration)
+    // ⚠️ 일지·민화 생성은 2026-08-13에 제거했다. 아래 세 필드는 **기존 Firestore
+    // 문서를 읽기 위해서만** 남긴다. 새로 값이 채워지는 경로는 없다.
     var journalText: String?
     var journalImageData: Data?
     var journalImageUrl: String?
@@ -81,15 +83,16 @@ final class SavedCourse {
         return try? JSONDecoder().decode([String].self, from: data)
     }
 
-    /// 탐험이 완료되어 일지/이미지가 저장된 코스인지 여부
+    /// 탐험을 끝낸 코스인지 여부.
+    ///
+    /// 예전에는 `journalText != nil`로 판정했다. 일지·민화 생성을 제거(2026-08-13)한
+    /// 뒤에는 일지가 항상 nil이므로 완료 시각으로 판정한다.
     var hasExploration: Bool {
-        journalText != nil
+        exploredAt != nil
     }
 
-    /// 한 번에 탐험 결과를 기록
-    func recordExploration(journalText: String, imageData: Data?, visitedPlaces: [String]) {
-        self.journalText = journalText
-        self.journalImageData = imageData
+    /// 탐험 결과를 기록. 단계 1의 기록 화면이 이 데이터를 읽는다.
+    func recordExploration(visitedPlaces: [String]) {
         self.visitedPlaceNamesData = (try? JSONEncoder().encode(visitedPlaces))
         self.exploredAt = Date()
     }

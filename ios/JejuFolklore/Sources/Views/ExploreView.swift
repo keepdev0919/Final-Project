@@ -16,7 +16,7 @@ struct ExploreView: View {
     @Query private var savedCourses: [SavedCourse]
 
     @State private var hasStopped = false
-    @State private var journalCompleted = false
+    @State private var explorationCompleted = false
     @State private var mapPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var selectedFolklorePlace: CoursePlace?
     @State private var selectedPlace: CoursePlace?
@@ -81,7 +81,7 @@ struct ExploreView: View {
                 Button("탐험 마치기") {
                     hasStopped = true
                     vm.stopExploring()
-                    vm.showDaySummary = true
+                    explorationCompleted = true
                 }
                 .foregroundColor(.orange)
                 .fontWeight(.semibold)
@@ -116,35 +116,8 @@ struct ExploreView: View {
                 )
             }
         }
-        .sheet(isPresented: $vm.showDaySummary) {
-            DaySummaryView(
-                visitedPlaces: vm.orderedVisitedPlaceNames,
-                companion: vm.companion,
-                onGenerateJournal: {
-                    vm.showDaySummary = false
-                    Task { await vm.generateJournal() }
-                },
-                onDismiss: { vm.showDaySummary = false }
-            )
-        }
-        .sheet(isPresented: $vm.showJournal) {
-            if vm.isGeneratingJournal {
-                JournalLoadingView(companion: vm.companion)
-            } else {
-                TravelJournalView(
-                    journalText: vm.journalText,
-                    imageURL: vm.journalImageURL,
-                    visitedPlaces: vm.orderedVisitedPlaceNames,
-                    companion: vm.companion,
-                    onDone: {
-                        journalCompleted = true
-                        vm.showJournal = false
-                    }
-                )
-            }
-        }
-        .onChange(of: journalCompleted) {
-            if journalCompleted {
+        .onChange(of: explorationCompleted) {
+            if explorationCompleted {
                 Task {
                     await archiveExploration()
                     await MainActor.run {
@@ -415,59 +388,27 @@ struct ExploreView: View {
 
     // MARK: - Exploration Archive
 
-    /// 탐험 완료 시 SavedCourse(SwiftData)에 일지/이미지/방문 장소를 영구 저장한다.
+    /// 탐험 완료 시 SavedCourse(SwiftData)에 방문 장소와 완료 시각을 영구 저장한다.
     /// - 기존 코스(같은 id)가 있으면 갱신, 없으면 새 SavedCourse를 생성해서 insert.
-    /// - 이미지 URL은 data:image/png;base64 형태 → 직접 디코딩, https → 다운로드.
+    /// - 단계 1의 픽셀아트 기록 화면이 이 데이터를 읽는다.
     private func archiveExploration() async {
-        let journalText = vm.journalText
         let visitedPlaces = vm.orderedVisitedPlaceNames
-        let imageData = await loadJournalImageData(from: vm.journalImageURL)
 
         // 같은 id가 이미 SavedCourse로 있는지 검색 (수동 필터 — predicate가 없어도 충분)
         let targetId = course.id
         await MainActor.run {
             let existing = savedCourses.first(where: { $0.id == targetId })
             if let existing {
-                existing.recordExploration(
-                    journalText: journalText,
-                    imageData: imageData,
-                    visitedPlaces: visitedPlaces
-                )
+                existing.recordExploration(visitedPlaces: visitedPlaces)
             } else {
                 let newSaved = SavedCourse(from: course)
-                newSaved.recordExploration(
-                    journalText: journalText,
-                    imageData: imageData,
-                    visitedPlaces: visitedPlaces
-                )
+                newSaved.recordExploration(visitedPlaces: visitedPlaces)
                 modelContext.insert(newSaved)
             }
             try? modelContext.save()
         }
     }
 
-    /// 일지 이미지 URL을 Data로 로드한다. 실패 시 nil.
-    private func loadJournalImageData(from url: URL?) async -> Data? {
-        guard let url else { return nil }
-        let urlString = url.absoluteString
-
-        // data:image/...;base64,... 처리
-        if urlString.hasPrefix("data:") {
-            if let commaIdx = urlString.firstIndex(of: ",") {
-                let base64Part = String(urlString[urlString.index(after: commaIdx)...])
-                return Data(base64Encoded: base64Part)
-            }
-            return nil
-        }
-
-        // 일반 http(s) 다운로드
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            return data
-        } catch {
-            return nil
-        }
-    }
 }
 
 // MARK: - ExploreDaySectionView
