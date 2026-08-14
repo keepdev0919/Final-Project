@@ -166,15 +166,50 @@
 
 ---
 
-## 7. 오디오 가이드
+## 7. 오디오 가이드 (오디 Odii) — ✅ 정상 동작 (2026-08-14 정정)
 
-**엔드포인트:** `GET /GuideService/guideList` 또는 `GuideService2/guideList2`
+> **⚠️ 이전 기록("모든 파라미터 조합에서 500, 사용 불가")은 틀렸다.**
+> **엔드포인트를 잘못 짚었다.** `GuideService`가 아니라 **`Odii`** 다.
+> 활용매뉴얼 13번 문서에서 확인하고 실호출로 검증했다.
 
-**한 줄 설명:** "관광지별 음성 해설 스크립트/파일을 가져온다"
+**서비스 URL:** `http://apis.data.go.kr/B551011/Odii/`
 
-> ⚠️ 모든 파라미터 조합에서 HTTP 500 오류. 현재 서비스 운영 중단 상태로 추정. 사용 불가.
+**⚠️ `langCode`가 필수다.** 빠뜨리면 `resultCode 11 NO_MANDATORY_REQUEST_PARAMETERS_ERROR1(langCode)`.
 
-**미래 활용 계획:** 설화 장소 도착 시 음성 해설 재생. 우리 TTS API와 결합 가능.
+| 오퍼레이션 | 설명 |
+|---|---|
+| `themeBasedList` | 관광지 기본 정보 목록 |
+| `themeLocationBasedList` | 관광지 위치기반 목록 |
+| `themeSearchList` | 관광지 키워드 검색 |
+| `storyBasedList` | 이야기 기본 정보 목록 |
+| **`storyLocationBasedList`** | **이야기 위치기반 목록** ← GPS 도착 시 사용 |
+| `storySearchList` | 이야기 키워드 검색 |
+| `themeBasedSyncList` · `storyBasedSyncList` | 동기화용 |
+
+**응답 필드:** `tid, tlid, stid, stlid, title, audioTitle, script, audioUrl, imageUrl, mapX, mapY, playTime, langCode, createdtime, modifiedtime`
+
+**실측 데이터 규모 (2026-08-14)**
+
+| 범위 | 한국어 | 영어 |
+|---|---|---|
+| 전국 (`storyBasedList`) | 6,538건 | 4,538건 |
+| 제주 반경 20km | 149건 | 130건 |
+| 성산일출봉 반경 3km | **2건** | — |
+
+**⚠️ 알아둘 것 세 가지**
+
+1. **장소당 이야기 1개다.** 성산 반경 3km에 2건뿐이고(일반 해설 + 초등 교과연계), 지점별로 쪼개져 있지 않다. "성산 안의 관찰 지점 5개"는 여전히 우리가 나눠야 한다.
+2. **`audioUrl`이 비어 있는 건이 있다.** 대본(`script`)은 있지만 음성 파일이 없는 경우가 섞여 있다. TTS로 대체하면 "오디 음성을 트는 것"이 아니라 "오디 대본을 우리가 읽는 것"이 되므로 저작권 판단이 달라진다.
+3. **공지의 "관광지오디오 69,585건"과 다르다.** 그 숫자는 다국어·테마 포함 합계로 보인다. 한국어 이야기 실측은 6,538건.
+
+**응답 형태가 두 가지다.** 같은 오퍼레이션이 `{"response":{"body":{"items":{"item":[...]}}}}` 로도, `{"items":[...], "totalCount":N}` 로도 온다. 파싱할 때 둘 다 처리해야 한다.
+
+**호출 예시**
+```
+http://apis.data.go.kr/B551011/Odii/storyLocationBasedList
+  ?serviceKey=<KEY>&MobileOS=IOS&MobileApp=<앱명>&_type=json
+  &langCode=ko&mapX=126.9415&mapY=33.4581&radius=3000&numOfRows=20&pageNo=1
+```
 
 ---
 
@@ -188,7 +223,7 @@
 | 연관 관광지 (TarRlteTarService1) | ❌ 데이터 없음 | — |
 | 집중률 예측 (TatsCntrRateService) | ❌ 500 오류 | — |
 | 관광사진 (detailImage2) | ✅ | 중간 — 코스 화면 사진 |
-| 오디오 가이드 (GuideService) | ❌ 500 오류 | — |
+| **오디오 가이드 (Odii)** | ✅ | **매우 높음** — 대본·좌표·영어까지 |
 
-**핵심 결론:** 지금 당장 에이전트에 붙일 수 있는 KTO API는 `locationBasedList2` 하나.  
+**핵심 결론 (2026-08-14 갱신):** `locationBasedList2` + **`Odii/storyLocationBasedList`** 둘 다 쓸 수 있다.  
 설화 장소 GPS → 반경 지정 → 주변 관광지 목록. 현재 course_places DB 조회를 이걸로 보완 가능.
