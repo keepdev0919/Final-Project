@@ -1,0 +1,425 @@
+/* 놀멍봅서 문서 뷰어 스타일
+ *
+ * 모든 값은 DESIGN.md에서 가져왔다. 여기서 새 값을 만들지 않는다.
+ *   색      → DESIGN.md §2 (제주 파스텔 픽셀 팔레트, 라이트/다크)
+ *   글자    → §3 (갈무리는 UI 셸에만. 긴 글은 시스템 폰트 — §3 "긴 글은 픽셀 폰트를 쓰지 않는다")
+ *   여백    → §4 (전부 4의 배수)
+ *   모양    → §5 (모서리 반경 0, 잉크색 실선 테두리, 번지지 않는 +3/+3 그림자)
+ *   움직임  → §7 (100~150ms, 흐림 없음)
+ */
+
+/* ── 폰트 (§3) ─────────────────────────────────────────────── */
+
+@font-face {
+  font-family: 'Galmuri11';
+  src: url('/static/vendor/Galmuri11.woff2') format('woff2');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Galmuri9';
+  src: url('/static/vendor/Galmuri9.woff2') format('woff2');
+  font-display: swap;
+}
+
+/* ── 색 (§2) ───────────────────────────────────────────────── */
+
+:root {
+  --bg:        #F4EFE4;  /* 모래빛 */
+  --surface:   #FFFFFF;
+  --ink:       #1E1B18;  /* 현무암 */
+  --ink-weak:  #6B635A;
+  --primary:   #1E6F6B;  /* 성산 앞바다 */
+  --accent:    #F2B233;  /* 유채 */
+  --locked:    #C9503C;  /* 화산 적갈 */
+  --done:      #4E8C3F;  /* 억새 */
+  --ink-fixed-dark: #1E1B18; /* 밝은 배지 위 글자는 모드 무관 고정 (§6) */
+
+  /* 격자 (§4) — 4의 배수만 */
+  --s1: 4px;  --s2: 8px;  --s3: 12px; --s4: 16px;
+  --s6: 24px; --s8: 32px; --s12: 48px;
+
+  --border-thin: 2px;  /* 버튼·입력창·배지 */
+  --border-thick: 3px; /* 카드·시트 */
+
+  --font-pixel-lg: 'Galmuri11', monospace;
+  --font-pixel-sm: 'Galmuri9', monospace;
+  --font-read: 'Apple SD Gothic Neo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+:root[data-theme="dark"],
+:root:not([data-theme="light"]) {
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:       #14181A;
+    --surface:  #1E2427;
+    --ink:      #EDE7DC;
+    --ink-weak: #9A9187;
+    --primary:  #4FB3AD;
+    --accent:   #FFC759;
+    --locked:   #E0705A;
+    --done:     #6FAE5E;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg:       #14181A;
+  --surface:  #1E2427;
+  --ink:      #EDE7DC;
+  --ink-weak: #9A9187;
+  --primary:  #4FB3AD;
+  --accent:   #FFC759;
+  --locked:   #E0705A;
+  --done:     #6FAE5E;
+  color-scheme: dark;
+}
+
+/* ── 기본 ──────────────────────────────────────────────────── */
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-read);
+  font-size: 16px;
+  line-height: 1.75;
+  overflow: hidden; /* 스크롤은 안쪽 두 칸이 각자 담당 */
+}
+
+::selection { background: var(--accent); color: var(--ink-fixed-dark); }
+
+/* 스크롤바도 각지게 (§5 반경 0) */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--ink-weak); border: var(--border-thin) solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+/* ── 상단 바 ───────────────────────────────────────────────── */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  height: 56px;              /* §4 탭바 높이 */
+  padding: 0 var(--s4);
+  background: var(--surface);
+  border-bottom: var(--border-thick) solid var(--ink);
+  position: relative;
+  z-index: 10;
+}
+
+/* §1 로고 — "놀멍봅서" 4글자를 2줄로 쌓는다. 한 줄로 늘어놓으면 가늘어진다. */
+.logo {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  gap: 0;
+  font-family: var(--font-pixel-lg);
+  font-size: 11px;
+  line-height: 1.2;
+  text-decoration: none;
+  padding: var(--s1) var(--s2);
+  border: var(--border-thin) solid var(--ink);
+  background: var(--accent);
+  color: var(--ink-fixed-dark);   /* 밝은 배경 위 고정 어두운색 (§6) */
+  box-shadow: 3px 3px 0 var(--ink);
+  flex: 0 0 auto;
+}
+.logo:active { transform: translate(3px, 3px); box-shadow: none; }
+
+.topbar-title {
+  font-family: var(--font-pixel-lg);
+  font-size: 22px;           /* 11 × 2 (§3) */
+  flex: 0 0 auto;
+}
+
+.search-wrap { flex: 1 1 auto; display: flex; justify-content: center; }
+
+#search {
+  width: 100%;
+  max-width: 420px;
+  height: 32px;
+  padding: 0 var(--s3);
+  font-family: var(--font-pixel-sm);
+  font-size: 18px;           /* 9 × 2 (§3) */
+  color: var(--ink);
+  background: var(--bg);
+  border: var(--border-thin) solid var(--ink);
+  border-radius: 0;
+  outline: none;
+  -webkit-appearance: none;
+}
+#search:focus { border-color: var(--primary); border-width: var(--border-thick); }
+#search::placeholder { color: var(--ink-weak); }
+
+.pixel-btn {
+  font-family: var(--font-pixel-sm);
+  font-size: 18px;
+  color: var(--ink);
+  background: var(--surface);
+  border: var(--border-thin) solid var(--ink);
+  border-radius: 0;
+  padding: var(--s1) var(--s3);
+  height: 32px;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--ink);
+  transition: none;          /* §7 흐림·부드러운 전환 없음 */
+  flex: 0 0 auto;
+}
+.pixel-btn:active { transform: translate(3px, 3px); box-shadow: none; }
+
+/* ── 레이아웃 ──────────────────────────────────────────────── */
+
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  height: calc(100% - 56px);
+}
+
+.sidebar {
+  overflow-y: auto;
+  padding: var(--s4);
+  border-right: var(--border-thick) solid var(--ink);
+  background: var(--bg);
+}
+
+.main {
+  overflow-y: auto;
+  padding: var(--s6) var(--s4) var(--s12);
+}
+
+.loading { color: var(--ink-weak); font-family: var(--font-pixel-sm); font-size: 18px; }
+
+/* ── 사이드바 ──────────────────────────────────────────────── */
+
+.nav-group { margin-bottom: var(--s6); }
+
+.nav-group-title {
+  font-family: var(--font-pixel-sm);
+  font-size: 18px;
+  color: var(--ink);
+  background: var(--surface);
+  border: var(--border-thin) solid var(--ink);
+  padding: var(--s1) var(--s2);
+  margin-bottom: var(--s2);
+  overflow-wrap: anywhere;   /* "docs/관광데이터 개발 공모전" 같은 긴 폴더명 */
+}
+
+.nav-group.recent .nav-group-title {
+  background: var(--primary);
+  color: var(--surface);
+  border-color: var(--ink);
+}
+
+.nav-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-read);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: transparent;
+  border: var(--border-thin) solid transparent;
+  border-radius: 0;
+  padding: var(--s1) var(--s2);
+  margin-bottom: var(--s1);
+  cursor: pointer;
+  word-break: break-word;
+}
+.nav-item:hover { border-color: var(--ink-weak); background: var(--surface); }
+.nav-item.active {
+  background: var(--primary);
+  color: var(--surface);
+  border-color: var(--ink);
+  font-weight: 600;
+}
+.nav-item .stamp {
+  display: block;
+  font-family: var(--font-pixel-sm);
+  font-size: 9px;            /* 9 × 1 (§3) */
+  color: var(--ink-weak);
+  margin-top: 2px;
+}
+.nav-item.active .stamp { color: var(--surface); }
+
+/* ── 문서 카드 (§6 카드 규칙: 테두리 3, 반경 0, 그림자 +3/+3) ── */
+
+.doc-card {
+  max-width: 860px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: var(--border-thick) solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  padding: var(--s8);
+}
+
+.doc-head {
+  border-bottom: var(--border-thick) solid var(--ink);
+  padding-bottom: var(--s4);
+  margin-bottom: var(--s8);
+}
+
+.doc-head h1 {
+  font-family: var(--font-pixel-lg);
+  font-size: 33px;           /* 11 × 3 (§3 — 단계를 뛰어 확대) */
+  line-height: 1.3;
+  margin: 0 0 var(--s3);
+  word-break: keep-all;
+}
+
+.doc-meta { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
+
+.badge {
+  font-family: var(--font-pixel-sm);
+  font-size: 18px;           /* 9 × 2 — large text 기준 3:1 적용 (§2) */
+  padding: 0 var(--s2);
+  border: var(--border-thin) solid var(--ink);
+}
+.badge.path   { background: var(--surface); color: var(--ink-weak); }
+.badge.edited { background: var(--accent);  color: var(--ink-fixed-dark); }
+.badge.count  { background: var(--done);    color: var(--ink-fixed-dark); }
+
+/* ── 본문: 여기부터는 읽기 폰트 (§3) ───────────────────────── */
+
+.doc-body { font-family: var(--font-read); }
+
+.doc-body h1, .doc-body h2, .doc-body h3, .doc-body h4 {
+  font-family: var(--font-pixel-lg);
+  line-height: 1.4;
+  word-break: keep-all;
+  scroll-margin-top: var(--s4);
+}
+.doc-body h1 { font-size: 33px; margin: var(--s8) 0 var(--s4); }
+.doc-body h2 {
+  font-size: 22px;           /* 11 × 2 */
+  margin: var(--s8) 0 var(--s4);
+  padding-bottom: var(--s2);
+  border-bottom: var(--border-thin) solid var(--ink);
+}
+.doc-body h3 { font-size: 22px; color: var(--primary); margin: var(--s6) 0 var(--s3); }
+.doc-body h4 { font-family: var(--font-pixel-sm); font-size: 18px; margin: var(--s4) 0 var(--s2); }
+
+.doc-body p { margin: 0 0 var(--s4); }
+.doc-body ul, .doc-body ol { margin: 0 0 var(--s4); padding-left: var(--s6); }
+.doc-body li { margin-bottom: var(--s1); }
+.doc-body li::marker { color: var(--primary); }
+
+.doc-body a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
+.doc-body a:hover { background: var(--accent); color: var(--ink-fixed-dark); text-decoration: none; }
+
+.doc-body strong { font-weight: 700; }
+
+.doc-body hr {
+  border: none;
+  border-top: var(--border-thick) solid var(--ink);
+  margin: var(--s8) 0;
+}
+
+.doc-body blockquote {
+  margin: 0 0 var(--s4);
+  padding: var(--s3) var(--s4);
+  background: var(--bg);
+  border: var(--border-thin) solid var(--ink);
+  border-left: var(--s1) solid var(--accent);
+}
+.doc-body blockquote > :last-child { margin-bottom: 0; }
+
+.doc-body code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--bg);
+  border: var(--border-thin) solid var(--ink-weak);
+  padding: 0 var(--s1);
+}
+
+.doc-body pre {
+  margin: 0 0 var(--s4);
+  padding: var(--s4);
+  background: var(--bg);
+  border: var(--border-thin) solid var(--ink);
+  overflow-x: auto;
+  line-height: 1.6;
+}
+.doc-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+
+/* 표 — 픽셀 테두리 안에 (§5) */
+.doc-body .table-wrap { overflow-x: auto; margin: 0 0 var(--s4); }
+.doc-body table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 15px;
+  border: var(--border-thin) solid var(--ink);
+}
+.doc-body th, .doc-body td {
+  border: var(--border-thin) solid var(--ink);
+  padding: var(--s2) var(--s3);
+  text-align: left;
+  vertical-align: top;
+  word-break: keep-all;
+}
+.doc-body th {
+  background: var(--primary);
+  color: var(--surface);
+  font-family: var(--font-pixel-sm);
+  font-size: 18px;
+  font-weight: normal;
+}
+.doc-body tbody tr:nth-child(even) { background: var(--bg); }
+
+.doc-body img { max-width: 100%; border: var(--border-thin) solid var(--ink); }
+
+.doc-body input[type="checkbox"] { accent-color: var(--primary); margin-right: var(--s1); }
+
+/* ── 검색 결과 ─────────────────────────────────────────────── */
+
+.result {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: var(--border-thin) solid var(--ink);
+  border-radius: 0;
+  padding: var(--s3);
+  margin-bottom: var(--s3);
+  cursor: pointer;
+  font-family: var(--font-read);
+  color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.result:active { transform: translate(3px, 3px); box-shadow: none; }
+.result .r-title { font-family: var(--font-pixel-sm); font-size: 18px; display: block; margin-bottom: var(--s1); }
+.result .r-path { font-size: 12px; color: var(--ink-weak); display: block; margin-bottom: var(--s2); }
+.result .r-snippet { font-size: 14px; color: var(--ink-weak); display: block; margin-bottom: 2px; }
+.result mark { background: var(--accent); color: var(--ink-fixed-dark); }
+
+.empty { color: var(--ink-weak); font-family: var(--font-pixel-sm); font-size: 18px; }
+
+/* ── 오류 ──────────────────────────────────────────────────── */
+
+.error-box {
+  border: var(--border-thick) solid var(--locked);
+  background: var(--surface);
+  padding: var(--s6);
+}
+.error-box h2 { font-family: var(--font-pixel-lg); font-size: 22px; color: var(--locked); margin: 0 0 var(--s3); }
+
+/* ── 좁은 화면 ─────────────────────────────────────────────── */
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .sidebar { max-height: 200px; border-right: none; border-bottom: var(--border-thick) solid var(--ink); }
+  .topbar-title { display: none; }
+  .doc-card { padding: var(--s4); }
+  .doc-head h1 { font-size: 22px; }
+}

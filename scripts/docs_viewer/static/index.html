@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>놀멍봅서 문서</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="logo" href="#" title="문서 목록 처음으로">
+    <span>놀멍</span><span>봅서</span>
+  </a>
+  <div class="topbar-title">문서</div>
+  <div class="search-wrap">
+    <input id="search" type="search" placeholder="검색  (⌘K)" autocomplete="off" spellcheck="false">
+  </div>
+  <button id="theme-toggle" class="pixel-btn" title="밝게 / 어둡게 / 시스템 설정 따르기">시스템</button>
+</header>
+
+<div class="layout">
+  <nav id="sidebar" class="sidebar" aria-label="문서 목록">
+    <div class="loading">불러오는 중…</div>
+  </nav>
+
+  <main class="main">
+    <article id="content" class="doc-card">
+      <div class="loading">불러오는 중…</div>
+    </article>
+  </main>
+</div>
+
+<script src="/static/vendor/marked.min.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
