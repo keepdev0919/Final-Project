@@ -138,6 +138,39 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
     )
     conn.execute("CREATE INDEX IF NOT EXISTS idx_kto_call_log_at ON kto_call_log(called_at)")
 
+    # 오디 장소 목록. **대본(script)은 저장하지 않는다** — 있는지 여부만 둔다.
+    # 이유는 routers/odii.py 모듈 설명 참조 (재배포 회피 + 실시간 호출 요건).
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS odii_places (
+            stid        TEXT NOT NULL,
+            lang        TEXT NOT NULL,
+            title       TEXT,
+            audio_title TEXT,
+            lat         REAL,
+            lng         REAL,
+            play_time   INTEGER,
+            has_script  INTEGER,
+            has_audio   INTEGER,
+            synced_at   REAL,
+            PRIMARY KEY (stid, lang)
+        )
+        """
+    )
+    # 재생 시 받아온 대본의 1시간 캐시. 연타·재방문 흡수용이며 영구 저장이 아니다.
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS odii_story_cache (
+            cache_key   TEXT PRIMARY KEY,
+            title       TEXT,
+            audio_title TEXT,
+            script      TEXT,
+            audio_url   TEXT,
+            play_time   INTEGER,
+            cached_at   REAL
+        )
+        """
+    )
     conn.commit()
 
 
