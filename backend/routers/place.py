@@ -45,12 +45,16 @@ def _find_content_id(name: str, lat: float, lng: float) -> tuple[str, str] | Non
 
 
 def _fetch_detail(content_id: str) -> dict:
-    """contentId로 상세 정보(overview, 사진, 주소) 조회."""
+    """contentId로 상세 정보(overview, 사진, 주소) 조회.
+
+    ⚠️ 파라미터를 추가하지 말 것. `overviewYN`·`defaultYN`·`addrinfoYN`은
+    KorService1 것이며, KorService2에 보내면 INVALID_REQUEST_PARAMETER_ERROR로
+    **호출 전체가 실패한다.** 2026-08-19까지 이 상태였고, 실패해도 빈 값으로
+    200을 반환해서 "설명 없는 장소"처럼 보였다.
+    """
     try:
         data = _kto_get("KorService2", "detailCommon2", {
             "contentId": content_id,
-            "overviewYN": "Y",
-            "defaultYN": "Y",
         })
         item = data["response"]["body"]["items"]["item"]
         if isinstance(item, list):
@@ -77,12 +81,49 @@ def _fetch_images(content_id: str) -> list[str]:
             return []
         item_list = raw_items if isinstance(raw_items, list) else [raw_items]
         return [it["originimgurl"] for it in item_list if it.get("originimgurl")]
-    except Exception:
+    except Exception as e:
+        logger.error("KTO _fetch_images 실패 content_id=%s: %s", content_id, e)
         return []
 
 
+# detailIntro2는 **장소 종류마다 칸 이름이 다르다.** 실측(2026-08-19):
+#
+#   12 관광지   usetime          restdate           parking          infocenter
+#   14 문화시설  usetimeculture   restdateculture    parkingculture   infocenterculture  usefee
+#   15 축제행사  usetimefestival  (playtime)         —                sponsor1tel
+#   32 숙박     checkintime      —                  parkinglodging   infocenterlodging
+#   38 쇼핑     opentime         restdateshopping   parkingshopping  infocentershopping
+#   39 음식점   opentimefood     restdatefood       parkingfood      infocenterfood
+#
+# 종류별로 일일이 적으면 새 종류가 나올 때마다 조용히 빈 값이 된다
+# (기존 코드가 `opentime`만 봐서 관광지 운영시간이 항상 비어 있었다).
+# 그래서 이름을 정확히 맞추지 않고 **앞부분이 같은 칸을 찾는다.**
+_INTRO_FIELDS = {
+    "open_time": ("usetime", "opentime", "checkintime"),
+    "rest_date": ("restdate",),
+    "use_fee":   ("usefee",),
+    "parking":   ("parking",),
+    "tel":       ("infocenter", "sponsor1tel"),
+}
+# "parking"으로 시작하지만 주차 가능 여부가 아닌 칸.
+_INTRO_EXCLUDE = {"parkingfee"}
+
+
+def _pick(item: dict, prefixes: tuple[str, ...]) -> str:
+    """앞부분이 일치하는 칸 중 값이 있는 첫 번째를 돌려준다."""
+    for prefix in prefixes:
+        for key, value in item.items():
+            if key in _INTRO_EXCLUDE or not key.startswith(prefix):
+                continue
+            text = str(value).strip()
+            if text:
+                return text
+    return ""
+
+
 def _fetch_intro(content_id: str, content_type_id: str) -> dict:
-    """운영시간·휴무·입장료·주차 조회. 없는 필드는 빈 문자열."""
+    """운영시간·휴무·입장료·주차·전화 조회. 없는 칸은 빈 문자열."""
+    empty = {k: "" for k in _INTRO_FIELDS}
     try:
         data = _kto_get("KorService2", "detailIntro2", {
             "contentId": content_id,
@@ -91,14 +132,10 @@ def _fetch_intro(content_id: str, content_type_id: str) -> dict:
         item = data["response"]["body"]["items"]["item"]
         if isinstance(item, list):
             item = item[0]
-        return {
-            "open_time": item.get("opentime") or item.get("usetimefestival") or item.get("opentimefood") or "",
-            "rest_date": item.get("restdate") or item.get("restdatefood") or "",
-            "use_fee":   item.get("usefee") or "",
-            "parking":   item.get("parking") or item.get("parkingfood") or "",
-        }
-    except Exception:
-        return {"open_time": "", "rest_date": "", "use_fee": "", "parking": ""}
+        return {name: _pick(item, prefixes) for name, prefixes in _INTRO_FIELDS.items()}
+    except Exception as e:
+        logger.error("KTO _fetch_intro 실패 content_id=%s type=%s: %s", content_id, content_type_id, e)
+        return empty
 
 
 @router.get("/detail")
@@ -147,7 +184,9 @@ def get_place_detail(request: Request, name: str, lat: float, lng: float):
 
     overview = detail.get("overview", "")
     address  = detail.get("addr1", "")
-    tel      = detail.get("tel", "")
+    # 성산일출봉처럼 detailCommon2의 tel이 비고 detailIntro2의 infocenter에만
+    # 번호가 있는 장소가 많다. 둘 중 있는 쪽을 쓴다.
+    tel      = detail.get("tel", "") or intro.get("tel", "")
 
     conn.execute(
         """INSERT OR REPLACE INTO place_detail_cache

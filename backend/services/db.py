@@ -124,6 +124,20 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
         )
         """
     )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS kto_call_log (
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            service   TEXT NOT NULL,
+            operation TEXT NOT NULL,
+            ok        INTEGER NOT NULL,
+            detail    TEXT,
+            called_at REAL NOT NULL
+        )
+        """
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_kto_call_log_at ON kto_call_log(called_at)")
+
     conn.commit()
 
 
