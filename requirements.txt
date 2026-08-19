@@ -1,6 +1,40 @@
-chromadb>=0.5.0
-openai>=1.0.0
-python-dotenv>=1.0.0
+# 놀멍봅서 백엔드 의존성
+#
+# ⚠️ 여기 없는 패키지는 가상환경을 다시 만들 때 사라진다.
+# 2026-08-19 이전에는 이 파일에 4개만 적혀 있었고 실제로는 150개가 깔려 있었다.
+# 그 상태에서 `.venv`를 다시 만들었다면 앱이 아예 안 켜졌을 것이다.
+# 새 패키지를 쓰기 시작하면 여기에 함께 적을 것.
+#
+# 설치:  python3 -m venv .venv && .venv/bin/python3 -m pip install -r requirements.txt
+#
+# 아래 버전은 2026-08-19 기준 실제 동작이 확인된 것이다. 상한을 두지 않으면
+# 다음 메이저 버전에서 조용히 깨진다(FastAPI·Pydantic·chromadb가 특히 그렇다).
 
-# 폰트 PostScript 이름 검증용 (tests/test_pixel_font_bundled.py)
-fonttools>=4.50
+# ── 웹 서버 ──────────────────────────────────────────────────
+# ⚠️ 0.137 이상으로 올리지 말 것 (2026-08-19 버전별 실측).
+#   0.136.0 / 0.136.1 → 101개 전부 통과
+#   0.137.0 부터      → 3개 실패
+# 0.137부터 `include_router`가 라우트를 app.routes에 펼치지 않고 `_IncludedRouter`로
+# 감싼다. app.routes를 훑는 코드가 아무것도 못 찾게 되는데, 그중에
+# **위치정보법 불변식을 지키는 감시 테스트**가 있다
+# (tests/test_folklore_removed.py::test_no_route_takes_user_coordinates).
+# 올리려면 그 테스트들을 새 구조에 맞게 먼저 고칠 것.
+fastapi>=0.136,<0.137
+uvicorn[standard]>=0.45,<1.0     # start_dev.sh가 `python3 -m uvicorn`으로 실행
+pydantic>=2.13,<3.0
+slowapi>=0.1.9,<0.2              # 요청 수 제한 (KTO 한도 보호에도 관여)
+
+# ── 외부 서비스 ──────────────────────────────────────────────
+openai>=2.32,<3.0                # TTS (routers/tts.py)
+firebase-admin>=7.4,<8.0         # 로그인·계정 (services/auth.py)
+python-dotenv>=1.2,<2.0          # .env 로딩
+
+# ── 데이터 ───────────────────────────────────────────────────
+chromadb>=1.5,<2.0               # 벡터 DB. 43MB 인덱스가 storage/에 있고 git에 없다
+
+# ── 테스트 ───────────────────────────────────────────────────
+pytest>=9.0,<10.0
+pytest-asyncio>=1.4,<2.0         # pytest.ini의 asyncio_mode=auto가 이걸 요구한다
+httpx>=0.28,<1.0                 # fastapi.testclient가 요구. 없으면 테스트가 통째로 안 뜬다
+fonttools>=4.63,<5.0             # 픽셀 폰트 PostScript 이름 검증 (test_pixel_font_bundled.py)
+PyYAML>=6.0,<7.0

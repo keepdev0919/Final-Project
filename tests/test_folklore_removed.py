@@ -57,6 +57,17 @@ def test_no_route_takes_user_coordinates():
     from main import app
 
     ALLOWED = {"/place/detail"}  # 관광지 좌표만 받는 경로
+
+    # ⚠️ 이 검사는 app.routes를 훑는다. FastAPI 0.141부터 include_router가
+    # 라우트를 펼치지 않고 감싸므로, 그 버전에서는 훑어도 **아무것도 안 나온다.**
+    # 그러면 위반이 있어도 "통과"가 되어 감시가 조용히 꺼진다.
+    # 그래서 먼저 "볼 수 있는 상태인가"를 확인한다.
+    inspectable = [r for r in app.routes if getattr(r, "dependant", None) is not None]
+    assert len(inspectable) >= 10, (
+        f"라우트를 {len(inspectable)}개밖에 못 봤다. FastAPI 구조가 바뀌어 "
+        "이 검사가 무력화됐을 가능성이 크다. 통과로 넘기면 안 된다."
+    )
+
     offenders = []
     for route in app.routes:
         dependant = getattr(route, "dependant", None)
