@@ -167,7 +167,17 @@ def list_places(request: Request, lang: str = "ko") -> dict:
 @router.get("/story")
 @limiter.limit("60/minute")
 def get_story(request: Request, stid: str, lang: str = "ko") -> dict:
+    """`GET /odii/story` — 얇은 껍데기. 실제 일은 `fetch_story`가 한다."""
+    return fetch_story(stid, lang)
+
+
+def fetch_story(stid: str, lang: str = "ko") -> dict:
     """재생 버튼을 눌렀을 때 대본·음성을 실시간으로 가져온다.
+
+    **라우트와 분리해 둔 이유.** 레이트 리미터(`@limiter.limit`)가 실제
+    `starlette.Request`를 요구하기 때문에, 라우트 함수를 서버 안에서 직접
+    부르면 터진다(배치 스크립트에서 실제로 겪음). 내부 호출자는 이 함수를
+    쓴다 — `routers/tts.py`, `scripts/warm_tts_cache.py`.
 
     **좌표를 파라미터로 받지 않는다.** 오디 API 자체는 좌표로만 조회되지만,
     그 좌표는 서버가 저장된 목록에서 꺼내 쓴다. 클라이언트가 좌표를 보내게

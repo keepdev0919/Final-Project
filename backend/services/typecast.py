@@ -37,10 +37,15 @@ logger = logging.getLogger(__name__)
 
 API_URL = "https://api.typecast.ai/v1/text-to-speech"
 
-# 곱닥이 목소리 — Mirei Kato (female/child, Game·Anime). 2026-08-20 조익준님 선택.
+# 곱닥이 목소리 — Jinseo (female/young_adult). 2026-08-20 조익준님 선택.
+#
+# 590명 중 용도 태그로 좁혀 고른 것이다: 오디오북/스토리텔링 + 다큐멘터리가
+# 둘 다 붙어 있고 whisper 감정을 지원한다(절·유적지에서 톤을 낮출 수 있다).
+# 3분짜리 해설을 계속 듣는 게 이 앱의 기본 동작이라 해설 계열 목소리를 골랐다.
+#
 # 바꾸려면 tests/test_tts.py도 함께 고친다. 목소리가 조용히 바뀌면
-# 앱 전체의 인격이 바뀌는데 아무도 모른다.
-VOICE_ID = "tc_63edf3ccd8e2eb7338999376"
+# 앱 전체의 인격이 바뀌는데 화면은 멀쩡해서 아무도 모른다.
+VOICE_ID = "tc_65bb3a1976b69213594357fc"
 MODEL = "ssfm-v30"
 
 # 한 번에 보낼 수 있는 글자 수. Typecast 제한.

@@ -51,9 +51,9 @@ def tts_for_odii_place(request: Request, stid: str, lang: str = "ko",
 
     # 대본은 오디 라우터를 통해 가져온다. 그래야 KTO 호출 이력이 그쪽에 남고,
     # 대본 획득 규칙(반경·유일성 판정)이 한 곳에만 있게 된다.
-    from routers.odii import get_story
+    from routers.odii import fetch_story
 
-    story = get_story(request=request, stid=stid, lang=lang)
+    story = fetch_story(stid, lang)
     script = (story.get("script") or "").strip()
     if not script:
         raise HTTPException(status_code=404, detail="이 장소에는 대본이 없습니다")
