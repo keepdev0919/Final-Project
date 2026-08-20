@@ -31,6 +31,15 @@ struct ContentView: View {
     }
 
     var body: some View {
+        // 개발용 — 실행 인자 `-showPixelGallery YES`로 부품 화면만 띄운다.
+        if UserDefaults.standard.bool(forKey: "showPixelGallery") {
+            NavigationStack { PixelGalleryView() }
+        } else {
+            mainTabs
+        }
+    }
+
+    private var mainTabs: some View {
         TabView(selection: selectedTabBinding) {
             NavigationStack {
                 HomeView()

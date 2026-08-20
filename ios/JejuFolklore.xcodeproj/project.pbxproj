@@ -51,6 +51,7 @@
 		8EC50957962217C3EF1AF588 /* JourneyAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4274D332B9AA87F7AB303853 /* JourneyAPI.swift */; };
 		96B2DDC6F8D6FF8F60FB204C /* PixelComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8AB8D49C66B553084056EF /* PixelComponents.swift */; };
 		99347349DD8C78539C1B7447 /* FirestoreSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0349BE64A4DE0DBB4EDA32 /* FirestoreSyncService.swift */; };
+		9CE22D9AFDBBB268C8DC5204 /* PixelGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFC0010E988BDABFC32500E /* PixelGalleryView.swift */; };
 		9CE3AAF8CFE0F62B647E2B1B /* CourseRecommendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */; };
 		A354561FC140C77CD26F19D8 /* GoogleMapPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC15B8EA8FB8D80D2EA8016 /* GoogleMapPreview.swift */; };
 		AAE7C1FCF5B5E1B0894E0B23 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 56FD528AF8D8BAAD9FA0738D /* GoogleSignInSwift */; };
@@ -99,6 +100,7 @@
 		4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewModel.swift; sourceTree = "<group>"; };
 		504C2F86C06FD99F63D7BF24 /* Journey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Journey.swift; sourceTree = "<group>"; };
 		50714B04510A0105DCCEE895 /* debug-route.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "debug-route.gpx"; sourceTree = "<group>"; };
+		5BFC0010E988BDABFC32500E /* PixelGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelGalleryView.swift; sourceTree = "<group>"; };
 		63D6797DC3296F2174D2169A /* PixelColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelColor.swift; sourceTree = "<group>"; };
 		680EEF39BE20B00165C19DAA /* Galmuri14.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Galmuri14.ttf; sourceTree = "<group>"; };
 		6A4C37778C65DA1DF7951735 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
@@ -249,6 +251,7 @@
 				63D6797DC3296F2174D2169A /* PixelColor.swift */,
 				1D8AB8D49C66B553084056EF /* PixelComponents.swift */,
 				EB5F583B0BC011D915FE152F /* PixelFont.swift */,
+				5BFC0010E988BDABFC32500E /* PixelGalleryView.swift */,
 				FB383F822D48F10D4C482C1B /* PixelIcon.swift */,
 				770550065A60F3F6D772B9A0 /* PixelSpacing.swift */,
 			);
@@ -447,6 +450,7 @@
 				00FC7841F8092978094DF3C7 /* PixelColor.swift in Sources */,
 				96B2DDC6F8D6FF8F60FB204C /* PixelComponents.swift in Sources */,
 				54D584F75B5C044657405032 /* PixelFont.swift in Sources */,
+				9CE22D9AFDBBB268C8DC5204 /* PixelGalleryView.swift in Sources */,
 				587E768898899E1D9B66B4F9 /* PixelIcon.swift in Sources */,
 				D3DFEBC6D7B98B9C46F9BA81 /* PixelSpacing.swift in Sources */,
 				3C924367BF6D98281ABDEE6F /* PlaceAPI.swift in Sources */,
