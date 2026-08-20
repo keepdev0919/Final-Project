@@ -70,23 +70,22 @@ struct PlaceDetailView: View {
                 .frame(height: 260)
 
                 Text("\(currentPhotoIndex + 1)/\(images.count)")
-                    .font(.caption.weight(.semibold))
-                    .foregroundColor(.white)
+                    .font(PixelFont.labelSmall)
+                    .foregroundColor(PixelColor.surface)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
-                    .background(Color.black.opacity(0.55))
-                    .clipShape(Capsule())
+                    .background(PixelColor.ink.opacity(0.55))
+                    .clipShape(Rectangle())
                     .padding(12)
             }
         }
     }
 
     private var placeholderPhoto: some View {
-        Color.orange.opacity(0.08)
+        PixelColor.primary.opacity(0.08)
             .overlay(
-                Image(systemName: "photo")
-                    .font(.largeTitle)
-                    .foregroundColor(.orange.opacity(0.35))
+                PixelIcon(.photo, size: 16)
+                    .foregroundColor(PixelColor.outlineVariant)
             )
     }
 
@@ -98,13 +97,12 @@ struct PlaceDetailView: View {
                 item: "\(place.name)\n\(detail?.address ?? "")"
             ) {
                 VStack(spacing: 6) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.title3)
+                    PixelIcon(.share, size: 16)
                     Text("공유하기")
-                        .font(.caption)
+                        .font(PixelFont.labelSmall)
                 }
                 .frame(maxWidth: .infinity)
-                .foregroundColor(.primary)
+                .foregroundColor(PixelColor.ink)
             }
         }
     }
@@ -116,8 +114,8 @@ struct PlaceDetailView: View {
         if !detail.overview.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 Text(detail.overview)
-                    .font(.subheadline)
-                    .foregroundColor(.primary)
+                    .font(PixelFont.body)
+                    .foregroundColor(PixelColor.ink)
                     .lineSpacing(5)
             }
             .padding(20)
@@ -144,8 +142,8 @@ struct PlaceDetailView: View {
     @ViewBuilder
     private func basicInfoSection(_ detail: PlaceDetail) -> some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("기본정보")
-                .font(.headline)
+            PixelSectionHeader(title: "기본정보", icon: .mapPin,
+                               accent: PixelColor.secondary)
 
             GoogleMapPreview(
                 lat: place.lat,
@@ -154,28 +152,28 @@ struct PlaceDetailView: View {
                 markerTitle: place.name
             )
             .frame(height: 150)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(Rectangle())
             .allowsHitTesting(true)
             .onTapGesture { openInMaps() }
 
             if !detail.address.isEmpty {
-                InfoRow(icon: "mappin", text: detail.address)
+                InfoRow(icon: .mapPin, text: detail.address)
             }
 
             if !detail.tel.isEmpty {
-                InfoRow(icon: "phone", text: detail.tel)
+                InfoRow(icon: .phone, text: detail.tel)
             }
 
             Button {
                 openInMaps()
             } label: {
                 Text("길찾기")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.white)
+                    .font(PixelFont.body)
+                    .foregroundColor(PixelColor.surface)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(Color.orange)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .background(PixelColor.primary)
+                    .clipShape(Rectangle())
             }
         }
         .padding(20)
@@ -186,29 +184,26 @@ struct PlaceDetailView: View {
 
     @ViewBuilder
     private func introSection(_ detail: PlaceDetail) -> some View {
-        let tips = [
-            ("clock", "운영시간", detail.openTime),
-            ("calendar.badge.minus", "휴무일", detail.restDate),
-            ("wonsign.circle", "입장료", detail.useFee),
-            ("car", "주차", detail.parking),
+        let tips: [(PixelIcon.Glyph, String, String)] = [
+            (.clock, "운영시간", detail.openTime),
+            (.calendar, "휴무일", detail.restDate),
+            (.coin, "입장료", detail.useFee),
+            (.car, "주차", detail.parking),
         ].filter { !$2.isEmpty }
 
         if !tips.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
-                Text("이용팁")
-                    .font(.headline)
+                PixelSectionHeader(title: "이용팁", icon: .clock,
+                                   accent: PixelColor.secondary)
                 ForEach(tips, id: \.1) { icon, label, value in
                     HStack(alignment: .top, spacing: 10) {
-                        Image(systemName: icon)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .frame(width: 20)
+                        PixelIcon(icon, size: 20, color: PixelColor.inkWeak)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(label)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                                .font(PixelFont.labelSmall)
+                                .foregroundColor(PixelColor.inkWeak)
                             Text(value)
-                                .font(.subheadline)
+                                .font(PixelFont.body)
                         }
                     }
                 }
@@ -222,8 +217,8 @@ struct PlaceDetailView: View {
     private var skeletonView: some View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach(0..<3, id: \.self) { _ in
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(Color.secondary.opacity(0.12))
+                Rectangle()
+                    .fill(PixelColor.inkWeak.opacity(0.12))
                     .frame(height: 16)
             }
         }
@@ -232,12 +227,11 @@ struct PlaceDetailView: View {
 
     private var failedView: some View {
         VStack(spacing: 8) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.largeTitle)
-                .foregroundColor(.orange.opacity(0.6))
+            PixelIcon(.warn, size: 16)
+                .foregroundColor(PixelColor.primary)
             Text("장소 정보를 불러오지 못했어요.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+                .font(PixelFont.body)
+                .foregroundColor(PixelColor.inkWeak)
         }
         .frame(maxWidth: .infinity)
         .padding(40)
@@ -282,14 +276,10 @@ struct PlaceDetailView: View {
 
     private func communitySection(reviews: PlaceReviewsResponse) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("다른 여행자들의 반응")
-                    .font(.headline)
-                Spacer()
-                Text("총 \(reviews.total)명")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
+            PixelSectionHeader(title: "다른 여행자들의 반응", icon: .person)
+            Text("총 \(reviews.total)명")
+                .font(PixelFont.labelSmall)
+                .foregroundColor(PixelColor.inkWeak)
 
             let sortedTags = reviews.tagCounts
                 .filter { $0.value > 0 }
@@ -299,21 +289,21 @@ struct PlaceDetailView: View {
                 let pct = Double(count) / Double(reviews.total)
                 HStack(spacing: 8) {
                     Text(tag)
-                        .font(.caption)
+                        .font(PixelFont.labelSmall)
                         .frame(width: 90, alignment: .leading)
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color(.systemFill))
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color.orange)
+                            Rectangle()
+                                .fill(PixelColor.surfaceMid)
+                            Rectangle()
+                                .fill(PixelColor.primary)
                                 .frame(width: geo.size.width * pct)
                         }
                     }
                     .frame(height: 8)
                     Text("\(Int(pct * 100))%")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .font(PixelFont.labelSmall)
+                        .foregroundColor(PixelColor.inkWeak)
                         .frame(width: 30, alignment: .trailing)
                 }
             }
@@ -322,8 +312,8 @@ struct PlaceDetailView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     ForEach(reviews.recentNotes, id: \.self) { note in
                         Text("\u{201C}\(note)\u{201D}")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(PixelFont.labelSmall)
+                            .foregroundColor(PixelColor.inkWeak)
                             .italic()
                     }
                 }
@@ -337,18 +327,15 @@ struct PlaceDetailView: View {
 // MARK: - InfoRow
 
 private struct InfoRow: View {
-    let icon: String
+    let icon: PixelIcon.Glyph
     let text: String
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
-            Image(systemName: icon)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .frame(width: 20)
+            PixelIcon(icon, size: 20, color: PixelColor.inkWeak)
             Text(text)
-                .font(.subheadline)
-                .foregroundColor(.primary)
+                .font(PixelFont.body)
+                .foregroundColor(PixelColor.ink)
         }
     }
 }

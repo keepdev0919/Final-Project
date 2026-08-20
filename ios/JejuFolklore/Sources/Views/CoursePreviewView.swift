@@ -107,13 +107,12 @@ struct CoursePreviewView: View {
                 }
             } label: {
                 VStack(spacing: 6) {
-                    Capsule()
-                        .fill(Color.secondary.opacity(0.35))
+                    Rectangle()
+                        .fill(PixelColor.inkWeak.opacity(0.35))
                         .frame(width: 36, height: 4)
                     if !isSheetExpanded {
-                        Image(systemName: "chevron.up")
-                            .font(.caption2.weight(.semibold))
-                            .foregroundColor(.secondary)
+                        PixelIcon(.up, size: 16)
+                            .foregroundColor(PixelColor.inkWeak)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -165,7 +164,7 @@ struct CoursePreviewView: View {
             // 하단 버튼 (항상 표시)
             actionButtons
         }
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .background(PixelColor.surface)
         .padding(.horizontal, 8)
         .padding(.bottom, 8)
     }
@@ -195,8 +194,8 @@ struct CoursePreviewView: View {
     private var actionButtons: some View {
         VStack(spacing: 12) {
             Text("추천 일정이 마음에 드세요?")
-                .font(.footnote)
-                .foregroundColor(.secondary)
+                .font(PixelFont.labelSmall)
+                .foregroundColor(PixelColor.inkWeak)
 
             HStack(spacing: 10) {
                 // 다시하기
@@ -204,49 +203,50 @@ struct CoursePreviewView: View {
                     dismiss()
                     onReset?()
                 } label: {
-                    Label("다시하기", systemImage: "arrow.counterclockwise")
-                        .font(.caption.weight(.medium))
+                    Label { Text("다시하기") } icon: { PixelIcon(.refresh, size: 16) }
+                        .font(PixelFont.labelSmall)
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.bordered)
-                .tint(.secondary)
+                .buttonStyle(PixelButtonStyle(.plain))
 
                 // 새로운 추천받기 (다음 코스 없으면 비활성)
                 Button {
                     dismiss()
                     onNext?()
                 } label: {
-                    Label("새로운 추천", systemImage: "shuffle")
-                        .font(.caption.weight(.medium))
+                    Label { Text("새로운 추천") } icon: { PixelIcon(.shuffle, size: 16) }
+                        .font(PixelFont.labelSmall)
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.bordered)
-                .tint(.orange)
+                .buttonStyle(PixelButtonStyle(.plain))
                 .disabled(!hasNext)
 
                 // 내 일정으로 담기
                 Button {
                     vm.save(context: modelContext)
                 } label: {
-                    Label(vm.isSaved ? "저장됨" : "담기", systemImage: vm.isSaved ? "checkmark" : "square.and.arrow.down")
-                        .font(.caption.weight(.medium))
+                    Label {
+                        Text(vm.isSaved ? "저장됨" : "담기")
+                    } icon: {
+                        PixelIcon(vm.isSaved ? .check : .download, size: 16)
+                    }
+                        .font(PixelFont.label)
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.orange)
+                .buttonStyle(PixelButtonStyle(.primary))
                 .disabled(vm.isSaved)
             }
 
             Button {
                 navigateToExplore = true
             } label: {
-                Label("오늘 탐험 시작", systemImage: "location.fill")
-                    .font(.subheadline.weight(.semibold))
+                Label { Text("오늘 탐험 시작") } icon: { PixelIcon(.mapPin, size: 16) }
+                    .font(PixelFont.body)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(Color.orange)
-                    .foregroundColor(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .background(PixelColor.primary)
+                    .foregroundColor(PixelColor.surface)
+                    .clipShape(Rectangle())
             }
             .padding(.top, 4)
         }
@@ -258,12 +258,12 @@ struct CoursePreviewView: View {
 
     private var toastView: some View {
         Text("코스가 저장됐어요!")
-            .font(.subheadline.weight(.medium))
+            .font(PixelFont.body)
             .padding(.horizontal, 20)
             .padding(.vertical, 10)
-            .background(Color.green)
-            .foregroundColor(.white)
-            .clipShape(Capsule())
+            .background(PixelColor.done)
+            .foregroundColor(PixelColor.surface)
+            .clipShape(Rectangle())
             .padding(.top, 60)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
@@ -293,15 +293,15 @@ private struct DaySectionView: View {
             // 섹션 헤더
             HStack {
                 Text("Day \(day)")
-                    .font(.subheadline.weight(.bold))
-                    .foregroundColor(.white)
+                    .font(PixelFont.body)
+                    .foregroundColor(PixelColor.surface)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 5)
-                    .background(Color.orange)
-                    .clipShape(Capsule())
+                    .background(PixelColor.primary)
+                    .clipShape(Rectangle())
 
                 Rectangle()
-                    .fill(Color.orange.opacity(0.25))
+                    .fill(PixelColor.primary.opacity(0.25))
                     .frame(height: 1)
                     .frame(maxWidth: .infinity)
             }
@@ -330,12 +330,12 @@ private struct DayTabButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.caption.weight(.semibold))
+                .font(PixelFont.labelSmall)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 7)
-                .background(isSelected ? Color.orange : Color.orange.opacity(0.1))
+                .background(isSelected ? PixelColor.primary : PixelColor.primary.opacity(0.1))
                 .foregroundColor(isSelected ? .white : .orange)
-                .clipShape(Capsule())
+                .clipShape(Rectangle())
         }
     }
 }
@@ -465,12 +465,12 @@ struct NumberedMarker: View {
 
     var body: some View {
         Text("\(number)")
-            .font(.caption.weight(.bold))
-            .foregroundColor(.white)
+            .font(PixelFont.labelSmall)
+            .foregroundColor(PixelColor.surface)
             .frame(width: 28, height: 28)
-            .background(Color.orange)
-            .clipShape(Circle())
-            .shadow(radius: 3)
+            .background(PixelColor.primary)
+            .clipShape(Rectangle())
+            
     }
 }
 
@@ -487,19 +487,19 @@ struct PlaceCard: View {
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(place.name)
-                    .font(.subheadline.weight(.semibold))
+                    .font(PixelFont.body)
                 if let time = place.startTime, !time.isEmpty {
                     Text(time)
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .font(PixelFont.labelSmall)
+                        .foregroundColor(PixelColor.inkWeak)
                 }
             }
 
             Spacer()
         }
         .padding(12)
-        .background(Color(uiColor: .secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background(PixelColor.surfaceLow)
+        .clipShape(Rectangle())
     }
 }
 

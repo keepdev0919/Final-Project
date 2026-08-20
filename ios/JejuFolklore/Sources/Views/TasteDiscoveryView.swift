@@ -16,6 +16,8 @@ struct TasteDiscoveryView: View {
                 VStack(spacing: 0) {
                     header
                     progressBar
+                        .padding(.horizontal, PixelSpacing.screenMargin)
+                        .padding(.bottom, PixelSpacing.l)
 
                     Group {
                         switch step {
@@ -63,9 +65,8 @@ struct TasteDiscoveryView: View {
                     Button {
                         withAnimation { step -= 1 }
                     } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.body.weight(.semibold))
-                            .foregroundColor(.primary)
+                        PixelIcon(.back, size: 16)
+                            .foregroundColor(PixelColor.ink)
                             .frame(width: 44, height: 44)
                     }
                 } else {
@@ -75,8 +76,8 @@ struct TasteDiscoveryView: View {
                 Spacer()
 
                 Text("\(step + 1) / 2")
-                    .font(.caption.weight(.medium))
-                    .foregroundColor(.secondary)
+                    .font(PixelFont.labelSmall)
+                    .foregroundColor(PixelColor.inkWeak)
 
                 Spacer()
                 Color.clear.frame(width: 44, height: 44)
@@ -86,10 +87,10 @@ struct TasteDiscoveryView: View {
 
             VStack(spacing: 6) {
                 Text("제주 여행 코스 만들기")
-                    .font(.title3.weight(.bold))
+                    .font(PixelFont.bodyLarge)
                 Text("실제 여행자들의 검증된 경로로 코스를 추천해드릴게요")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(PixelFont.labelSmall)
+                    .foregroundColor(PixelColor.inkWeak)
             }
             .padding(.vertical, 20)
         }
@@ -97,17 +98,10 @@ struct TasteDiscoveryView: View {
 
     // MARK: - Progress Bar
 
+    /// 두 단계뿐이므로 "칸으로 나뉜 막대"를 쓴다 — 몇 걸음 남았는지 세어진다.
     private var progressBar: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                Rectangle().fill(Color.secondary.opacity(0.12))
-                Rectangle()
-                    .fill(Color.orange)
-                    .frame(width: geo.size.width * CGFloat(step + 1) / 2)
-                    .animation(.spring(response: 0.4), value: step)
-            }
-        }
-        .frame(height: 3)
+        PixelProgressBar(total: 2, filled: step + 1)
+            .animation(.spring(response: 0.4), value: step)
     }
 
     // MARK: - Step 1: 지역 선택 (제주도 지도)
@@ -116,10 +110,10 @@ struct TasteDiscoveryView: View {
         VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 6) {
                 Text("어느 지역을 여행하고 싶어요?")
-                    .font(.title2.weight(.bold))
+                    .font(PixelFont.sectionTitle)
                 Text("4개 권역 또는 '전체'에서 골라주세요")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(PixelFont.body)
+                    .foregroundColor(PixelColor.inkWeak)
             }
             .padding(.horizontal, 24)
             .padding(.top, 32)
@@ -137,7 +131,7 @@ struct TasteDiscoveryView: View {
     private var daysStep: some View {
         VStack(alignment: .leading, spacing: 32) {
             Text("며칠이에요?")
-                .font(.title2.weight(.bold))
+                .font(PixelFont.sectionTitle)
                 .padding(.horizontal, 24)
                 .padding(.top, 32)
 
@@ -148,12 +142,12 @@ struct TasteDiscoveryView: View {
                         Task { await startSearch() }
                     } label: {
                         Text(label)
-                            .font(.body.weight(.semibold))
+                            .font(PixelFont.body)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 22)
-                            .background(Color(UIColor.secondarySystemBackground))
-                            .foregroundColor(.primary)
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                            .background(PixelColor.surfaceLow)
+                            .foregroundColor(PixelColor.ink)
+                            .clipShape(Rectangle())
                     }
                 }
             }
@@ -193,18 +187,18 @@ private struct JejuMapRegionPicker: View {
                 onSelect(region)
             }
             .aspectRatio(1.75, contentMode: .fit)
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-            .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 3)
+            .clipShape(Rectangle())
+            
 
             // 선택된 지역 표시
             if !highlighted.isEmpty {
                 HStack(spacing: 6) {
                     Circle()
-                        .fill(JejuRegionDef.find(highlighted)?.swiftUIColor ?? .orange)
+                        .fill(JejuRegionDef.find(highlighted)?.swiftUIColor ?? PixelColor.primary)
                         .frame(width: 8, height: 8)
                     Text(highlighted == "전체" ? "제주 전역" : "\(highlighted) (\(JejuRegionDef.find(highlighted)?.sublabel ?? ""))")
-                        .font(.caption.weight(.medium))
-                        .foregroundColor(.primary)
+                        .font(PixelFont.labelSmall)
+                        .foregroundColor(PixelColor.ink)
                 }
                 .transition(.opacity)
                 .animation(.easeInOut(duration: 0.2), value: highlighted)
@@ -282,10 +276,10 @@ private struct JejuRegionDef {
     }
 
     static let all: [JejuRegionDef] = [
-        JejuRegionDef(id: "서부", label: "서부", sublabel: "한림·애월",  uiColor: .systemGreen),
-        JejuRegionDef(id: "북부", label: "북부", sublabel: "제주시",     uiColor: .systemBlue),
-        JejuRegionDef(id: "동부", label: "동부", sublabel: "성산·구좌",  uiColor: .systemPurple),
-        JejuRegionDef(id: "남부", label: "남부", sublabel: "서귀포",     uiColor: .systemRed),
+        JejuRegionDef(id: "서부", label: "서부", sublabel: "한림·애월",  uiColor: PixelUIColor.primary),
+        JejuRegionDef(id: "북부", label: "북부", sublabel: "제주시",     uiColor: PixelUIColor.secondary),
+        JejuRegionDef(id: "동부", label: "동부", sublabel: "성산·구좌",  uiColor: PixelUIColor.tertiary),
+        JejuRegionDef(id: "남부", label: "남부", sublabel: "서귀포",     uiColor: PixelUIColor.locked),
     ]
 
     static func find(_ id: String) -> JejuRegionDef? {
@@ -425,22 +419,22 @@ private struct JejuRegionMapView: UIViewRepresentable {
             label.textAlignment = .center
 
             let isAll = region.regionId == "전체"
-            let color = isAll ? UIColor.systemOrange : (JejuRegionDef.find(region.regionId)?.uiColor ?? .gray)
+            let color = isAll ? PixelUIColor.primary : (JejuRegionDef.find(region.regionId)?.uiColor ?? PixelUIColor.inkWeak)
 
             if isAll {
                 // 전체 버튼: 캡슐 형태
                 let container = UIView()
                 container.backgroundColor = region.isHighlighted
-                    ? UIColor.systemOrange
-                    : UIColor.systemOrange.withAlphaComponent(0.15)
-                container.layer.cornerRadius = 12
-                container.layer.borderWidth = 1.2
-                container.layer.borderColor = UIColor.systemOrange.withAlphaComponent(0.6).cgColor
+                    ? PixelUIColor.primary
+                    : PixelUIColor.surface
+                container.layer.cornerRadius = 0  // 각진 모서리 (DESIGN.md §5)
+                container.layer.borderWidth = 2   // 테두리 2px
+                container.layer.borderColor = PixelUIColor.ink.cgColor
 
                 let lbl = UILabel()
                 lbl.text = "전체"
                 lbl.font = .systemFont(ofSize: 12, weight: .bold)
-                lbl.textColor = region.isHighlighted ? .white : .systemOrange
+                lbl.textColor = region.isHighlighted ? PixelUIColor.onPrimary : PixelUIColor.ink
                 lbl.sizeToFit()
 
                 let w = lbl.frame.width + 20
@@ -462,7 +456,7 @@ private struct JejuRegionMapView: UIViewRepresentable {
                 let bottom = UILabel()
                 bottom.text = region.sublabel
                 bottom.font = .systemFont(ofSize: 10, weight: .regular)
-                bottom.textColor = region.isHighlighted ? color : UIColor.darkGray.withAlphaComponent(0.7)
+                bottom.textColor = region.isHighlighted ? color : PixelUIColor.inkWeak
                 bottom.sizeToFit()
 
                 let w = max(top.frame.width, bottom.frame.width) + 4
@@ -481,97 +475,3 @@ private struct JejuRegionMapView: UIViewRepresentable {
     }
 }
 
-// MARK: - 설화 카테고리 선택지
-
-/// 5개 설화 카테고리. key는 백엔드 카테고리 이름과 정확히 일치해야 함.
-private struct CategoryOption: Identifiable {
-    let id = UUID()
-    let key: String        // 백엔드 final_category 값
-    let label: String      // 사용자에게 보여줄 친근한 표현
-    let icon: String       // SF Symbol
-    let tint: Color        // 카드 강조 색
-
-    static let all: [CategoryOption] = [
-        CategoryOption(
-            key: "무속신화·신격 전승",
-            label: "신이 마을에 내려오는 이야기",
-            icon: "sparkles",
-            tint: .purple
-        ),
-        CategoryOption(
-            key: "초자연 존재담",
-            label: "으스스하고 기이한 이야기",
-            icon: "moon.haze.fill",
-            tint: .indigo
-        ),
-        CategoryOption(
-            key: "해양·어촌 전승",
-            label: "바다와 해녀의 이야기",
-            icon: "water.waves",
-            tint: .blue
-        ),
-        CategoryOption(
-            key: "생활민담·교훈담",
-            label: "재치 있고 교훈적인 이야기",
-            icon: "book.closed.fill",
-            tint: .orange
-        ),
-        CategoryOption(
-            key: "마을 공동체 전승",
-            label: "마을 사람들이 함께 전해온 이야기",
-            icon: "house.fill",
-            tint: .green
-        ),
-    ]
-}
-
-// MARK: - CategoryCardView
-
-private struct CategoryCardView: View {
-    let option: CategoryOption
-    let isSelected: Bool
-    let isDisabled: Bool
-    let onSelect: () -> Void
-
-    var body: some View {
-        Button(action: { if !isDisabled { onSelect() } }) {
-            HStack(spacing: 14) {
-                Image(systemName: option.icon)
-                    .font(.title3.weight(.semibold))
-                    .foregroundColor(.white)
-                    .frame(width: 44, height: 44)
-                    .background(option.tint)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-
-                Text(option.label)
-                    .font(.body.weight(.semibold))
-                    .foregroundColor(isDisabled ? .secondary : .primary)
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(2)
-
-                Spacer()
-
-                if isDisabled {
-                    Text("메인")
-                        .font(.caption2.weight(.bold))
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.secondary.opacity(0.15))
-                        .clipShape(Capsule())
-                }
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 14)
-            .background(Color(UIColor.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(isSelected ? option.tint : Color.clear, lineWidth: 2)
-            )
-            .opacity(isDisabled ? 0.45 : 1)
-        }
-        .buttonStyle(.plain)
-        .disabled(isDisabled)
-    }
-}

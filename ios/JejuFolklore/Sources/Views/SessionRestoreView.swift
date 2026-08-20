@@ -8,70 +8,69 @@ struct SessionRestoreView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Capsule()
-                .fill(Color.secondary.opacity(0.3))
+            Rectangle()
+                .fill(PixelColor.inkWeak.opacity(0.3))
                 .frame(width: 36, height: 4)
                 .padding(.top, 12)
 
             VStack(spacing: 20) {
-                Image(systemName: "figure.walk.circle.fill")
-                    .font(.system(size: 48))
+                PixelIcon(.person, size: 48)
 
                 VStack(spacing: 6) {
                     Text("탐험 중인 코스가 있어요")
-                        .font(.title3.weight(.bold))
+                        .font(PixelFont.bodyLarge)
 
                     Text(session.courseSnapshot.title)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .font(PixelFont.body)
+                        .foregroundColor(PixelColor.inkWeak)
                         .multilineTextAlignment(.center)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Image(systemName: "mappin.and.ellipse")
-                            .foregroundColor(.orange)
+                        PixelIcon(.mapPin)
+                            .foregroundColor(PixelColor.primary)
                         Text("방문 완료: \(session.visitedPlaceNames.count) / \(session.courseSnapshot.places.count)곳")
-                            .font(.subheadline)
+                            .font(PixelFont.body)
                     }
 
                     HStack {
-                        Image(systemName: "clock")
-                            .foregroundColor(.orange)
+                        PixelIcon(.clock)
+                            .foregroundColor(PixelColor.primary)
                         Text("시작: \(session.startedAt.formatted(date: .abbreviated, time: .shortened))")
-                            .font(.subheadline)
+                            .font(PixelFont.body)
                     }
                 }
                 .padding(14)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.orange.opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .background(PixelColor.primary.opacity(0.08))
+                .clipShape(Rectangle())
 
                 VStack(spacing: 10) {
                     Button {
                         onResume(session.courseSnapshot, session.transport)
                     } label: {
-                        Label("이어서 탐험하기", systemImage: "location.fill")
-                            .font(.subheadline.weight(.semibold))
+                        Label { Text("이어서 탐험하기") } icon: { PixelIcon(.mapPin, size: 16) }
+                            .font(PixelFont.body)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
-                            .background(Color.orange)
-                            .foregroundColor(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                            .background(PixelColor.primary)
+                            .foregroundColor(PixelColor.surface)
+                            .clipShape(Rectangle())
                     }
 
                     Button(role: .destructive) {
                         onDiscard()
                     } label: {
                         Text("탐험 종료하기")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .font(PixelFont.body)
+                            .foregroundColor(PixelColor.inkWeak)
                     }
                 }
             }
             .padding(24)
         }
-        .background(Color(.systemBackground))
+        .background(PixelColor.surface)
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
     }

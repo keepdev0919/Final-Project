@@ -1,14 +1,14 @@
 import SwiftUI
 
 /// 스토리 탭 — 이야기가 준비된 장소 목록.
-struct StoryListView: View {
+struct ExploreListView: View {
     @StateObject private var vm = HomeViewModel()
     @ObservedObject private var location = LocationService.shared
     @State private var presentedJourney: Journey?
 
     var body: some View {
         VStack(spacing: 0) {
-            PixelTopBar(title: "스토리")
+            PixelTopBar(title: "탐험")
 
             ScrollView {
                 VStack(alignment: .leading, spacing: PixelSpacing.cardGap) {

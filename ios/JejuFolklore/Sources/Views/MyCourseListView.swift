@@ -19,18 +19,26 @@ struct MyCourseListView: View {
         NavigationStack {
             Group {
                 if courses.isEmpty {
-                    ContentUnavailableView(
-                        "저장된 코스가 없어요",
-                        systemImage: "map",
-                        description: Text("코스를 추천받고 저장해보세요")
-                    )
+                    // ContentUnavailableView는 SF Symbol 이름(String)만 받아
+                    // 도트 아이콘을 넣을 수 없다. 그래서 직접 그린다.
+                    VStack(spacing: PixelSpacing.l) {
+                        PixelIcon(.map, size: 48, color: PixelColor.inkWeak)
+                        Text("저장된 코스가 없어요")
+                            .font(PixelFont.sectionTitle)
+                            .foregroundStyle(PixelColor.ink)
+                        Text("코스를 추천받고 저장해보세요")
+                            .font(PixelFont.body)
+                            .foregroundStyle(PixelColor.inkWeak)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(PixelColor.background)
                 } else {
                     ScrollViewReader { proxy in
                         List(courses) { course in
                             SavedCourseRow(course: course)
                                 .listRowBackground(
                                     highlightedCourseId == course.id
-                                        ? Color.orange.opacity(0.18)
+                                        ? PixelColor.primary.opacity(0.18)
                                         : Color(.secondarySystemGroupedBackground)
                                 )
                                 .id(course.id)
@@ -94,18 +102,16 @@ struct MyCourseListView: View {
                             .resizable()
                             .scaledToFill()
                     default:
-                        Image(systemName: "person.crop.circle")
-                            .resizable()
-                            .scaledToFit()
-                            .foregroundColor(.secondary)
+                        // 도트 아이콘은 비트맵이라 resizable/scaledToFit이 없다.
+                        // 크기는 size:로 정한다.
+                        PixelIcon(.person, size: 20, color: PixelColor.inkWeak)
                     }
                 }
                 .frame(width: 28, height: 28)
-                .clipShape(Circle())
+                .clipShape(Rectangle())
             } else {
-                Image(systemName: "person.crop.circle")
-                    .font(.title3)
-                    .foregroundColor(.secondary)
+                PixelIcon(.person, size: 16)
+                    .foregroundColor(PixelColor.inkWeak)
             }
         }
         .accessibilityLabel(authManager.isLoggedIn ? "프로필" : "로그인")
@@ -181,27 +187,27 @@ struct SavedCourseRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(course.title)
-                .font(.subheadline.weight(.semibold))
+                .font(PixelFont.body)
             HStack {
-                Label("\(course.durationDays)일", systemImage: "calendar")
-                Label("\(course.places.count)개 장소", systemImage: "mappin")
+                Label { Text("\(course.durationDays)일") } icon: { PixelIcon(.calendar, size: 16) }
+                Label { Text("\(course.places.count)개 장소") } icon: { PixelIcon(.mapPin, size: 16) }
             }
-            .font(.caption)
-            .foregroundColor(.secondary)
+            .font(PixelFont.labelSmall)
+            .foregroundColor(PixelColor.inkWeak)
 
             if course.hasExploration {
                 HStack(spacing: 6) {
                     Text("🎨 탐험 완료")
-                        .font(.caption2.weight(.semibold))
+                        .font(PixelFont.labelSmall)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
-                        .background(Color.orange.opacity(0.15))
-                        .foregroundColor(.orange)
-                        .clipShape(Capsule())
+                        .background(PixelColor.primary.opacity(0.15))
+                        .foregroundColor(PixelColor.primary)
+                        .clipShape(Rectangle())
                     if let exploredAt = course.exploredAt {
                         Text(Self.dateFormatter.string(from: exploredAt))
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .font(PixelFont.labelSmall)
+                            .foregroundColor(PixelColor.inkWeak)
                     }
                 }
                 .padding(.top, 2)
@@ -243,8 +249,7 @@ struct SavedCourseDetailView: View {
                         Button("탐험 시작") {
                             startExplore = true
                         }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.orange)
+                        .buttonStyle(PixelButtonStyle(.primary))
                         .frame(maxWidth: .infinity)
                         .padding(.horizontal, 16)
                         .padding(.top, 8)
@@ -260,10 +265,10 @@ struct SavedCourseDetailView: View {
                         Button {
                             showEditTitle = true
                         } label: {
-                            Label("코스 이름 변경", systemImage: "pencil")
+                            Label { Text("코스 이름 변경") } icon: { PixelIcon(.edit, size: 16) }
                         }
                     } label: {
-                        Image(systemName: "ellipsis.circle")
+                        PixelIcon(.more)
                     }
                 }
             }
@@ -295,12 +300,12 @@ struct SavedCourseDetailView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("탐험 기록")
-                    .font(.headline)
+                    .font(PixelFont.label)
                 Spacer()
                 if let exploredAt = course.exploredAt {
                     Text(Self.dateFormatter.string(from: exploredAt))
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(PixelFont.labelSmall)
+                        .foregroundColor(PixelColor.inkWeak)
                 }
             }
             .padding(.horizontal, 16)
@@ -310,24 +315,24 @@ struct SavedCourseDetailView: View {
                 if let visited = course.visitedPlaceNames, !visited.isEmpty {
                     Divider()
                     Text("방문한 장소")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.secondary)
+                        .font(PixelFont.body)
+                        .foregroundColor(PixelColor.inkWeak)
                     VStack(alignment: .leading, spacing: 6) {
                         ForEach(visited, id: \.self) { name in
                             HStack(spacing: 8) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.orange)
-                                    .font(.caption)
+                                PixelIcon(.check)
+                                    .foregroundColor(PixelColor.primary)
+                                    .font(PixelFont.labelSmall)
                                 Text(name)
-                                    .font(.subheadline)
+                                    .font(PixelFont.body)
                             }
                         }
                     }
                 }
             }
             .padding(16)
-            .background(Color(.secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .background(PixelColor.surfaceLow)
+            .clipShape(Rectangle())
             .padding(.horizontal, 16)
         }
     }

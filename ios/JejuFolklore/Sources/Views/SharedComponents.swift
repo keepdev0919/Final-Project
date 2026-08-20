@@ -6,17 +6,17 @@ struct LoadingOverlay: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.4).ignoresSafeArea()
+            PixelColor.ink.opacity(0.4).ignoresSafeArea()
             VStack(spacing: 16) {
                 ProgressView()
                     .scaleEffect(1.5)
-                    .tint(.white)
+                    .tint(PixelColor.onPrimary)
                 Text(step.rawValue)
-                    .font(.headline)
-                    .foregroundColor(.white)
+                    .font(PixelFont.label)
+                    .foregroundColor(PixelColor.surface)
             }
             .padding(32)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20))
+            .background(PixelColor.surface)
         }
     }
 }

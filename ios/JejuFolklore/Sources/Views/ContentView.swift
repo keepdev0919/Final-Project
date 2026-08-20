@@ -7,9 +7,9 @@ import SwiftData
 /// `AppTab(rawValue:)`가 nil이 되어 홈으로 떨어진다 — 앱이 깨지지는 않는다.
 enum AppTab: String {
     case home = "home"
-    case story = "story"
+    case explore = "explore"
     case course = "course"
-    case mine = "mine"
+    case profile = "profile"
 }
 
 struct ContentView: View {
@@ -58,15 +58,16 @@ struct ContentView: View {
         VStack(spacing: 0) {
             ZStack {
                 tabContent(.home)  { HomeView() }
-                tabContent(.story) { StoryListView() }
+                tabContent(.explore) { ExploreListView() }
                 tabContent(.course){ CourseHubView() }
-                tabContent(.mine)  { MineView().environmentObject(authManager) }
+                tabContent(.profile)  { ProfileTabView().environmentObject(authManager) }
             }
             PixelTabBar(items: [
                 .init(tab: .home,   title: "홈",     icon: .home),
-                .init(tab: .story,  title: "스토리",  icon: .photo),
-                .init(tab: .course, title: "코스",    icon: .map),
-                .init(tab: .mine,   title: "내 것",   icon: .person),
+                // 탐험 = 갈 곳(핀), 코스 = 이어진 길(경로선). 뜻과 그림을 맞춘다.
+                .init(tab: .explore, title: "탐험",   icon: .mapPin),
+                .init(tab: .course, title: "코스",   icon: .map),
+                .init(tab: .profile, title: "프로필", icon: .person),
             ], selection: selectedTabBinding)
         }
         .background(PixelColor.background.ignoresSafeArea())

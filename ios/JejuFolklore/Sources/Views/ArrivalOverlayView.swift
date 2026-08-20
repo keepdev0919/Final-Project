@@ -8,15 +8,14 @@ struct ArrivalOverlayView: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.75)
+            PixelColor.ink.opacity(0.75)
                 .ignoresSafeArea()
 
             VStack(spacing: 28) {
                 // 도착 표시. 단계 1에서 여기에 곱닥이 캐릭터가 들어간다.
                 VStack(spacing: 8) {
-                    Image(systemName: "mappin.circle.fill")
-                        .font(.system(size: 72))
-                        .foregroundColor(.orange)
+                    PixelIcon(.mapPin, size: 72)
+                        .foregroundColor(PixelColor.primary)
                         .scaleEffect(appeared ? 1 : 0.5)
                         .opacity(appeared ? 1 : 0)
                 }
@@ -24,13 +23,13 @@ struct ArrivalOverlayView: View {
                 // 도착 메시지
                 VStack(spacing: 8) {
                     Text("이야기가 준비된 곳이에요")
-                        .font(.title2.weight(.bold))
-                        .foregroundColor(.white)
+                        .font(PixelFont.sectionTitle)
+                        .foregroundColor(PixelColor.surface)
                         .multilineTextAlignment(.center)
 
                     Text(place.name)
-                        .font(.title3)
-                        .foregroundColor(.white.opacity(0.85))
+                        .font(PixelFont.bodyLarge)
+                        .foregroundColor(PixelColor.surface.opacity(0.85))
                         .multilineTextAlignment(.center)
                 }
                 .opacity(appeared ? 1 : 0)
@@ -42,12 +41,12 @@ struct ArrivalOverlayView: View {
                 VStack(spacing: 12) {
                     Button(action: onDismiss) {
                         Text("확인")
-                            .font(.body.weight(.semibold))
-                            .foregroundColor(.white)
+                            .font(PixelFont.body)
+                            .foregroundColor(PixelColor.surface)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(Color.orange)
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                            .background(PixelColor.primary)
+                            .clipShape(Rectangle())
                     }
                 }
                 .padding(.horizontal, 32)

@@ -22,18 +22,17 @@ struct LoginSheet: View {
             Spacer(minLength: 12)
 
             VStack(spacing: 12) {
-                Image(systemName: "person.crop.circle.badge.checkmark")
-                    .font(.system(size: 56))
-                    .foregroundStyle(.orange)
+                PixelIcon(.person, size: 56)
+                    .foregroundStyle(PixelColor.primary)
 
                 Text("로그인하면 다른 기기에서도\n같은 코스를 볼 수 있어요")
-                    .font(.title3.weight(.semibold))
+                    .font(PixelFont.bodyLarge)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
 
                 Text("코스, 여행 기록이 안전하게 보관됩니다.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(PixelFont.body)
+                    .foregroundStyle(PixelColor.inkWeak)
                     .multilineTextAlignment(.center)
             }
 
@@ -49,21 +48,20 @@ struct LoginSheet: View {
                 }
                 .signInWithAppleButtonStyle(.black)
                 .frame(height: 50)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .clipShape(Rectangle())
                 .disabled(isWorking)
 
                 Button(action: { Task { await performGoogleSignIn() } }) {
                     HStack(spacing: 10) {
-                        Image(systemName: "g.circle.fill")
-                            .font(.title3)
+                        PixelIcon(.person, size: 16)
                         Text("Google로 계속하기")
-                            .font(.body.weight(.semibold))
+                            .font(PixelFont.body)
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(PixelColor.surface)
                     .background(Color(.sRGB, red: 0.26, green: 0.52, blue: 0.96, opacity: 1))
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .clipShape(Rectangle())
                 }
                 .disabled(isWorking)
             }
@@ -73,8 +71,8 @@ struct LoginSheet: View {
 
             if let errorMessage {
                 Text(errorMessage)
-                    .font(.footnote)
-                    .foregroundStyle(.red)
+                    .font(PixelFont.labelSmall)
+                    .foregroundStyle(PixelColor.locked)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
             }
@@ -82,8 +80,8 @@ struct LoginSheet: View {
             Button("건너뛰기") {
                 dismiss()
             }
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
+            .font(PixelFont.body)
+            .foregroundStyle(PixelColor.inkWeak)
             .padding(.bottom, 12)
         }
         .padding(.top, 24)
@@ -96,7 +94,7 @@ struct LoginSheet: View {
                 ProgressView()
                     .progressViewStyle(.circular)
                     .padding(24)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    .background(PixelColor.surfaceLow)
             }
         }
     }
@@ -125,15 +123,14 @@ struct LoginSheet: View {
                 Button("로그인") {
                     Task { await performReviewSignIn() }
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.orange)
+                .buttonStyle(PixelButtonStyle(.primary))
                 .frame(maxWidth: .infinity)
                 .disabled(reviewId.isEmpty || reviewPw.isEmpty || isWorking)
             }
             .padding(.top, 8)
         }
-        .font(.footnote)
-        .foregroundStyle(.secondary)
+        .font(PixelFont.labelSmall)
+        .foregroundStyle(PixelColor.inkWeak)
         .padding(.horizontal, 24)
     }
 

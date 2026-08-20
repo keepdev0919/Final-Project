@@ -5,12 +5,12 @@ import SwiftUI
 /// 없으면 심사에서 거절된다.
 ///
 /// 구매한 이야기 목록과 구매 복원은 결제를 붙일 때 여기에 들어온다.
-struct MineView: View {
+struct ProfileTabView: View {
     @EnvironmentObject private var authManager: AuthManager
 
     var body: some View {
         VStack(spacing: 0) {
-            PixelTopBar(title: "내 것")
+            PixelTopBar(title: "프로필")
 
             ScrollView {
                 VStack(alignment: .leading, spacing: PixelSpacing.sectionGap) {
@@ -20,7 +20,7 @@ struct MineView: View {
                     }
 
                     VStack(alignment: .leading, spacing: PixelSpacing.cardGap) {
-                        PixelSectionHeader(title: "정보", icon: .photo,
+                        PixelSectionHeader(title: "정보", icon: .book,
                                            accent: PixelColor.secondary)
                         // 공지가 지정한 유일한 형식. 텍스트만 허용되고 공사 CI/BI 로고는 금지다.
                         Text("출처: ⓒ한국관광공사")

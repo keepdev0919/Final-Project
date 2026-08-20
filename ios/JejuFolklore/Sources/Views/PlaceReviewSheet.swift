@@ -25,10 +25,10 @@ struct PlaceReviewSheet: View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
                 Text("\(placeName)")
-                    .font(.title3.weight(.semibold))
+                    .font(PixelFont.bodyLarge)
                 Text("어떤 설화 경험이었나요?")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(PixelFont.body)
+                    .foregroundColor(PixelColor.inkWeak)
 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                     ForEach(Self.tags, id: \.key) { tag in
@@ -40,28 +40,28 @@ struct PlaceReviewSheet: View {
                             }
                         } label: {
                             Text(tag.display)
-                                .font(.subheadline)
+                                .font(PixelFont.body)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 10)
                                 .frame(maxWidth: .infinity)
                                 .background(
                                     selectedKeys.contains(tag.key)
-                                        ? Color.orange.opacity(0.15)
-                                        : Color(.secondarySystemBackground)
+                                        ? PixelColor.primary.opacity(0.15)
+                                        : PixelColor.surfaceLow
                                 )
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .clipShape(Rectangle())
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
+                                    Rectangle()
                                         .stroke(
                                             selectedKeys.contains(tag.key)
-                                                ? Color.orange
+                                                ? PixelColor.primary
                                                 : Color.clear,
                                             lineWidth: 2
                                         )
                                 )
                         }
                         .buttonStyle(.plain)
-                        .foregroundColor(.primary)
+                        .foregroundColor(PixelColor.ink)
                     }
                 }
 
@@ -71,8 +71,8 @@ struct PlaceReviewSheet: View {
                         TextField("한 줄 감상 남기기 (선택, 200자)", text: $note, axis: .vertical)
                             .lineLimit(2...4)
                             .padding(12)
-                            .background(Color(.secondarySystemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .background(PixelColor.surfaceLow)
+                            .clipShape(Rectangle())
                             .onChange(of: note) {
                                 if note.count > 200 { note = String(note.prefix(200)) }
                             }
@@ -83,16 +83,16 @@ struct PlaceReviewSheet: View {
 
                     if let err = speech.lastErrorMessage {
                         Text(err)
-                            .font(.caption2)
-                            .foregroundColor(.red)
+                            .font(PixelFont.labelSmall)
+                            .foregroundColor(PixelColor.locked)
                     } else if !speech.canRecord && speech.authorizationStatus != .notDetermined {
                         Text("마이크 권한이 필요해요")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .font(PixelFont.labelSmall)
+                            .foregroundColor(PixelColor.inkWeak)
                     } else if speech.isRecording {
                         Text("듣고 있어요…")
-                            .font(.caption2)
-                            .foregroundColor(.red)
+                            .font(PixelFont.labelSmall)
+                            .foregroundColor(PixelColor.locked)
                     }
                 }
                 // 음성 인식 결과를 note에 반영(이어 붙이기)
@@ -105,15 +105,14 @@ struct PlaceReviewSheet: View {
 
                 HStack(spacing: 12) {
                     Button("건너뛰기") { onDone() }
-                        .buttonStyle(.bordered)
-                        .foregroundColor(.secondary)
+                        .buttonStyle(PixelButtonStyle(.plain))
+                        .foregroundColor(PixelColor.inkWeak)
                         .frame(maxWidth: .infinity)
 
                     Button(isSubmitting ? "저장 중..." : "남기기 →") {
                         Task { await submit() }
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color.orange)
+                    .buttonStyle(PixelButtonStyle(.primary))
                     .disabled(selectedKeys.isEmpty || isSubmitting)
                     .frame(maxWidth: .infinity)
                 }
@@ -150,19 +149,18 @@ struct PlaceReviewSheet: View {
                 // 녹음 중일 때 빨간 펄스 배경
                 if speech.isRecording {
                     Circle()
-                        .fill(Color.red.opacity(0.25))
+                        .fill(PixelColor.locked.opacity(0.25))
                         .frame(width: 48, height: 48)
                         .scaleEffect(pulse ? 1.2 : 0.9)
                         .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: pulse)
                 }
 
                 Circle()
-                    .fill(speech.isRecording ? Color.red : Color.orange)
+                    .fill(speech.isRecording ? PixelColor.locked : PixelColor.primary)
                     .frame(width: 44, height: 44)
 
-                Image(systemName: speech.isRecording ? "stop.fill" : "mic.fill")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
+                PixelIcon(speech.isRecording ? .stop : .mic,
+                          size: 20, color: PixelColor.surface)
             }
             .frame(width: 56, height: 56)
         }

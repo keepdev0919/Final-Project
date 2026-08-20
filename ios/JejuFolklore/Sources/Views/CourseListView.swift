@@ -8,7 +8,7 @@ struct CourseListView: View {
 
     var body: some View {
         ZStack {
-            Color(.systemBackground).ignoresSafeArea()
+            PixelColor.surface.ignoresSafeArea()
 
             if vm.isLoadingList {
                 loadingView
@@ -73,25 +73,23 @@ struct CourseListView: View {
         VStack(spacing: 16) {
             ProgressView().scaleEffect(1.4)
             Text("AI가 코스를 추천하고 있어요...")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+                .font(PixelFont.body)
+                .foregroundColor(PixelColor.inkWeak)
         }
     }
 
     private func errorView(_ err: String) -> some View {
         VStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.largeTitle)
-                .foregroundColor(.orange)
+            PixelIcon(.warn, size: 16)
+                .foregroundColor(PixelColor.primary)
             Text(err)
-                .font(.subheadline)
+                .font(PixelFont.body)
                 .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
+                .foregroundColor(PixelColor.inkWeak)
             Button("다시 시도") {
                 Task { await vm.fetchList() }
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.orange)
+            .buttonStyle(PixelButtonStyle(.primary))
         }
         .padding(32)
     }
@@ -99,11 +97,10 @@ struct CourseListView: View {
     private var emptyView: some View {
         VStack(spacing: 12) {
             Text("추천 코스가 없어요.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+                .font(PixelFont.body)
+                .foregroundColor(PixelColor.inkWeak)
             Button("처음으로") { vm.reset() }
-                .buttonStyle(.borderedProminent)
-                .tint(.orange)
+                .buttonStyle(PixelButtonStyle(.primary))
         }
         .padding(32)
     }
@@ -115,10 +112,10 @@ struct CourseListView: View {
             // 헤더
             VStack(alignment: .leading, spacing: 4) {
                 Text("당신을 위한 \(vm.courseList.count)가지 코스")
-                    .font(.title2.weight(.bold))
+                    .font(PixelFont.sectionTitle)
                 Text("마음에 드는 코스를 골라 탐험을 시작해보세요")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(PixelFont.body)
+                    .foregroundColor(PixelColor.inkWeak)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 24)
@@ -146,11 +143,11 @@ struct CourseListView: View {
                 vm.reset()
             } label: {
                 HStack(spacing: 6) {
-                    Image(systemName: "arrow.counterclockwise")
+                    PixelIcon(.refresh)
                     Text("취향 다시 고르기")
                 }
-                .font(.callout.weight(.medium))
-                .foregroundColor(.secondary)
+                .font(PixelFont.body)
+                .foregroundColor(PixelColor.inkWeak)
                 .padding(.vertical, 8)
             }
             .padding(.bottom, 12)
@@ -175,8 +172,8 @@ private struct CourseCard: View {
     private var rankColor: Color {
         switch rank {
         case 1: return .orange
-        case 2: return Color.orange.opacity(0.75)
-        default: return Color.orange.opacity(0.55)
+        case 2: return PixelColor.primary.opacity(0.75)
+        default: return PixelColor.primary.opacity(0.55)
         }
     }
 
@@ -186,34 +183,33 @@ private struct CourseCard: View {
                 // 헤더: 순위 + 제목
                 HStack(alignment: .top, spacing: 10) {
                     Text("\(rank)")
-                        .font(.callout.weight(.bold))
-                        .foregroundColor(.white)
+                        .font(PixelFont.body)
+                        .foregroundColor(PixelColor.surface)
                         .frame(width: 28, height: 28)
                         .background(rankColor)
-                        .clipShape(Circle())
+                        .clipShape(Rectangle())
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(course.title.isEmpty ? "이름 없는 코스" : course.title)
-                            .font(.headline)
-                            .foregroundColor(.primary)
+                            .font(PixelFont.label)
+                            .foregroundColor(PixelColor.ink)
                             .multilineTextAlignment(.leading)
                             .lineLimit(2)
                         HStack(spacing: 6) {
-                            Image(systemName: "calendar")
+                            PixelIcon(.calendar)
                             Text("\(course.durationDays)일 일정")
                             Text("·")
-                            Image(systemName: "mappin.and.ellipse")
+                            PixelIcon(.mapPin)
                             Text("\(course.places.count)곳")
                         }
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(PixelFont.labelSmall)
+                        .foregroundColor(PixelColor.inkWeak)
                     }
 
                     Spacer()
 
-                    Image(systemName: "chevron.right")
-                        .font(.callout.weight(.semibold))
-                        .foregroundColor(.secondary)
+                    PixelIcon(.forward, size: 16)
+                        .foregroundColor(PixelColor.inkWeak)
                 }
 
                 // 대표 장소 칩
@@ -221,18 +217,18 @@ private struct CourseCard: View {
                     HStack(spacing: 6) {
                         ForEach(previewPlaceNames, id: \.self) { name in
                             Text(name)
-                                .font(.caption2.weight(.medium))
-                                .foregroundColor(.primary)
+                                .font(PixelFont.labelSmall)
+                                .foregroundColor(PixelColor.ink)
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
-                                .background(Color(UIColor.secondarySystemBackground))
-                                .clipShape(Capsule())
+                                .background(PixelColor.surfaceLow)
+                                .clipShape(Rectangle())
                                 .lineLimit(1)
                         }
                         if course.places.count > previewPlaceNames.count {
                             Text("+\(course.places.count - previewPlaceNames.count)")
-                                .font(.caption2.weight(.semibold))
-                                .foregroundColor(.secondary)
+                                .font(PixelFont.labelSmall)
+                                .foregroundColor(PixelColor.inkWeak)
                                 .padding(.horizontal, 8)
                         }
                         Spacer()
@@ -241,13 +237,13 @@ private struct CourseCard: View {
             }
             .padding(16)
             .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(UIColor.systemBackground))
-                    .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 2)
+                Rectangle()
+                    .fill(PixelColor.surface)
+                    
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.secondary.opacity(0.12), lineWidth: 1)
+                Rectangle()
+                    .stroke(PixelColor.inkWeak.opacity(0.12), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)

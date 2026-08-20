@@ -76,7 +76,7 @@ struct ExploreView: View {
                     vm.stopExploring()
                     explorationCompleted = true
                 }
-                .foregroundColor(.orange)
+                .foregroundColor(PixelColor.primary)
                 .fontWeight(.semibold)
             }
         }
@@ -165,13 +165,12 @@ struct ExploreView: View {
                 }
             } label: {
                 VStack(spacing: 6) {
-                    Capsule()
-                        .fill(Color.secondary.opacity(0.35))
+                    Rectangle()
+                        .fill(PixelColor.inkWeak.opacity(0.35))
                         .frame(width: 36, height: 4)
                     if !isListExpanded {
-                        Image(systemName: "chevron.up")
-                            .font(.caption2.weight(.semibold))
-                            .foregroundColor(.secondary)
+                        PixelIcon(.up, size: 16)
+                            .foregroundColor(PixelColor.inkWeak)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -231,9 +230,9 @@ struct ExploreView: View {
                                         .opacity(isVisited ? 0.45 : 1.0)
                                         .overlay(alignment: .topTrailing) {
                                             if isVisited {
-                                                Image(systemName: "checkmark.circle.fill")
-                                                    .foregroundColor(.green)
-                                                    .font(.title3)
+                                                PixelIcon(.check)
+                                                    .foregroundColor(PixelColor.done)
+                                                    .font(PixelFont.bodyLarge)
                                                     .padding(10)
                                             }
                                         }
@@ -246,8 +245,7 @@ struct ExploreView: View {
 
                         #if DEBUG
                         Button("🐞 다음 장소 도착") { vm.simulateNextArrival() }
-                            .buttonStyle(.borderedProminent)
-                            .tint(.purple)
+                            .buttonStyle(PixelButtonStyle(.primary))
                             .padding(.top, 4)
                             .padding(.bottom, 10)
                         #endif
@@ -257,7 +255,7 @@ struct ExploreView: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .background(PixelColor.surface)
         .padding(.horizontal, 8)
         .padding(.bottom, 8)
     }
@@ -317,35 +315,34 @@ struct ExploreView: View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 2) {
                 Text("방문 \(vm.visitedPlaceNames.count) / \(course.places.count)곳")
-                    .font(.headline)
+                    .font(PixelFont.label)
                 if let next = nextUnvisitedPlace {
                     HStack(spacing: 4) {
                         Text("다음: \(next.name)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(PixelFont.labelSmall)
+                            .foregroundColor(PixelColor.inkWeak)
                         if let dist = distanceToNext {
                             Text("· \(formattedDistance(dist))")
-                                .font(.caption.weight(.semibold))
-                                .foregroundColor(.orange)
+                                .font(PixelFont.labelSmall)
+                                .foregroundColor(PixelColor.primary)
                         }
                     }
                 } else {
                     Text("모든 장소를 방문했어요!")
-                        .font(.caption)
-                        .foregroundColor(.orange)
+                        .font(PixelFont.labelSmall)
+                        .foregroundColor(PixelColor.primary)
                 }
             }
             Spacer()
 
             if let next = nextUnvisitedPlace {
                 Button { openNavigation(to: next) } label: {
-                    Image(systemName: "map.fill")
-                        .font(.caption.weight(.semibold))
+                    PixelIcon(.map, size: 16)
                         .padding(8)
-                        .background(Color(.secondarySystemBackground))
-                        .clipShape(Circle())
+                        .background(PixelColor.surfaceLow)
+                        .clipShape(Rectangle())
                 }
-                .foregroundColor(.primary)
+                .foregroundColor(PixelColor.ink)
             }
 
         }
@@ -391,15 +388,15 @@ private struct ExploreDaySectionView: View {
             // 섹션 헤더
             HStack {
                 Text("Day \(day)")
-                    .font(.subheadline.weight(.bold))
-                    .foregroundColor(.white)
+                    .font(PixelFont.body)
+                    .foregroundColor(PixelColor.surface)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 5)
-                    .background(Color.orange)
-                    .clipShape(Capsule())
+                    .background(PixelColor.primary)
+                    .clipShape(Rectangle())
 
                 Rectangle()
-                    .fill(Color.orange.opacity(0.25))
+                    .fill(PixelColor.primary.opacity(0.25))
                     .frame(height: 1)
                     .frame(maxWidth: .infinity)
             }
@@ -414,9 +411,9 @@ private struct ExploreDaySectionView: View {
                     .opacity(isVisited ? 0.45 : 1.0)
                     .overlay(alignment: .topTrailing) {
                         if isVisited {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.green)
-                                .font(.title3)
+                            PixelIcon(.check)
+                                .foregroundColor(PixelColor.done)
+                                .font(PixelFont.bodyLarge)
                                 .padding(10)
                         }
                     }
@@ -438,12 +435,12 @@ private struct ExploreDayTabButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.caption.weight(.semibold))
+                .font(PixelFont.labelSmall)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 7)
-                .background(isSelected ? Color.orange : Color.orange.opacity(0.1))
+                .background(isSelected ? PixelColor.primary : PixelColor.primary.opacity(0.1))
                 .foregroundColor(isSelected ? .white : .orange)
-                .clipShape(Capsule())
+                .clipShape(Rectangle())
         }
     }
 }
