@@ -147,7 +147,7 @@ struct ExploreView: View {
             if placeCoordinates.count >= 2 {
                 MapPolyline(coordinates: placeCoordinates)
                     .stroke(
-                        .orange.opacity(0.75),
+                        PixelColor.primary.opacity(0.75),
                         style: StrokeStyle(lineWidth: 3.5, dash: [8, 5])
                     )
             }
@@ -230,9 +230,8 @@ struct ExploreView: View {
                                         .opacity(isVisited ? 0.45 : 1.0)
                                         .overlay(alignment: .topTrailing) {
                                             if isVisited {
-                                                PixelIcon(.check)
-                                                    .foregroundColor(PixelColor.done)
-                                                    .font(PixelFont.bodyLarge)
+                                                PixelIcon(.check, size: 18,
+                                                          color: PixelColor.done)
                                                     .padding(10)
                                             }
                                         }
@@ -411,9 +410,7 @@ private struct ExploreDaySectionView: View {
                     .opacity(isVisited ? 0.45 : 1.0)
                     .overlay(alignment: .topTrailing) {
                         if isVisited {
-                            PixelIcon(.check)
-                                .foregroundColor(PixelColor.done)
-                                .font(PixelFont.bodyLarge)
+                            PixelIcon(.check, size: 18, color: PixelColor.done)
                                 .padding(10)
                         }
                     }
@@ -439,7 +436,7 @@ private struct ExploreDayTabButton: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 7)
                 .background(isSelected ? PixelColor.primary : PixelColor.primary.opacity(0.1))
-                .foregroundColor(isSelected ? .white : .orange)
+                .foregroundColor(isSelected ? PixelColor.onPrimary : PixelColor.primary)
                 .clipShape(Rectangle())
         }
     }

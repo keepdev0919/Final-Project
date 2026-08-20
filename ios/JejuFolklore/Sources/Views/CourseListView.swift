@@ -8,7 +8,7 @@ struct CourseListView: View {
 
     var body: some View {
         ZStack {
-            PixelColor.surface.ignoresSafeArea()
+            PixelColor.background.ignoresSafeArea()
 
             if vm.isLoadingList {
                 loadingView
@@ -80,8 +80,7 @@ struct CourseListView: View {
 
     private func errorView(_ err: String) -> some View {
         VStack(spacing: 12) {
-            PixelIcon(.warn, size: 16)
-                .foregroundColor(PixelColor.primary)
+            PixelIcon(.warn, size: 48, color: PixelColor.locked)
             Text(err)
                 .font(PixelFont.body)
                 .multilineTextAlignment(.center)
@@ -143,7 +142,7 @@ struct CourseListView: View {
                 vm.reset()
             } label: {
                 HStack(spacing: 6) {
-                    PixelIcon(.refresh)
+                    PixelIcon(.refresh, size: 16)
                     Text("취향 다시 고르기")
                 }
                 .font(PixelFont.body)
@@ -171,7 +170,7 @@ private struct CourseCard: View {
 
     private var rankColor: Color {
         switch rank {
-        case 1: return .orange
+        case 1: return PixelColor.primary
         case 2: return PixelColor.primary.opacity(0.75)
         default: return PixelColor.primary.opacity(0.55)
         }
@@ -184,7 +183,7 @@ private struct CourseCard: View {
                 HStack(alignment: .top, spacing: 10) {
                     Text("\(rank)")
                         .font(PixelFont.body)
-                        .foregroundColor(PixelColor.surface)
+                        .foregroundColor(rank == 1 ? PixelColor.onPrimary : PixelColor.ink)
                         .frame(width: 28, height: 28)
                         .background(rankColor)
                         .clipShape(Rectangle())
@@ -196,10 +195,10 @@ private struct CourseCard: View {
                             .multilineTextAlignment(.leading)
                             .lineLimit(2)
                         HStack(spacing: 6) {
-                            PixelIcon(.calendar)
+                            PixelIcon(.calendar, size: 14)
                             Text("\(course.durationDays)일 일정")
                             Text("·")
-                            PixelIcon(.mapPin)
+                            PixelIcon(.mapPin, size: 14)
                             Text("\(course.places.count)곳")
                         }
                         .font(PixelFont.labelSmall)

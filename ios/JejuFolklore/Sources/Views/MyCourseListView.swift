@@ -39,12 +39,17 @@ struct MyCourseListView: View {
                                 .listRowBackground(
                                     highlightedCourseId == course.id
                                         ? PixelColor.primary.opacity(0.18)
-                                        : Color(.secondarySystemGroupedBackground)
+                                        : PixelColor.surface
                                 )
+                                .listRowSeparatorTint(PixelColor.ink)
                                 .id(course.id)
                                 .onTapGesture { selectedCourse = course }
                         }
-                        .listStyle(.insetGrouped)
+                        // .insetGrouped는 행을 둥글게 만든다 — 모서리를 굴리지 않는다(§5).
+                        // scrollContentBackground를 숨겨야 시스템 회색 바탕이 사라진다.
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
+                        .background(PixelColor.background)
                         .animation(.easeInOut(duration: 0.35), value: highlightedCourseId)
                         .onAppear { consumeJustCompletedCourse(scrollProxy: proxy) }
                     }
@@ -320,9 +325,7 @@ struct SavedCourseDetailView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         ForEach(visited, id: \.self) { name in
                             HStack(spacing: 8) {
-                                PixelIcon(.check)
-                                    .foregroundColor(PixelColor.primary)
-                                    .font(PixelFont.labelSmall)
+                                PixelIcon(.check, size: 12, color: PixelColor.primary)
                                 Text(name)
                                     .font(PixelFont.body)
                             }

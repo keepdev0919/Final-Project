@@ -22,7 +22,7 @@ struct GoogleMapPreview: UIViewRepresentable {
 
         let marker = GMSMarker(position: CLLocationCoordinate2D(latitude: lat, longitude: lng))
         marker.title = markerTitle
-        marker.icon = GMSMarker.markerImage(with: .orange)
+        marker.icon = GMSMarker.markerImage(with: PixelUIColor.primary)
         marker.map = mapView
         return mapView
     }

@@ -73,10 +73,12 @@ extension View {
 // MARK: - 섹션 헤더 (시안의 가장 특징적인 패턴)
 
 /// 아이콘 + 제목 + 하단 2px 밑줄. 카드마다 반복되면서 "일지" 인상을 만든다.
-struct PixelSectionHeader: View {
+struct PixelSectionHeader<Trailing: View>: View {
     let title: String
     var icon: PixelIcon.Glyph? = nil
     var accent: Color = PixelColor.ink
+    /// 제목 줄 오른쪽에 붙는 것 ("총 12명" 같은 곁수치).
+    @ViewBuilder var trailing: Trailing
 
     var body: some View {
         VStack(spacing: 0) {
@@ -86,12 +88,19 @@ struct PixelSectionHeader: View {
                     .font(PixelFont.sectionTitle)
                     .foregroundStyle(accent)
                 Spacer(minLength: 0)
+                trailing
             }
             .padding(.bottom, PixelSpacing.s)
             Rectangle()
                 .fill(accent)
                 .frame(height: PixelSpacing.border)
         }
+    }
+}
+
+extension PixelSectionHeader where Trailing == EmptyView {
+    init(title: String, icon: PixelIcon.Glyph? = nil, accent: Color = PixelColor.ink) {
+        self.init(title: title, icon: icon, accent: accent) { EmptyView() }
     }
 }
 
@@ -339,7 +348,10 @@ struct PixelProgressBar: View {
         HStack(spacing: PixelSpacing.xs) {
             ForEach(0..<max(total, 1), id: \.self) { index in
                 Rectangle()
-                    .fill(index < filled ? PixelColor.done : Color.clear)
+                    // `done`(=primaryContainer)은 다크에서 어두운 초록(#005229)이라
+                    // 어두운 배경 위 빈 칸과 거의 구분되지 않았다. `primary`는 다크에서
+                    // 밝은 초록(#51E088)이라 두 모드 모두 채운 칸이 또렷하다.
+                    .fill(index < filled ? PixelColor.primary : Color.clear)
                     .frame(height: PixelSpacing.xl)
                     .pixelBorder()
             }

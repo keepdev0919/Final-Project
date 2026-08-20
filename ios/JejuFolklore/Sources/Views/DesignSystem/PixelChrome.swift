@@ -13,9 +13,16 @@ enum PixelChrome {
         let bar = UINavigationBarAppearance()
         bar.configureWithOpaqueBackground()
         bar.backgroundColor = PixelUIColor.surfaceMid
-        // 하단 4px 잉크 선 — 시안의 두꺼운 경계. shadowImage는 높이를 지킨다.
-        bar.shadowColor = nil
-        bar.shadowImage = solid(PixelUIColor.ink, height: 4)
+        // 하단 경계선.
+        //
+        // ⚠️ `shadowImage`에 4px 잉크 이미지를 굽는 방법을 썼다가 되돌렸다. 두 가지가 깨진다:
+        // ① `shadowColor = nil`은 "그림자 숨김"이라 선이 아예 안 나올 수 있다.
+        // ② `UIGraphicsImageRenderer`는 `App.init()` 시점의 모드(윈도가 없어 라이트)로
+        //    색을 **비트맵에 굽는다** → 다크 모드에서 바 배경만 어두워지고 선은 라이트
+        //    잉크로 남아 경계가 사라진다. 실행 중 모드를 바꿔도 갱신되지 않는다.
+        // 두께(4px)를 포기하고 동적 색을 택했다. 4px 두꺼운 경계는 탭 뿌리 화면의
+        // `PixelTopBar`가 갖는다 — 밀려 올라온 화면은 다른 상태다 (DESIGN.md §6).
+        bar.shadowColor = PixelUIColor.ink
 
         let title: [NSAttributedString.Key: Any] = [
             .foregroundColor: PixelUIColor.ink,
@@ -32,15 +39,8 @@ enum PixelChrome {
         UINavigationBar.appearance().scrollEdgeAppearance = bar
         UINavigationBar.appearance().tintColor = PixelUIColor.ink
 
-        // List·Form의 회색 바탕을 팔레트 배경으로.
-        UITableView.appearance().backgroundColor = PixelUIColor.background
-    }
-
-    /// 1×height 단색 이미지. `shadowImage`는 가로로 늘어나므로 폭 1이면 된다.
-    private static func solid(_ color: UIColor, height: CGFloat) -> UIImage {
-        UIGraphicsImageRenderer(size: CGSize(width: 1, height: height)).image { ctx in
-            color.setFill()
-            ctx.fill(CGRect(x: 0, y: 0, width: 1, height: height))
-        }
+        // ⚠️ `UITableView.appearance()`로 List 바탕을 칠하려 했다가 지웠다.
+        // iOS 16+ SwiftUI `List`는 UICollectionView 기반이라 효과가 없다.
+        // 화면마다 `.scrollContentBackground(.hidden)` + `.background(...)`를 쓴다.
     }
 }

@@ -245,7 +245,7 @@ struct CoursePreviewView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
                     .background(PixelColor.primary)
-                    .foregroundColor(PixelColor.surface)
+                    .foregroundColor(PixelColor.onPrimary)
                     .clipShape(Rectangle())
             }
             .padding(.top, 4)
@@ -262,7 +262,7 @@ struct CoursePreviewView: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 10)
             .background(PixelColor.done)
-            .foregroundColor(PixelColor.surface)
+            .foregroundColor(PixelColor.onDone)
             .clipShape(Rectangle())
             .padding(.top, 60)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -334,7 +334,7 @@ private struct DayTabButton: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 7)
                 .background(isSelected ? PixelColor.primary : PixelColor.primary.opacity(0.1))
-                .foregroundColor(isSelected ? .white : .orange)
+                .foregroundColor(isSelected ? PixelColor.onPrimary : PixelColor.primary)
                 .clipShape(Rectangle())
         }
     }
@@ -405,7 +405,7 @@ private struct MapWithPolyline: UIViewRepresentable {
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
             if let polyline = overlay as? MKPolyline {
                 let renderer = MKPolylineRenderer(polyline: polyline)
-                renderer.strokeColor = UIColor.systemOrange.withAlphaComponent(0.85)
+                renderer.strokeColor = PixelUIColor.primary.withAlphaComponent(0.85)
                 renderer.lineWidth = 3.5
                 renderer.lineDashPattern = [8, 5]
                 return renderer
@@ -466,11 +466,10 @@ struct NumberedMarker: View {
     var body: some View {
         Text("\(number)")
             .font(PixelFont.labelSmall)
-            .foregroundColor(PixelColor.surface)
+            .foregroundColor(PixelColor.onPrimary)
             .frame(width: 28, height: 28)
             .background(PixelColor.primary)
-            .clipShape(Rectangle())
-            
+            .pixelBorder()
     }
 }
 

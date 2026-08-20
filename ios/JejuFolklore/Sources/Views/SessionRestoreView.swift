@@ -14,7 +14,7 @@ struct SessionRestoreView: View {
                 .padding(.top, 12)
 
             VStack(spacing: 20) {
-                PixelIcon(.person, size: 48)
+                PixelIcon(.mapPin, size: 48, color: PixelColor.primary)
 
                 VStack(spacing: 6) {
                     Text("탐험 중인 코스가 있어요")
@@ -28,14 +28,14 @@ struct SessionRestoreView: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        PixelIcon(.mapPin)
+                        PixelIcon(.mapPin, size: 18)
                             .foregroundColor(PixelColor.primary)
                         Text("방문 완료: \(session.visitedPlaceNames.count) / \(session.courseSnapshot.places.count)곳")
                             .font(PixelFont.body)
                     }
 
                     HStack {
-                        PixelIcon(.clock)
+                        PixelIcon(.clock, size: 18)
                             .foregroundColor(PixelColor.primary)
                         Text("시작: \(session.startedAt.formatted(date: .abbreviated, time: .shortened))")
                             .font(PixelFont.body)

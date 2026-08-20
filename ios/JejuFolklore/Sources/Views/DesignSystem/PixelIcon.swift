@@ -17,9 +17,15 @@ struct PixelIcon: View {
 
     let glyph: Glyph
     var size: CGFloat
-    var color: Color
+    /// nil이면 바깥에서 준 `.foregroundColor`·`.foregroundStyle`을 따른다.
+    ///
+    /// ⚠️ 기본값을 잉크로 **고정하지 않는다.** `Canvas`는 색을 인자로 받은 것만 쓰기 때문에
+    /// 고정하면 바깥의 `.foregroundColor(...)`가 **조용히 무시된다.** 2026-08-20 리뷰에서
+    /// 이 때문에 19곳이 잘못된 색으로 그려지고 있었다 — 도착 화면의 큰 핀이 어둠막에
+    /// 묻히고, 방문 완료 체크가 초록이 아니라 검정으로 나왔다.
+    var color: Color?
 
-    init(_ glyph: Glyph, size: CGFloat = 24, color: Color = PixelColor.ink) {
+    init(_ glyph: Glyph, size: CGFloat = 24, color: Color? = nil) {
         self.glyph = glyph
         self.size = size
         self.color = color
@@ -30,13 +36,16 @@ struct PixelIcon: View {
             let rows = Self.bitmap(for: glyph)
             guard !rows.isEmpty else { return }
             let unit = canvasSize.width / CGFloat(rows.count)
+            // `.style(.foreground)`이 환경의 foregroundStyle을 읽는다.
+            let shading: GraphicsContext.Shading =
+                color.map { .color($0) } ?? .style(.foreground)
             for (y, row) in rows.enumerated() {
                 for (x, char) in row.enumerated() where char == "#" {
                     let rect = CGRect(
                         x: CGFloat(x) * unit, y: CGFloat(y) * unit,
                         width: unit, height: unit
                     )
-                    context.fill(Path(rect), with: .color(color))
+                    context.fill(Path(rect), with: shading)
                 }
             }
         }

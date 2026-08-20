@@ -52,14 +52,16 @@ struct LoginSheet: View {
                 .disabled(isWorking)
 
                 Button(action: { Task { await performGoogleSignIn() } }) {
-                    HStack(spacing: 10) {
-                        PixelIcon(.person, size: 16)
-                        Text("Google로 계속하기")
-                            .font(PixelFont.body)
-                    }
+                    // 아이콘을 넣지 않는다. 우리 도트 아이콘 중에 Google을 뜻하는 게
+                    // 없고, 사람 모양을 쓰면 위 헤더 아이콘과 같은 그림이 두 번 나오면서
+                    // "Google"이라는 뜻은 어디에도 남지 않는다.
+                    Text("Google로 계속하기")
+                    .font(PixelFont.body)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .foregroundStyle(PixelColor.surface)
+                    // Google 파랑은 고정 브랜드색이다. 적응색(surface)을 올리면
+                    // 다크 모드에서 글자가 어두워져 4.27:1로 흐려진다.
+                    .foregroundStyle(Color.white)
                     .background(Color(.sRGB, red: 0.26, green: 0.52, blue: 0.96, opacity: 1))
                     .clipShape(Rectangle())
                 }

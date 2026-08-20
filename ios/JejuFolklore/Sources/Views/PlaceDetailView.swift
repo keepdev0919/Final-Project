@@ -74,7 +74,7 @@ struct PlaceDetailView: View {
                     .foregroundColor(PixelColor.surface)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
-                    .background(PixelColor.ink.opacity(0.55))
+                    .background(Color.black.opacity(0.55))
                     .clipShape(Rectangle())
                     .padding(12)
             }
@@ -84,8 +84,7 @@ struct PlaceDetailView: View {
     private var placeholderPhoto: some View {
         PixelColor.primary.opacity(0.08)
             .overlay(
-                PixelIcon(.photo, size: 16)
-                    .foregroundColor(PixelColor.outlineVariant)
+                PixelIcon(.photo, size: 48, color: PixelColor.outlineVariant)
             )
     }
 
@@ -193,7 +192,7 @@ struct PlaceDetailView: View {
 
         if !tips.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
-                PixelSectionHeader(title: "이용팁", icon: .clock,
+                PixelSectionHeader(title: "이용팁", icon: .book,
                                    accent: PixelColor.secondary)
                 ForEach(tips, id: \.1) { icon, label, value in
                     HStack(alignment: .top, spacing: 10) {
@@ -227,8 +226,7 @@ struct PlaceDetailView: View {
 
     private var failedView: some View {
         VStack(spacing: 8) {
-            PixelIcon(.warn, size: 16)
-                .foregroundColor(PixelColor.primary)
+            PixelIcon(.warn, size: 40, color: PixelColor.locked)
             Text("장소 정보를 불러오지 못했어요.")
                 .font(PixelFont.body)
                 .foregroundColor(PixelColor.inkWeak)
@@ -276,10 +274,11 @@ struct PlaceDetailView: View {
 
     private func communitySection(reviews: PlaceReviewsResponse) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            PixelSectionHeader(title: "다른 여행자들의 반응", icon: .person)
-            Text("총 \(reviews.total)명")
-                .font(PixelFont.labelSmall)
-                .foregroundColor(PixelColor.inkWeak)
+            PixelSectionHeader(title: "다른 여행자들의 반응", icon: .person) {
+                Text("총 \(reviews.total)명")
+                    .font(PixelFont.labelSmall)
+                    .foregroundColor(PixelColor.inkWeak)
+            }
 
             let sortedTags = reviews.tagCounts
                 .filter { $0.value > 0 }

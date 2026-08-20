@@ -8,14 +8,15 @@ struct ArrivalOverlayView: View {
 
     var body: some View {
         ZStack {
-            PixelColor.ink.opacity(0.75)
+            Color.black.opacity(0.75)
                 .ignoresSafeArea()
 
             VStack(spacing: 28) {
                 // 도착 표시. 단계 1에서 여기에 곱닥이 캐릭터가 들어간다.
                 VStack(spacing: 8) {
-                    PixelIcon(.mapPin, size: 72)
-                        .foregroundColor(PixelColor.primary)
+                    // 어둠막 위라 밝은 금색으로. 적응색(primary)은 라이트 모드에서
+                    // 진한 초록이 되어 검은 막에 묻힌다.
+                    PixelIcon(.mapPin, size: 72, color: PixelColor.tertiaryFixed)
                         .scaleEffect(appeared ? 1 : 0.5)
                         .opacity(appeared ? 1 : 0)
                 }
