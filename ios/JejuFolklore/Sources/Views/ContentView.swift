@@ -23,6 +23,16 @@ struct ContentView: View {
     @EnvironmentObject private var authManager: AuthManager
     @Environment(\.modelContext) private var modelContext
 
+    /// 탭 하나를 그린다. 안 보이는 탭도 계층에 남겨 상태를 보존한다.
+    @ViewBuilder
+    private func tabContent<C: View>(_ tab: AppTab, @ViewBuilder _ content: () -> C) -> some View {
+        let on = (AppTab(rawValue: selectedTabRaw) ?? .home) == tab
+        NavigationStack { content() }
+            .opacity(on ? 1 : 0)
+            .allowsHitTesting(on)
+            .accessibilityHidden(!on)
+    }
+
     private var selectedTabBinding: Binding<AppTab> {
         Binding(
             get: { AppTab(rawValue: selectedTabRaw) ?? .home },
@@ -40,41 +50,26 @@ struct ContentView: View {
     }
 
     private var mainTabs: some View {
-        TabView(selection: selectedTabBinding) {
-            NavigationStack {
-                HomeView()
+        // ⚠️ SwiftUI TabView를 쓰지 않는다. 시안의 탭바(4px 테두리·위쪽 그림자·
+        // 선택 탭 채움)를 TabView로는 만들 수 없다 → PixelTabBar.
+        //
+        // 대신 탭별 NavigationStack을 전부 살려두고 보이는 것만 바꾼다.
+        // 지우고 다시 만들면 각 탭의 스크롤·화면 이동 상태가 날아간다.
+        VStack(spacing: 0) {
+            ZStack {
+                tabContent(.home)  { HomeView() }
+                tabContent(.story) { StoryListView() }
+                tabContent(.course){ CourseHubView() }
+                tabContent(.mine)  { MineView().environmentObject(authManager) }
             }
-            .tabItem {
-                Label { Text("홈") } icon: { Image(uiImage: PixelIcon.uiImage(.home)) }
-            }
-            .tag(AppTab.home)
-
-            NavigationStack {
-                StoryListView()
-            }
-            .tabItem {
-                Label { Text("스토리") } icon: { Image(uiImage: PixelIcon.uiImage(.photo)) }
-            }
-            .tag(AppTab.story)
-
-            NavigationStack {
-                CourseHubView()
-            }
-            .tabItem {
-                Label { Text("코스") } icon: { Image(uiImage: PixelIcon.uiImage(.map)) }
-            }
-            .tag(AppTab.course)
-
-            NavigationStack {
-                MineView()
-                    .environmentObject(authManager)
-            }
-            .tabItem {
-                Label { Text("내 것") } icon: { Image(uiImage: PixelIcon.uiImage(.person)) }
-            }
-            .tag(AppTab.mine)
+            PixelTabBar(items: [
+                .init(tab: .home,   title: "홈",     icon: .home),
+                .init(tab: .story,  title: "스토리",  icon: .photo),
+                .init(tab: .course, title: "코스",    icon: .map),
+                .init(tab: .mine,   title: "내 것",   icon: .person),
+            ], selection: selectedTabBinding)
         }
-        .tint(PixelColor.primary)
+        .background(PixelColor.background.ignoresSafeArea())
         // SessionRestore 경로: 이전에는 NavigationStack push였지만, 탭별 NavigationStack 분리 이후
         // 어떤 탭에 push할지 모호해서 fullScreenCover로 띄운다. ExploreView 내부 navigationDestination을
         // 위해 자체 NavigationStack 감싸기.

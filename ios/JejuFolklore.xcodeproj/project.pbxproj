@@ -54,6 +54,7 @@
 		9CE22D9AFDBBB268C8DC5204 /* PixelGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFC0010E988BDABFC32500E /* PixelGalleryView.swift */; };
 		9CE3AAF8CFE0F62B647E2B1B /* CourseRecommendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */; };
 		A354561FC140C77CD26F19D8 /* GoogleMapPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC15B8EA8FB8D80D2EA8016 /* GoogleMapPreview.swift */; };
+		A8ED1424FD6D36F3B538B12A /* PixelTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 147E26AF7E61D093C74F6104 /* PixelTabBar.swift */; };
 		AAE7C1FCF5B5E1B0894E0B23 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 56FD528AF8D8BAAD9FA0738D /* GoogleSignInSwift */; };
 		AC684B8C1956FFD93A8835F3 /* PlaceReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC21DDC81DEE2B5D42F38320 /* PlaceReview.swift */; };
 		B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */; };
@@ -81,6 +82,7 @@
 		0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
 		0EB46F8631558DA14B8DE90F /* PlaceReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceReviewSheet.swift; sourceTree = "<group>"; };
 		101A2B03B831695C27D31659 /* ArrivalOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrivalOverlayView.swift; sourceTree = "<group>"; };
+		147E26AF7E61D093C74F6104 /* PixelTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelTabBar.swift; sourceTree = "<group>"; };
 		161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewViewModel.swift; sourceTree = "<group>"; };
 		1D8AB8D49C66B553084056EF /* PixelComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelComponents.swift; sourceTree = "<group>"; };
 		27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceIdentity.swift; sourceTree = "<group>"; };
@@ -254,6 +256,7 @@
 				5BFC0010E988BDABFC32500E /* PixelGalleryView.swift */,
 				FB383F822D48F10D4C482C1B /* PixelIcon.swift */,
 				770550065A60F3F6D772B9A0 /* PixelSpacing.swift */,
+				147E26AF7E61D093C74F6104 /* PixelTabBar.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -453,6 +456,7 @@
 				9CE22D9AFDBBB268C8DC5204 /* PixelGalleryView.swift in Sources */,
 				587E768898899E1D9B66B4F9 /* PixelIcon.swift in Sources */,
 				D3DFEBC6D7B98B9C46F9BA81 /* PixelSpacing.swift in Sources */,
+				A8ED1424FD6D36F3B538B12A /* PixelTabBar.swift in Sources */,
 				3C924367BF6D98281ABDEE6F /* PlaceAPI.swift in Sources */,
 				2F421FD8AD3B408FB4CB94C4 /* PlaceDetail.swift in Sources */,
 				3F87278B10B282BE0924C3DC /* PlaceDetailView.swift in Sources */,
