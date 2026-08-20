@@ -179,3 +179,69 @@ def test_course_detail_missing_course_id(client):
     """course_id 누락 → 422."""
     res = client.post("/course/detail", json={"style": "ocean"})
     assert res.status_code == 422
+
+
+def test_course_places_are_looked_up_by_id_not_title():
+    """코스 장소는 반드시 `course_id`로 조회해야 한다.
+
+    `curated_courses.origin_title`은 비짓제주 사용자가 쓴 개인 메모다 —
+    "여행", "^^", "제주도". **유일하지 않다.** 이 값으로 `courses`를 역조회하면
+    남의 코스 장소가 통째로 딸려온다.
+
+        id=19670 "전체 3일 · 천왕사 외 10곳"
+          course_id로 조회        →  12곳  ← 정답
+          origin_title로 역조회   → 891곳  ← 74배
+
+    화면에는 코스가 그럴듯하게 뜨고 장소만 수백 개가 된다. 크래시가 아니라
+    조용히 틀린 데이터라 눈으로 못 잡는다. 탐험 화면을 만들며 제목으로 조회하는
+    코드가 들어오면 여기서 걸린다.
+
+    되살릴 일이 있으면 이 테스트를 먼저 지우면서 "왜"를 남길 것.
+    """
+    import sqlite3
+    from pathlib import Path
+
+    db = Path(__file__).parent.parent / "storage" / "metadata.db"
+    if not db.exists():
+        import pytest
+        pytest.skip("metadata.db 없음 (CI 등)")
+
+    conn = sqlite3.connect(db)
+    conn.row_factory = sqlite3.Row
+
+    # 1) origin_title이 유일하지 않다는 사실 자체를 못 박는다.
+    dup = conn.execute(
+        "SELECT origin_title, COUNT(*) n FROM curated_courses "
+        "WHERE origin_title IS NOT NULL AND TRIM(origin_title) != '' "
+        "GROUP BY origin_title HAVING n > 1 ORDER BY n DESC LIMIT 1"
+    ).fetchone()
+    assert dup is not None, (
+        "origin_title이 유일해졌다면 이 테스트의 전제가 바뀐 것이다. "
+        "데이터 재빌드 여부를 확인하고 이 테스트를 갱신할 것."
+    )
+
+    # 2) id 조회와 title 조회가 실제로 다른 결과를 낸다.
+    row = conn.execute(
+        "SELECT id, origin_title FROM curated_courses WHERE origin_title = ? LIMIT 1",
+        (dup["origin_title"],),
+    ).fetchone()
+
+    by_id = conn.execute(
+        "SELECT COUNT(*) n FROM course_places WHERE course_id = ?", (row["id"],)
+    ).fetchone()["n"]
+    by_title = conn.execute(
+        "SELECT COUNT(*) n FROM course_places "
+        "WHERE course_id IN (SELECT id FROM courses WHERE title = ?)",
+        (row["origin_title"],),
+    ).fetchone()["n"]
+
+    assert by_title > by_id, "전제가 바뀌었다 — 이 테스트를 재검토할 것"
+
+    # 3) 실제 코드 경로가 id 기반인지 확인한다. 이게 본 검사다.
+    from agents.course_detail_agent import get_places_for_course
+
+    places = get_places_for_course(str(row["id"]))
+    assert len(places) <= by_id, (
+        f"코스 {row['id']}의 장소가 {len(places)}곳으로 나왔다. "
+        f"course_id 기준은 {by_id}곳이다 — 제목으로 조회하고 있다."
+    )
