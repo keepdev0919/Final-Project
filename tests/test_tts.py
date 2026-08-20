@@ -23,11 +23,17 @@ from services import typecast
 
 
 def test_voice_is_pinned():
-    """곱닥이 목소리를 고정한다 (2026-08-20 조익준님 선택).
+    """지금 쓰는 목소리를 고정한다.
 
-    Mirei Kato / ssfm-v30. 바꾸려면 이 테스트를 같이 고치면서
-    "왜 바꾸는지"를 남길 것. 목소리는 콘텐츠 품질 영역이라
-    조익준님 결정 없이 바뀌어선 안 된다.
+    ⚠️ **아직 확정이 아니다.** 2026-08-20 기준 Mirei Kato(`tc_63edf3cc…`)를
+    쓰고 있지만, 조익준님이 후보 3명(Mirei / Seheon / Tonakai-san)의
+    대본 전문 샘플을 듣고 정하는 중이다. "적당히 괜찮은 것"으로 임시 선택했다.
+
+    확정이 아닌데도 테스트로 못 박는 이유는, 목소리가 **모르는 사이에 바뀌면
+    앱 전체의 인격이 바뀌는데 화면은 멀쩡하기** 때문이다. 바꿀 때는 이 테스트를
+    같이 고치면서 누가 왜 정했는지를 남긴다.
+
+    샘플: docs/공유/tts-샘플/들어보기.html
     """
     assert typecast.VOICE_ID == "tc_63edf3ccd8e2eb7338999376"
     assert typecast.MODEL == "ssfm-v30"
