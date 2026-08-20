@@ -27,11 +27,21 @@ PALETTE = (Path(__file__).parent.parent
            / "ios/JejuFolklore/Sources/Views/DesignSystem/PixelColor.swift")
 
 BODY_MIN = 4.5
+# 테두리·아이콘 같은 비텍스트 요소는 WCAG 1.4.11에 따라 3:1이다.
+NONTEXT_MIN = 3.0
 LABEL_MIN = 3.0
 
 # 채움색 ↔ 그 위에 올리는 글자색 짝. 이 짝이 깨지면 글자가 사라진다.
-PAIRS = [("primary", "onPrimary"), ("accent", "onAccent"),
-         ("done", "onDone"), ("locked", "onLocked")]
+PAIRS = [
+    ("primary", "onPrimary"),
+    ("primaryContainer", "onPrimaryContainer"),
+    ("secondary", "onSecondary"),
+    ("secondaryContainer", "onSecondaryContainer"),
+    ("tertiary", "onTertiary"),
+    ("tertiaryContainer", "onTertiaryContainer"),
+    ("tertiaryFixed", "onTertiaryFixed"),
+    ("error", "onError"),
+]
 
 
 def _lum(v: int) -> float:
@@ -73,25 +83,42 @@ def test_palette_matches_design_doc():
     """
     light, dark = _parse()
     assert light == {
-        "background": 0xFBF8FF, "surface": 0xFFFFFF, "sunk": 0xEDECFF,
+        "background": 0xFBF8FF, "surface": 0xFFFFFF, "surfaceLow": 0xF4F2FF,
+        "surfaceMid": 0xEDECFF, "surfaceHigh": 0xE6E6FD, "surfaceVariant": 0xE1E1F7,
+        "surfaceDim": 0xD8D8EF,
         "ink": 0x181A2A, "inkWeak": 0x3D4A3F,
-        "primary": 0x006D39, "accent": 0xD9AF00, "done": 0x38CC77, "locked": 0xBA1A1A,
-        "onPrimary": 0xFFFFFF, "onAccent": 0x181A2A,
-        "onDone": 0x181A2A, "onLocked": 0xFFFFFF,
+        "outline": 0x6D7B6E, "outlineVariant": 0xBCCABC,
+        "primary": 0x006D39, "onPrimary": 0xFFFFFF,
+        "primaryContainer": 0x38CC77, "onPrimaryContainer": 0x005129,
+        "secondary": 0x0062A2, "onSecondary": 0xFFFFFF,
+        "secondaryContainer": 0x54ABFD, "onSecondaryContainer": 0x003E69,
+        "tertiary": 0x735C00, "onTertiary": 0xFFFFFF,
+        "tertiaryContainer": 0xD9AF00, "onTertiaryContainer": 0x554400,
+        "tertiaryFixed": 0xFFE085, "onTertiaryFixed": 0x231B00,
+        "error": 0xBA1A1A, "onError": 0xFFFFFF,
     }
     assert dark == {
-        "background": 0x12141F, "surface": 0x22243A, "sunk": 0x1B1D2E,
+        "background": 0x12141F, "surface": 0x22243A, "surfaceLow": 0x1B1D2E,
+        "surfaceMid": 0x282B44, "surfaceHigh": 0x30334E, "surfaceVariant": 0x3A3D58,
+        "surfaceDim": 0x0D0F18,
         "ink": 0xF0EFFF, "inkWeak": 0x9EA8A0,
-        "primary": 0x38CC77, "accent": 0xEEC215, "done": 0x70FDA2, "locked": 0xFFB4AB,
-        "onPrimary": 0x181A2A, "onAccent": 0x181A2A,
-        "onDone": 0x181A2A, "onLocked": 0x181A2A,
+        "outline": 0x8A9A8B, "outlineVariant": 0x4A5A4B,
+        "primary": 0x51E088, "onPrimary": 0x00210D,
+        "primaryContainer": 0x005229, "onPrimaryContainer": 0x70FDA2,
+        "secondary": 0x9DCAFF, "onSecondary": 0x001D35,
+        "secondaryContainer": 0x00497C, "onSecondaryContainer": 0xD1E4FF,
+        "tertiary": 0xEEC215, "onTertiary": 0x231B00,
+        "tertiaryContainer": 0x574500, "onTertiaryContainer": 0xFFE085,
+        "tertiaryFixed": 0xFFE085, "onTertiaryFixed": 0x231B00,
+        "error": 0xFFB4AB, "onError": 0x93000A,
     }
 
 
 @pytest.mark.parametrize("mode", [0, 1], ids=["light", "dark"])
 @pytest.mark.parametrize("fg,bg", [("ink", "background"), ("ink", "surface"),
+                                   ("ink", "surfaceMid"), ("ink", "surfaceVariant"),
                                    ("inkWeak", "background"), ("inkWeak", "surface"),
-                                   ("inkWeak", "sunk")])
+                                   ("inkWeak", "surfaceMid")])
 def test_text_meets_aa(mode, fg, bg):
     """본문·보조 텍스트는 배경 대비 4.5:1 이상이어야 한다."""
     p = _parse()[mode]
@@ -105,24 +132,41 @@ def test_fill_and_its_text_are_legible(mode, fill, on):
     """채움색과 그 짝 글자색이 두 모드 모두에서 읽혀야 한다.
 
     여기가 2026-08-14(1.26:1)와 2026-08-20(모드별 반전) 사고를 함께 막는 자리다.
+
+    ⚠️ 한때 "짝 색은 흰색·검정 중 대비가 높은 쪽이어야 한다"는 검사를 뒀다가 지웠다.
+    그 규칙은 역할마다 색이 두 개뿐이던 시절엔 맞았지만, 시안의 Material 팔레트는
+    `on*` 색을 **일부러 색조에 맞춰** 둔다(`onPrimaryContainer`는 순수 검정이 아니라
+    진한 초록 #005129). 그 규칙을 강제하면 시안 색을 바꿔야 하므로, "시안과 똑같이"
+    라는 목적과 정면으로 어긋난다. 대비 하한(3:1)만 지킨다.
     """
     p = _parse()[mode]
     r = contrast(p[fill], p[on])
     assert r >= LABEL_MIN, f"{on} on {fill} = {r:.2f}:1 (기준 {LABEL_MIN})"
 
 
-@pytest.mark.parametrize("fill,on", PAIRS)
-def test_paired_text_is_the_better_of_black_or_white(fill, on):
-    """짝 글자색이 흰색·검정 중 대비가 높은 쪽이어야 한다.
+@pytest.mark.parametrize("mode", [0, 1], ids=["light", "dark"])
+@pytest.mark.parametrize("line,bg", [("outline", "surface"), ("outline", "background")])
+def test_lines_meet_nontext_contrast(line, bg, mode):
+    """테두리·구분선은 3:1이면 된다 (WCAG 1.4.11 비텍스트 대비).
 
-    반대를 골라도 3:1은 넘길 수 있다. 그러면 '읽히긴 하는데 눈이 아픈' 상태로
-    굳는다. 더 나은 쪽을 고르게 강제한다.
+    본문 기준 4.5:1을 적용하면 라이트 `outline`(#6D7B6E)이 4.46으로 걸린다.
+    그런데 이건 글자가 아니라 선이다. 기준을 잘못 적용해서 시안 색을 억지로
+    바꾸면, 맞추려던 것에서 오히려 멀어진다.
     """
-    for mode, name in ((0, "라이트"), (1, "다크")):
-        p = _parse()[mode]
-        chosen = contrast(p[fill], p[on])
-        best = max(contrast(p[fill], 0xFFFFFF), contrast(p[fill], 0x181A2A))
-        assert chosen >= best - 0.01, (
-            f"{name}: {on} on {fill} = {chosen:.2f}:1 이지만 "
-            f"반대 색이면 {best:.2f}:1 이다"
+    p = _parse()[mode]
+    r = contrast(p[line], p[bg])
+    assert r >= NONTEXT_MIN, f"{line} on {bg} = {r:.2f}:1 (기준 {NONTEXT_MIN})"
+
+
+def test_semantic_aliases_point_at_real_roles():
+    """의미 별칭(accent·done·locked 등)은 Material 역할을 가리키는 것이어야 한다.
+
+    별칭이 직접 색을 들고 있으면 팔레트가 두 곳에 생기고, 한쪽만 바뀐다.
+    """
+    src = PALETTE.read_text(encoding="utf-8")
+    for alias in ("sunk", "accent", "onAccent", "done", "onDone", "locked", "onLocked"):
+        m = re.search(rf"static let {alias}\s*=\s*(\w+)", src)
+        assert m, f"{alias} 별칭을 찾지 못했다"
+        assert not m.group(1).startswith("adaptive"), (
+            f"{alias}가 색을 직접 들고 있다 — Material 역할을 가리켜야 한다"
         )
