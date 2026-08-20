@@ -21,14 +21,14 @@ struct HomeView: View {
 
                 if vm.isLoading {
                     Text("불러오는 중…")
-                        .pixelFont(PixelFont.bodySmall)
+                        .pixelFont(PixelFont.labelSmall)
                         .foregroundStyle(PixelColor.inkWeak)
                         .frame(maxWidth: .infinity)
                 }
 
                 if let message = vm.errorMessage {
                     Text(message)
-                        .pixelFont(PixelFont.badge)
+                        .pixelFont(PixelFont.labelSmall)
                         .foregroundStyle(PixelColor.locked)
                         .frame(maxWidth: .infinity)
                 }
@@ -93,11 +93,11 @@ struct HomeView: View {
                         PixelCard {
                             VStack(alignment: .leading, spacing: PixelSpacing.xs) {
                                 Text(course.title)
-                                    .pixelFont(PixelFont.cardTitle)
+                                    .pixelFont(PixelFont.sectionTitle)
                                     .foregroundStyle(PixelColor.ink)
                                     .multilineTextAlignment(.leading)
                                 Text("\(course.durationDays)일 · 장소 \(course.places.count)곳")
-                                    .pixelFont(PixelFont.badge)
+                                    .pixelFont(PixelFont.labelSmall)
                                     .foregroundStyle(PixelColor.inkWeak)
                             }
                             .padding(PixelSpacing.cardPadding)

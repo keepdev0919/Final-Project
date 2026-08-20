@@ -75,10 +75,19 @@ def test_font_file_declares_expected_postscript_name(filename, postscript):
 
 
 def test_swift_uses_postscript_names():
-    """PixelFont.swift가 파일명이 아니라 PostScript 이름을 써야 한다."""
+    """갈무리를 쓰는 자리는 파일명이 아니라 PostScript 이름을 써야 한다.
+
+    ⚠️ 2026-08-20: 갈무리를 **UI 본문에서 뺐다**(DESIGN.md §3). 시안 4개가 전부
+    산세리프이고, 시안이 촘촘하고 읽기 쉬운 이유의 절반이 폰트였다.
+    지금 갈무리는 **로고에만** 쓴다 — `PixelFont.logo()` 하나뿐이다.
+
+    폰트 파일과 번들 등록은 그대로 검사한다(위 테스트들). 로고가 조용히
+    시스템 폰트로 폴백되면 앱 이름의 픽셀 정체성이 사라지는데, 그건 눈으로
+    잡기 어렵다.
+    """
     source = PIXEL_FONT_SWIFT.read_text(encoding="utf-8")
-    used = set(re.findall(r'name:\s*"([^"]+)"', source))
-    assert used, "PixelFont.swift에서 폰트 이름을 찾지 못했다"
+    used = set(re.findall(r'\.custom\(\s*"([^"]+)"', source))
+    assert used, "PixelFont.swift에서 갈무리를 쓰는 자리를 찾지 못했다 (로고가 사라졌나?)"
     assert used <= set(POSTSCRIPT_NAMES.values()), (
         f"PostScript 이름이 아닌 값이 쓰였다: {used - set(POSTSCRIPT_NAMES.values())}"
     )

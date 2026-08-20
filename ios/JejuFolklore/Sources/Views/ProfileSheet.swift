@@ -26,13 +26,13 @@ struct ProfileSection: View {
 
             if let errorMessage {
                 Text(errorMessage)
-                    .font(PixelFont.longform(14))
+                    .font(Font.system(size: 14))
                     .foregroundStyle(PixelColor.locked)
             }
 
             Link(destination: privacyPolicyURL) {
                 Text("개인정보 처리방침")
-                    .pixelFont(PixelFont.badge)
+                    .pixelFont(PixelFont.labelSmall)
                     .foregroundStyle(PixelColor.primary)
             }
         }
@@ -69,15 +69,15 @@ struct ProfileSection: View {
                     }
                     .frame(width: 56, height: 56)
                     .clipped()
-                    .pixelBorder(PixelColor.ink, width: PixelSpacing.borderThin)
+                    .pixelBorder(PixelColor.ink, width: PixelSpacing.border)
 
                     VStack(alignment: .leading, spacing: PixelSpacing.xs) {
                         Text(user.displayName ?? "이름 없음")
-                            .pixelFont(PixelFont.cardTitle)
+                            .pixelFont(PixelFont.sectionTitle)
                             .foregroundStyle(PixelColor.ink)
                         if let email = user.email {
                             Text(email)
-                                .pixelFont(PixelFont.badge)
+                                .pixelFont(PixelFont.labelSmall)
                                 .foregroundStyle(PixelColor.inkWeak)
                         }
                     }
@@ -91,7 +91,7 @@ struct ProfileSection: View {
                     showDeleteConfirm = true
                 } label: {
                     Text("계정 삭제")
-                        .pixelFont(PixelFont.badge)
+                        .pixelFont(PixelFont.labelSmall)
                         .foregroundStyle(PixelColor.locked)
                 }
                 .buttonStyle(.plain)
@@ -108,10 +108,10 @@ struct ProfileSection: View {
         PixelCard {
             VStack(alignment: .leading, spacing: PixelSpacing.m) {
                 Text("아직 로그인하지 않았어요")
-                    .pixelFont(PixelFont.cardTitle)
+                    .pixelFont(PixelFont.sectionTitle)
                     .foregroundStyle(PixelColor.ink)
                 Text("로그인하면 다른 기기에서도\n같은 코스를 볼 수 있어요")
-                    .pixelFont(PixelFont.badge)
+                    .pixelFont(PixelFont.labelSmall)
                     .foregroundStyle(PixelColor.inkWeak)
                 PixelButton(title: "로그인", style: .primary) { showLoginSheet = true }
             }

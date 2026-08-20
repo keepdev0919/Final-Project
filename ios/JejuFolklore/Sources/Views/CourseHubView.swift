@@ -18,12 +18,12 @@ struct CourseHubView: View {
                         section = item
                     } label: {
                         Text(item.rawValue)
-                            .pixelFont(PixelFont.button)
+                            .pixelFont(PixelFont.label)
                             .foregroundStyle(section == item ? PixelColor.surface : PixelColor.ink)
                             .frame(maxWidth: .infinity)
                             .frame(height: PixelSpacing.buttonHeight)
                             .background(section == item ? PixelColor.primary : PixelColor.surface)
-                            .pixelBorder(PixelColor.ink, width: PixelSpacing.borderThin)
+                            .pixelBorder(PixelColor.ink, width: PixelSpacing.border)
                     }
                     .buttonStyle(.plain)
                 }

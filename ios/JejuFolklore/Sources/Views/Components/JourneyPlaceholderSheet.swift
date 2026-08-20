@@ -14,12 +14,12 @@ struct JourneyPlaceholderSheet: View {
                 .multilineTextAlignment(.center)
 
             Text(journey.theme)
-                .font(PixelFont.longform(15))
+                .font(Font.system(size: 15))
                 .foregroundStyle(PixelColor.inkWeak)
                 .multilineTextAlignment(.center)
 
             Text("이야기 재생은 준비 중이에요")
-                .pixelFont(PixelFont.badge)
+                .pixelFont(PixelFont.labelSmall)
                 .foregroundStyle(PixelColor.inkWeak)
 
             PixelButton(title: "닫기", style: .plain) { dismiss() }

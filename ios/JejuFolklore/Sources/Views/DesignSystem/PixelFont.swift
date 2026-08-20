@@ -1,65 +1,35 @@
 import SwiftUI
 
-/// DESIGN.md §3. 비트맵 폰트는 **설계 크기의 정수배**에서만 선명하다.
-/// 그래서 글자 크기를 즉석에서 정하지 않고 아래 사다리만 쓴다.
+/// DESIGN.md §3. **UI 본문은 시스템 산세리프**(Apple SD Gothic Neo)를 쓴다.
 ///
-/// ⚠️ 긴 글(이야기 스크립트 전문·약관·오류 상세)에는 픽셀 폰트를 쓰지 않는다.
-/// 눈이 빨리 피로해진다. `longform(_:)`을 쓴다.
+/// 2026-08-20: 갈무리 픽셀 폰트를 화면 전체에서 뺐다. 시안 4개가 전부 산세리프이고,
+/// 시안이 촘촘하고 읽기 쉬운 이유의 절반이 폰트였다. 픽셀 폰트는 같은 크기에서
+/// 담기는 정보량이 훨씬 적다.
+///
+/// 갈무리는 **로고에만** 남긴다 — 짧고, 픽셀 정체성이 필요한 유일한 자리다.
 enum PixelFont {
-    /// 폰트 이름과 설계 픽셀 높이. 확대는 이 높이의 **정수배**로만 한다.
-    struct Face {
-        /// ⚠️ 파일명이 아니라 **PostScript 이름**이다 (Galmuri11.ttf → "Galmuri11-Regular").
-        /// 틀리면 예외 없이 시스템 폰트로 폴백되어 화면이 멀쩡해 보인다.
-        let name: String
-        /// 설계 픽셀 높이 (Galmuri9 → 9)
-        let unit: CGFloat
-        /// 기본 배율
-        let baseMultiple: Int
+    /// 화면 최상단 큰 제목
+    static let screenTitle = Font.system(size: 28, weight: .bold)
+    /// 섹션 제목 · 카드 제목
+    static let sectionTitle = Font.system(size: 24, weight: .semibold)
+    /// 소개문 (본문 크게)
+    static let bodyLarge = Font.system(size: 18, weight: .regular)
+    /// 본문
+    static let body = Font.system(size: 16, weight: .regular)
+    /// 라벨 · 버튼 · 칩 — 굵기로 위계를 만든다
+    static let label = Font.system(size: 14, weight: .bold)
+    /// 작은 라벨 · 배지
+    static let labelSmall = Font.system(size: 12, weight: .medium)
 
-        var baseSize: CGFloat { unit * CGFloat(baseMultiple) }
-    }
-
-    static let screenTitle = Face(name: "Galmuri11-Regular", unit: 11, baseMultiple: 2)  // 22
-    static let cardTitle   = Face(name: "Galmuri11-Regular", unit: 11, baseMultiple: 2)  // 22
-    static let body        = Face(name: "Galmuri11-Regular", unit: 11, baseMultiple: 2)  // 22
-    static let bodySmall   = Face(name: "Galmuri11-Regular", unit: 11, baseMultiple: 1)  // 11
-    static let button      = Face(name: "Galmuri11-Regular", unit: 11, baseMultiple: 2)  // 22
-    static let badge       = Face(name: "Galmuri9-Regular",  unit: 9,  baseMultiple: 2)  // 18
-    static let number      = Face(name: "Galmuri14-Regular", unit: 14, baseMultiple: 2)  // 28
-
-    /// 긴 글 전용. 시스템 폰트(Apple SD Gothic Neo)를 쓴다. Dynamic Type을 그대로 따른다.
-    static func longform(_ size: CGFloat = 17) -> Font {
-        .system(size: size)
-    }
-}
-
-/// 픽셀 폰트를 **정수배 단계로만** 확대한다 (DESIGN.md §3).
-///
-/// `.custom(_:size:relativeTo:)`를 쓰면 iOS가 1.3배 같은 어중간한 배율로 늘려
-/// 도트가 흐려진다. 접근성 설정을 무시할 수도 없으므로, 배율을 정수로 올려
-/// 22 → 33 → 44 처럼 단계를 뛴다.
-struct PixelFontModifier: ViewModifier {
-    let face: PixelFont.Face
-    @Environment(\.dynamicTypeSize) private var typeSize
-
-    private var multiple: Int {
-        let extra: Int
-        switch typeSize {
-        case .xSmall, .small, .medium, .large: extra = 0
-        case .xLarge, .xxLarge:                extra = 1
-        default:                               extra = 2   // xxxLarge 이상 · 접근성 크기
-        }
-        return face.baseMultiple + extra
-    }
-
-    func body(content: Content) -> some View {
-        content.font(.custom(face.name, fixedSize: face.unit * CGFloat(multiple)))
+    /// 앱 이름·로고 전용 픽셀 폰트. 여기 말고는 쓰지 않는다.
+    static func logo(size: CGFloat = 22) -> Font {
+        .custom("Galmuri11-Regular", fixedSize: size)
     }
 }
 
 extension View {
-    /// 픽셀 폰트를 적용한다. `.font(...)` 대신 이걸 쓴다.
-    func pixelFont(_ face: PixelFont.Face) -> some View {
-        modifier(PixelFontModifier(face: face))
+    /// 시스템 폰트라 그냥 `.font()`를 쓰면 되지만, 호출부를 한 번에 바꿀 수 있게 남겨 둔다.
+    func pixelFont(_ font: Font) -> some View {
+        self.font(font)
     }
 }

@@ -15,16 +15,16 @@ struct JourneyCard: View {
                     coverImage
                     VStack(alignment: .leading, spacing: PixelSpacing.s) {
                         Text(journey.title)
-                            .pixelFont(PixelFont.cardTitle)
+                            .pixelFont(PixelFont.sectionTitle)
                             .foregroundStyle(PixelColor.ink)
                             .multilineTextAlignment(.leading)
 
                         Text(journey.subtitle)
-                            .pixelFont(PixelFont.badge)
+                            .pixelFont(PixelFont.labelSmall)
                             .foregroundStyle(PixelColor.inkWeak)
 
                         Text("이야기 \(journey.storyCount)개 · \(journey.totalMinutes)분")
-                            .pixelFont(PixelFont.badge)
+                            .pixelFont(PixelFont.labelSmall)
                             .foregroundStyle(PixelColor.inkWeak)
 
                         HStack(spacing: PixelSpacing.s) {

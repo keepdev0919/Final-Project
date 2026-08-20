@@ -17,7 +17,7 @@ struct MineView: View {
 
                 // 공지가 지정한 유일한 형식. 텍스트만 허용되고 공사 CI/BI 로고는 금지다.
                 Text("출처: ⓒ한국관광공사")
-                    .pixelFont(PixelFont.badge)
+                    .pixelFont(PixelFont.labelSmall)
                     .foregroundStyle(PixelColor.inkWeak)
             }
             .padding(.horizontal, PixelSpacing.screenMargin)
