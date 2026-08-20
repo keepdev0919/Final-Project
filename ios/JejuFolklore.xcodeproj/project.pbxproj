@@ -43,8 +43,8 @@
 		7485325AAD31ADF859E86B09 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 73D434DC7C36590FAF11FE46 /* GoogleMaps */; };
 		74DCBD57A66368EA7F46C223 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */; };
 		751B960A8F06079680845A12 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 4B18F75428772D8916E25374 /* FirebaseAuth */; };
+		80B828EB6E2FF404384F49FF /* OdiiAudioAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470F7F2D203392C83F32E3AA /* OdiiAudioAPI.swift */; };
 		8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFB45E01F6089646021CEA5 /* SharedComponents.swift */; };
-		88DD5A8EED77969C5A45054D /* TTSAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F6205B0B938C2482576817A /* TTSAPI.swift */; };
 		8A08DE3EE1EDECFC01390C82 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE1015A20E1B4F561042D346 /* ContentView.swift */; };
 		8C282DF964A29D9C75C3B99A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E11EACDCA05DCA02F59297D3 /* Assets.xcassets */; };
 		8E332C8B628EB5E1E42AC01C /* MyCourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */; };
@@ -57,7 +57,6 @@
 		AC684B8C1956FFD93A8835F3 /* PlaceReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC21DDC81DEE2B5D42F38320 /* PlaceReview.swift */; };
 		B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */; };
 		BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */; };
-		C344E8EB8063A7D1A885FA40 /* TTSPlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC4551DB86ABE4E92BB0191 /* TTSPlayerService.swift */; };
 		C73841BC51AF0A0EC4A72670 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F529E10D83F4E5A63726E5 /* LocationService.swift */; };
 		C74D798F99D1945551A212E6 /* TravelSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8400CD98E1FD2E1045AE84 /* TravelSession.swift */; };
 		CD9618FF16B1FB59402B9A75 /* StoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8822AA122FDDDF63AD56BA64 /* StoryListView.swift */; };
@@ -92,6 +91,7 @@
 		4000E728FBE0443E2CE67EA5 /* ProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSheet.swift; sourceTree = "<group>"; };
 		4274D332B9AA87F7AB303853 /* JourneyAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JourneyAPI.swift; sourceTree = "<group>"; };
 		435CA89B62B4B29FDF95DF2A /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		470F7F2D203392C83F32E3AA /* OdiiAudioAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdiiAudioAPI.swift; sourceTree = "<group>"; };
 		48324503CEDCE93C36D7EA0A /* HomeRecommendedCourseCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRecommendedCourseCard.swift; sourceTree = "<group>"; };
 		49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasteDiscoveryView.swift; sourceTree = "<group>"; };
 		4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JejuFolklore.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -102,7 +102,6 @@
 		63D6797DC3296F2174D2169A /* PixelColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelColor.swift; sourceTree = "<group>"; };
 		680EEF39BE20B00165C19DAA /* Galmuri14.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Galmuri14.ttf; sourceTree = "<group>"; };
 		6A4C37778C65DA1DF7951735 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
-		6DC4551DB86ABE4E92BB0191 /* TTSPlayerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSPlayerService.swift; sourceTree = "<group>"; };
 		6DEF7C5A76ABA12369016601 /* JejuFolkloreApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JejuFolkloreApp.swift; sourceTree = "<group>"; };
 		72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewView.swift; sourceTree = "<group>"; };
 		770550065A60F3F6D772B9A0 /* PixelSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelSpacing.swift; sourceTree = "<group>"; };
@@ -112,7 +111,6 @@
 		8822AA122FDDDF63AD56BA64 /* StoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryListView.swift; sourceTree = "<group>"; };
 		8A0349BE64A4DE0DBB4EDA32 /* FirestoreSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreSyncService.swift; sourceTree = "<group>"; };
 		8E81A390764D24D99F14B2DA /* SavedCourse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCourse.swift; sourceTree = "<group>"; };
-		8F6205B0B938C2482576817A /* TTSAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSAPI.swift; sourceTree = "<group>"; };
 		94F529E10D83F4E5A63726E5 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		9864E948DDD38C4EB49A36EA /* JourneyCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JourneyCard.swift; sourceTree = "<group>"; };
 		997538FBFEB00536EF630FCB /* PlaceAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceAPI.swift; sourceTree = "<group>"; };
@@ -296,10 +294,9 @@
 				08CDC2EF152D55835AA96119 /* HomeAPI.swift */,
 				4274D332B9AA87F7AB303853 /* JourneyAPI.swift */,
 				94F529E10D83F4E5A63726E5 /* LocationService.swift */,
+				470F7F2D203392C83F32E3AA /* OdiiAudioAPI.swift */,
 				997538FBFEB00536EF630FCB /* PlaceAPI.swift */,
 				0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */,
-				8F6205B0B938C2482576817A /* TTSAPI.swift */,
-				6DC4551DB86ABE4E92BB0191 /* TTSPlayerService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -446,6 +443,7 @@
 				290137D764E6A47F84FD38EB /* LoginSheet.swift in Sources */,
 				CE570D9464C7196796F00525 /* MineView.swift in Sources */,
 				8E332C8B628EB5E1E42AC01C /* MyCourseListView.swift in Sources */,
+				80B828EB6E2FF404384F49FF /* OdiiAudioAPI.swift in Sources */,
 				00FC7841F8092978094DF3C7 /* PixelColor.swift in Sources */,
 				96B2DDC6F8D6FF8F60FB204C /* PixelComponents.swift in Sources */,
 				54D584F75B5C044657405032 /* PixelFont.swift in Sources */,
@@ -462,8 +460,6 @@
 				8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */,
 				39E84B4B300BE84BCBDC781F /* SpeechRecognizer.swift in Sources */,
 				CD9618FF16B1FB59402B9A75 /* StoryListView.swift in Sources */,
-				88DD5A8EED77969C5A45054D /* TTSAPI.swift in Sources */,
-				C344E8EB8063A7D1A885FA40 /* TTSPlayerService.swift in Sources */,
 				B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */,
 				C74D798F99D1945551A212E6 /* TravelSession.swift in Sources */,
 			);
