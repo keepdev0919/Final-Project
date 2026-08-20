@@ -77,7 +77,7 @@ struct PixelGalleryView: View {
                 PixelChip(text: "제주 동부", fill: PixelColor.ink, label: PixelColor.background)
                 PixelChip(text: "걷기", fill: PixelColor.surface)
                 PixelChip(text: "2-3시간", icon: .play, fill: PixelColor.accent,
-                          label: PixelColor.inkFixedDark)
+                          label: PixelColor.onAccent)
             }
         }
         .padding(PixelSpacing.cardPadding)

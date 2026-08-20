@@ -110,8 +110,8 @@ struct PixelButton: View {
         }
         var label: Color {
             switch self {
-            case .primary: return PixelColor.surface
-            case .accent:  return PixelColor.inkFixedDark
+            case .primary: return PixelColor.onPrimary
+            case .accent:  return PixelColor.onAccent
             case .plain:   return PixelColor.ink
             }
         }
@@ -205,7 +205,7 @@ struct PixelStickerBadge: View {
     var body: some View {
         Text(text)
             .font(PixelFont.label)
-            .foregroundStyle(PixelColor.inkFixedDark)
+            .foregroundStyle(PixelColor.onAccent)
             .padding(.horizontal, PixelSpacing.s)
             .padding(.vertical, PixelSpacing.xs)
             .background(fill)
@@ -230,12 +230,14 @@ struct PixelBadge: View {
             case .locked: return PixelColor.locked
             }
         }
-        /// 밝은 배경 위 글자는 다크 모드에서도 어두운색으로 고정한다 (§2 실측 1.26:1).
+        /// 채움색마다 짝이 되는 글자색을 쓴다. 모드에 따라 갈린다 — §2 참조.
         var label: Color {
             switch self {
-            case .here:  return PixelColor.surface
-            case .audio: return PixelColor.ink
-            default:     return PixelColor.inkFixedDark
+            case .free:   return PixelColor.onAccent
+            case .here:   return PixelColor.onPrimary
+            case .audio:  return PixelColor.ink      // 표면(흰) 배경
+            case .heard:  return PixelColor.onDone
+            case .locked: return PixelColor.onLocked
             }
         }
         /// 색만으로 상태를 구분하지 않는다.
@@ -293,7 +295,7 @@ struct PixelMeter: View {
                 Text(caption)
                     .font(PixelFont.label)
                     .foregroundStyle(.white)
-                    .shadow(color: PixelColor.inkFixedDark, radius: 0, x: 1, y: 1)
+                    .shadow(color: Color.black, radius: 0, x: 1, y: 1)
             }
         }
         .frame(height: height)
