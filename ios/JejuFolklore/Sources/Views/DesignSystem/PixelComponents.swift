@@ -149,6 +149,30 @@ struct PixelButton: View {
     }
 }
 
+// MARK: - 버튼 스타일 (레이블을 직접 만든 Button에)
+
+/// `PixelButton`은 제목 문자열을 받는다. 레이블을 직접 그린 `Button`에는 이걸 쓴다.
+///
+/// 시스템 `.bordered`·`.borderedProminent`를 대신한다 — 그것들은 둥근 모서리라
+/// 시안과 어긋난다(DESIGN.md §5 "모서리를 굴리지 않는다").
+struct PixelButtonStyle: ButtonStyle {
+    var kind: PixelButton.Style = .primary
+
+    init(_ kind: PixelButton.Style = .primary) { self.kind = kind }
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(PixelFont.label)
+            .foregroundStyle(kind.label)
+            .padding(.horizontal, PixelSpacing.l)
+            .padding(.vertical, PixelSpacing.m)
+            .background(kind.fill)
+            .pixelBorder()
+            .pixelShadow(PixelSpacing.shadowButton,
+                         downOnly: true, isPressed: configuration.isPressed)
+    }
+}
+
 // MARK: - 카드
 
 struct PixelCard<Content: View>: View {

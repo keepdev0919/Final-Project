@@ -24,6 +24,7 @@
 		2EB651D81236DB74288380DA /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 93A7AD4147147A644C148CA6 /* GoogleSignIn */; };
 		2F421FD8AD3B408FB4CB94C4 /* PlaceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD5EDEE06A3A22C0EED714E /* PlaceDetail.swift */; };
 		344CFDCD02C0689B73F83D69 /* CourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */; };
+		369D553E0685619EEAF02597 /* PixelUIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1903FC08AB7833E41E253682 /* PixelUIColor.swift */; };
 		39C40D093F71EB8D5254DAEF /* HomeAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08CDC2EF152D55835AA96119 /* HomeAPI.swift */; };
 		39E84B4B300BE84BCBDC781F /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */; };
 		3A1219C0BE883136CBF1FEBD /* ProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4000E728FBE0443E2CE67EA5 /* ProfileSheet.swift */; };
@@ -33,12 +34,12 @@
 		4B5F8136E4813312F1CE5976 /* CourseAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */; };
 		4C1F407BDC88A1B264CEB27F /* ArrivalOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101A2B03B831695C27D31659 /* ArrivalOverlayView.swift */; };
 		4FF8E3BA2A1CBF3EB0E700D8 /* SessionRestoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE302B828FB176D1DA8415CD /* SessionRestoreView.swift */; };
-		511BDB16CB99BDB74A36F7AA /* CourseRecommendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */; };
 		522757289D4B9A4C480111F5 /* ExploreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */; };
 		54D584F75B5C044657405032 /* PixelFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5F583B0BC011D915FE152F /* PixelFont.swift */; };
 		587E768898899E1D9B66B4F9 /* PixelIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB383F822D48F10D4C482C1B /* PixelIcon.swift */; };
 		59BC2160448B1CDAE4804A6D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 435CA89B62B4B29FDF95DF2A /* GoogleService-Info.plist */; };
 		67157E9A54F763785AB8AAE4 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB19D914698888F9F31CB4C /* Config.swift */; };
+		6993D4B38E663044C3335FF3 /* PixelChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 700D4CE53167A5AD8EBB8340 /* PixelChrome.swift */; };
 		72807356FA10C0EE8D9EC901 /* Galmuri14.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 680EEF39BE20B00165C19DAA /* Galmuri14.ttf */; };
 		7485325AAD31ADF859E86B09 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 73D434DC7C36590FAF11FE46 /* GoogleMaps */; };
 		74DCBD57A66368EA7F46C223 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */; };
@@ -50,10 +51,12 @@
 		8E332C8B628EB5E1E42AC01C /* MyCourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */; };
 		8EC50957962217C3EF1AF588 /* JourneyAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4274D332B9AA87F7AB303853 /* JourneyAPI.swift */; };
 		96B2DDC6F8D6FF8F60FB204C /* PixelComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8AB8D49C66B553084056EF /* PixelComponents.swift */; };
+		96D843ECB5200BC6F444CAE1 /* ProfileTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E3C9D9B595012C0EAF66BF /* ProfileTabView.swift */; };
 		99347349DD8C78539C1B7447 /* FirestoreSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0349BE64A4DE0DBB4EDA32 /* FirestoreSyncService.swift */; };
 		9CE22D9AFDBBB268C8DC5204 /* PixelGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFC0010E988BDABFC32500E /* PixelGalleryView.swift */; };
 		9CE3AAF8CFE0F62B647E2B1B /* CourseRecommendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */; };
 		A354561FC140C77CD26F19D8 /* GoogleMapPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC15B8EA8FB8D80D2EA8016 /* GoogleMapPreview.swift */; };
+		A8A48DD9DDD3A6B87F625F12 /* ExploreListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC35B176CB790A3FB0402869 /* ExploreListView.swift */; };
 		A8ED1424FD6D36F3B538B12A /* PixelTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 147E26AF7E61D093C74F6104 /* PixelTabBar.swift */; };
 		AAE7C1FCF5B5E1B0894E0B23 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 56FD528AF8D8BAAD9FA0738D /* GoogleSignInSwift */; };
 		AC684B8C1956FFD93A8835F3 /* PlaceReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC21DDC81DEE2B5D42F38320 /* PlaceReview.swift */; };
@@ -61,11 +64,8 @@
 		BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */; };
 		C73841BC51AF0A0EC4A72670 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F529E10D83F4E5A63726E5 /* LocationService.swift */; };
 		C74D798F99D1945551A212E6 /* TravelSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8400CD98E1FD2E1045AE84 /* TravelSession.swift */; };
-		CD9618FF16B1FB59402B9A75 /* StoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8822AA122FDDDF63AD56BA64 /* StoryListView.swift */; };
-		CE570D9464C7196796F00525 /* MineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BEDC944B686365373986665 /* MineView.swift */; };
 		D12BBA198F3A069A7B2D0090 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E3F0ADC1193435A1799743F4 /* FirebaseFirestoreSwift */; };
 		D3DFEBC6D7B98B9C46F9BA81 /* PixelSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 770550065A60F3F6D772B9A0 /* PixelSpacing.swift */; };
-		D5F2DA5C2D7F02150C8C8789 /* HomeRecommendedCourseCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48324503CEDCE93C36D7EA0A /* HomeRecommendedCourseCard.swift */; };
 		D726750ECE035B9C28D50F72 /* Course.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3716E52689657C66A89C990A /* Course.swift */; };
 		D75C8DE79E08139D56DCC142 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8287E78AE638FE1F48F3E7E8 /* FirebaseStorage */; };
 		DA537D46F6F9CCF7654E489D /* DeviceIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */; };
@@ -84,18 +84,16 @@
 		101A2B03B831695C27D31659 /* ArrivalOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrivalOverlayView.swift; sourceTree = "<group>"; };
 		147E26AF7E61D093C74F6104 /* PixelTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelTabBar.swift; sourceTree = "<group>"; };
 		161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewViewModel.swift; sourceTree = "<group>"; };
+		1903FC08AB7833E41E253682 /* PixelUIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelUIColor.swift; sourceTree = "<group>"; };
 		1D8AB8D49C66B553084056EF /* PixelComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelComponents.swift; sourceTree = "<group>"; };
 		27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceIdentity.swift; sourceTree = "<group>"; };
 		2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDetailView.swift; sourceTree = "<group>"; };
 		34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseListView.swift; sourceTree = "<group>"; };
 		3716E52689657C66A89C990A /* Course.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
-		38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRecommendView.swift; sourceTree = "<group>"; };
-		3BEDC944B686365373986665 /* MineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MineView.swift; sourceTree = "<group>"; };
 		4000E728FBE0443E2CE67EA5 /* ProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSheet.swift; sourceTree = "<group>"; };
 		4274D332B9AA87F7AB303853 /* JourneyAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JourneyAPI.swift; sourceTree = "<group>"; };
 		435CA89B62B4B29FDF95DF2A /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		470F7F2D203392C83F32E3AA /* OdiiAudioAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdiiAudioAPI.swift; sourceTree = "<group>"; };
-		48324503CEDCE93C36D7EA0A /* HomeRecommendedCourseCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRecommendedCourseCard.swift; sourceTree = "<group>"; };
 		49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasteDiscoveryView.swift; sourceTree = "<group>"; };
 		4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JejuFolklore.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D5CC6DDEC1C1B656071D157 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
@@ -107,12 +105,12 @@
 		680EEF39BE20B00165C19DAA /* Galmuri14.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Galmuri14.ttf; sourceTree = "<group>"; };
 		6A4C37778C65DA1DF7951735 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		6DEF7C5A76ABA12369016601 /* JejuFolkloreApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JejuFolkloreApp.swift; sourceTree = "<group>"; };
+		700D4CE53167A5AD8EBB8340 /* PixelChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelChrome.swift; sourceTree = "<group>"; };
 		72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewView.swift; sourceTree = "<group>"; };
 		770550065A60F3F6D772B9A0 /* PixelSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelSpacing.swift; sourceTree = "<group>"; };
 		7BFB45E01F6089646021CEA5 /* SharedComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedComponents.swift; sourceTree = "<group>"; };
 		80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRecommendViewModel.swift; sourceTree = "<group>"; };
 		8106FE651DF3B5201C58AE54 /* Galmuri9.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Galmuri9.ttf; sourceTree = "<group>"; };
-		8822AA122FDDDF63AD56BA64 /* StoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryListView.swift; sourceTree = "<group>"; };
 		8A0349BE64A4DE0DBB4EDA32 /* FirestoreSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreSyncService.swift; sourceTree = "<group>"; };
 		8E81A390764D24D99F14B2DA /* SavedCourse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCourse.swift; sourceTree = "<group>"; };
 		94F529E10D83F4E5A63726E5 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
@@ -124,11 +122,13 @@
 		ABFB1F82A4D609716075142E /* LoginSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginSheet.swift; sourceTree = "<group>"; };
 		BCB19D914698888F9F31CB4C /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		BE302B828FB176D1DA8415CD /* SessionRestoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRestoreView.swift; sourceTree = "<group>"; };
+		C0E3C9D9B595012C0EAF66BF /* ProfileTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTabView.swift; sourceTree = "<group>"; };
 		C8932708010A3431E486DF98 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseAPI.swift; sourceTree = "<group>"; };
 		CFC15B8EA8FB8D80D2EA8016 /* GoogleMapPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleMapPreview.swift; sourceTree = "<group>"; };
 		D0A562565D326C0C4C39FA4D /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		DBD5EDEE06A3A22C0EED714E /* PlaceDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDetail.swift; sourceTree = "<group>"; };
+		DC35B176CB790A3FB0402869 /* ExploreListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreListView.swift; sourceTree = "<group>"; };
 		DE6EAC554294F429D6DA6C88 /* OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OFL.txt; sourceTree = "<group>"; };
 		E11EACDCA05DCA02F59297D3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E25C6E205C7D773FC22CA00E /* Galmuri11.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Galmuri11.ttf; sourceTree = "<group>"; };
@@ -206,7 +206,6 @@
 			isa = PBXGroup;
 			children = (
 				CFC15B8EA8FB8D80D2EA8016 /* GoogleMapPreview.swift */,
-				48324503CEDCE93C36D7EA0A /* HomeRecommendedCourseCard.swift */,
 				9864E948DDD38C4EB49A36EA /* JourneyCard.swift */,
 				0B053AEA09E6F446B127BFFC /* JourneyPlaceholderSheet.swift */,
 			);
@@ -250,6 +249,7 @@
 		A003C7C43A9A4D97CD47C930 /* DesignSystem */ = {
 			isa = PBXGroup;
 			children = (
+				700D4CE53167A5AD8EBB8340 /* PixelChrome.swift */,
 				63D6797DC3296F2174D2169A /* PixelColor.swift */,
 				1D8AB8D49C66B553084056EF /* PixelComponents.swift */,
 				EB5F583B0BC011D915FE152F /* PixelFont.swift */,
@@ -257,6 +257,7 @@
 				FB383F822D48F10D4C482C1B /* PixelIcon.swift */,
 				770550065A60F3F6D772B9A0 /* PixelSpacing.swift */,
 				147E26AF7E61D093C74F6104 /* PixelTabBar.swift */,
+				1903FC08AB7833E41E253682 /* PixelUIColor.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -269,18 +270,17 @@
 				F710DAFC1FB6A28109BE7C66 /* CourseHubView.swift */,
 				34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */,
 				72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */,
-				38A7B3AC1B0D933C77ADAF5A /* CourseRecommendView.swift */,
+				DC35B176CB790A3FB0402869 /* ExploreListView.swift */,
 				FF8528DFE3BA78C29CA022D3 /* ExploreView.swift */,
 				AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */,
 				ABFB1F82A4D609716075142E /* LoginSheet.swift */,
-				3BEDC944B686365373986665 /* MineView.swift */,
 				EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */,
 				2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */,
 				0EB46F8631558DA14B8DE90F /* PlaceReviewSheet.swift */,
 				4000E728FBE0443E2CE67EA5 /* ProfileSheet.swift */,
+				C0E3C9D9B595012C0EAF66BF /* ProfileTabView.swift */,
 				BE302B828FB176D1DA8415CD /* SessionRestoreView.swift */,
 				7BFB45E01F6089646021CEA5 /* SharedComponents.swift */,
-				8822AA122FDDDF63AD56BA64 /* StoryListView.swift */,
 				49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */,
 				4B9524F3E48D13C2441EFF33 /* Components */,
 				A003C7C43A9A4D97CD47C930 /* DesignSystem */,
@@ -429,15 +429,14 @@
 				1F8E431CBD4FDEDB15BB328D /* CoursePlace.swift in Sources */,
 				027C49A35BB62E3C9B535323 /* CoursePreviewView.swift in Sources */,
 				174F84207B32BD1FF0089EA3 /* CoursePreviewViewModel.swift in Sources */,
-				511BDB16CB99BDB74A36F7AA /* CourseRecommendView.swift in Sources */,
 				9CE3AAF8CFE0F62B647E2B1B /* CourseRecommendViewModel.swift in Sources */,
 				DA537D46F6F9CCF7654E489D /* DeviceIdentity.swift in Sources */,
+				A8A48DD9DDD3A6B87F625F12 /* ExploreListView.swift in Sources */,
 				0EC1CB2AEEC08D50A8762866 /* ExploreView.swift in Sources */,
 				522757289D4B9A4C480111F5 /* ExploreViewModel.swift in Sources */,
 				99347349DD8C78539C1B7447 /* FirestoreSyncService.swift in Sources */,
 				A354561FC140C77CD26F19D8 /* GoogleMapPreview.swift in Sources */,
 				39C40D093F71EB8D5254DAEF /* HomeAPI.swift in Sources */,
-				D5F2DA5C2D7F02150C8C8789 /* HomeRecommendedCourseCard.swift in Sources */,
 				74DCBD57A66368EA7F46C223 /* HomeView.swift in Sources */,
 				155FB05FBE57A905102D4BA4 /* HomeViewModel.swift in Sources */,
 				2BDBCF5B8C7C61F1C9478ABC /* JejuFolkloreApp.swift in Sources */,
@@ -447,9 +446,9 @@
 				F6BE3494EC627ED74F63C93B /* JourneyPlaceholderSheet.swift in Sources */,
 				C73841BC51AF0A0EC4A72670 /* LocationService.swift in Sources */,
 				290137D764E6A47F84FD38EB /* LoginSheet.swift in Sources */,
-				CE570D9464C7196796F00525 /* MineView.swift in Sources */,
 				8E332C8B628EB5E1E42AC01C /* MyCourseListView.swift in Sources */,
 				80B828EB6E2FF404384F49FF /* OdiiAudioAPI.swift in Sources */,
+				6993D4B38E663044C3335FF3 /* PixelChrome.swift in Sources */,
 				00FC7841F8092978094DF3C7 /* PixelColor.swift in Sources */,
 				96B2DDC6F8D6FF8F60FB204C /* PixelComponents.swift in Sources */,
 				54D584F75B5C044657405032 /* PixelFont.swift in Sources */,
@@ -457,17 +456,18 @@
 				587E768898899E1D9B66B4F9 /* PixelIcon.swift in Sources */,
 				D3DFEBC6D7B98B9C46F9BA81 /* PixelSpacing.swift in Sources */,
 				A8ED1424FD6D36F3B538B12A /* PixelTabBar.swift in Sources */,
+				369D553E0685619EEAF02597 /* PixelUIColor.swift in Sources */,
 				3C924367BF6D98281ABDEE6F /* PlaceAPI.swift in Sources */,
 				2F421FD8AD3B408FB4CB94C4 /* PlaceDetail.swift in Sources */,
 				3F87278B10B282BE0924C3DC /* PlaceDetailView.swift in Sources */,
 				AC684B8C1956FFD93A8835F3 /* PlaceReview.swift in Sources */,
 				F8D4029F14FE4EC28785AD5F /* PlaceReviewSheet.swift in Sources */,
 				3A1219C0BE883136CBF1FEBD /* ProfileSheet.swift in Sources */,
+				96D843ECB5200BC6F444CAE1 /* ProfileTabView.swift in Sources */,
 				1EFFDAF78ADAE81D2021D06E /* SavedCourse.swift in Sources */,
 				4FF8E3BA2A1CBF3EB0E700D8 /* SessionRestoreView.swift in Sources */,
 				8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */,
 				39E84B4B300BE84BCBDC781F /* SpeechRecognizer.swift in Sources */,
-				CD9618FF16B1FB59402B9A75 /* StoryListView.swift in Sources */,
 				B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */,
 				C74D798F99D1945551A212E6 /* TravelSession.swift in Sources */,
 			);
