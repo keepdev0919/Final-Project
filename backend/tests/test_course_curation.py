@@ -45,7 +45,7 @@ class TestNoFolkloreInCourseRecommendation:
         for gone in ("_score_course", "_scores_to_theme_text", "CATEGORY_QUERIES"):
             assert not hasattr(course_list_agent, gone), (
                 f"{gone}가 되살아났다. 코스 추천에 설화를 다시 넣으려면 "
-                "docs/기획/설계_현장경험_엔진_v1.md의 근거를 먼저 뒤집을 것."
+                "docs/공고.md §3 P0-1의 근거를 먼저 뒤집을 것."
             )
 
     def test_detail_agent_has_no_folklore_mapping(self):

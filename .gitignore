@@ -66,3 +66,6 @@ docs/공유/tts-샘플/
 
 # TTS 음성 캐시 (대본에서 생성 — 재생성 가능)
 storage/tts_cache/
+
+# 플러그인이 만드는 파일
+skills-lock.json

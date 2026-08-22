@@ -32,7 +32,7 @@ def test_voice_is_pinned():
     목소리가 **모르는 사이에 바뀌면 앱 전체의 인격이 바뀌는데 화면은 멀쩡하다.**
     바꿀 때는 이 테스트를 같이 고치면서 누가 왜 정했는지를 남긴다.
 
-    후보 비교: docs/공유/tts-샘플/5초비교.html
+    후보 11명을 5초 샘플로 비교해 골랐다 (샘플 파일은 선정 후 삭제).
     """
     assert typecast.VOICE_ID == "tc_65bb3a1976b69213594357fc"
     assert typecast.MODEL == "ssfm-v30"
