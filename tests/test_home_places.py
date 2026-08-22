@@ -230,3 +230,28 @@ def test_name_search_result_must_be_nearby(monkeypatch):
 
     # 제주 우도 좌표로 물어보면 전남 결과는 버려진다
     assert place.find_sight_content_id("가우도", 33.50, 126.95) is None
+
+
+def test_screens_never_claim_a_number_of_people():
+    """화면에 「N명」으로 사람 수를 적지 않는다.
+
+    우리가 가진 값은 `COUNT(DISTINCT course_id)` — **그 장소가 담긴 여행 일정의 수**다.
+    한 사람이 일정을 여러 개 만들 수 있으므로 **사람 수는 데이터에 없다.**
+
+    2026-08-22에 홈 카드가 「여행자 2,668명」, 안내문이 「실제 여행자 9,134명의 일정」으로
+    나갔다가 조익준님이 잡았다. 숫자는 진짜인데 단위가 거짓이다 — 화면은 완벽히 정상이고
+    테스트도 통과하므로 **사람이 읽어야만 잡힌다.** 그래서 문구를 코드로 묶어둔다.
+
+    공모전 제출물에도 같은 문구가 들어가고, 「거짓이 없는지」는 위임하지 않는 항목이다.
+    """
+    from pathlib import Path
+
+    sources = Path(__file__).resolve().parents[1] / "ios" / "JejuFolklore" / "Sources"
+    offenders = []
+    for path in sources.rglob("*.swift"):
+        for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if "//" in line and line.strip().startswith("//"):
+                continue  # 주석은 설명이라 봐준다
+            if "여행자" in line and "명" in line:
+                offenders.append(f"{path.name}:{lineno} {line.strip()}")
+    assert not offenders, "사람 수를 주장하는 문구가 있다:\n" + "\n".join(offenders)

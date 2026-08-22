@@ -8,6 +8,10 @@ import SwiftUI
 /// 실사 사진 + 테두리 프레임이다 — 사진에 픽셀 필터를 씌우지 않는다(§1 절대 규칙).
 /// 칩에는 **데이터에 실제로 있는 것만** 넣는다(`docs/공고.md` §4와 같은 원칙):
 /// 실제 여행 일정 수와 해설 길이. 난이도·레벨 같은 건 만들 근거가 없다.
+///
+/// ⚠️ **「명」이 아니라 「개」다.** 이 값은 그 장소가 담긴 여행 일정의 수이고(중복 제거),
+/// 사람 수가 아니다 — 한 사람이 일정을 여러 개 만들 수 있다. 2026-08-22에 「여행자 N명」으로
+/// 적었다가 잡혔다. 데이터가 말해주지 않는 것을 화면에 쓰지 않는다.
 struct HomePlaceCard: View {
     let place: HomePlace
     /// 목록에서 딱 한 칸만 스티커를 붙인다 — 카드마다 붙으면 아무것도 안 튄다(§6).
@@ -28,8 +32,9 @@ struct HomePlaceCard: View {
                         PixelChip(text: "해설 \(place.storyDurationText)", icon: .headphone,
                                   fill: PixelColor.tertiaryFixed,
                                   label: PixelColor.onTertiaryFixed)
-                        PixelChip(text: "여행자 \(place.courseCount.formattedWithComma)명",
-                                  icon: .person)
+                        // 사람이 아니라 일정 수다 — 아이콘도 달력으로 맞춘다.
+                        PixelChip(text: "일정 \(place.courseCount.formattedWithComma)개",
+                                  icon: .calendar)
                     }
                 }
                 .padding(PixelSpacing.cardPadding)
@@ -44,7 +49,7 @@ struct HomePlaceCard: View {
             }
         }
         .buttonStyle(.plain)
-        // 카드 안의 글자가 그대로 읽히면 "해설 3분 7초, 여행자 2,668명"처럼 토막나 들린다.
+        // 카드 안의 글자가 그대로 읽히면 "해설 3분 7초, 일정 2,668개"처럼 토막나 들린다.
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(place.name). 해설 \(place.storyDurationText). "
                             + "실제 여행 일정 \(place.courseCount)개에 담긴 곳"

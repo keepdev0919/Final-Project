@@ -3,7 +3,8 @@ import SwiftUI
 /// 홈 — 제주 대표 장소 10곳이 주인공이다 (`docs/공고.md` §2).
 ///
 /// 목록을 홈에 둔다. 별도 「탐험」 탭에 두면 홈과 같은 내용이 두 곳에 생긴다.
-/// 순서는 **실제 여행자 일정 9,134개의 등장 빈도**이고, 오디 해설이 있는 곳만 온다
+/// 순서는 **비짓제주 실제 여행 일정 9,134개의 등장 빈도**이고, 오디 해설이 있는 곳만 온다.
+/// ⚠️ 9,134는 **일정 수**다. 사람 수가 아니다 — 한 사람이 여러 일정을 만들 수 있다
 /// (서버 `services/home_places.py`).
 struct HomeView: View {
     @StateObject private var vm = HomeViewModel()
@@ -49,7 +50,7 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: PixelSpacing.cardGap) {
                 PixelSectionHeader(title: "제주에서 가볼 곳", icon: .mapPin)
 
-                Text("실제 여행자 9,134명의 일정에서 많이 나온 순서예요.")
+                Text("실제 여행 일정 약 9천 개에서 많이 나온 순서예요.")
                     .font(PixelFont.body)
                     .foregroundStyle(PixelColor.inkWeak)
 

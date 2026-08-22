@@ -10,7 +10,8 @@ struct HomePlace: Codable, Identifiable, Equatable, Hashable {
     let name: String
     let lat: Double
     let lng: Double
-    /// 이 장소가 등장한 실제 여행 일정 수.
+    /// 이 장소가 등장한 실제 여행 일정 수 (중복 제거).
+    /// **사람 수가 아니다** — 한 사람이 일정을 여러 개 만들 수 있다.
     let courseCount: Int
     /// 오디 해설 식별자. 재생할 때 쓴다.
     let stid: String
