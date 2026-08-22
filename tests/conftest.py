@@ -20,3 +20,14 @@ from main import app
 def client():
     with TestClient(app) as c:
         yield c
+
+
+@pytest.fixture(scope="session")
+def db_conn():
+    """실제 로컬 DB 연결. 읽기만 한다.
+
+    홈 순위·오디 목록 테스트는 실제 데이터(비짓제주 146,357건 · 오디 224건)를
+    봐야 의미가 있다. 가짜 데이터로는 "성산일출봉이 상위에 있나"를 물을 수 없다.
+    """
+    from services.db import get_db_connection
+    return get_db_connection()

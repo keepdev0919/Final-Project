@@ -1,0 +1,232 @@
+"""홈 장소 카드의 결정을 지킨다.
+
+홈은 사용자와 심사위원이 **가장 먼저 보는 화면**이다. 여기 뜨는 10개가 틀리면
+화면은 멀쩡한데 앱의 첫인상이 망가진다. 눌러보는 검증으로는 "카드가 나온다"까지만
+확인되고 "맞는 카드가 나오는가"는 확인되지 않는다.
+"""
+
+import pytest
+
+from services import home_places
+
+
+def test_airport_and_terminals_are_excluded():
+    """공항·터미널이 홈에 뜨면 안 된다.
+
+    비짓제주 등장 빈도 1위가 `제주국제공항`(4,621개 코스)이다. 걸러내지 않으면
+    「제주에서 뭘 할까」를 보여주는 화면의 첫 칸이 공항이 된다.
+    2위 성산일출봉(2,668)과 격차가 커서 우연히 밀려나지도 않는다.
+    """
+    assert home_places.is_excluded("제주국제공항")
+    assert home_places.is_excluded("제주국제공항 버스터미널")
+    assert home_places.is_excluded("제주관광공사 중문면세점 (내국인)")
+    assert not home_places.is_excluded("성산일출봉")
+    assert not home_places.is_excluded("천지연폭포")
+
+
+def test_place_names_drop_trailing_parentheses():
+    """괄호 부가설명을 뗀다.
+
+    비짓제주 이름이 `성산일출봉(UNESCO 세계자연유산)`,
+    `만장굴(안전점검 및 내부공사로 운영중단)`처럼 온다. 그대로 쓰면
+    ① 카드 제목이 두 줄이 되고 ② 운영 상태 같은 건 시간이 지나면 거짓이 된다.
+
+    `_old` 접미도 뗀다 — 비짓제주에 남은 옛 항목이라 같은 장소가 두 번 보인다.
+    """
+    assert home_places.clean_name("성산일출봉(UNESCO 세계자연유산)") == "성산일출봉"
+    assert home_places.clean_name("우도(해양도립공원)") == "우도"
+    assert home_places.clean_name("이호테우해수욕장_old") == "이호테우해수욕장"
+    # 괄호가 이름의 일부일 때는 남긴다 — 앞에 다른 글자가 없으면 이름이 사라진다.
+    assert home_places.clean_name("(사)제주해녀협회") == "(사)제주해녀협회"
+
+
+def test_story_radius_is_700m_so_seongsan_survives():
+    """해설 매칭 반경이 700m 이상이어야 한다.
+
+    성산일출봉은 오디 좌표(정상 부근)와 비짓제주 좌표(주차장 쪽)가 **551m** 떨어져 있다.
+    500m로 줄이면 **1위 장소가 홈에서 사라진다**(2026-08-22 실측).
+    반경을 줄일 일이 생기면 유명한 곳이 빠지는지 먼저 확인할 것.
+    """
+    assert home_places.STORY_RADIUS_M >= 600.0
+
+
+def test_distance_matches_known_pair():
+    """거리 계산이 맞아야 한다. 이게 틀리면 매칭 전체가 조용히 어긋난다.
+
+    성산일출봉 실측 좌표 한 쌍을 박아둔다 —
+    비짓제주 평균 `(33.458057, 126.942498)` ↔ 오디 stid 969 `(33.461861, 126.938694)`.
+    **551m**. 이 숫자가 `STORY_RADIUS_M`을 700으로 잡은 이유다.
+    """
+    got = home_places._distance_m(33.458057, 126.942498, 33.461861, 126.938694)
+    assert 540 < got < 560, got
+    # 같은 점은 0
+    assert home_places._distance_m(33.0, 126.0, 33.0, 126.0) == pytest.approx(0)
+
+
+def test_one_card_per_place(db_conn):
+    """같은 장소가 카드 두 개로 나오면 안 된다.
+
+    비짓제주에는 한 곳을 여러 이름으로 적어둔 경우가 많다 —
+    이호테우말등대 · 이호테우해수욕장 · 이호테우해수욕장_old가 전부 같은 해설을 가리킨다.
+    묶지 않으면 홈 10칸 중 3칸이 같은 해변이 된다.
+    """
+    ranked = home_places.compute(db_conn)
+    assert ranked, "순위표가 비었다"
+    names = [p["name"] for p in ranked]
+    assert len(names) == len(set(names)), "이름이 중복됐다"
+    stids = [p["stid"] for p in ranked]
+    assert len(stids) == len(set(stids)), "같은 해설이 두 장소에 붙었다"
+
+
+def test_top_places_are_the_famous_ones(db_conn):
+    """상위 5곳에 제주 대표 관광지가 있어야 한다.
+
+    순위 계산이 어긋나면(빈도 대신 개수를 세거나, 코스 중복을 안 지우거나)
+    낯선 이름들이 위로 올라온다. 화면은 정상이라 눌러봐도 모른다.
+    """
+    top5 = [p["name"] for p in home_places.compute(db_conn)[:5]]
+    assert "성산일출봉" in top5, top5
+    assert "섭지코지" in top5, top5
+    assert not any("공항" in n for n in top5), top5
+
+
+def test_every_place_has_a_playable_story(db_conn):
+    """카드가 있으면 들을 것도 있어야 한다.
+
+    홈 카드를 누르는 이유가 해설이다. 대본 없는 항목이 섞이면 눌러도 아무 일이 없고,
+    사용자는 앱이 고장난 줄 안다. 오디 226건 중 대본 없는 것이 실제로 35건 있다.
+    """
+    for place in home_places.compute(db_conn)[:20]:
+        assert place["stid"], place
+        assert place["story_seconds"] > 0, place
+
+
+def test_wide_radius_requires_a_name_match(monkeypatch):
+    """넓은 반경에서는 이름이 맞아야만 받아들인다.
+
+    카드 사진을 찾을 때 반경 500m로는 섭지코지·우도·카멜리아힐이 안 잡힌다 —
+    비짓제주 평균 좌표가 실제 관광지에서 그만큼 벗어나 있다. 그래서 2km로 다시 부른다.
+
+    그런데 `_find_content_id`에는 **이름이 하나도 안 맞으면 가장 가까운 것을 쓰는**
+    폴백이 있다. 2km에서 그 폴백이 살아 있으면 섭지코지 카드에 근처 카페 사진이 붙는다.
+    화면은 멀쩡하고 사진도 예쁘게 나오므로 **눌러봐도 절대 안 잡힌다.**
+
+    사진이 없는 것보다 틀린 사진이 붙는 게 나쁘다.
+    """
+    from routers import place
+
+    calls = []
+
+    def fake_kto_get(service, operation, params):
+        calls.append(params["radius"])
+        return {"response": {"body": {"items": {"item": [
+            {"title": "전혀 다른 카페", "contentid": "99999", "contenttypeid": "39"},
+        ]}}}}
+
+    monkeypatch.setattr(place, "_kto_get", fake_kto_get)
+
+    # 좁은 반경: 이름이 안 맞아도 가장 가까운 것을 쓴다 (기존 동작 유지)
+    assert place._find_content_id("섭지코지", 33.42, 126.93) == ("99999", "39")
+    # 넓은 반경: 이름이 안 맞으면 아무것도 안 준다
+    assert place._find_content_id(
+        "섭지코지", 33.42, 126.93, radius=2000, require_name_match=True
+    ) is None
+    assert calls == [500, 2000]
+
+
+def test_thumbnail_warming_targets_the_top_ranks(db_conn):
+    """사진 채우기는 **상위 N곳**을 대상으로 해야 한다.
+
+    `LIMIT ?`만 쓰면 "사진 없는 행 N개"가 되어, 30위권 사진을 받는 동안 홈에 실제로
+    뜨는 상위 10곳이 비어 있는 일이 생긴다(2026-08-22에 실제로 그렇게 동작했다).
+    홈은 상위 10곳만 보여주므로 그 10곳이 우선이다.
+    """
+    import inspect
+    src = inspect.getsource(home_places.warm_thumbnails)
+    assert "rank < ?" in src, "상위 순위로 한정하지 않고 있다"
+
+
+def test_restaurants_and_lodging_are_not_sights():
+    """음식점·숙박은 관광지 후보가 아니다.
+
+    성산일출봉 좌표에서 반경 2km를 부르면 후보 10개 중 9개가 식당·펜션이다.
+    타입을 안 거르면 `성산흑돼지두루치기 성산일출봉점`(39 음식점)이 뽑혀서
+    **성산일출봉 카드에 식당 사진이 붙는다.** 2026-08-22에 실제로 그렇게 나왔다.
+
+    38(쇼핑)은 넣는다 — 동문재래시장·서귀포매일올레시장이 쇼핑으로 분류돼 있고
+    제주 관광의 축이며 오디 해설도 있다.
+    """
+    from routers.place import SIGHT_CONTENT_TYPES
+
+    assert "39" not in SIGHT_CONTENT_TYPES, "음식점이 관광지 후보에 들어 있다"
+    assert "32" not in SIGHT_CONTENT_TYPES, "숙박이 관광지 후보에 들어 있다"
+    assert "12" in SIGHT_CONTENT_TYPES
+    assert "38" in SIGHT_CONTENT_TYPES, "시장(쇼핑)이 빠졌다"
+
+
+def test_name_containment_beats_similarity():
+    """이름을 품고 있는 후보가 유사도보다 먼저다.
+
+    `성산일출봉`을 찾을 때 후보가 둘이다 —
+    `성산일출봉 [유네스코 세계자연유산]`(정답)과 `성산흑돼지두루치기 성산일출봉점`(식당).
+    difflib 유사도만 쓰면 **식당이 이긴다.** 정답 뒤에 붙은 `[유네스코 세계자연유산]`이
+    길어서 유사도가 떨어지기 때문이다(2026-08-22 실측).
+
+    그래서 완전일치 → 접두 → 포함 → 유사도 순으로 본다.
+    """
+    from routers.place import _pick_by_name
+
+    candidates = [
+        {"title": "성산흑돼지두루치기 성산일출봉점", "contentid": "1", "contenttypeid": "39"},
+        {"title": "성산일출봉 [유네스코 세계자연유산]", "contentid": "2", "contenttypeid": "12"},
+    ]
+    assert _pick_by_name("성산일출봉", candidates)["contentid"] == "2"
+
+    # 아무것도 안 맞으면 None을 준다 (호출부가 "없음"으로 처리할 수 있게)
+    assert _pick_by_name("한라산", [{"title": "카페 봄", "contentid": "3"}]) is None
+
+
+def test_keyword_search_must_not_send_areacode(monkeypatch):
+    """이름 검색에 `areaCode`를 붙이면 안 된다.
+
+    `areaCode=39`(제주)를 붙이면 천지연폭포·카멜리아힐·오설록 티뮤지엄이
+    **빈 결과로 돌아온다**(2026-08-22 실측). 붙이지 않으면 정상이다.
+    지역이 맞는지는 거리 검증(`NAME_SEARCH_MAX_DISTANCE_M`)이 판단한다.
+
+    붙여도 예외가 안 나고 그냥 "그 장소는 사진이 없다"로 보이므로 조용히 망한다.
+    """
+    from routers import place
+
+    seen = {}
+
+    def fake_kto_get(service, operation, params):
+        seen.update(params)
+        return {"response": {"body": {"items": ""}}}
+
+    monkeypatch.setattr(place, "_kto_get", fake_kto_get)
+    place._search_by_keyword("천지연폭포")
+    assert "areaCode" not in seen, f"areaCode를 보내고 있다: {seen}"
+    assert seen.get("keyword") == "천지연폭포"
+
+
+def test_name_search_result_must_be_nearby(monkeypatch):
+    """이름으로 찾은 결과가 멀면 버린다.
+
+    `우도`로 검색하면 전남 강진의 `가우도`가, `주상절리대`로 검색하면 광주
+    `무등산 주상절리대`가 온다(실측). 둘 다 타입 12(관광지)라 타입 검사로는 걸러지지 않는다.
+
+    거리로 걸러내지 않으면 제주 앱의 우도 카드에 **전라남도 사진**이 붙는다.
+    """
+    from routers import place
+
+    def fake_search(name):
+        return [{
+            "title": "가우도", "contentid": "77", "contenttypeid": "12",
+            "mapy": "34.6", "mapx": "126.7",  # 전남 강진
+        }]
+
+    monkeypatch.setattr(place, "_search_by_keyword", fake_search)
+    monkeypatch.setattr(place, "_find_content_id", lambda *a, **k: None)
+
+    # 제주 우도 좌표로 물어보면 전남 결과는 버려진다
+    assert place.find_sight_content_id("가우도", 33.50, 126.95) is None

@@ -1,7 +1,8 @@
-"""홈 화면용 엔드포인트 — 추천 코스 3선.
+"""홈 화면용 엔드포인트.
 
-'오늘의 설화'는 2026-08-14에 제거했다. 홈 최상단 자리는 성산 여정 카드가 가져갔다
-(설계 §1 — 유료 콘텐츠 진입을 코스 추천에 종속시키지 않는다).
+- `GET /home/places` — **장소 카드 10곳.** 홈의 주인공이다. 실제 여행자가 많이 담은
+  순서로 뽑되 오디 해설이 있는 곳만 남긴다. 계산 규칙 → `services/home_places.py`
+- `GET /home/recommendations` — 추천 코스 3선. 코스 탭으로 들어가는 곁길
 """
 from __future__ import annotations
 
@@ -15,6 +16,7 @@ from slowapi.util import get_remote_address
 
 from models.schemas import CourseListRequest
 from routers.course import list_courses
+from services import home_places
 from services.db import get_db_connection
 
 router = APIRouter(prefix="/home", tags=["home"])
@@ -46,6 +48,23 @@ def _hero_image_for_place(conn, primary_place: str) -> Optional[str]:
     except Exception:
         return None
     return None
+
+
+@router.get("/places")
+@limiter.limit("30/minute")
+def get_home_places(request: Request, limit: int = 10) -> dict[str, Any]:
+    """홈 장소 카드.
+
+    `limit`은 1~50으로 묶는다. 홈은 10개를 쓰지만 지도·검색이 더 필요할 수 있어
+    열어 두되, 103곳 전체를 한 번에 내려보내지는 않는다.
+    """
+    limit = max(1, min(limit, 50))
+    try:
+        places = home_places.top(limit)
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("home.places failed")
+        raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}")
+    return {"places": places}
 
 
 @router.get("/recommendations")

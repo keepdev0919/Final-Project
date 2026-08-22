@@ -1,6 +1,7 @@
 """장소 상세 정보 — KTO API로 사진·설명 조회 (GPS 기반 contentId 탐색)."""
 from __future__ import annotations
 
+import math
 import difflib
 import json as _json
 import logging
@@ -16,13 +17,52 @@ limiter = Limiter(key_func=get_remote_address)
 logger = logging.getLogger(__name__)
 
 
-def _find_content_id(name: str, lat: float, lng: float) -> tuple[str, str] | None:
-    """GPS 반경 검색으로 (contentId, contentTypeId) 반환."""
+# 장소 종류(contentTypeId). 실측 값이다.
+#   12 관광지 · 14 문화시설 · 15 축제행사 · 25 여행코스 · 28 레포츠
+#   32 숙박 · 38 쇼핑 · 39 음식점
+#
+# 38(쇼핑)을 넣는다 — 동문재래시장·서귀포매일올레시장은 제주 관광의 축이고 오디 해설도 있다.
+# 면세점 같은 것은 이름 규칙(`home_places.EXCLUDE_KEYWORDS`)이 먼저 걸러낸다.
+# 32(숙박)·39(음식점)은 넣지 않는다 — 관광지 근처에 널려서 이름이 비슷하면 이겨버린다.
+SIGHT_CONTENT_TYPES = frozenset({"12", "14", "25", "28", "38"})
+
+
+def _find_content_id(
+    name: str,
+    lat: float,
+    lng: float,
+    radius: int = 500,
+    require_name_match: bool = False,
+    allowed_types: frozenset[str] | None = None,
+) -> tuple[str, str] | None:
+    """GPS 반경 검색으로 (contentId, contentTypeId) 반환.
+
+    ## 반경을 넓힐 때 함께 조여야 하는 것
+
+    `radius`를 넓히면 못 찾던 장소가 잡히지만 **엉뚱한 곳이 잡힌다.**
+    성산일출봉 좌표에서 반경 2km를 부르면 후보 10개 중 9개가 식당·펜션이고,
+    이름 유사도로 고르면 `성산흑돼지두루치기 성산일출봉점`(음식점)이
+    `성산일출봉 [유네스코 세계자연유산]`(관광지)을 **이긴다** — 뒤에 붙은
+    `[유네스코 세계자연유산]`이 길어서 유사도가 떨어지기 때문이다(2026-08-22 실측).
+
+    그래서 두 개를 같이 준다.
+
+    - `allowed_types` — 관광지·문화시설만 받는다(`SIGHT_CONTENT_TYPES`).
+      ⚠️ **기본값은 None(제한 없음)이다.** 코스에는 식당·카페가 들어 있고
+      `/place/detail`은 그것들도 보여줘야 한다. 제한하면 코스 장소 상세가 빈다.
+    - `require_name_match` — 이름이 안 맞으면 아무것도 돌려주지 않는다.
+      틀린 사진이 붙는 것보다 없는 게 낫다.
+
+    ## 이름 고르는 순서
+
+    유사도보다 **포함 관계를 먼저 본다.** `성산일출봉`으로 찾을 때
+    `성산일출봉 [유네스코 세계자연유산]`은 이름으로 시작하므로 유사도와 무관하게 이긴다.
+    """
     try:
         data = _kto_get("KorService2", "locationBasedList2", {
             "mapX": lng,
             "mapY": lat,
-            "radius": 500,
+            "radius": radius,
             "numOfRows": 10,
         })
         items = data["response"]["body"]["items"]
@@ -32,16 +72,45 @@ def _find_content_id(name: str, lat: float, lng: float) -> tuple[str, str] | Non
         if not raw_items:
             return None
         item_list = raw_items if isinstance(raw_items, list) else [raw_items]
-        titles = [it["title"] for it in item_list]
-        matches = difflib.get_close_matches(name, titles, n=1, cutoff=0.3)
-        best = next(
-            (it for it in item_list if it["title"] == matches[0]),
-            item_list[0]
-        ) if matches else item_list[0]
+
+        if allowed_types is not None:
+            item_list = [
+                it for it in item_list
+                if str(it.get("contenttypeid", "")) in allowed_types
+            ]
+            if not item_list:
+                return None
+
+        best = _pick_by_name(name, item_list)
+        if best is None:
+            if require_name_match:
+                return None
+            best = item_list[0]
         return best["contentid"], str(best.get("contenttypeid", "12"))
     except Exception as e:
         logger.warning("KTO _find_content_id failed for %s: %s", name, e)
         return None
+
+
+def _pick_by_name(name: str, item_list: list[dict]) -> dict | None:
+    """이름이 가장 잘 맞는 후보. 없으면 None.
+
+    ① 완전히 같음 → ② 이름으로 시작함 → ③ 이름을 품고 있음 → ④ 유사도(0.6 이상).
+
+    ④의 문턱을 0.6으로 잡는다. 예전 값 0.3은 너무 느슨해서 `성산일출봉`이
+    `성산해촌`(식당)에도 걸렸다.
+    """
+    titles = {it["title"]: it for it in item_list if it.get("title")}
+    if name in titles:
+        return titles[name]
+    for title, it in titles.items():
+        if title.startswith(name):
+            return it
+    for title, it in titles.items():
+        if name in title:
+            return it
+    close = difflib.get_close_matches(name, list(titles), n=1, cutoff=0.6)
+    return titles[close[0]] if close else None
 
 
 def _fetch_detail(content_id: str) -> dict:
@@ -211,3 +280,77 @@ def get_place_detail(request: Request, name: str, lat: float, lng: float):
         "use_fee":   intro["use_fee"],
         "parking":   intro["parking"],
     }
+
+
+# 이름으로 찾은 후보가 우리가 아는 좌표에서 이만큼 넘게 떨어져 있으면 다른 곳이다.
+# `우도`로 검색하면 전남 강진의 `가우도`가, `주상절리대`로 검색하면 광주 `무등산 주상절리대`가
+# 온다(실측). 제주 안이라도 5km를 넘으면 같은 장소로 보기 어렵다.
+NAME_SEARCH_MAX_DISTANCE_M = 5000.0
+
+
+def _haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    r = 6371000.0
+    p1, l1, p2, l2 = map(math.radians, (lat1, lng1, lat2, lng2))
+    h = math.sin((p2 - p1) / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin((l2 - l1) / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(h))
+
+
+def _search_by_keyword(name: str) -> list[dict]:
+    """이름으로 KTO를 검색한다.
+
+    ⚠️ **`areaCode`를 보내지 말 것.** `areaCode=39`(제주)를 붙이면 천지연폭포·카멜리아힐·
+    오설록 티뮤지엄이 **빈 결과로 돌아온다**(2026-08-22 실측). 붙이지 않으면 정상이다.
+    지역 제한은 아래 거리 검증이 대신한다.
+    """
+    try:
+        data = _kto_get("KorService2", "searchKeyword2", {
+            "keyword": name,
+            "numOfRows": 10,
+        })
+        items = data["response"]["body"]["items"]
+        if not items or items == "":
+            return []
+        raw = items.get("item")
+        if not raw:
+            return []
+        return raw if isinstance(raw, list) else [raw]
+    except Exception as e:  # noqa: BLE001
+        logger.warning("KTO _search_by_keyword failed for %s: %s", name, e)
+        return []
+
+
+def find_sight_content_id(name: str, lat: float, lng: float) -> tuple[str, str] | None:
+    """관광지 하나의 (contentId, contentTypeId). 못 찾으면 None.
+
+    좌표 검색만으로는 부족하고 이름 검색만으로도 부족하다. **둘 다 쓴다.**
+
+    | 방식 | 잘 되는 것 | 안 되는 것 |
+    |---|---|---|
+    | 이름 검색 | 천지연폭포·카멜리아힐 — 좌표 검색에 아예 안 잡히는 곳 | `우도`→`가우도`(전남), `주상절리대`→`무등산 주상절리대`(광주) |
+    | 좌표 검색 | 이름이 데이터와 다른 곳(`오설록티뮤지엄`↔`오설록 티뮤지엄`) | 주변에 식당이 많으면 관광지가 10개 안에 안 들어온다 |
+
+    그래서 **이름으로 먼저 찾고 거리로 검증**하고, 없으면 좌표로 찾는다.
+    둘 다 관광지 계열(`SIGHT_CONTENT_TYPES`)만 받는다 — 안 그러면 성산일출봉 카드에
+    `성산흑돼지두루치기 성산일출봉점` 사진이 붙는다.
+    """
+    for item in _search_by_keyword(name):
+        if str(item.get("contenttypeid", "")) not in SIGHT_CONTENT_TYPES:
+            continue
+        try:
+            item_lat, item_lng = float(item["mapy"]), float(item["mapx"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if _haversine_m(lat, lng, item_lat, item_lng) > NAME_SEARCH_MAX_DISTANCE_M:
+            continue
+        if _pick_by_name(name, [item]) is None:
+            continue
+        return item["contentid"], str(item.get("contenttypeid", "12"))
+
+    for radius in (500, 2000):
+        found = _find_content_id(
+            name, lat, lng, radius=radius,
+            require_name_match=True, allowed_types=SIGHT_CONTENT_TYPES,
+        )
+        if found:
+            return found
+    return None

@@ -42,6 +42,7 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from routers.tourist import CACHE_TTL, KtoApiError, _kto_get
+from services import home_places
 from services.db import get_db_connection
 
 # 공지가 지정한 출처 표기. 텍스트만 허용되며 공사 CI/BI 로고는 금지.
@@ -262,8 +263,20 @@ def fetch_story(stid: str, lang: str = "ko") -> dict:
 
 @router.post("/sync")
 def force_sync(lang: str = "ko") -> dict:
-    """목록을 지금 갱신한다. 운영·개발용."""
+    """목록을 지금 갱신한다. 운영·개발용.
+
+    홈 장소 순위(`home_places`)가 이 목록에서 파생되므로 같이 다시 계산한다.
+    안 하면 새로 생긴 해설이 홈에 영원히 안 뜬다.
+    """
     try:
-        return {"saved": sync_places(lang)}
+        saved = sync_places(lang)
     except Exception as e:  # noqa: BLE001
         raise HTTPException(status_code=502, detail=f"갱신 실패: {e}")
+
+    rebuilt = None
+    if lang == "ko":
+        try:
+            rebuilt = home_places.build(get_db_connection())
+        except Exception:  # noqa: BLE001
+            logger.exception("odii.sync 후 home_places 재계산 실패")
+    return {"saved": saved, "home_places": rebuilt}

@@ -3,11 +3,13 @@ import SwiftData
 
 /// 앱 탭 식별자. AppStorage 키 "selected_tab"에 raw value로 저장한다.
 ///
-/// 설계 §1의 탭 4개. 구 값("create"·"myCourse")이 저장돼 있으면
+/// `docs/공고.md` §2의 탭 구성. **지도 탭은 다음 묶음에서 들어온다** — 빈 탭을 미리
+/// 띄우면 눌렀을 때 아무것도 없어 고장난 앱으로 보인다.
+///
+/// 예전에 쓰던 값("explore"·"create"·"myCourse")이 기기에 저장돼 있으면
 /// `AppTab(rawValue:)`가 nil이 되어 홈으로 떨어진다 — 앱이 깨지지는 않는다.
 enum AppTab: String {
     case home = "home"
-    case explore = "explore"
     case course = "course"
     case profile = "profile"
 }
@@ -57,16 +59,14 @@ struct ContentView: View {
         // 지우고 다시 만들면 각 탭의 스크롤·화면 이동 상태가 날아간다.
         VStack(spacing: 0) {
             ZStack {
-                tabContent(.home)  { HomeView() }
-                tabContent(.explore) { ExploreListView() }
-                tabContent(.course){ CourseHubView() }
-                tabContent(.profile)  { ProfileTabView().environmentObject(authManager) }
+                tabContent(.home)    { HomeView() }
+                tabContent(.course)  { CourseHubView() }
+                tabContent(.profile) { ProfileTabView().environmentObject(authManager) }
             }
             PixelTabBar(items: [
-                .init(tab: .home,   title: "홈",     icon: .home),
-                // 탐험 = 갈 곳(핀), 코스 = 이어진 길(경로선). 뜻과 그림을 맞춘다.
-                .init(tab: .explore, title: "탐험",   icon: .mapPin),
-                .init(tab: .course, title: "코스",   icon: .map),
+                .init(tab: .home,    title: "홈",     icon: .home),
+                // 코스 = 여러 곳을 이은 길이라 경로선 그림을 쓴다.
+                .init(tab: .course,  title: "코스",   icon: .map),
                 .init(tab: .profile, title: "프로필", icon: .person),
             ], selection: selectedTabBinding)
         }

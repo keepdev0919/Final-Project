@@ -1,16 +1,15 @@
 import SwiftUI
-import CoreLocation
 
-/// 홈. 설계 v2 §3 — 오디 제공 장소를 인기도순으로 보여주는 게 중심이다.
+/// 홈 — 제주 대표 장소 10곳이 주인공이다 (`docs/공고.md` §2).
 ///
-/// 유료 콘텐츠 진입을 코스 추천에 종속시키지 않는다: 무료 코스는 9,000개에서 뽑히지만
-/// 유료 여정은 몇 개뿐이라, 추천 결과에 없으면 사용자도 심사위원도 핵심을 못 만난다.
+/// 목록을 홈에 둔다. 별도 「탐험」 탭에 두면 홈과 같은 내용이 두 곳에 생긴다.
+/// 순서는 **실제 여행자 일정 9,134개의 등장 빈도**이고, 오디 해설이 있는 곳만 온다
+/// (서버 `services/home_places.py`).
 struct HomeView: View {
     @StateObject private var vm = HomeViewModel()
-    @ObservedObject private var location = LocationService.shared
 
     @State private var presentedCourse: Course?
-    @State private var presentedJourney: Journey?
+    @State private var selectedPlace: HomePlace?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -18,7 +17,7 @@ struct HomeView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: PixelSpacing.sectionGap) {
-                    journeySection
+                    placesSection
                     recommendedCoursesSection
                     statusSection
                 }
@@ -31,38 +30,39 @@ struct HomeView: View {
         }
         .background(PixelColor.background.ignoresSafeArea())
         .navigationBarHidden(true)
-        .task {
-            // "지금 여기예요" 배지 판정용. 지속 추적이 아니라 1회성이다.
-            LocationService.shared.requestCurrentLocationOnce()
-            await vm.loadHome()
+        // 장소 상세로는 **밀어 넣는다**(시트가 아니다). 사진·해설·이용정보가 길고,
+        // 뒤로가기·스와이프가 시스템 내비게이션에 붙어 있어야 한다(DESIGN.md §6 시스템 크롬).
+        .navigationDestination(item: $selectedPlace) { place in
+            PlaceDetailView(place: place.asCoursePlace)
         }
+        .task { await vm.loadHome() }
         .sheet(item: $presentedCourse) { course in
             NavigationStack { CoursePreviewView(course: course, hasNext: false) }
         }
-        .sheet(item: $presentedJourney) { journey in
-            JourneyPlaceholderSheet(journey: journey)
-        }
     }
 
-    // MARK: - 현장에서 듣는 이야기
+    // MARK: - 제주에서 가볼 곳 (홈의 주인공)
 
     @ViewBuilder
-    private var journeySection: some View {
-        if !vm.journeys.isEmpty {
+    private var placesSection: some View {
+        if !vm.places.isEmpty {
             VStack(alignment: .leading, spacing: PixelSpacing.cardGap) {
-                PixelSectionHeader(title: "현장에서 듣는 이야기", icon: .play)
-                ForEach(vm.journeys) { journey in
-                    JourneyCard(
-                        journey: journey,
-                        isNearby: journey.isNearby(location.currentLocation),
-                        action: { presentedJourney = journey }
-                    )
+                PixelSectionHeader(title: "제주에서 가볼 곳", icon: .mapPin)
+
+                Text("실제 여행자 9,134명의 일정에서 많이 나온 순서예요.")
+                    .font(PixelFont.body)
+                    .foregroundStyle(PixelColor.inkWeak)
+
+                ForEach(Array(vm.places.enumerated()), id: \.element.id) { index, place in
+                    HomePlaceCard(place: place, isTopPick: index == 0) {
+                        selectedPlace = place
+                    }
                 }
             }
         }
     }
 
-    // MARK: - 오늘의 추천 코스 (무료 훅)
+    // MARK: - 오늘의 추천 코스 (코스 탭으로 가는 곁길)
 
     @ViewBuilder
     private var recommendedCoursesSection: some View {

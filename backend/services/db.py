@@ -157,6 +157,27 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
         )
         """
     )
+    # 홈 장소 카드 순위. 비짓제주 등장 빈도 × 오디 해설 유무를 미리 계산해 둔 것이다
+    # (146,357 × 178 거리 계산을 매 요청마다 할 수 없다). 계산 규칙은
+    # services/home_places.py 모듈 설명 참조.
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS home_places (
+            rank          INTEGER PRIMARY KEY,
+            name          TEXT NOT NULL,
+            lat           REAL NOT NULL,
+            lng           REAL NOT NULL,
+            course_count  INTEGER NOT NULL,
+            stid          TEXT NOT NULL,
+            story_title   TEXT,
+            story_seconds INTEGER,
+            story_distance_m INTEGER,
+            thumbnail     TEXT,
+            thumbnail_candidates TEXT,
+            built_at      REAL
+        )
+        """
+    )
     # 재생 시 받아온 대본의 1시간 캐시. 연타·재방문 흡수용이며 영구 저장이 아니다.
     conn.execute(
         """
