@@ -1,16 +1,17 @@
 import SwiftUI
 
-/// 홈 — 제주 대표 장소 10곳이 주인공이다 (`docs/공고.md` §2).
+/// 홈 — **스테이지 선택 화면**이다 (`docs/공고.md` §2).
 ///
-/// 목록을 홈에 둔다. 별도 「탐험」 탭에 두면 홈과 같은 내용이 두 곳에 생긴다.
-/// 순서는 **비짓제주 실제 여행 일정 9,134개의 등장 빈도**이고, 오디 해설이 있는 곳만 온다.
-/// ⚠️ 9,134는 **일정 수**다. 사람 수가 아니다 — 한 사람이 여러 일정을 만들 수 있다
-/// (서버 `services/home_places.py`).
+/// 장소 목록이 아니다. 게임의 스테이지 선택 화면처럼 「여기서 할 일」과 「내 상태」를
+/// 보여주고, 해설 길이·운영시간·방문 시간대 같은 여행 정보는 장소 상세로 내렸다.
+///
+/// 6곳은 **라벨(종류)마다 1등 하나씩** 손으로 골랐다 — 순위 상위 6을 그냥 자르면
+/// 바다가 3개가 되어 라벨이 단조로워진다. 무엇을 띄우는지는 서버 `data/home_stage.json`.
 struct HomeView: View {
     @StateObject private var vm = HomeViewModel()
 
     @State private var presentedCourse: Course?
-    @State private var selectedPlace: HomePlace?
+    @State private var selectedStage: HomeStage?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -18,7 +19,7 @@ struct HomeView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: PixelSpacing.sectionGap) {
-                    placesSection
+                    stagesSection
                     recommendedCoursesSection
                     statusSection
                 }
@@ -33,8 +34,8 @@ struct HomeView: View {
         .navigationBarHidden(true)
         // 장소 상세로는 **밀어 넣는다**(시트가 아니다). 사진·해설·이용정보가 길고,
         // 뒤로가기·스와이프가 시스템 내비게이션에 붙어 있어야 한다(DESIGN.md §6 시스템 크롬).
-        .navigationDestination(item: $selectedPlace) { place in
-            PlaceDetailView(place: place.asCoursePlace)
+        .navigationDestination(item: $selectedStage) { stage in
+            PlaceDetailView(place: stage.asCoursePlace)
         }
         .task { await vm.loadHome() }
         .sheet(item: $presentedCourse) { course in
@@ -42,22 +43,16 @@ struct HomeView: View {
         }
     }
 
-    // MARK: - 제주에서 가볼 곳 (홈의 주인공)
+    // MARK: - 밟을 곳 (홈의 주인공)
 
     @ViewBuilder
-    private var placesSection: some View {
-        if !vm.places.isEmpty {
+    private var stagesSection: some View {
+        if !vm.stages.isEmpty {
             VStack(alignment: .leading, spacing: PixelSpacing.cardGap) {
-                PixelSectionHeader(title: "제주에서 가볼 곳", icon: .mapPin)
+                PixelSectionHeader(title: "밟을 곳", icon: .target)
 
-                Text("실제 여행 일정 약 9천 개에서 많이 나온 순서예요.")
-                    .font(PixelFont.body)
-                    .foregroundStyle(PixelColor.inkWeak)
-
-                ForEach(Array(vm.places.enumerated()), id: \.element.id) { index, place in
-                    HomePlaceCard(place: place, isTopPick: index == 0) {
-                        selectedPlace = place
-                    }
+                ForEach(vm.stages) { stage in
+                    StageCard(stage: stage) { selectedStage = stage }
                 }
             }
         }

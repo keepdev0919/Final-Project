@@ -255,3 +255,56 @@ def test_screens_never_claim_a_number_of_people():
             if "여행자" in line and "명" in line:
                 offenders.append(f"{path.name}:{lineno} {line.strip()}")
     assert not offenders, "사람 수를 주장하는 문구가 있다:\n" + "\n".join(offenders)
+
+
+def test_every_stage_card_resolves_to_a_real_place(db_conn):
+    """`home_stage.json`의 이름이 전부 `home_places`에 있어야 한다.
+
+    이름이 하나 안 맞으면 **홈에서 카드가 조용히 사라진다.** 에러도 안 나고
+    나머지 5장이 정상으로 보이므로, 눌러보는 검증으로는 "6장이어야 하는데 5장"임을
+    알 방법이 없다. 이름은 `home_places`가 다듬은 값(괄호 뗀 뒤)과 정확히 같아야 한다.
+    """
+    from services import home_places
+
+    data = home_places._load_stage_file()
+    entries = data.get("stages", [])
+    assert entries, "스테이지가 비었다"
+
+    got = home_places.stages()
+    missing = {e["name"] for e in entries} - {s["name"] for s in got}
+    assert not missing, f"home_places에 없는 이름: {missing}"
+    assert len(got) == len(entries)
+
+
+def test_every_stage_has_a_label_and_a_mission():
+    """라벨과 미션이 비어 있으면 안 된다.
+
+    미션은 카드의 **유일한 문장**이라 비면 카드가 이름만 남은 목록이 된다.
+    라벨이 비면 사진 위 칩이 빈 노란 사각형으로 뜬다 — 둘 다 화면이 깨지지는 않아서
+    눈으로 훑을 때 놓치기 쉽다.
+    """
+    from services import home_places
+
+    data = home_places._load_stage_file()
+    labels = data.get("labels", {})
+    for entry in data["stages"]:
+        assert entry.get("mission", "").strip(), f"{entry['name']}: 미션이 없다"
+        assert entry.get("label") in labels, f"{entry['name']}: 라벨 '{entry.get('label')}'이 없다"
+
+
+def test_label_icons_exist_in_the_app():
+    """`home_stage.json`의 아이콘 이름이 앱에 실제로 있어야 한다.
+
+    서버가 모르는 이름을 보내면 `HomeStage.labelGlyph`가 nil이 되고 칩에 글자만 남는다.
+    앱은 안 깨지지만 아이콘이 조용히 사라진다. 라벨을 추가할 때 도트 모양 그리는 것을
+    잊는 일이 실제로 일어난다.
+    """
+    from pathlib import Path
+
+    from services import home_places
+
+    icons = {v["icon"] for v in home_places._load_stage_file()["labels"].values()}
+    swift = (Path(__file__).resolve().parents[1] / "ios" / "JejuFolklore" / "Sources"
+             / "Models" / "HomeStage.swift").read_text(encoding="utf-8")
+    missing = [i for i in icons if f'case "{i}"' not in swift]
+    assert not missing, f"HomeStage.labelGlyph가 모르는 아이콘: {missing}"

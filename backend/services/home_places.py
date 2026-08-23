@@ -44,12 +44,17 @@
 """
 from __future__ import annotations
 
+import json
 import logging
 import math
 import re
 import time
+from pathlib import Path
 
 from services.db import get_db_connection
+
+# 저장소 뿌리. `backend/services/home_places.py` → 두 단계 위.
+BASE_DIR = Path(__file__).resolve().parents[2]
 
 logger = logging.getLogger(__name__)
 
@@ -303,3 +308,53 @@ def warm_thumbnails(conn, limit: int = 20) -> dict[str, int]:
             logger.warning("home_places 썸네일 실패: %s", row["name"], exc_info=True)
     conn.commit()
     return {"tried": len(rows), "filled": filled}
+
+
+# ── 홈 스테이지 카드 ────────────────────────────────────────────────────────────
+#
+# 홈은 순위 상위 N곳을 그대로 자르지 않는다. 자르면 바다가 3개가 되어 라벨이 단조로워진다.
+# **라벨(종류)마다 1등을 하나씩** 손으로 골라 `data/home_stage.json`에 적어 둔다.
+# 각 칸은 그 종류에서 실제 여행 일정에 가장 많이 담긴 곳이라, "실제 여행자 데이터로 골랐다"는
+# 근거는 유지된다. 자동 분류를 안 쓰는 이유는 그 파일 설명 참조.
+
+STAGE_FILE = BASE_DIR / "data" / "home_stage.json"
+
+
+def _load_stage_file() -> dict:
+    with open(STAGE_FILE, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def stages() -> list[dict]:
+    """홈 스테이지 카드. `data/home_stage.json` 순서 그대로.
+
+    장소 정보(좌표·해설·사진)는 `home_places`에서 이름으로 이어 붙인다.
+    이름이 안 맞는 칸은 **빠진다** — 그 상태를 조용히 두면 홈에 카드가 하나 사라진 채로
+    출시되므로 `tests/test_home_places.py`가 막는다.
+    """
+    conn = get_db_connection()
+    ensure_built(conn)
+    data = _load_stage_file()
+    labels = data.get("labels", {})
+
+    out: list[dict] = []
+    for entry in data.get("stages", []):
+        row = conn.execute(
+            "SELECT name, lat, lng, course_count, stid, story_title, story_seconds, "
+            "       story_distance_m, thumbnail "
+            "FROM home_places WHERE name = ?",
+            (entry["name"],),
+        ).fetchone()
+        if row is None:
+            logger.error("home_stage.json의 '%s'가 home_places에 없다 — 카드가 빠진다",
+                         entry["name"])
+            continue
+        label_key = entry.get("label", "")
+        label = labels.get(label_key, {})
+        place = dict(row)
+        place["mission"] = entry.get("mission", "")
+        place["label_key"] = label_key
+        place["label_name"] = label.get("name", "")
+        place["label_icon"] = label.get("icon", "")
+        out.append(place)
+    return out
