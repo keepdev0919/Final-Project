@@ -10,7 +10,6 @@ import SwiftUI
 struct HomeView: View {
     @StateObject private var vm = HomeViewModel()
 
-    @State private var presentedCourse: Course?
     @State private var selectedStage: HomeStage?
 
     var body: some View {
@@ -20,7 +19,6 @@ struct HomeView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: PixelSpacing.sectionGap) {
                     stagesSection
-                    recommendedCoursesSection
                     statusSection
                 }
                 .padding(.horizontal, PixelSpacing.screenMargin)
@@ -38,9 +36,6 @@ struct HomeView: View {
             PlaceDetailView(place: stage.asCoursePlace)
         }
         .task { await vm.loadHome() }
-        .sheet(item: $presentedCourse) { course in
-            NavigationStack { CoursePreviewView(course: course, hasNext: false) }
-        }
     }
 
     // MARK: - 밟을 곳 (홈의 주인공)
@@ -55,44 +50,6 @@ struct HomeView: View {
                     StageCard(stage: stage) { selectedStage = stage }
                 }
             }
-        }
-    }
-
-    // MARK: - 오늘의 추천 코스 (코스 탭으로 가는 곁길)
-
-    @ViewBuilder
-    private var recommendedCoursesSection: some View {
-        if !vm.recommendedCourses.isEmpty {
-            VStack(alignment: .leading, spacing: PixelSpacing.cardGap) {
-                // 시안은 정보 계열 섹션 헤더에 파랑을 쓴다.
-                PixelSectionHeader(title: "오늘의 추천 코스", icon: .map,
-                                   accent: PixelColor.secondary)
-                ForEach(vm.recommendedCourses) { course in
-                    Button { presentedCourse = course } label: {
-                        courseRow(course)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-    }
-
-    private func courseRow(_ course: Course) -> some View {
-        PixelCard(corners: false) {
-            VStack(alignment: .leading, spacing: PixelSpacing.s) {
-                Text(course.title)
-                    .font(PixelFont.sectionTitle)
-                    .foregroundStyle(PixelColor.ink)
-                    .multilineTextAlignment(.leading)
-                HStack(spacing: PixelSpacing.s) {
-                    PixelChip(text: "\(course.durationDays)일",
-                              fill: PixelColor.secondaryContainer,
-                              label: PixelColor.onSecondaryContainer)
-                    PixelChip(text: "장소 \(course.places.count)곳")
-                }
-            }
-            .padding(PixelSpacing.cardPadding)
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
