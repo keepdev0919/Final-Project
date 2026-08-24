@@ -3,14 +3,14 @@ import SwiftData
 
 /// 앱 탭 식별자. AppStorage 키 "selected_tab"에 raw value로 저장한다.
 ///
-/// `docs/공고.md` §2의 탭 구성. **지도 탭은 다음 묶음에서 들어온다** — 빈 탭을 미리
-/// 띄우면 눌렀을 때 아무것도 없어 고장난 앱으로 보인다.
+/// `docs/공고.md` §2의 탭 구성 4개.
 ///
 /// 예전에 쓰던 값("explore"·"create"·"myCourse")이 기기에 저장돼 있으면
 /// `AppTab(rawValue:)`가 nil이 되어 홈으로 떨어진다 — 앱이 깨지지는 않는다.
 enum AppTab: String {
     case home = "home"
     case course = "course"
+    case map = "map"
     case profile = "profile"
 }
 
@@ -61,12 +61,14 @@ struct ContentView: View {
             ZStack {
                 tabContent(.home)    { HomeView() }
                 tabContent(.course)  { CourseHubView() }
+                tabContent(.map)     { MapTabView() }
                 tabContent(.profile) { ProfileTabView().environmentObject(authManager) }
             }
             PixelTabBar(items: [
                 .init(tab: .home,    title: "홈",     icon: .home),
-                // 코스 = 여러 곳을 이은 길이라 경로선 그림을 쓴다.
+                // 코스 = 여러 곳을 이은 길이라 경로선, 지도 = 흩어진 점이라 핀을 쓴다.
                 .init(tab: .course,  title: "코스",   icon: .map),
+                .init(tab: .map,     title: "지도",   icon: .mapPin),
                 .init(tab: .profile, title: "프로필", icon: .person),
             ], selection: selectedTabBinding)
         }

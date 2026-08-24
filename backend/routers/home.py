@@ -65,12 +65,13 @@ def get_home_stages(request: Request) -> dict[str, Any]:
 @router.get("/places")
 @limiter.limit("30/minute")
 def get_home_places(request: Request, limit: int = 10) -> dict[str, Any]:
-    """홈 장소 카드.
+    """순위 목록. 지도 탭이 전부 받아 핀을 찍는다.
 
-    `limit`은 1~50으로 묶는다. 홈은 10개를 쓰지만 지도·검색이 더 필요할 수 있어
-    열어 두되, 103곳 전체를 한 번에 내려보내지는 않는다.
+    `limit`은 1~200으로 묶는다. 지도는 **전부**(현재 103곳) 받아야 한다 —
+    「우리가 가진 게 몇 개인지 한눈에」가 지도 탭의 목적이라 일부만 내려보내면 목적이 깨진다.
+    상한을 200으로 둔 것은 오디 목록이 늘어도 견디게 하려는 것이고, 무한은 아니다.
     """
-    limit = max(1, min(limit, 50))
+    limit = max(1, min(limit, 200))
     try:
         places = home_places.top(limit)
     except Exception as exc:  # noqa: BLE001
