@@ -171,6 +171,8 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
             stid          TEXT NOT NULL,
             story_title   TEXT,
             story_seconds INTEGER,
+            story_count   INTEGER,
+            stories       TEXT,
             story_distance_m INTEGER,
             thumbnail     TEXT,
             thumbnail_candidates TEXT,

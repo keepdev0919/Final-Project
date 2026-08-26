@@ -21,4 +21,6 @@ enum PixelUIColor {
     static let secondary = UIColor(PixelColor.secondary)
     static let tertiary  = UIColor(PixelColor.tertiary)
     static let locked    = UIColor(PixelColor.locked)
+    /// 지도에서 선택된 핀. 의미 별칭이라 팔레트가 바뀌어도 따라온다.
+    static let accent    = UIColor(PixelColor.accent)
 }

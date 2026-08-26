@@ -26,6 +26,18 @@
 그래서 `story_distance_m`를 같이 저장한다. **이 값이 큰 항목은 사람이 봐야 한다** —
 콘텐츠를 채울 때 목록을 훑으며 어긋난 짝을 걷어낸다.
 
+## 한 장소의 해설을 다 담는다
+
+오디는 **장소가 아니라 해설 단위**로 데이터를 준다. 관음사는 일주문·사천왕문·대웅전…
+**10개의 해설이 각각 좌표를 갖고 따로** 온다. 그래서 300m로 묶어 한 장소로 본다.
+
+⚠️ **묶을 때 대표 하나만 남기고 버리면 안 된다.** 관음사 10개 중 9개가 사라지면
+그 절을 눌렀을 때 들을 것이 하나로 줄고, 나중에 지점·미션을 만들 재료도 없어진다
+(2026-08-26 조익준님 지적 — 실제로 그렇게 동작하고 있었다).
+
+그래서 `stories`에 그 묶음의 해설을 **전부** 담는다. `story_seconds`는 **합계**이고,
+`stid`·`story_title`은 목록에서 가장 가까운 것(대표)이다.
+
 ## 계산을 저장해 두는 이유
 
 비짓제주 지점 146,357건 × 오디 178건을 매 요청마다 재계산할 수 없다.
@@ -79,6 +91,10 @@ OLD_SUFFIX = "_old"
 # 빈 결과를 준다(`오설록티뮤지엄` → 0건, `오설록 티뮤지엄` → 1건). 상위권만 채워도 충분하다.
 NAME_ALIASES = {
     "오설록티뮤지엄": "오설록 티뮤지엄",
+    "에코랜드 테마파크": "에코랜드테마파크",
+    "이호테우말등대": "이호테우해변",
+    "세화해변": "세화해수욕장",
+    "한라산국립공원": "한라산",
 }
 
 
@@ -160,6 +176,11 @@ def compute(conn) -> list[dict]:
         "GROUP BY place_name ORDER BY course_count DESC"
     ).fetchall()
 
+    # 묶음 번호별로 그 묶음에 속한 해설을 미리 모아둔다.
+    stories_by_cluster: dict[int, list[dict]] = {}
+    for idx, story in enumerate(stories):
+        stories_by_cluster.setdefault(clusters[idx], []).append(story)
+
     # 한 묶음(같은 장소)에는 등장 빈도가 가장 높은 이름 하나만 남긴다.
     # 이호테우말등대·이호테우해수욕장·이호테우해수욕장_old가 다 같은 해설을 가리킨다.
     best_by_cluster: dict[int, dict] = {}
@@ -178,6 +199,12 @@ def compute(conn) -> list[dict]:
         if cluster in best_by_cluster:
             continue  # 이미 더 인기 있는 이름이 이 묶음을 차지했다
         story = stories[nearest]
+        # 그 묶음의 해설 전부. 가까운 순으로 둔다 — 지점 순서를 정할 때의 출발점이 된다
+        # (실제 걷는 순서는 콘텐츠를 만들 때 사람이 정한다).
+        group = sorted(
+            stories_by_cluster.get(cluster, [story]),
+            key=lambda st: _distance_m(row["lat"], row["lng"], st["lat"], st["lng"]),
+        )
         best_by_cluster[cluster] = {
             "name": clean_name(raw),
             "lat": row["lat"],
@@ -185,7 +212,19 @@ def compute(conn) -> list[dict]:
             "course_count": row["course_count"],
             "stid": story["stid"],
             "story_title": story["title"],
-            "story_seconds": story["play_time"] or 0,
+            # ⚠️ 대표 하나가 아니라 **묶음 전체의 합계**다. 관음사는 10개를 더한 값이다.
+            "story_seconds": sum(st["play_time"] or 0 for st in group),
+            "story_count": len(group),
+            "stories": [
+                {
+                    "stid": st["stid"],
+                    "title": st["title"],
+                    "seconds": st["play_time"] or 0,
+                    "lat": st["lat"],
+                    "lng": st["lng"],
+                }
+                for st in group
+            ],
             "story_distance_m": round(nearest_dist),
         }
 
@@ -212,12 +251,13 @@ def build(conn) -> int:
     conn.executemany(
         "INSERT INTO home_places "
         "(rank, name, lat, lng, course_count, stid, story_title, story_seconds, "
-        " story_distance_m, thumbnail, built_at) "
-        "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        " story_count, stories, story_distance_m, thumbnail, built_at) "
+        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
         [
             (i, p["name"], p["lat"], p["lng"], p["course_count"], p["stid"],
-             p["story_title"], p["story_seconds"], p["story_distance_m"],
-             p.get("thumbnail"), time.time())
+             p["story_title"], p["story_seconds"], p["story_count"],
+             json.dumps(p["stories"], ensure_ascii=False),
+             p["story_distance_m"], p.get("thumbnail"), time.time())
             for i, p in enumerate(ranked)
         ],
     )
@@ -233,6 +273,17 @@ def ensure_built(conn) -> None:
         build(conn)
 
 
+def _row_to_place(row) -> dict:
+    """DB 한 줄을 응답 모양으로. `stories`는 JSON 문자열이라 풀어서 내보낸다."""
+    place = dict(row)
+    try:
+        place["stories"] = json.loads(place.get("stories") or "[]")
+    except (TypeError, ValueError):
+        logger.warning("home_places.stories 파싱 실패: %s", place.get("name"))
+        place["stories"] = []
+    return place
+
+
 def top(limit: int = 10) -> list[dict]:
     """홈 카드용 상위 목록.
 
@@ -243,11 +294,11 @@ def top(limit: int = 10) -> list[dict]:
     ensure_built(conn)
     rows = conn.execute(
         "SELECT name, lat, lng, course_count, stid, story_title, story_seconds, "
-        "       story_distance_m, thumbnail "
+        "       story_count, stories, story_distance_m, thumbnail "
         "FROM home_places ORDER BY rank LIMIT ?",
         (limit,),
     ).fetchall()
-    return [dict(r) for r in rows]
+    return [_row_to_place(r) for r in rows]
 
 
 def warm_thumbnails(conn, limit: int = 20) -> dict[str, int]:
@@ -341,7 +392,7 @@ def stages() -> list[dict]:
     for entry in data.get("stages", []):
         row = conn.execute(
             "SELECT name, lat, lng, course_count, stid, story_title, story_seconds, "
-            "       story_distance_m, thumbnail "
+            "       story_count, stories, story_distance_m, thumbnail "
             "FROM home_places WHERE name = ?",
             (entry["name"],),
         ).fetchone()
@@ -351,7 +402,7 @@ def stages() -> list[dict]:
             continue
         label_key = entry.get("label", "")
         label = labels.get(label_key, {})
-        place = dict(row)
+        place = _row_to_place(row)
         place["mission"] = entry.get("mission", "")
         place["label_key"] = label_key
         place["label_name"] = label.get("name", "")

@@ -23,7 +23,8 @@ struct MapPlaceCard: View {
                             .font(PixelFont.sectionTitle)
                             .foregroundStyle(PixelColor.ink)
                             .multilineTextAlignment(.leading)
-                        PixelChip(text: "해설 \(place.storyDurationText)",
+                        // 해설이 여럿인 곳은 개수를 같이 쓴다 — 관음사는 10개다.
+                        PixelChip(text: place.storySummary,
                                   icon: .headphone,
                                   fill: PixelColor.tertiaryFixed,
                                   label: PixelColor.onTertiaryFixed)

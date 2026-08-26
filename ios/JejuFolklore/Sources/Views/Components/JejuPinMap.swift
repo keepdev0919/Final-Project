@@ -64,6 +64,7 @@ struct JejuPinMap: UIViewRepresentable {
                 let marker = GMSMarker(position: place.coordinate)
                 marker.userData = place
                 marker.icon = Self.pinImage(selected: false)
+                marker.groundAnchor = Self.pinAnchor
                 // 기본 정보창을 쓰지 않는다. 우리 미니 카드가 그 일을 한다.
                 marker.tracksInfoWindowChanges = false
                 marker.map = mapView
@@ -108,27 +109,48 @@ struct JejuPinMap: UIViewRepresentable {
 
         // MARK: - 핀 그림
 
-        /// 도트 사각 핀. `DESIGN.md` §5 — 반경 0, 잉크 테두리, 하드 그림자.
+        /// 도트 핀. **아래로 뾰족해서 「그 지점」을 가리키는 것으로 읽힌다** —
+        /// 사각형만 그렸을 때는 지도 위에 놓인 타일처럼 보였다(2026-08-26 조익준님 지적).
         ///
-        /// ⚠️ 구글의 기본 물방울 마커(`GMSMarker.markerImage`)를 쓰지 않는다.
-        /// 둥글고 그라디언트가 들어가서 우리 화면에서 혼자 이질적으로 보인다.
+        /// 격자로 적는 이유는 `PixelIcon`과 같다 — 모양을 데이터로 두면 눈으로 고칠 수 있다.
+        /// `X`가 잉크 테두리, `o`가 채움, `.`이 투명이다.
+        ///
+        /// ⚠️ 구글 기본 물방울 마커(`GMSMarker.markerImage`)를 쓰지 않는다.
+        /// 둥글고 그라디언트가 들어가서 우리 화면에서 혼자 이질적으로 보인다
+        /// (`DESIGN.md` §5 — 반경 0, 잉크 테두리).
+        private static let pinGrid = [
+            ".XXXXXX.",
+            "XooooooX",
+            "XooooooX",
+            "XooooooX",
+            "XooooooX",
+            ".XooooX.",
+            "..XooX..",
+            "...XX...",
+        ]
+
+        /// 핀 꼭짓점이 좌표에 닿게 하는 기준점. 격자 맨 아래 가운데다.
+        /// 이걸 안 주면 핀의 **중심**이 좌표에 놓여서 실제 지점보다 아래를 가리킨다.
+        private static let pinAnchor = CGPoint(x: 0.5, y: 1.0)
+
         private static func pinImage(selected: Bool) -> UIImage {
-            let side: CGFloat = selected ? 22 : 14
-            let border: CGFloat = 2
-            let shadow: CGFloat = selected ? 3 : 2
-            let size = CGSize(width: side + shadow, height: side + shadow)
+            let unit: CGFloat = selected ? 3 : 2
+            let cols = CGFloat(pinGrid[0].count)
+            let rows = CGFloat(pinGrid.count)
+            let size = CGSize(width: cols * unit, height: rows * unit)
 
             return UIGraphicsImageRenderer(size: size).image { ctx in
                 let cg = ctx.cgContext
-                // 하드 그림자 — 번짐 없이 오른쪽 아래로 밀어 그린다.
-                cg.setFillColor(PixelUIColor.ink.cgColor)
-                cg.fill(CGRect(x: shadow, y: shadow, width: side, height: side))
-                // 테두리 + 채움
-                cg.setFillColor(PixelUIColor.ink.cgColor)
-                cg.fill(CGRect(x: 0, y: 0, width: side, height: side))
-                cg.setFillColor(PixelUIColor.primary.cgColor)
-                cg.fill(CGRect(x: border, y: border,
-                               width: side - border * 2, height: side - border * 2))
+                // 선택된 핀은 채움을 강조색으로 바꾼다. 크기도 같이 키워서
+                // **색만으로 구분하지 않는다**(DESIGN.md §7 접근성).
+                let fill = selected ? PixelUIColor.accent : PixelUIColor.primary
+                for (y, row) in pinGrid.enumerated() {
+                    for (x, char) in row.enumerated() where char != "." {
+                        cg.setFillColor(char == "X" ? PixelUIColor.ink.cgColor : fill.cgColor)
+                        cg.fill(CGRect(x: CGFloat(x) * unit, y: CGFloat(y) * unit,
+                                       width: unit, height: unit))
+                    }
+                }
             }
         }
     }
