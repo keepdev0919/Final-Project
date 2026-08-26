@@ -59,6 +59,7 @@ from __future__ import annotations
 import json
 import logging
 import math
+import os
 import re
 import time
 from pathlib import Path
@@ -85,7 +86,33 @@ EXCLUDE_KEYWORDS = (
 # 비짓제주 데이터에 남아 있는 옛 항목. 같은 장소가 두 번 보인다.
 OLD_SUFFIX = "_old"
 
-# 비짓제주 이름과 KTO 이름이 다른 곳. 사진을 찾을 때만 쓴다 — 화면에는 비짓제주 이름이 뜬다.
+# 오디 제목에서 이름이 자동으로 안 뽑히는 곳을 손으로 적는 파일.
+# 왼쪽이 `place_name_from_stories`가 뽑아낸 값, 오른쪽이 화면에 쓸 이름이다.
+NAME_FILE = BASE_DIR / "data" / "place_names.json"
+
+
+def name_overrides() -> dict[str, str]:
+    """`data/place_names.json`의 손질 목록. 파일이 없으면 빈 채로 간다.
+
+    키는 두 가지를 다 받는다.
+
+    - **자동으로 뽑힌 이름** — 읽기 쉬워서 대부분 이걸로 적는다
+    - **대표 해설 번호(stid)** — 자동 이름이 겹칠 때 쓴다. 오디에 감성 제목 시리즈가
+      12건 따로 있어서 「가파도」와 「낭만적인 힐링의 섬, 가파도」가 **둘 다 「가파도」로**
+      뽑히는 일이 생긴다. 이름으로 고치면 둘 다 바뀌므로 번호로 짚어야 한다.
+
+    파일이 깨져도 앱은 돌아야 한다 — 이름이 조금 이상할 뿐 화면은 뜬다.
+    """
+    try:
+        with open(NAME_FILE, encoding="utf-8") as f:
+            return json.load(f).get("overrides", {})
+    except FileNotFoundError:
+        return {}
+    except (OSError, ValueError):
+        logger.exception("place_names.json을 읽지 못했다 — 자동으로 뽑은 이름을 쓴다")
+        return {}
+
+# 장소 이름과 KTO 이름이 다른 곳. 사진을 찾을 때만 쓴다 — 화면에는 비짓제주 이름이 뜬다.
 #
 # 자동으로 맞출 방법이 없어서 손으로 적는다. 띄어쓰기 하나 차이로 KTO 이름 검색이
 # 빈 결과를 준다(`오설록티뮤지엄` → 0건, `오설록 티뮤지엄` → 1건). 상위권만 채워도 충분하다.
@@ -161,57 +188,114 @@ def _cluster_ids(stories: list[dict]) -> list[int]:
     return [find(i) for i in range(len(stories))]
 
 
+def place_name_from_stories(titles: list[str]) -> str:
+    """오디 해설 제목에서 **장소 이름**을 뽑는다.
+
+    오디 제목은 장소 이름이 아니라 **해설 제목**이다. 그래서 세 가지 손질이 필요하다.
+
+    ① **여러 해설의 공통 접두어** — 관음사 10건이 「관음사 일주문」·「관음사 대웅전」…
+       이므로 공통 부분이 곧 장소 이름이다. 실측으로 잘 맞는다:
+       관음사 · 약천사 · 성읍민속마을 · 정방폭포 · 오설록 티 뮤지엄.
+
+    ② **`수식어, 실제이름` 꼴** — 「낭만적인 힐링의 섬, 가파도」처럼 쉼표 뒤가 장소다.
+       오디에 이런 감성 제목이 25건쯤 있다.
+
+    ③ **분류 접두어** — 「열린관광지 - 제주도 ○○」, 「안도 코스 - ○○」의 앞부분.
+       단, 접두어가 곧 장소인 경우(안도 코스 4건 묶음)는 ①이 먼저 잡는다.
+
+    그래도 이상한 것은 `NAME_OVERRIDES`에 손으로 적는다. 자동으로 다 맞출 수 없고,
+    **틀린 이름이 지도에 뜨는 것보다 손으로 몇 개 적는 편이 싸다.**
+    """
+    cleaned = [t.strip() for t in titles if t and t.strip()]
+    if not cleaned:
+        return ""
+
+    if len(cleaned) > 1:
+        prefix = os.path.commonprefix(cleaned).strip()
+        prefix = re.sub(r"[\s\-–—·,]+$", "", prefix).strip()
+        # 접두어가 너무 짧으면 장소 이름이 아니다(「제주」·「산방」처럼).
+        if len(prefix) >= 3:
+            return _strip_category_prefix(prefix)
+
+    name = cleaned[0]
+    # 「수식어, 실제이름」 — 쉼표가 하나뿐이고 뒤쪽이 짧을 때만 장소로 본다.
+    if name.count(",") == 1:
+        head, tail = (part.strip() for part in name.split(","))
+        if tail and len(tail) <= len(head):
+            name = tail
+    return _strip_category_prefix(name)
+
+
+# 오디가 제목 앞에 붙이는 분류 딱지. 장소 이름이 아니다.
+_CATEGORY_PREFIXES = ("열린관광지 - 제주도", "열린관광지 -", "열린관광지")
+
+
+def _strip_category_prefix(name: str) -> str:
+    for prefix in _CATEGORY_PREFIXES:
+        if name.startswith(prefix):
+            return name[len(prefix):].strip(" -–—·") or name
+    return name
+
+
 def compute(conn) -> list[dict]:
-    """순위표를 계산해서 돌려준다 (저장하지 않는다)."""
+    """장소 목록을 만든다 (저장하지 않는다).
+
+    ## 오디가 전부다
+
+    **묶음 하나 = 장소 하나**이고, 오디에 해설이 있는 곳은 하나도 빠지지 않는다.
+
+    예전에는 비짓제주 장소 이름 목록을 훑으며 이름이 오디 묶음을 "차지"하게 했다.
+    그러면 두 가지가 동시에 망가진다(2026-08-26 조익준님 지적) —
+    ① 비짓제주에 이름이 없는 묶음 18곳(사려니숲길·가파도·알뜨르비행장…)이 **통째로 사라지고**
+    ② 아무도 안 가져간 묶음을 근처 **식당이 가져간다**(자리돔횟집이 456m 떨어진
+      「서귀포 기적의 도서관」 해설을 선점했다).
+
+    ## 인기 점수를 계산하지 않는다
+
+    한때 비짓제주 일정에서 "이 장소가 몇 번 담겼나"를 뽑아 순위를 매겼다. **걷어냈다.**
+
+    그 숫자가 필요했던 이유는 **홈에 띄울 6곳을 고르는 것** 하나뿐이었는데, 그건
+    손으로 고르면 되는 일이다(`data/home_stage.json`). 계산으로 하려니 오히려
+    문제만 생겼다 — 좌표로 세면 도심이 부풀어 제주목관아가 성산일출봉을 이기고,
+    가장 큰 이웃 값을 쓰면 목관아가 동문시장의 인기를 빌려온다.
+
+    **정확하지도 않은 숫자를 계산하느라 146,357건을 훑을 이유가 없다.**
+    유명한 곳이 어디인지는 사람이 안다.
+
+    순서는 **해설이 많은 곳부터**다. 콘텐츠가 두꺼운 곳이 위로 온다는 뜻이고,
+    바깥 데이터가 필요 없다.
+    """
     stories = _load_stories(conn)
     if not stories:
         return []
     clusters = _cluster_ids(stories)
 
-    places = conn.execute(
-        "SELECT place_name, COUNT(DISTINCT course_id) AS course_count, "
-        "       AVG(lat) AS lat, AVG(lng) AS lng "
-        "FROM course_places "
-        "WHERE in_jeju = 1 AND lat IS NOT NULL AND lng IS NOT NULL "
-        "GROUP BY place_name ORDER BY course_count DESC"
-    ).fetchall()
-
-    # 묶음 번호별로 그 묶음에 속한 해설을 미리 모아둔다.
     stories_by_cluster: dict[int, list[dict]] = {}
     for idx, story in enumerate(stories):
         stories_by_cluster.setdefault(clusters[idx], []).append(story)
 
-    # 한 묶음(같은 장소)에는 등장 빈도가 가장 높은 이름 하나만 남긴다.
-    # 이호테우말등대·이호테우해수욕장·이호테우해수욕장_old가 다 같은 해설을 가리킨다.
-    best_by_cluster: dict[int, dict] = {}
-    for row in places:
-        raw = row["place_name"]
-        if is_excluded(raw):
-            continue
-        nearest, nearest_dist = None, STORY_RADIUS_M
-        for idx, story in enumerate(stories):
-            dist = _distance_m(row["lat"], row["lng"], story["lat"], story["lng"])
-            if dist <= nearest_dist:
-                nearest, nearest_dist = idx, dist
-        if nearest is None:
-            continue
-        cluster = clusters[nearest]
-        if cluster in best_by_cluster:
-            continue  # 이미 더 인기 있는 이름이 이 묶음을 차지했다
-        story = stories[nearest]
-        # 그 묶음의 해설 전부. 가까운 순으로 둔다 — 지점 순서를 정할 때의 출발점이 된다
+    overrides = name_overrides()
+    places: list[dict] = []
+    for group in stories_by_cluster.values():
+        center_lat = sum(st["lat"] for st in group) / len(group)
+        center_lng = sum(st["lng"] for st in group) / len(group)
+
+        # 묶음 안에서는 중심에 가까운 순. 지점 순서를 정할 때의 출발점이 된다
         # (실제 걷는 순서는 콘텐츠를 만들 때 사람이 정한다).
         group = sorted(
-            stories_by_cluster.get(cluster, [story]),
-            key=lambda st: _distance_m(row["lat"], row["lng"], st["lat"], st["lng"]),
+            group,
+            key=lambda st: _distance_m(center_lat, center_lng, st["lat"], st["lng"]),
         )
-        best_by_cluster[cluster] = {
-            "name": clean_name(raw),
-            "lat": row["lat"],
-            "lng": row["lng"],
-            "course_count": row["course_count"],
-            "stid": story["stid"],
-            "story_title": story["title"],
+        auto_name = place_name_from_stories([st["title"] for st in group])
+        # 번호로 짚은 것이 이름으로 짚은 것보다 우선한다 — 이름이 겹칠 때 쓰라고 둔 것이다.
+        name = overrides.get(group[0]["stid"]) or overrides.get(auto_name) or auto_name
+
+        places.append({
+            "name": name,
+            "lat": center_lat,
+            "lng": center_lng,
+            "stid": group[0]["stid"],
+            "story_title": group[0]["title"],
             # ⚠️ 대표 하나가 아니라 **묶음 전체의 합계**다. 관음사는 10개를 더한 값이다.
             "story_seconds": sum(st["play_time"] or 0 for st in group),
             "story_count": len(group),
@@ -225,11 +309,26 @@ def compute(conn) -> list[dict]:
                 }
                 for st in group
             ],
-            "story_distance_m": round(nearest_dist),
-        }
+            # 묶음이 얼마나 퍼져 있나(가장 먼 해설까지). 값이 크면 서로 다른 곳이
+            # 한 묶음이 됐을 수 있다 — 콘텐츠를 만들 때 사람이 갈라야 한다.
+            "story_distance_m": round(max(
+                _distance_m(center_lat, center_lng, st["lat"], st["lng"]) for st in group
+            )),
+        })
 
-    ranked = sorted(best_by_cluster.values(), key=lambda p: -p["course_count"])
-    return ranked
+    places.sort(key=lambda p: (-p["story_count"], p["name"]))
+
+    # 이름이 겹치면 어느 쪽이 홈에 연결될지 알 수 없다. 조용히 두지 않고 알린다.
+    # 고치는 곳은 `data/place_names.json`이고, 겹칠 때는 stid로 짚는다.
+    seen: dict[str, str] = {}
+    for place in places:
+        if place["name"] in seen:
+            logger.error(
+                "장소 이름이 겹친다: %r (stid %s ↔ %s). data/place_names.json에서 "
+                "stid로 짚어 고칠 것", place["name"], seen[place["name"]], place["stid"],
+            )
+        seen[place["name"]] = place["stid"]
+    return places
 
 
 def build(conn) -> int:
@@ -250,11 +349,11 @@ def build(conn) -> int:
     conn.execute("DELETE FROM home_places")
     conn.executemany(
         "INSERT INTO home_places "
-        "(rank, name, lat, lng, course_count, stid, story_title, story_seconds, "
+        "(rank, name, lat, lng, stid, story_title, story_seconds, "
         " story_count, stories, story_distance_m, thumbnail, built_at) "
-        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
         [
-            (i, p["name"], p["lat"], p["lng"], p["course_count"], p["stid"],
+            (i, p["name"], p["lat"], p["lng"], p["stid"],
              p["story_title"], p["story_seconds"], p["story_count"],
              json.dumps(p["stories"], ensure_ascii=False),
              p["story_distance_m"], p.get("thumbnail"), time.time())
@@ -293,7 +392,7 @@ def top(limit: int = 10) -> list[dict]:
     conn = get_db_connection()
     ensure_built(conn)
     rows = conn.execute(
-        "SELECT name, lat, lng, course_count, stid, story_title, story_seconds, "
+        "SELECT name, lat, lng, stid, story_title, story_seconds, "
         "       story_count, stories, story_distance_m, thumbnail "
         "FROM home_places ORDER BY rank LIMIT ?",
         (limit,),
@@ -391,7 +490,7 @@ def stages() -> list[dict]:
     out: list[dict] = []
     for entry in data.get("stages", []):
         row = conn.execute(
-            "SELECT name, lat, lng, course_count, stid, story_title, story_seconds, "
+            "SELECT name, lat, lng, stid, story_title, story_seconds, "
             "       story_count, stories, story_distance_m, thumbnail "
             "FROM home_places WHERE name = ?",
             (entry["name"],),

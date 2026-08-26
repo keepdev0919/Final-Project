@@ -11,11 +11,11 @@ from services import home_places
 
 
 def test_airport_and_terminals_are_excluded():
-    """공항·터미널이 홈에 뜨면 안 된다.
+    """공항·터미널·면세점을 관광지로 보지 않는다.
 
-    비짓제주 등장 빈도 1위가 `제주국제공항`(4,621개 코스)이다. 걸러내지 않으면
-    「제주에서 뭘 할까」를 보여주는 화면의 첫 칸이 공항이 된다.
-    2위 성산일출봉(2,668)과 격차가 커서 우연히 밀려나지도 않는다.
+    이름을 오디에서 뽑게 된 뒤로 이 규칙이 목록을 거르는 일은 없어졌다(오디에 공항
+    해설이 없다). 그래도 규칙은 남긴다 — 사진을 찾을 때 KTO 후보를 고르는 데 쓰이고,
+    오디에 교통시설 해설이 생기면 다시 필요해진다.
     """
     assert home_places.is_excluded("제주국제공항")
     assert home_places.is_excluded("제주국제공항 버스터미널")
@@ -70,24 +70,61 @@ def test_one_card_per_place(db_conn):
     이호테우말등대 · 이호테우해수욕장 · 이호테우해수욕장_old가 전부 같은 해설을 가리킨다.
     묶지 않으면 홈 10칸 중 3칸이 같은 해변이 된다.
     """
-    ranked = home_places.compute(db_conn)
-    assert ranked, "순위표가 비었다"
-    names = [p["name"] for p in ranked]
-    assert len(names) == len(set(names)), "이름이 중복됐다"
-    stids = [p["stid"] for p in ranked]
-    assert len(stids) == len(set(stids)), "같은 해설이 두 장소에 붙었다"
+    places = home_places.compute(db_conn)
+    assert places, "장소 목록이 비었다"
+    stids = [p["stid"] for p in places]
+    assert len(stids) == len(set(stids)), "같은 해설이 두 장소의 대표가 됐다"
+
+    # 해설도 두 장소에 겹쳐 들어가면 안 된다 — 한 해설은 한 장소의 것이다
+    seen: set[str] = set()
+    for place in places:
+        for story in place["stories"]:
+            assert story["stid"] not in seen, f"해설 {story['stid']}가 두 장소에 있다"
+            seen.add(story["stid"])
 
 
-def test_top_places_are_the_famous_ones(db_conn):
-    """상위 5곳에 제주 대표 관광지가 있어야 한다.
+def test_place_names_come_from_odii_titles():
+    """장소 이름을 오디 해설 제목에서 뽑아야 한다.
 
-    순위 계산이 어긋나면(빈도 대신 개수를 세거나, 코스 중복을 안 지우거나)
-    낯선 이름들이 위로 올라온다. 화면은 정상이라 눌러봐도 모른다.
+    오디 제목은 장소 이름이 아니라 **해설 제목**이라 손질이 필요하다. 세 규칙을 박아둔다.
+
+    한때 이름을 비짓제주에서 가져왔다. 그러면 두 가지가 동시에 망가진다 —
+    비짓제주에 없는 곳 18곳(사려니숲길·가파도…)이 **목록에서 통째로 사라지고**,
+    아무도 안 가져간 묶음을 근처 **식당이 가져간다**(자리돔횟집이 456m 떨어진
+    「서귀포 기적의 도서관」 해설을 선점했다). 둘 다 화면은 멀쩡해서 안 보인다.
     """
-    top5 = [p["name"] for p in home_places.compute(db_conn)[:5]]
-    assert "성산일출봉" in top5, top5
-    assert "섭지코지" in top5, top5
-    assert not any("공항" in n for n in top5), top5
+    from services.home_places import place_name_from_stories as name
+
+    # ① 여러 해설의 공통 접두어가 곧 장소 이름이다
+    assert name(["관음사 일주문", "관음사 대웅전", "관음사 해월굴"]) == "관음사"
+    assert name(["약천사 법고", "약천사 종각"]) == "약천사"
+    # 접두어가 너무 짧으면 장소 이름이 아니다 — 「산방산」과 「산방연대」의 「산방」
+    assert name(["산방산과 용머리해안", "산방연대"]) != "산방"
+
+    # ② 「수식어, 실제이름」은 쉼표 뒤가 장소다
+    assert name(["낭만적인 힐링의 섬, 가파도"]) == "가파도"
+    assert name(["하늘을 품은 바다, 평대 해변"]) == "평대 해변"
+
+    # ③ 분류 딱지는 뗀다
+    assert name(["열린관광지 - 제주도 서귀포 치유의 숲"]) == "서귀포 치유의 숲"
+
+    # 손댈 필요 없는 것은 그대로
+    assert name(["성산일출봉"]) == "성산일출봉"
+
+
+def test_place_names_are_unique(db_conn):
+    """장소 이름이 겹치면 안 된다.
+
+    홈 스테이지가 **이름으로** 장소를 찾는다. 겹치면 어느 쪽이 연결될지 알 수 없고,
+    엉뚱한 장소가 홈에 뜬 채로 출시된다.
+
+    실제로 겹친 적이 있다 — 오디에 감성 제목 시리즈가 12건 따로 있어서
+    「가파도」와 「낭만적인 힐링의 섬, 가파도」가 둘 다 「가파도」로 뽑혔다.
+    그런 것은 `data/place_names.json`에서 **stid로 짚어** 고친다.
+    """
+    names = [p["name"] for p in home_places.compute(db_conn)]
+    dupes = {n for n in names if names.count(n) > 1}
+    assert not dupes, f"이름이 겹친다: {dupes}. place_names.json에서 stid로 짚어 고칠 것"
 
 
 def test_every_place_has_a_playable_story(db_conn):

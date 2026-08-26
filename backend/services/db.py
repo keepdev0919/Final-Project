@@ -167,7 +167,6 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
             name          TEXT NOT NULL,
             lat           REAL NOT NULL,
             lng           REAL NOT NULL,
-            course_count  INTEGER NOT NULL,
             stid          TEXT NOT NULL,
             story_title   TEXT,
             story_seconds INTEGER,
