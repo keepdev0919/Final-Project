@@ -193,6 +193,47 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
         )
         """
     )
+    # ── Place 레지스트리 ────────────────────────────────────────────────
+    #
+    # **놀멍봅서 Place의 정체성은 어느 외부 공급자에도 종속되지 않는다**
+    # (2026-09-02 조익준님 결정).
+    #
+    # Odii는 이제 Place의 주 공급원이 아니라 여러 Source 중 하나다. 그래서
+    # Odii `stid`나 KTO `contentId`를 PK로 쓰지 않는다. 공급자를 바꾸거나
+    # 늘릴 때 Place가 통째로 흔들리기 때문이다.
+    #
+    # ⚠️ 이 표는 **다시 만들지 않는다(append-only).** `home_places`는
+    # `home_places.build()`가 통째로 갈아엎지만, 여기 id는 PLAY가 FK로
+    # 물고 있어서 한 번 발급하면 끝까지 같아야 한다.
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS places (
+            id           TEXT PRIMARY KEY,   -- uuid7. 놀멍봅서가 발급하고 절대 안 바꾼다
+            display_name TEXT NOT NULL,      -- 화면·검색용. identity 로 쓰지 않는다
+            lat          REAL NOT NULL,
+            lng          REAL NOT NULL,
+            created_at   REAL NOT NULL
+        )
+        """
+    )
+    # 외부 식별자. **한 Place에 여러 개가 붙을 수 있다** — 성읍 하나에 Odii stid가
+    # 8개 달리는 식이다. 반대로 한 외부 ID가 두 Place에 붙는 것은 막는다(PK).
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS place_external_ids (
+            source      TEXT NOT NULL,   -- odii | kto | visitjeju | heritage
+            external_id TEXT NOT NULL,
+            place_id    TEXT NOT NULL,
+            is_primary  INTEGER NOT NULL DEFAULT 0,
+            linked_at   REAL NOT NULL,
+            PRIMARY KEY (source, external_id)
+        )
+        """
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_place_ext_place ON place_external_ids(place_id)"
+    )
+
     conn.commit()
 
 
