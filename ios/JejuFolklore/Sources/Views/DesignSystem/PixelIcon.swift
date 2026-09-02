@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// 도트 아이콘. DESIGN.md §5 — SF Symbols를 쓰지 않는다.
+/// 도트 아이콘. SF Symbols를 쓰지 않는다.
 ///
 /// 아이콘마다 Shape를 만들면 코드가 불어난다. 8×8 문자열 격자를 그리는
 /// 렌더러 하나를 두고 모양은 데이터로 적는다. `#`이 채움, `.`이 투명이다.

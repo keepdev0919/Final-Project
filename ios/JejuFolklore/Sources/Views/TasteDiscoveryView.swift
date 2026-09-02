@@ -349,7 +349,7 @@ private struct JejuRegionMapView: UIViewRepresentable {
                 container.backgroundColor = region.isHighlighted
                     ? PixelUIColor.primary
                     : PixelUIColor.surface
-                container.layer.cornerRadius = 0  // 각진 모서리 (DESIGN.md §5)
+                container.layer.cornerRadius = 0  // 각진 모서리
                 container.layer.borderWidth = 2   // 테두리 2px
                 container.layer.borderColor = PixelUIColor.ink.cgColor
 

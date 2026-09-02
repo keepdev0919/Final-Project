@@ -36,7 +36,7 @@ STATIC_DIR = HERE / "static"
 
 # 열람 대상. 여기 없는 경로는 서버가 아예 읽지 않는다.
 DOC_DIRS = ["docs"]
-ROOT_FILES = ["CLAUDE.md", "DESIGN.md"]
+ROOT_FILES = ["CLAUDE.md"]
 
 DEFAULT_PORT = 4321
 SEARCH_MAX_HITS = 60
@@ -102,7 +102,7 @@ def build_tree() -> dict:
         flat.append(item)
 
     ordered = []
-    # 루트(CLAUDE.md·DESIGN.md)를 맨 위에 두고, 나머지 폴더는 이름순.
+    # 루트(CLAUDE.md)를 맨 위에 두고, 나머지 폴더는 이름순.
     for group in sorted(groups, key=lambda g: (g != "루트", g)):
         ordered.append({"group": group, "items": groups[group]})
 

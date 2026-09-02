@@ -415,7 +415,7 @@ def warm_thumbnails(conn, limit: int = 20) -> dict[str, int]:
 
     KTO 대표 사진(`firstimage`)을 먼저 쓰고 없으면 갤러리 첫 장을 쓴다.
     그런데 성산일출봉은 대표 사진도 **표석과 안내판이 앞을 가린 사진**이다.
-    사진 고르기는 사람이 해야 한다(`DESIGN.md` §10). 그래서 후보 전부를
+    사진 고르기는 사람이 해야 한다. 그래서 후보 전부를
     `thumbnail_candidates`에 함께 저장해 둔다 — 나중에 골라 바꿀 수 있게.
     """
     import json

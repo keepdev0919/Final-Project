@@ -9,7 +9,7 @@ struct JejuFolkloreApp: App {
     @StateObject private var authManager = AuthManager()
 
     init() {
-        // 시스템 내비게이션 바·리스트 외형을 팔레트에 맞춘다 (DESIGN.md §6).
+        // 시스템 내비게이션 바·리스트 외형을 팔레트에 맞춘다.
         PixelChrome.apply()
 
         // Firebase 구성. GoogleService-Info.plist가 번들에 없으면 호출을 건너뛴다.

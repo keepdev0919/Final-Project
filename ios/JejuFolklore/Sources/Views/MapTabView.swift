@@ -59,7 +59,7 @@ struct MapTabView: View {
         .padding(.top, PixelSpacing.m)
     }
 
-    /// 핀 뜻풀이. **색만으로 구분하지 않는다** — 모양도 다르다 (DESIGN.md §7).
+    /// 핀 뜻풀이. **색만으로 구분하지 않는다** — 모양도 다르다.
     private var legend: some View {
         HStack(spacing: PixelSpacing.l) {
             legendItem(color: PixelColor.primary, filled: true, text: "플레이 가능")

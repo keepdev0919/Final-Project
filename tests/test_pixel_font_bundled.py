@@ -32,7 +32,7 @@ POSTSCRIPT_NAMES = {
 
 @pytest.mark.parametrize("filename", REQUIRED_FONTS)
 def test_font_file_present(filename):
-    """DESIGN.md §3의 크기 사다리가 이 세 파일을 전제한다."""
+    """`PixelFont.swift`의 크기 사다리가 이 세 파일을 전제한다."""
     path = FONT_DIR / filename
     assert path.exists(), f"{path} 없음 — 폰트가 빠지면 시스템 폰트로 조용히 폴백된다"
     assert path.stat().st_size > 10_000, f"{path} 가 비어 있다"
@@ -77,7 +77,7 @@ def test_font_file_declares_expected_postscript_name(filename, postscript):
 def test_swift_uses_postscript_names():
     """갈무리를 쓰는 자리는 파일명이 아니라 PostScript 이름을 써야 한다.
 
-    ⚠️ 2026-08-20: 갈무리를 **UI 본문에서 뺐다**(DESIGN.md §3). 시안 4개가 전부
+    ⚠️ 2026-08-20: 갈무리를 **UI 본문에서 뺐다**. 시안 4개가 전부
     산세리프이고, 시안이 촘촘하고 읽기 쉬운 이유의 절반이 폰트였다.
     지금 갈무리는 **로고에만** 쓴다 — `PixelFont.logo()` 하나뿐이다.
 

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 시안 스타일 탭바 (DESIGN.md §5).
+/// 시안 스타일 탭바.
 ///
 /// **왜 직접 만드나.** SwiftUI `TabView`의 탭바는 4px 테두리·어긋난 그림자·선택 탭 채움을
 /// 넣을 수 없다. 시안의 탭바가 화면에서 늘 보이는 부분이라 여기만 기본 모양이면 눈에 띈다.
@@ -81,7 +81,7 @@ private struct SelectedTabChrome: ViewModifier {
 /// 시안 스타일 상단바 — 아래 테두리 4px + 그림자.
 struct PixelTopBar<Trailing: View>: View {
     let title: String
-    /// 앱 이름일 때만 갈무리 픽셀 폰트를 쓴다 (DESIGN.md §3).
+    /// 앱 이름일 때만 갈무리 픽셀 폰트를 쓴다.
     var isAppName: Bool = false
     var accent: Color = PixelColor.primary
     @ViewBuilder var trailing: Trailing

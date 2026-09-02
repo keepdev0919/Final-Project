@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - 그림자 (DESIGN.md §5)
+// MARK: - 그림자
 
 /// 어긋난 단색 그림자. 번지지 않는다(blur 0).
 ///
@@ -163,7 +163,7 @@ struct PixelButton: View {
 /// `PixelButton`은 제목 문자열을 받는다. 레이블을 직접 그린 `Button`에는 이걸 쓴다.
 ///
 /// 시스템 `.bordered`·`.borderedProminent`를 대신한다 — 그것들은 둥근 모서리라
-/// 시안과 어긋난다(DESIGN.md §5 "모서리를 굴리지 않는다").
+/// 시안과 어긋난다("모서리를 굴리지 않는다").
 struct PixelButtonStyle: ButtonStyle {
     var kind: PixelButton.Style = .primary
 

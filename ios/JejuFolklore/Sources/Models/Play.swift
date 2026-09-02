@@ -49,7 +49,7 @@ struct MissionOption: Decodable, Identifiable, Equatable, Hashable {
     let id: String
     let label: String
     /// 그림 보기. 배치도처럼 글자로 설명하기 어려운 것에만 쓴다.
-    /// ⚠️ 미션의 답이 되는 **현실물**을 그림으로 대체하지 않는다 (DESIGN.md §1).
+    /// ⚠️ 미션의 답이 되는 **현실물**을 그림으로 대체하지 않는다.
     let image: String?
 }
 

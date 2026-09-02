@@ -76,7 +76,7 @@ def _parse() -> tuple[dict[str, int], dict[str, int]]:
 
 
 def test_palette_matches_design_doc():
-    """코드의 팔레트가 DESIGN.md §2에 적힌 값과 같아야 한다.
+    """코드의 팔레트가 정해진 팔레트와 같아야 한다.
 
     라이트 값은 Stitch 시안 CSS에서 그대로 가져온 것이다. 시안이 라이트 전용이라
     다크는 같은 색조로 파생시켰다.

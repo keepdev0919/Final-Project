@@ -340,7 +340,7 @@ struct PlayRunnerView: View {
                 }
 
                 storyAudioButton(story)
-                // 픽셀 폰트를 쓰지 않는다 — 긴 글은 읽기가 먼저다 (DESIGN.md §3).
+                // 픽셀 폰트를 쓰지 않는다 — 긴 글은 읽기가 먼저다.
                 Text(story.script)
                     .font(PixelFont.bodyLarge)
                     .foregroundStyle(PixelColor.ink)

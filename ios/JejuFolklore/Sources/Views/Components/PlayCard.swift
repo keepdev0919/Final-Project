@@ -127,7 +127,7 @@ struct PlayCard: View {
 /// 아직 PLAY 가 없는 곳. **눌러도 게임이 없다는 것을 카드가 미리 말해준다.**
 ///
 /// 활성 카드와 색만 다르게 하지 않는다 — 도장 글자와 사진 유무로도 구분된다
-/// (DESIGN.md §7 접근성).
+/// (접근성).
 struct PreparingPlaceCard: View {
     let placeName: String
     let action: () -> Void

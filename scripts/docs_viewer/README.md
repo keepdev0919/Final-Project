@@ -39,8 +39,8 @@ scripts/docs_viewer/문서보기.command   ← 더블클릭
 
 위 네 가지는 `tests/test_docs_viewer.py`가 지킨다. 바꾸려면 테스트가 먼저 막는다.
 
-**디자인은 `DESIGN.md` 하나만 따른다.** 색·여백·테두리·폰트를 전부 거기서 가져왔다.
-별도 디자인 문서를 만들지 않았다. 본문이 읽기 폰트인 것도 `DESIGN.md` §3 규칙이다
+**디자인은 앱의 픽셀 토큰을 따른다.** 색·여백·테두리·폰트를 `ios/…/DesignSystem/` 에서 가져왔다.
+별도 디자인 문서를 만들지 않았다. 본문이 읽기 폰트인 것도 디자인 규칙 규칙이다
 ("긴 글은 픽셀 폰트를 쓰지 않는다").
 
 ## 자동 시작이 안 되는 이유
@@ -57,7 +57,7 @@ scripts/docs_viewer/문서보기.command   ← 더블클릭
 | | |
 |---|---|
 | `server.py` | 서버. 표준 라이브러리만 |
-| `static/style.css` | `DESIGN.md`를 옮긴 스타일 |
+| `static/style.css` | 앱 픽셀 토큰을 옮긴 스타일 |
 | `static/app.js` | 목록·검색·라우팅 |
 | `static/vendor/` | 마크다운 변환기, 갈무리 폰트 (오프라인 동작용) |
 | `문서보기.command` | 더블클릭 진입점 |

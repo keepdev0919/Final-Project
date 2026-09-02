@@ -21,7 +21,7 @@ enum PixelChrome {
         //    색을 **비트맵에 굽는다** → 다크 모드에서 바 배경만 어두워지고 선은 라이트
         //    잉크로 남아 경계가 사라진다. 실행 중 모드를 바꿔도 갱신되지 않는다.
         // 두께(4px)를 포기하고 동적 색을 택했다. 4px 두꺼운 경계는 탭 뿌리 화면의
-        // `PixelTopBar`가 갖는다 — 밀려 올라온 화면은 다른 상태다 (DESIGN.md §6).
+        // `PixelTopBar`가 갖는다 — 밀려 올라온 화면은 다른 상태다.
         bar.shadowColor = PixelUIColor.ink
 
         let title: [NSAttributedString.Key: Any] = [

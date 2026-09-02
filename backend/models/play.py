@@ -87,7 +87,8 @@ class Option(BaseModel):
     id: str
     label: str
     # 그림 보기. 배치도처럼 글자로 설명하기 어려운 것에 쓴다.
-    # ⚠️ **미션의 답이 되는 현실물을 그림으로 대체하지 않는다** (DESIGN.md §1).
+    # ⚠️ **미션의 답이 되는 현실물을 그림으로 대체하지 않는다.**
+    # 앱이 정답을 대신 보여주면 `관찰 → 발견 → 의미` 가 깨진다.
     image: Optional[str] = None
 
 
@@ -405,7 +406,8 @@ class MapPin(BaseModel):
     """PLAY 지도 핀 하나.
 
     `status` 가 `active` 면 지금 플레이할 수 있고, `preparing` 이면 후보다.
-    **색만으로 구분하지 않는다** — 화면에서 모양도 다르게 그린다 (DESIGN.md §7).
+    **색만으로 구분하지 않는다** — 화면에서 모양도 다르게 그린다.
+    색각 이상이 있는 사용자에게 두 상태가 같아 보이면 안 된다.
     """
     place_id: str
     place_name: str

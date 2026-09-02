@@ -1,6 +1,6 @@
 import CoreGraphics
 
-/// DESIGN.md §4·§5. 간격은 4의 배수다.
+/// 간격은 4의 배수다. 이 파일이 정본이다.
 enum PixelSpacing {
     static let xs: CGFloat = 4
     static let s: CGFloat = 8
@@ -22,7 +22,7 @@ enum PixelSpacing {
     static let buttonHeight: CGFloat = 48
     static let tabBarHeight: CGFloat = 80
 
-    // ── 테두리·그림자 (DESIGN.md §5) ────────────────────────────
+    // ── 테두리·그림자 ────────────────────────────
     // **테두리는 얇고 그림자는 크다.** 이게 이 디자인의 정체다.
     // 2026-08-20: 둘 다 4px로 뒀다가 뭉툭해져서 시안 값으로 되돌렸다.
 
