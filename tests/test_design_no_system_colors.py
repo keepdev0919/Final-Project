@@ -60,9 +60,10 @@ def test_scrim_is_not_adaptive():
 
 
 def test_pixel_icon_inherits_ambient_color():
-    """도트 아이콘은 색을 안 주면 바깥의 `.foregroundColor`를 따라야 한다.
+    """아이콘은 색을 안 주면 바깥의 `.foregroundColor`를 따라야 한다.
 
-    `Canvas`는 인자로 받은 색만 쓴다. 기본값을 잉크로 **고정하면** 바깥에서 준
+    2026-09-03 에 8×8 `Canvas` 를 걷어내고 Material Icons 글리프로 바꿨지만
+    지켜야 할 규칙은 같다. 기본값을 잉크로 **고정하면** 바깥에서 준
     `.foregroundColor(...)`가 **조용히 무시된다.** 2026-08-20 리뷰에서 이 때문에
     19곳이 틀린 색으로 그려지고 있었다 — 도착 화면의 72pt 핀이 검은 어둠막에
     묻혀 1.39:1로 안 보이고, 방문 완료 체크가 초록이 아니라 검정으로 나왔다.
@@ -74,7 +75,7 @@ def test_pixel_icon_inherits_ambient_color():
         "color가 옵셔널이 아니다 — 기본색을 고정하면 바깥 지정이 무시된다"
     assert re.search(r"color:\s*Color\?\s*=\s*nil", src), \
         "init의 color 기본값이 nil이 아니다"
-    assert ".style(.foreground)" in src, \
+    assert "AnyShapeStyle(.foreground)" in src, \
         "nil일 때 환경의 foregroundStyle을 읽지 않는다"
 
 

@@ -86,9 +86,11 @@ targets:
         # 갈무리 픽셀 폰트 (SIL OFL 1.1). 등록이 빠지면 파일이 있어도 iOS가 못 찾고
         # 시스템 폰트로 조용히 폴백된다. tests/test_pixel_font_bundled.py 참조.
         UIAppFonts:
-          - Fonts/Galmuri9.ttf
-          - Fonts/Galmuri11.ttf
-          - Fonts/Galmuri14.ttf
+          - Galmuri9.ttf
+          - Galmuri11.ttf
+          - Galmuri14.ttf
+          # 시안이 쓰는 아이콘 폰트 (Material Icons, Apache-2.0)
+          - MaterialIcons-Regular.ttf
         UILaunchScreen:
           UIColorName: ""
         UISupportedInterfaceOrientations:

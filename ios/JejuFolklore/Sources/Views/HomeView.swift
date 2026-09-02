@@ -20,12 +20,10 @@ struct HomeView: View {
     @State private var selectedPlace: PlayMapPin?
 
     var body: some View {
-        // 시안에는 상단바가 없다. 하지만 웹 목업에는 상태바가 없고 아이폰에는 있다 —
-        // 상단바를 빼면 인트로 카드가 시계 위로 올라간다(2026-09-02에 실제로 겪음).
-        // 다른 탭(코스·지도·프로필)도 전부 상단바가 있어 여기만 없으면 어긋난다.
-        VStack(spacing: 0) {
-            PixelTopBar(title: "놀멍봅서", isAppName: true)
-            ScrollView {
+        // 시안에 상단바가 없다. 「놀멍봅서」 바를 넣었던 것은 「웹 목업엔 상태바가
+        // 없으니 아이폰에선 필요하다」는 내 추측이었다 — SwiftUI 가 상태바 자리를
+        // 알아서 비운다. 시안대로 뺐다(2026-09-03).
+        ScrollView {
             VStack(alignment: .leading, spacing: PixelSpacing.sectionGap) {
                 introCard
                 questSection
@@ -35,7 +33,6 @@ struct HomeView: View {
             // ⚠️ 직접 만든 탭바는 ScrollView 가 알지 못한다. 하단 여백을 주지 않으면
             // 마지막 카드가 탭바에 가린다(2026-08-20에 실제로 겪음).
             .padding(.bottom, PixelSpacing.xxxl)
-            }
         }
         .background(PixelColor.background.ignoresSafeArea())
         .navigationBarHidden(true)
@@ -100,7 +97,7 @@ struct HomeView: View {
             // 시안: 아이콘만 파랑(secondary), 제목은 잉크, 밑줄은 잉크 4px.
             VStack(spacing: 0) {
                 HStack(spacing: PixelSpacing.s) {                    // gap-2
-                    PixelIcon(.book, size: 24, color: PixelColor.secondary)
+                    PixelIcon(.map, size: 24, color: PixelColor.secondary)   // 시안 `data-icon="map"`
                     Text("수행 가능한 퀘스트")
                         .font(PixelFont.sectionTitle)                // headline-md 24
                         .foregroundStyle(PixelColor.ink)

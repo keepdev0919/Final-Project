@@ -28,9 +28,12 @@ struct PlayCard: View {
 
                 VStack(alignment: .leading, spacing: 0) {
                     titleRow
-                        .padding(.bottom, PixelSpacing.m)
+                        // 시안 `mb-1`(4) + 별 앞의 `<br>` 이 만드는 label-sm 빈 줄(16).
+                        // Stitch 가 남긴 마크업이지만 실제로 그렇게 렌더된다.
+                        .padding(.bottom, PixelSpacing.xl)
                     StarRating(filled: play.difficultyStars)
-                        .padding(.bottom, PixelSpacing.m)
+                        // 시안 `mb-2` 와 설명의 `mt-2` 가 겹쳐 8 로 접힌다.
+                        .padding(.bottom, PixelSpacing.s)
                     Text(play.cardText)
                         // ⚠️ 시안의 `text-body-sm` 은 **Tailwind config 에 없는 클래스**다.
                         // 무시되고 브라우저 기본 16px 로 렌더된다. 클래스 이름을 믿고
@@ -205,22 +208,25 @@ private struct QuestButton: View {
     }
 }
 
-/// 난이도 별 다섯 개. 시안 14px.
+/// 난이도 별 다섯 개.
 ///
 /// 5단계 척도는 **콘텐츠를 만들면서 PLAY 끼리 견줘 정한다**(2026-09-02 결정).
-/// 시안 별색 `#F2B233` 은 우리 팔레트에 없다 —
-/// `tests/test_design_tokens.py` 가 팔레트를 정확히 고정하고 있어서
-/// 가장 가까운 역할색 `accent`(#D9AF00)를 쓴다.
+///
+/// 색은 시안이 `style="color: …"` 로 직접 박아 둔 값이다 — 테마 팔레트에 없다.
+/// 그래서 여기서도 팔레트 토큰으로 만들지 않고 이 자리에만 둔다.
 struct StarRating: View {
+    /// 시안 인라인 색.
+    private static let filledColor = Color(red: 0xF2/255, green: 0xB2/255, blue: 0x33/255)
+    private static let emptyColor  = Color(red: 0xBC/255, green: 0xCA/255, blue: 0xBC/255)
+
     let filled: Int
     var total: Int = 5
 
     var body: some View {
-        HStack(spacing: PixelSpacing.xs) {
+        HStack(spacing: PixelSpacing.xs) {                       // gap-1
             ForEach(0..<total, id: \.self) { i in
-                PixelIcon(.star, size: 16,
-                          color: i < filled ? PixelColor.accent
-                                            : PixelColor.outlineVariant)
+                PixelIcon(.star, size: 14,                       // 시안 `text-[14px]`
+                          color: i < filled ? Self.filledColor : Self.emptyColor)
             }
         }
         .accessibilityElement(children: .ignore)

@@ -80,6 +80,7 @@
 		E6EA2A2EE0C5198E6788CEEE /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 88F2B5856C2815B6FA279A89 /* FirebaseFirestore */; };
 		F475DC455EF699B2C68D1803 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8932708010A3431E486DF98 /* APIClient.swift */; };
 		F5FDCEF545D4023A70256DEC /* PlayCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F89AFFDE8A57B6CA8E1D40 /* PlayCard.swift */; };
+		F6293A665BCC1AEA370BE95C /* MaterialIcons-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 52D86945625489F0FAF637E3 /* MaterialIcons-Regular.ttf */; };
 		F8D4029F14FE4EC28785AD5F /* PlaceReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EB46F8631558DA14B8DE90F /* PlaceReviewSheet.swift */; };
 		FB5B56BEEBB0650A986C18EC /* PlayDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F59CC64DB30B5F69512C4E /* PlayDetailView.swift */; };
 /* End PBXBuildFile section */
@@ -107,6 +108,7 @@
 		4D5CC6DDEC1C1B656071D157 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewModel.swift; sourceTree = "<group>"; };
 		50714B04510A0105DCCEE895 /* debug-route.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "debug-route.gpx"; sourceTree = "<group>"; };
+		52D86945625489F0FAF637E3 /* MaterialIcons-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "MaterialIcons-Regular.ttf"; sourceTree = "<group>"; };
 		56510A2D59EB508CE47BE90F /* JejuRegion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JejuRegion.swift; sourceTree = "<group>"; };
 		58575F513772C542278732E4 /* MapTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapTabView.swift; sourceTree = "<group>"; };
 		5BFC0010E988BDABFC32500E /* PixelGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelGalleryView.swift; sourceTree = "<group>"; };
@@ -247,6 +249,7 @@
 				8106FE651DF3B5201C58AE54 /* Galmuri9.ttf */,
 				E25C6E205C7D773FC22CA00E /* Galmuri11.ttf */,
 				680EEF39BE20B00165C19DAA /* Galmuri14.ttf */,
+				52D86945625489F0FAF637E3 /* MaterialIcons-Regular.ttf */,
 				DE6EAC554294F429D6DA6C88 /* OFL.txt */,
 			);
 			name = Fonts;
@@ -438,6 +441,7 @@
 				72807356FA10C0EE8D9EC901 /* Galmuri14.ttf in Resources */,
 				1063ECB9D961E9145B031E02 /* Galmuri9.ttf in Resources */,
 				59BC2160448B1CDAE4804A6D /* GoogleService-Info.plist in Resources */,
+				F6293A665BCC1AEA370BE95C /* MaterialIcons-Regular.ttf in Resources */,
 				4376C2AAA8BD0BDF615AB8A6 /* OFL.txt in Resources */,
 				18E4CA6BBCC86AD84FCFD234 /* jeju-stone-park.png in Resources */,
 				E5FFD4F4F6D0F52E73744CAA /* seongeup-folk-village.png in Resources */,

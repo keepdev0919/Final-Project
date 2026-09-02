@@ -52,9 +52,10 @@
 	<string>말한 내용을 글자로 바꾸기 위해 Apple 음성 인식을 사용합니다. 이 앱은 음성을 저장하지 않습니다.</string>
 	<key>UIAppFonts</key>
 	<array>
-		<string>Fonts/Galmuri9.ttf</string>
-		<string>Fonts/Galmuri11.ttf</string>
-		<string>Fonts/Galmuri14.ttf</string>
+		<string>Galmuri9.ttf</string>
+		<string>Galmuri11.ttf</string>
+		<string>Galmuri14.ttf</string>
+		<string>MaterialIcons-Regular.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

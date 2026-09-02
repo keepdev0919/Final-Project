@@ -66,9 +66,10 @@ struct ContentView: View {
             }
             PixelTabBar(items: [
                 .init(tab: .home,    title: "퀘스트", icon: .quest),
-                // 코스 = 여러 곳을 이은 길이라 경로선, 지도 = 흩어진 점이라 핀을 쓴다.
-                .init(tab: .course,  title: "코스",   icon: .map),
-                .init(tab: .map,     title: "지도",   icon: .mapPin),
+                // 시안 그대로다 — 코스는 나침반(explore), 지도는 접힌 지도(map).
+                // 예전에 코스=지도·지도=핀으로 바꿔 뒀던 것은 내 판단이었다(2026-09-03 정정).
+                .init(tab: .course,  title: "코스",   icon: .compass),
+                .init(tab: .map,     title: "지도",   icon: .map),
                 .init(tab: .profile, title: "프로필", icon: .person),
             ], selection: selectedTabBinding)
         }
