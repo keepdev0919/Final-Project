@@ -246,7 +246,8 @@ struct PlayDetailView: View {
     /// 주차장 좌표가 확정되면 첫 Point 앞에 「START — 주차장」 단계를 하나 넣는다.
     @ViewBuilder
     private func ctaSection(_ play: Play) -> some View {
-        PixelButton(title: vm.hasProgress ? "이어서 하기" : "PLAY 시작", style: .primary) {
+        PixelButton(title: vm.hasProgress ? play.resumeLabel : play.startLabel,
+                    style: .primary) {
             showRunner = true
         }
         .padding(PixelSpacing.screenMargin)

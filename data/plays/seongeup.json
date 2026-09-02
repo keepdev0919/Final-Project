@@ -23,6 +23,8 @@
   "distance_meters": 1000,
   "difficulty": "쉬움",
 
+  "start_cta": "복원 시작",
+
   "progress_label": "생활기록",
   "progress_records": [
     { "id": "boundary", "label": "경계" },

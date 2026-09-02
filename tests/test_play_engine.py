@@ -226,6 +226,19 @@ class TestSeongeupContent:
         m02 = next(m for p in seongeup.points for m in p.missions if m.id == "m02")
         assert m02.discovery is not None and m02.progress_reward == "boundary"
 
+    def test_시작_버튼_문구가_원고에서_온다(self, seongeup):
+        """**버튼 문구는 Game Fantasy 의 일부다** (2026-09-02 결정).
+
+        정본은 버튼을 세계관 말로 쓴다 — `[복원 시작]` · `[조사 계속]` ·
+        `[기록 복원 완료]`. 「PLAY 시작」 같은 시스템 말이 끼면
+
+            기록 복원자 → 생활기록 2/6 → 기록 복원 완료
+
+        로 이어지던 줄이 한 번 끊긴다. 화면에 문구를 하드코딩하면 다음 PLAY 를
+        만들 때 그 PLAY 의 세계관 말을 쓸 수 없게 된다.
+        """
+        assert seongeup.start_cta == "복원 시작"
+
     def test_대표_시연_미션은_호령창이다(self, seongeup):
         """심사위원에게 하나만 보여준다면 이것이다.
 
