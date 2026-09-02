@@ -22,6 +22,7 @@
   "estimated_minutes_max": 75,
   "distance_meters": 1000,
   "difficulty": "쉬움",
+  "difficulty_stars": 2,
 
   "start_cta": "복원 시작",
 

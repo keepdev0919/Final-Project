@@ -193,7 +193,8 @@ struct PixelCard<Content: View>: View {
     var body: some View {
         content
             .background(PixelColor.surface)
-            .pixelBorder()
+            // 시안의 `.pixel-border` — 4px 테두리 + 4px 그림자 (2026-09-02 시안 기준).
+            .pixelBorder(width: PixelSpacing.borderHeavy)
             .modifier(OptionalCorners(on: corners))
             .pixelShadow(strong ? PixelSpacing.shadowStrong : PixelSpacing.shadowCard)
     }

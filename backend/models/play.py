@@ -319,6 +319,12 @@ class Play(BaseModel):
     estimated_minutes_max: int
     distance_meters: int
     difficulty: Difficulty
+    # 난이도 별 (1~5). 홈 카드가 쓴다.
+    #
+    # `difficulty` 글자와 같은 것을 두 가지로 표현한다 — 카드는 별, 상세는 글자.
+    # 5단계 척도는 **콘텐츠를 만들면서 PLAY 끼리 견줘 정한다**(2026-09-02 결정).
+    # 지금은 성읍 하나뿐이라 기준점이 없다. 두 번째 PLAY 를 만들 때 다시 본다.
+    difficulty_stars: int = Field(default=0, ge=0, le=5)
 
     progress_label: str = ""    # 「생활기록」
     progress_records: list[ProgressRecord] = Field(default_factory=list)
@@ -398,6 +404,7 @@ class PlaySummary(BaseModel):
     estimated_minutes_max: int
     distance_meters: int
     difficulty: Difficulty
+    difficulty_stars: int = 0
     mission_count: int
     thumbnail: Optional[str] = None
 
@@ -414,4 +421,6 @@ class MapPin(BaseModel):
     lat: float
     lng: float
     status: Literal["active", "preparing"]
+    # 준비 중인 곳도 카드에 사진이 필요하다. PLAY 요약에만 두면 준비 중 카드가 빈다.
+    thumbnail: Optional[str] = None
     play: Optional[PlaySummary] = None

@@ -1,75 +1,152 @@
 import SwiftUI
 
-/// 홈의 PLAY 카드.
+/// 퀘스트 카드 — 홈의 주인공.
 ///
-/// 장소를 설명하지 않는다. **여기서 무슨 게임을 하게 되는지**를 보여준다.
-/// 그래서 제목이 장소명이 아니라 PLAY 제목이고, 장소명은 그 아래 작게 붙는다.
+/// 시안(2026-09-02) 그대로다. 활성과 준비 중이 **같은 크기·같은 뼈대**를 쓰고,
+/// 사진의 색과 자물쇠, 버튼 상태로만 갈린다. 크기가 다르면 목록이 들쭉날쭉해지고
+/// "준비 중인 곳도 언젠가 이만큼 된다"는 인상이 사라진다.
 ///
-/// 담는 것 (`콘텐츠.md` §5 · `레퍼런스.md` §7):
+///     [커버]
+///     성읍 생활기록 복원작전        🕐 60-75분
+///     ★★☆☆☆
+///     네 채의 집을 직접 조사하여…
+///     [ 퀘스트 수락 ]
 ///
-///     [실사 사진]
-///     성읍 생활기록 복원작전     ← PLAY 제목
-///     성읍민속마을              ← 장소명
-///     60~75분 · 약 1km · 쉬움
-///     8 Missions
-///     네 채의 옛집을 조사해…     ← 한 줄 목표
-///
-/// 시간·거리·난이도·Mission 수를 시작 전에 보여주는 것은 레퍼런스에서 가져온
-/// 규칙이다. 얼마나 걷고 얼마나 걸리는지 모르면 현장에서 시작을 못 누른다.
+/// 거리와 미션 수는 **일부러 뺐다**(조익준님 결정). 카드가 벽이 되지 않게
+/// 하고, 그 둘은 PLAY 상세에서 보여준다.
 struct PlayCard: View {
     let play: PlaySummary
-    /// 진행 중이면 「생활기록 4 / 6」처럼 표시한다. 없으면 안 뜬다.
+    /// 진행 중이면 「이어서 하기」처럼 버튼 문구가 바뀐다.
     var progressText: String? = nil
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            PixelCard {
-                VStack(alignment: .leading, spacing: PixelSpacing.m) {
-                    photo
-                    Text(play.title)
-                        .font(PixelFont.sectionTitle)
-                        .foregroundStyle(PixelColor.ink)
-                        .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Text(play.placeName)
-                        .font(PixelFont.labelSmall)
-                        .foregroundStyle(PixelColor.inkWeak)
-                    metaRow
+        PixelCard {
+            VStack(alignment: .leading, spacing: PixelSpacing.l) {
+                cover
+                VStack(alignment: .leading, spacing: PixelSpacing.s) {
+                    titleRow
+                    StarRating(filled: play.difficultyStars)
                     if !play.objective.isEmpty {
                         Text(play.objective)
                             .font(PixelFont.body)
                             .foregroundStyle(PixelColor.inkWeak)
                             .multilineTextAlignment(.leading)
+                            .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
-                .padding(PixelSpacing.cardPadding)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                PixelButton(title: progressText ?? "퀘스트 수락",
+                            style: .primary, action: action)
             }
+            .padding(PixelSpacing.cardPadding)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
-            "\(play.title). \(play.placeName). "
-            + "\(play.durationText), \(play.distanceText), 난이도 \(play.difficulty), "
-            + "미션 \(play.missionCount)개. \(play.objective)"
-        )
+            "\(play.title). \(play.placeName). \(play.durationText). "
+            + "난이도 별 \(play.difficultyStars)개. \(play.objective)")
         .accessibilityAddTraits(.isButton)
+        .accessibilityAction { action() }
     }
 
-    // MARK: - 사진
+    private var titleRow: some View {
+        HStack(alignment: .firstTextBaseline, spacing: PixelSpacing.s) {
+            Text(play.title)
+                .font(PixelFont.sectionTitle)
+                .foregroundStyle(PixelColor.ink)
+                .lineLimit(1)
+                .truncationMode(.tail)
+            Spacer(minLength: 0)
+            HStack(spacing: PixelSpacing.xs) {
+                PixelIcon(.clock, size: 14, color: PixelColor.inkWeak)
+                Text(play.durationText)
+                    .font(PixelFont.labelSmall)
+                    .foregroundStyle(PixelColor.inkWeak)
+            }
+            .layoutPriority(1)
+        }
+    }
 
     @ViewBuilder
-    private var photo: some View {
+    private var cover: some View {
+        CoverImage(url: play.thumbnail, dimmed: false)
+    }
+}
+
+// MARK: - 준비 중 카드
+
+/// 아직 PLAY 가 없는 곳.
+///
+/// 활성 카드와 **같은 뼈대**에 사진을 흑백으로 낮추고 자물쇠를 얹는다.
+/// 색만으로 구분하지 않는다 — 자물쇠·회색 별·비활성 버튼이 같이 말한다.
+struct PreparingPlaceCard: View {
+    let placeName: String
+    let thumbnail: String?
+    let action: () -> Void
+
+    var body: some View {
+        PixelCard {
+            VStack(alignment: .leading, spacing: PixelSpacing.l) {
+                CoverImage(url: thumbnail, dimmed: true)
+                VStack(alignment: .leading, spacing: PixelSpacing.s) {
+                    HStack(alignment: .firstTextBaseline, spacing: PixelSpacing.s) {
+                        Text(placeName)
+                            .font(PixelFont.sectionTitle)
+                            .foregroundStyle(PixelColor.ink)
+                            .lineLimit(1)
+                        Spacer(minLength: 0)
+                        Text("준비 중")
+                            .font(PixelFont.labelSmall)
+                            .foregroundStyle(PixelColor.inkWeak)
+                    }
+                    // 별은 회색으로 다 비워 둔다 — 아직 난이도를 정하지 않았다.
+                    StarRating(filled: 0)
+                    Text("준비 중인 퀘스트입니다.")
+                        .font(PixelFont.body)
+                        .foregroundStyle(PixelColor.inkWeak)
+                }
+                Button(action: action) {
+                    Text("준비 중")
+                        .font(PixelFont.label)
+                        .foregroundStyle(PixelColor.outline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, PixelSpacing.m)
+                        .background(PixelColor.surfaceVariant)
+                        .pixelBorder()
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(PixelSpacing.cardPadding)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(placeName). 퀘스트 준비 중. 장소 정보를 봅니다.")
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { action() }
+    }
+}
+
+// MARK: - 부품
+
+/// 카드 커버.
+///
+/// ⚠️ 지금은 KTO 실사 사진이다. **픽셀 커버로 바꾸기로 했지만**(2026-09-02)
+/// 아직 그림 파일이 없다. 시안에서 뽑아 넣으면 여기만 바뀐다.
+private struct CoverImage: View {
+    let url: String?
+    /// 준비 중이면 흑백으로 낮추고 자물쇠를 얹는다.
+    let dimmed: Bool
+
+    var body: some View {
         ZStack {
-            PixelColor.surfaceHigh
-            if let urlString = play.thumbnail, let url = URL(string: urlString) {
-                AsyncImage(url: url) { phase in
+            PixelColor.surfaceDim
+            if let url, let u = URL(string: url) {
+                AsyncImage(url: u) { phase in
                     switch phase {
                     case .success(let image): image.resizable().scaledToFill()
                     case .failure: PixelIcon(.photo, size: 40, color: PixelColor.inkWeak)
-                    default: PixelColor.surfaceHigh
+                    default: PixelColor.surfaceDim
                     }
                 }
             } else {
@@ -79,82 +156,38 @@ struct PlayCard: View {
         .frame(height: 160)
         .frame(maxWidth: .infinity)
         .clipped()
-        .overlay(alignment: .bottomLeading) { statusStamp }
-        .pixelBorder()
+        .grayscale(dimmed ? 1 : 0)
+        .opacity(dimmed ? 0.5 : 1)
+        .overlay {
+            if dimmed { PixelIcon(.lock, size: 36, color: PixelColor.ink) }
+        }
+        .pixelBorder(width: PixelSpacing.border)
+        .pixelShadow(PixelSpacing.shadowSmall)
         .accessibilityHidden(true)
-    }
-
-    /// 진행 상태 도장. 안 한 것과 하다 만 것이 눈에 확 다르게.
-    private var statusStamp: some View {
-        Text(progressText ?? "PLAY")
-            .font(PixelFont.label)
-            .foregroundStyle(progressText == nil ? PixelColor.onAccent : PixelColor.onPrimary)
-            .padding(.horizontal, PixelSpacing.s)
-            .padding(.vertical, PixelSpacing.xs)
-            .background(progressText == nil ? PixelColor.accent : PixelColor.primary)
-            .pixelBorder()
-            .rotationEffect(.degrees(-3))
-            .padding(PixelSpacing.s)
-    }
-
-    // MARK: - 메타
-
-    private var metaRow: some View {
-        VStack(alignment: .leading, spacing: PixelSpacing.xs) {
-            HStack(spacing: PixelSpacing.s) {
-                metaItem(.clock, play.durationText)
-                metaItem(.map, play.distanceText)
-                metaItem(.target, play.difficulty)
-            }
-            Text("\(play.missionCount) Missions")
-                .font(PixelFont.label)
-                .foregroundStyle(PixelColor.ink)
-        }
-    }
-
-    private func metaItem(_ icon: PixelIcon.Glyph, _ text: String) -> some View {
-        HStack(spacing: PixelSpacing.xs) {
-            PixelIcon(icon, size: 14, color: PixelColor.inkWeak)
-            Text(text)
-                .font(PixelFont.labelSmall)
-                .foregroundStyle(PixelColor.inkWeak)
-        }
     }
 }
 
-// MARK: - 준비 중 카드
-
-/// 아직 PLAY 가 없는 곳. **눌러도 게임이 없다는 것을 카드가 미리 말해준다.**
+/// 난이도 별 다섯 개.
 ///
-/// 활성 카드와 색만 다르게 하지 않는다 — 도장 글자와 사진 유무로도 구분된다
-/// (접근성).
-struct PreparingPlaceCard: View {
-    let placeName: String
-    let action: () -> Void
+/// 5단계 척도는 **콘텐츠를 만들면서 PLAY 끼리 견줘 정한다**(2026-09-02 결정).
+/// 지금은 성읍(별 2) 하나뿐이라 기준점이 없다.
+///
+/// 시안의 별색은 `#F2B233` 인데 **우리 팔레트에 없다.** 팔레트는
+/// `tests/test_design_tokens.py` 가 정확히 고정하고 있어서 새 색을 넣을 수 없다.
+/// 가장 가까운 역할색인 `accent`(#D9AF00)를 쓴다.
+struct StarRating: View {
+    let filled: Int
+    var total: Int = 5
 
     var body: some View {
-        Button(action: action) {
-            PixelCard {
-                HStack(spacing: PixelSpacing.m) {
-                    PixelIcon(.lock, size: 24, color: PixelColor.inkWeak)
-                    VStack(alignment: .leading, spacing: PixelSpacing.xs) {
-                        Text(placeName)
-                            .font(PixelFont.body)
-                            .foregroundStyle(PixelColor.ink)
-                        Text("PLAY 준비 중")
-                            .font(PixelFont.labelSmall)
-                            .foregroundStyle(PixelColor.inkWeak)
-                    }
-                    Spacer(minLength: 0)
-                    PixelIcon(.forward, size: 16, color: PixelColor.inkWeak)
-                }
-                .padding(PixelSpacing.cardPadding)
-                .frame(maxWidth: .infinity, alignment: .leading)
+        HStack(spacing: PixelSpacing.xs) {
+            ForEach(0..<total, id: \.self) { i in
+                PixelIcon(.star, size: 14,
+                          color: i < filled ? PixelColor.accent
+                                            : PixelColor.outlineVariant)
             }
         }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(placeName). PLAY 준비 중. 장소 정보를 봅니다.")
-        .accessibilityAddTraits(.isButton)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(filled > 0 ? "난이도 별 \(filled)개" : "난이도 미정")
     }
 }

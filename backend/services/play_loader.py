@@ -130,6 +130,7 @@ def summarize(conn, play: Play) -> PlaySummary:
         estimated_minutes_max=play.estimated_minutes_max,
         distance_meters=play.distance_meters,
         difficulty=play.difficulty,
+        difficulty_stars=play.difficulty_stars,
         mission_count=play.mission_count,
         thumbnail=_thumbnail(conn, play.place_id),
     )
@@ -167,6 +168,7 @@ def map_pins(conn) -> list[MapPin]:
             lat=place["lat"],
             lng=place["lng"],
             status="active" if plays else "preparing",
+            thumbnail=_thumbnail(conn, place["id"]),
             # 한 Place 에 PLAY 가 여럿이면 핀에는 첫 번째만 붙인다.
             # 전부 보려면 장소 상세의 「이 장소에서 할 수 있는 PLAY」 로 간다.
             play=summarize(conn, plays[0]) if plays else None,

@@ -215,6 +215,9 @@ struct Play: Decodable, Identifiable, Equatable {
     let estimatedMinutesMax: Int
     let distanceMeters: Int
     let difficulty: String
+    /// 난이도 별 (1~5). 홈 카드가 쓴다.
+    /// 5단계 척도는 콘텐츠를 만들면서 PLAY 끼리 견줘 정한다 (2026-09-02 결정).
+    let difficultyStars: Int
 
     let progressLabel: String
     let progressRecords: [ProgressRecord]
@@ -298,6 +301,7 @@ struct PlaySummary: Decodable, Identifiable, Equatable, Hashable {
     let estimatedMinutesMax: Int
     let distanceMeters: Int
     let difficulty: String
+    let difficultyStars: Int
     let missionCount: Int
     let thumbnail: String?
 
@@ -330,6 +334,7 @@ struct PlayMapPin: Decodable, Identifiable, Equatable, Hashable {
     let lat: Double
     let lng: Double
     let status: Status
+    let thumbnail: String?
     let play: PlaySummary?
 
     var id: String { placeId }

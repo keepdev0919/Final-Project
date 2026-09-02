@@ -65,7 +65,7 @@ struct ContentView: View {
                 tabContent(.profile) { ProfileTabView().environmentObject(authManager) }
             }
             PixelTabBar(items: [
-                .init(tab: .home,    title: "홈",     icon: .home),
+                .init(tab: .home,    title: "퀘스트", icon: .quest),
                 // 코스 = 여러 곳을 이은 길이라 경로선, 지도 = 흩어진 점이라 핀을 쓴다.
                 .init(tab: .course,  title: "코스",   icon: .map),
                 .init(tab: .map,     title: "지도",   icon: .mapPin),
