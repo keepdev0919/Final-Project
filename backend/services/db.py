@@ -202,22 +202,31 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
     # Odii `stid`나 KTO `contentId`를 PK로 쓰지 않는다. 공급자를 바꾸거나
     # 늘릴 때 Place가 통째로 흔들리기 때문이다.
     #
-    # ⚠️ 이 표는 **다시 만들지 않는다(append-only).** `home_places`는
-    # `home_places.build()`가 통째로 갈아엎지만, 여기 id는 PLAY가 FK로
-    # 물고 있어서 한 번 발급하면 끝까지 같아야 한다.
+    # `place_key`는 놀멍봅서가 정한 **자체 불변 키**다(`data/places.json`).
+    # 이름도 좌표도 외부 ID도 아니다 — 그래야 이름이 바뀌거나 오디를 안 쓰게 돼도
+    # Place 가 그대로 남는다.
+    #
+    # ⚠️ 이 표는 **다시 만들지 않는다(append-only).** 여기 id는 PLAY 와 진행 기록이
+    # FK로 물고 있어서 한 번 발급하면 끝까지 같아야 한다.
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS places (
             id           TEXT PRIMARY KEY,   -- uuid7. 놀멍봅서가 발급하고 절대 안 바꾼다
+            place_key    TEXT NOT NULL UNIQUE,
             display_name TEXT NOT NULL,      -- 화면·검색용. identity 로 쓰지 않는다
             lat          REAL NOT NULL,
             lng          REAL NOT NULL,
+            status       TEXT NOT NULL DEFAULT 'CANDIDATE',
             created_at   REAL NOT NULL
         )
         """
     )
-    # 외부 식별자. **한 Place에 여러 개가 붙을 수 있다** — 성읍 하나에 Odii stid가
-    # 8개 달리는 식이다. 반대로 한 외부 ID가 두 Place에 붙는 것은 막는다(PK).
+    # 외부 식별자 = **Place 의 정체성이 아니라 바깥 자료로 가는 다리**다(데이터.md §3).
+    # 한 Place 에 여러 개가 붙을 수 있고(KTO contentId + Odii stid + 국가유산 ID …),
+    # 한 외부 ID 가 두 Place 에 붙는 것은 막는다(PK).
+    #
+    # ⚠️ **Place 를 찾는 열쇠로 쓰지 않는다.** 그건 `places.place_key` 가 한다.
+    # 여기에 의존하면 특정 공급자를 끊는 순간 Place 를 못 찾게 된다.
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS place_external_ids (

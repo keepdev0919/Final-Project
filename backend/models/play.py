@@ -293,22 +293,14 @@ class ProgressRecord(BaseModel):
 
 # ── PLAY ──────────────────────────────────────────────────────────────────────
 
-class PlaceRef(BaseModel):
-    """콘텐츠 파일이 Place 를 가리키는 방법.
-
-    사람이 손으로 쓰는 파일에 uuid 를 적게 하지 않는다. 외부 ID로 적으면
-    불러올 때 레지스트리가 **놀멍봅서 place_id 로 바꿔준다**
-    (`services/play_loader.py`). 저장된 PLAY 는 place_id 를 물고 있다.
-    """
-    source: str
-    external_id: str
-
-
 class Play(BaseModel):
     id: str
-    # 놀멍봅서가 발급한 불변 Place ID. 파일에는 place_ref 로 적고 불러올 때 채운다.
+    # 원고가 Place 를 가리키는 방법. `data/places.json` 의 자체 키다.
+    # ⚠️ 오디 stid 같은 외부 ID 로 가리키지 않는다 — 그 공급자를 끊는 순간
+    # Place 를 못 찾게 된다 (2026-09-02 결정).
+    place_key: str
+    # 불러올 때 레지스트리가 채운다. 저장된 PLAY 가 FK 로 무는 값이다.
     place_id: str = ""
-    place_ref: Optional[PlaceRef] = None
     place_name: str = ""        # 화면 표시용. identity 가 아니다
 
     title: str                  # 「성읍 생활기록 복원작전」

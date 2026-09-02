@@ -37,50 +37,59 @@ def seongeup(conn) -> Play:
 
 # ── Place 정체성 ──────────────────────────────────────────────────────────────
 
+SEONGEUP_KEY = "seongeup-folk-village"
+
+
 class TestPlaceIdentity:
     """**놀멍봅서 Place 의 정체성은 어느 공급자에도 종속되지 않는다** (2026-09-02 결정).
 
-    Odii `stid` 를 Place PK 로 쓰는 안을 검토했으나 채택하지 않았다. Odii 는 이제
-    Place 의 주 공급원이 아니라 여러 Source 중 하나이고, 특정 공급자의 ID 를 내부
-    PK 로 쓰면 공급자를 바꾸거나 늘릴 때 Place 가 통째로 흔들리기 때문이다.
+    Odii `stid` 를 Place 를 찾는 열쇠로 쓰는 안을 잠깐 썼다가 걷어냈다.
+    오디는 이제 콘텐츠 조사 Source 중 하나일 뿐인데, 그것으로 Place 를 찾게
+    만들면 **오디를 안 쓰는 순간 장소를 못 찾는다.** 열쇠는 우리가 쥔다.
     """
 
-    def test_place_id_는_외부_id_가_아니다(self, conn):
-        """place_id 에 stid 를 그대로 넣지 않는다.
-
-        여기가 무너지면 "Odii 를 안 쓰게 되면 Place 가 사라지는" 구조로 되돌아간다.
-        """
-        pid = registry.find_by_external(conn, registry.SOURCE_ODII, "2166")
-        assert pid is not None
-        assert pid != "2166"
+    def test_place_id_는_우리가_발급한다(self, conn):
+        place = registry.by_key(conn, SEONGEUP_KEY)
+        assert place is not None
+        pid = place["id"]
         assert len(pid) == 36 and pid.count("-") == 4, "uuid 형식이어야 합니다"
+        # 어떤 외부 ID 와도 같지 않다
+        assert pid not in {e["external_id"] for e in place["external_ids"]}
 
-    def test_한_place_에_여러_외부_id_가_붙는다(self, conn):
-        """성읍 하나에 Odii 해설이 8건 달린다.
+    def test_외부_id_없이도_place_가_성립한다(self, conn):
+        """외부 ID 는 **바깥 자료로 가는 다리이지 정체성이 아니다** (데이터.md §3).
 
-        `Place 1 : N external_id` 가 아니면 "이 장소의 오디 해설 전부"를 못 찾고,
-        나중에 KTO contentId·국가유산 ID 를 같이 붙일 수도 없다.
+        오디에도 KTO 에도 없는 장소를 나중에 PLAY 로 만들 수 있어야 한다.
         """
-        pid = registry.find_by_external(conn, registry.SOURCE_ODII, "2166")
-        stids = registry.external_ids(conn, pid, registry.SOURCE_ODII)
-        assert len(stids) >= 8, f"성읍에 붙은 stid 가 {len(stids)}개뿐입니다"
-        assert "982" in stids and "2161" in stids
+        pid = registry.ensure_by_key(
+            conn, place_key="test-no-external", display_name="외부ID없는곳",
+            lat=33.0, lng=126.0,
+        )
+        assert registry.get(conn, pid)["external_ids"] == []
+        conn.execute("DELETE FROM places WHERE place_key = ?", ("test-no-external",))
+        conn.commit()
+
+    def test_한_place_에_여러_외부_id_를_붙일_수_있다(self, conn):
+        """KTO contentId + Odii stid + 국가유산 ID 를 같이 붙일 수 있어야 한다."""
+        pid = registry.by_key(conn, SEONGEUP_KEY)["id"]
+        registry.link_external(conn, pid, registry.SOURCE_KTO, "test-kto-1")
+        assert registry.external_ids(conn, pid, registry.SOURCE_KTO) == ["test-kto-1"]
+        conn.execute("DELETE FROM place_external_ids WHERE external_id = ?", ("test-kto-1",))
+        conn.commit()
 
     def test_한_외부_id_는_한_place_에만_붙는다(self, conn):
-        """같은 stid 가 두 Place 를 오가면 PLAY 의 Story 연결이 조용히 끊긴다."""
-        pid = registry.find_by_external(conn, registry.SOURCE_ODII, "2166")
+        """같은 ID 가 두 Place 를 오가면 어느 장소의 자료인지 알 수 없게 된다."""
         other = registry.new_place_id()
         with pytest.raises(ValueError):
             registry.link_external(conn, other, registry.SOURCE_ODII, "2166")
 
     def test_다시_동기화해도_place_id_가_그대로다(self, conn):
-        """`home_places` 는 build() 가 통째로 갈아엎지만 place_id 는 PLAY 가 FK 로
-        물고 있다. 재발급되면 이미 만든 PLAY 가 전부 미아가 된다.
+        """place_id 는 PLAY 와 사용자 진행 기록이 FK 로 물고 있다.
+        재발급되면 전부 미아가 된다.
         """
-        before = registry.find_by_external(conn, registry.SOURCE_ODII, "2166")
-        registry.sync_from_home_places(conn)
-        after = registry.find_by_external(conn, registry.SOURCE_ODII, "2166")
-        assert before == after
+        before = registry.by_key(conn, SEONGEUP_KEY)["id"]
+        registry.sync_from_file(conn)
+        assert registry.by_key(conn, SEONGEUP_KEY)["id"] == before
 
     def test_이름은_identity_가_아니다(self, conn):
         """이름이 바뀌어도 Place 는 같아야 한다.
@@ -88,11 +97,22 @@ class TestPlaceIdentity:
         전에는 이름 문자열이 사실상 키였다 — `home_stage.json` 의 name 이
         `home_places.name` 과 한 글자만 달라도 카드가 조용히 사라졌다.
         """
-        pid = registry.find_by_external(conn, registry.SOURCE_ODII, "2166")
+        pid = registry.by_key(conn, SEONGEUP_KEY)["id"]
         conn.execute("UPDATE places SET display_name = ? WHERE id = ?", ("잠깐다른이름", pid))
-        assert registry.find_by_external(conn, registry.SOURCE_ODII, "2166") == pid
-        conn.execute("UPDATE places SET display_name = ? WHERE id = ?", ("성읍민속마을", pid))
+        assert registry.by_key(conn, SEONGEUP_KEY)["id"] == pid
         conn.commit()
+        registry.sync_from_file(conn)  # 이름을 되돌린다
+
+    def test_오디_없이도_place_를_찾을_수_있다(self, conn):
+        """열쇠가 place_key 이지 stid 가 아니라는 것을 못 박는다.
+
+        여기가 무너지면 "오디를 끊으면 장소가 사라지는" 구조로 되돌아간다.
+        """
+        pid = registry.by_key(conn, SEONGEUP_KEY)["id"]
+        conn.execute("DELETE FROM place_external_ids WHERE place_id = ?", (pid,))
+        assert registry.by_key(conn, SEONGEUP_KEY)["id"] == pid
+        conn.commit()
+        registry.sync_from_file(conn)  # 다리를 되돌린다
 
 
 # ── PLAY ↔ Place ──────────────────────────────────────────────────────────────
@@ -101,11 +121,12 @@ class TestPlayReferencesPlaceId:
     def test_play_는_place_id_를_fk_로_문다(self, conn, seongeup):
         """PLAY 가 외부 ID 를 직접 물면 공급자 교체가 불가능해진다.
 
-        원고 파일에는 사람이 읽을 수 있는 `place_ref`(odii:2166)로 적고,
+        원고 파일에는 우리 자체 키(`seongeup-folk-village`)로 적고,
         불러올 때 레지스트리가 place_id 로 바꾼다.
         """
         assert seongeup.place_id
-        assert seongeup.place_id != seongeup.place_ref.external_id
+        assert seongeup.place_key == SEONGEUP_KEY
+        assert seongeup.place_id != seongeup.place_key
         assert registry.get(conn, seongeup.place_id) is not None
 
     def test_place_에서_play_를_찾을_수_있다(self, conn, seongeup):
@@ -125,10 +146,20 @@ class TestMapIsPlayMap:
     오디 121곳은 **내부 콘텐츠 후보 Pool 로만** 남는다.
     """
 
-    def test_오디_121곳을_사용자에게_뿌리지_않는다(self, conn):
-        """여기가 무너지면 "PLAY 5곳"이 "해설 121곳"에 묻혀 안 보인다."""
+    def test_오디_장소를_사용자에게_뿌리지_않는다(self, conn):
+        """지도에 뜨는 것은 `data/places.json` 이 선언한 곳뿐이다.
+
+        오디에 해설이 있다는 이유만으로 공개 지도에 표시하지 않는다 (데이터.md §11).
+        여기가 무너지면 "PLAY 몇 곳"이 "해설 121곳"에 묻혀 안 보인다.
+        """
         pins = play_loader.map_pins(conn)
-        assert len(pins) < 60, f"핀이 {len(pins)}개입니다. 오디 전체가 새어 나왔습니다"
+        assert len(pins) <= 20, f"핀이 {len(pins)}개입니다. 오디 전체가 새어 나왔습니다"
+
+    def test_candidate_는_지도에_안_뜬다(self, conn):
+        """CANDIDATE = 후속 검토. 아직 알리지 않기로 한 곳이다 (콘텐츠후보지.md §4)."""
+        shown = {p.place_id for p in play_loader.map_pins(conn)}
+        for place in registry.all_places(conn, registry.STATUS_CANDIDATE):
+            assert place["id"] not in shown
 
     def test_활성_핀에는_play_가_준비중_핀에는_없다(self, conn):
         """핀을 눌렀을 때 보여줄 것이 상태마다 다르다.

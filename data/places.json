@@ -1,0 +1,80 @@
+{
+  "_읽어보세요": [
+    "놀멍봅서가 Place 로 관리하는 장소 목록이다. 여기 있는 곳만 지도에 뜬다.",
+    "",
+    "왜 121곳을 다 넣지 않나 —",
+    "  오디에 해설이 있다는 것과 놀멍봅서가 Place 로 관리한다는 것은 다른 얘기다.",
+    "  Place 가 필요한 곳은 PLAY 가 있거나 지도에 「준비 중」으로 알리는 곳뿐이다.",
+    "  나머지 오디 장소는 콘텐츠 조사용 후보 Pool 로만 남는다 (데이터.md §11).",
+    "",
+    "key 가 무엇인가 —",
+    "  놀멍봅서가 정한 **자체 불변 키**다. 화면에 안 보이고 검색에도 안 쓴다.",
+    "  이 키로 Place 를 찾아 uuid 를 재사용하므로, 이름을 바꿔도 좌표를 고쳐도",
+    "  PLAY 가 물고 있는 place_id 가 그대로 남는다.",
+    "  ⚠️ **key 는 한 번 정하면 바꾸지 않는다.** 바꾸면 새 Place 가 생기고 진행 기록이 끊긴다.",
+    "",
+    "external_ids 는 무엇인가 —",
+    "  Place 의 정체성이 아니라 **바깥 자료로 가는 다리**다 (데이터.md §3).",
+    "  Odii stid 는 콘텐츠 조사 출처이자 지금은 KTO 사진을 찾는 임시 열쇠로도 쓴다.",
+    "  KTO contentId 를 장소마다 확보하면 사진은 그쪽으로 옮긴다.",
+    "",
+    "status —",
+    "  LIVE      실제로 플레이할 수 있다. 지도에 활성 핀",
+    "  PLANNED   제작 대상. 지도에 「준비 중」 핀",
+    "  CANDIDATE 후속 검토. **지도에 띄우지 않는다** (데이터.md §11)",
+    "  선정 상태의 정본은 docs/기획/콘텐츠후보지.md 다."
+  ],
+
+  "places": [
+    {
+      "key": "seongeup-folk-village",
+      "name": "성읍민속마을",
+      "lat": 33.386429,
+      "lng": 126.801211,
+      "status": "LIVE",
+      "external_ids": [
+        { "source": "odii", "external_id": "2166", "note": "콘텐츠 조사 출처 · 임시 사진 앵커" }
+      ]
+    },
+    {
+      "key": "jeju-stone-park",
+      "name": "제주돌문화공원",
+      "lat": 33.448583,
+      "lng": 126.658556,
+      "status": "PLANNED",
+      "external_ids": [
+        { "source": "odii", "external_id": "988", "note": "콘텐츠 조사 출처 · 임시 사진 앵커" }
+      ]
+    },
+    {
+      "key": "suwolbong",
+      "name": "수월봉",
+      "lat": 33.294694,
+      "lng": 126.163472,
+      "status": "PLANNED",
+      "external_ids": [
+        { "source": "odii", "external_id": "997", "note": "콘텐츠 조사 출처 · 임시 사진 앵커" }
+      ]
+    },
+    {
+      "key": "jeju-mokgwana",
+      "name": "제주목관아",
+      "lat": 33.513639,
+      "lng": 126.522028,
+      "status": "PLANNED",
+      "external_ids": [
+        { "source": "odii", "external_id": "1008", "note": "콘텐츠 조사 출처 · 임시 사진 앵커" }
+      ]
+    },
+    {
+      "key": "haenyeo-museum",
+      "name": "제주해녀박물관",
+      "lat": 33.523583,
+      "lng": 126.863472,
+      "status": "PLANNED",
+      "external_ids": [
+        { "source": "odii", "external_id": "1011", "note": "콘텐츠 조사 출처 · 임시 사진 앵커" }
+      ]
+    }
+  ]
+}

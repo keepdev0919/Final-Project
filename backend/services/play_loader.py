@@ -7,15 +7,15 @@ PLAY 는 사람이 손으로 쓰는 원고다. 다섯 개뿐이고, 문구 한 �
 무엇이 바뀌었는지 안 보인다. 파일이면 정본 문서
 (`docs/기획/콘텐츠/성읍민속마을.md`)와 나란히 두고 볼 수 있다.
 
-## place_ref → place_id
+## place_key → place_id
 
-파일에는 사람이 읽을 수 있는 외부 ID(`odii:2166`)로 적고, 불러올 때
-레지스트리가 **놀멍봅서 place_id 로 바꾼다.** 원고에 uuid 를 손으로 적게
-하지 않으면서도, 메모리에 올라온 PLAY 는 `place_id` 를 물고 있다.
+원고에는 `data/places.json` 의 **자체 키**(`seongeup-folk-village`)로 적고,
+불러올 때 레지스트리가 놀멍봅서 place_id 로 바꾼다. 원고에 uuid 를 손으로
+적게 하지 않으면서도, 메모리에 올라온 PLAY 는 `place_id` 를 물고 있다.
 
-Place 의 정체성이 오디에 종속되는 것이 아니다 — 오디 stid 는 **찾아가는 열쇠**일
-뿐이고, 연결된 뒤에는 place_id 가 주인이다. 나중에 오디를 안 쓰게 되면
-`place_ref` 만 다른 공급원으로 바꾸면 된다.
+⚠️ 오디 `stid` 로 가리키지 않는다. 오디는 콘텐츠 조사 Source 중 하나일
+뿐인데 그것으로 Place 를 찾게 만들면 **오디를 안 쓰는 순간 장소를 못 찾는다**
+(2026-09-02 결정).
 
 ## ⚠️ 캐시하지 않는다
 
@@ -68,28 +68,17 @@ def load_all(conn) -> list[Play]:
 
 
 def _attach_place(conn, play: Play, filename: str) -> bool:
-    """`place_ref` 를 놀멍봅서 place_id 로 바꾼다. 못 찾으면 그 PLAY 를 버린다."""
-    if play.place_id:
-        return True
-    if play.place_ref is None:
-        logger.error("[PLAY] %s 에 place_ref 도 place_id 도 없습니다", filename)
-        return False
-
-    place_id = registry.find_by_external(
-        conn, play.place_ref.source, play.place_ref.external_id
-    )
-    if place_id is None:
+    """`place_key` 를 놀멍봅서 place_id 로 바꾼다. 못 찾으면 그 PLAY 를 버린다."""
+    place = registry.by_key(conn, play.place_key)
+    if place is None:
         logger.error(
-            "[PLAY] %s 가 가리키는 장소(%s:%s)를 레지스트리에서 못 찾았습니다. "
-            "place_registry.sync_from_home_places() 를 먼저 돌리세요",
-            filename, play.place_ref.source, play.place_ref.external_id,
+            "[PLAY] %s 가 가리키는 장소 '%s' 가 data/places.json 에 없습니다",
+            filename, play.place_key,
         )
         return False
-
-    play.place_id = place_id
+    play.place_id = place["id"]
     if not play.place_name:
-        place = registry.get(conn, place_id)
-        play.place_name = place["display_name"] if place else ""
+        play.place_name = place["display_name"]
     return True
 
 
@@ -114,8 +103,9 @@ def for_place(conn, place_id: str) -> list[Play]:
 def _thumbnail(conn, place_id: str) -> str | None:
     """대표 사진. KTO 가 채워 둔 것을 재사용한다.
 
-    `home_places` 를 이름으로 뒤지지 않고 place_id → 대표 stid → 사진 순으로 간다.
-    이름으로 뒤지면 이름이 바뀌는 순간 사진이 조용히 사라진다.
+    이름으로 뒤지지 않는다 — 이름이 바뀌면 사진이 조용히 사라진다.
+    지금은 오디 stid 를 임시 열쇠로 쓴다. **KTO contentId 를 장소마다 확보하면
+    그쪽으로 옮긴다** (`data/places.json` 참조).
     """
     stids = registry.external_ids(conn, place_id, registry.SOURCE_ODII)
     if not stids:
@@ -145,21 +135,6 @@ def summarize(conn, play: Play) -> PlaySummary:
     )
 
 
-# 준비 중 핀으로 띄울 후보. `docs/기획/Odii_원본기준_전수분류.md` §3 의
-# 🟢 가능 27개에서 이미 PLAY 가 있는 곳을 뺀 목록이다.
-#
-# ⚠️ 여기 이름은 `home_places.name` 과 정확히 같아야 찾아진다. 이름은 identity 가
-# 아니므로, 못 찾은 것은 **조용히 빠지지 않고** 로그로 알린다.
-PREPARING_PLACE_NAMES = (
-    "관음사", "제주목관아", "제주돌문화공원", "항파두리 항몽유적지",
-    "약천사", "제주추사관", "수월봉", "제주항일기념관", "대정향교",
-    "제주민속자연사박물관", "국립제주박물관", "제주세계자연유산센터",
-    "제주해녀박물관", "제주민속촌", "제주감귤박물관",
-    "알뜨르비행장 지하벙커", "송악산 일제 동굴진지", "남제주 비행기 격납고",
-    "서귀포 이중섭 미술관", "왈종미술관", "오설록 티 뮤지엄", "성산일출봉",
-)
-
-
 def map_pins(conn) -> list[MapPin]:
     """PLAY 지도 핀.
 
@@ -170,43 +145,31 @@ def map_pins(conn) -> list[MapPin]:
     오디 121곳은 **내부 콘텐츠 후보 Pool 로만** 남는다. 사용자에게는
     플레이할 수 있는 곳과 준비 중인 곳만 보인다.
     """
-    pins: list[MapPin] = []
-    active_place_ids: set[str] = set()
-
+    plays_by_place: dict[str, list] = {}
     for play in load_all(conn):
-        place = registry.get(conn, play.place_id)
-        if place is None:
-            continue
-        active_place_ids.add(play.place_id)
-        pins.append(MapPin(
-            place_id=place["id"],
-            place_name=place["display_name"],
-            lat=place["lat"],
-            lng=place["lng"],
-            status="active",
-            play=summarize(conn, play),
-        ))
+        plays_by_place.setdefault(play.place_id, []).append(play)
 
-    for name in PREPARING_PLACE_NAMES:
-        row = conn.execute(
-            "SELECT stid FROM home_places WHERE name = ?", (name,)
-        ).fetchone()
-        if row is None:
-            logger.warning("[PLAY] 준비 중 후보 '%s' 를 home_places 에서 못 찾았습니다", name)
+    pins: list[MapPin] = []
+    for place in registry.all_places(conn):
+        # CANDIDATE 는 띄우지 않는다 (데이터.md §11).
+        if place["status"] == registry.STATUS_CANDIDATE:
             continue
-        place_id = registry.find_by_external(conn, registry.SOURCE_ODII, row["stid"])
-        if place_id is None or place_id in active_place_ids:
+
+        plays = plays_by_place.get(place["id"], [])
+        if place["status"] == registry.STATUS_LIVE and not plays:
+            # LIVE 라고 적혀 있는데 원고가 없으면 눌러도 아무것도 없다.
+            logger.error("[PLAY] '%s' 가 LIVE 인데 PLAY 원고가 없습니다", place["place_key"])
             continue
-        place = registry.get(conn, place_id)
-        if place is None:
-            continue
-        active_place_ids.add(place_id)
+
         pins.append(MapPin(
             place_id=place["id"],
             place_name=place["display_name"],
             lat=place["lat"],
             lng=place["lng"],
-            status="preparing",
+            status="active" if plays else "preparing",
+            # 한 Place 에 PLAY 가 여럿이면 핀에는 첫 번째만 붙인다.
+            # 전부 보려면 장소 상세의 「이 장소에서 할 수 있는 PLAY」 로 간다.
+            play=summarize(conn, plays[0]) if plays else None,
         ))
 
     return pins
