@@ -232,6 +232,8 @@ struct Play: Decodable, Identifiable, Equatable {
     let stories: [PlayStory]
     let final: FinalStage?
     let clear: ClearStage?
+    /// 「가이드 투어와 무엇이 다른가」. PLAY 5개가 공통으로 쓴다.
+    let comparison: GuideComparison?
 
     var missionCount: Int { points.reduce(0) { $0 + $1.missions.count } }
 
@@ -283,6 +285,32 @@ struct Play: Decodable, Identifiable, Equatable {
     var orderedMissions: [(point: PlayPoint, mission: Mission)] {
         points.flatMap { p in p.missions.map { (point: p, mission: $0) } }
     }
+}
+
+// MARK: - 가이드 투어 비교
+
+struct ComparisonRow: Decodable, Identifiable, Equatable {
+    let aspect: String
+    let left: String
+    let leftIcon: String
+    let right: String
+    let rightIcon: String
+    /// 숫자를 쓸 때의 근거. 비어 있으면 화면에 출처 줄이 안 뜬다.
+    let source: String
+
+    var id: String { aspect }
+}
+
+/// PLAY 상세 맨 아래의 「가이드 투어와 무엇이 다른가」.
+///
+/// `CLAUDE.md` 는 "전문 가이드의 역할을 개인의 속도에 맞는 게임형 경험으로
+/// 바꾼다"고 적어놨는데, 앱 어디에도 **「그럼 가이드 투어랑 뭐가 다른데?」에
+/// 답하는 자리가 없었다.** 시작을 망설이는 사람이 마지막으로 보는 곳에 둔다.
+struct GuideComparison: Decodable, Equatable {
+    let title: String
+    let leftLabel: String
+    let rightLabel: String
+    let rows: [ComparisonRow]
 }
 
 // MARK: - 목록 · 지도

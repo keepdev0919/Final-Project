@@ -280,6 +280,44 @@ class TestSeongeupContent:
                 assert len(m.hints) == 2, f"{m.id} 힌트 {len(m.hints)}개"
 
 
+# ── 가이드 투어 비교 ──────────────────────────────────────────────────────────
+
+class TestGuideComparison:
+    """PLAY 상세 맨 아래의 「가이드 투어와 무엇이 다른가」.
+
+    CLAUDE.md 는 "전문 가이드의 역할을 게임형 경험으로 바꾼다"고 적어놨는데
+    앱 어디에도 그 질문에 답하는 자리가 없었다. 레퍼런스(Questo)는 이 표를
+    시작을 망설이는 사람이 마지막으로 보는 자리에 둔다.
+    """
+
+    def test_모든_play_에_같은_표가_붙는다(self, conn, seongeup):
+        """장소마다 복사하지 않는다 — 문구를 한 번 고치면 다섯 군데를 고쳐야 한다."""
+        assert seongeup.comparison is not None
+        assert len(seongeup.comparison.rows) >= 3
+
+    def test_숫자를_쓰면_출처가_있어야_한다(self, seongeup):
+        """**근거 없는 수치를 화면에 적지 않는다.**
+
+        레퍼런스는 「1인당 30~60달러」라고 적었지만 우리는 제주 가이드 시세를
+        모른다. 확인 없이 옮겨 적으면 「여행자 N명」과 같은 종류의 거짓이 된다
+        (그때는 9,134가 '일정 개수'인데 '사람 수'로 적힐 뻔했다).
+
+        가격 행은 조익준님이 시세를 조사해 주시면 출처와 함께 추가한다.
+        """
+        for row in seongeup.comparison.rows:
+            has_number = any(c.isdigit() for c in row.left + row.right)
+            if has_number:
+                assert row.source, (
+                    f"'{row.aspect}' 행에 숫자가 있는데 출처가 없습니다: "
+                    f"{row.left!r} / {row.right!r}"
+                )
+
+    def test_우리쪽_설명이_비어_있지_않다(self, seongeup):
+        """왼쪽만 채우고 오른쪽을 비우면 비교가 아니라 비방이 된다."""
+        for row in seongeup.comparison.rows:
+            assert row.left.strip() and row.right.strip()
+
+
 # ── Story 는 오디 원문이 아니다 ───────────────────────────────────────────────
 
 class TestStoryIsOurs:

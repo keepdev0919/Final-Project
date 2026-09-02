@@ -28,13 +28,29 @@ import json
 import logging
 from pathlib import Path
 
-from models.play import MapPin, Play, PlaySummary
+from models.play import GuideComparison, MapPin, Play, PlaySummary
 from services import place_registry as registry
 
 logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).parent.parent.parent
 PLAY_DIR = BASE_DIR / "data" / "plays"
+COMPARISON_FILE = BASE_DIR / "data" / "comparison.json"
+
+
+def load_comparison() -> GuideComparison | None:
+    """「가이드 투어와 무엇이 다른가」. PLAY 5개가 공통으로 쓴다.
+
+    PLAY 원고마다 복사하지 않는다 — 문구를 한 번 고치면 다섯 군데를 고쳐야 한다.
+    """
+    if not COMPARISON_FILE.exists():
+        return None
+    try:
+        raw = _strip_notes(json.loads(COMPARISON_FILE.read_text(encoding="utf-8")))
+        return GuideComparison(**raw)
+    except Exception as exc:  # noqa: BLE001
+        logger.error("[PLAY] comparison.json 을 읽지 못했습니다: %s", exc)
+        return None
 
 
 def _strip_notes(data: dict) -> dict:
@@ -51,6 +67,7 @@ def load_all(conn) -> list[Play]:
     plays: list[Play] = []
     if not PLAY_DIR.exists():
         return plays
+    comparison = load_comparison()
 
     for path in sorted(PLAY_DIR.glob("*.json")):
         try:
@@ -62,6 +79,7 @@ def load_all(conn) -> list[Play]:
 
         if not _attach_place(conn, play, path.name):
             continue
+        play.comparison = comparison
         plays.append(play)
 
     return plays
