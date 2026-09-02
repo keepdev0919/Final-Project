@@ -343,9 +343,6 @@ class Play(BaseModel):
     final: Optional[FinalStage] = None
     clear: Optional[ClearStage] = None
 
-    # 「가이드 투어와 무엇이 다른가」. 불러올 때 공용 파일에서 붙인다.
-    comparison: Optional[GuideComparison] = None
-
     # ── 파생값 ──
     @property
     def mission_count(self) -> int:
@@ -379,35 +376,6 @@ class Play(BaseModel):
                     "끝까지 가도 100%가 안 됩니다"
                 )
         return self
-
-
-# ── 가이드 투어 비교 ──────────────────────────────────────────────────────────
-
-class ComparisonRow(BaseModel):
-    """비교표 한 줄.
-
-    ⚠️ `left`/`right` 에 숫자를 쓰려면 `source` 를 반드시 채운다.
-    근거 없는 수치를 화면에 적으면 「여행자 N명」과 같은 종류의 거짓이 된다
-    (`tests/test_play_engine.py` 가 막는다).
-    """
-    aspect: str
-    left: str
-    left_icon: str = ""
-    right: str
-    right_icon: str = ""
-    source: str = ""
-
-
-class GuideComparison(BaseModel):
-    """PLAY 상세 맨 아래의 「가이드 투어와 무엇이 다른가」.
-
-    PLAY 5개가 공통으로 쓴다 — 내용이 장소마다 달라질 이유가 없다.
-    원본은 `data/comparison.json`.
-    """
-    title: str
-    left_label: str
-    right_label: str
-    rows: list[ComparisonRow] = Field(default_factory=list)
 
 
 # ── 목록·지도용 요약 ──────────────────────────────────────────────────────────

@@ -26,7 +26,6 @@ struct PlayDetailView: View {
                     routeSection(play)
                     cautionSection(play)
                     placeInfoLink(play)
-                    comparisonSection(play)
                     ctaSection(play)
                 }
             } else if vm.failed {
@@ -231,18 +230,6 @@ struct PlayDetailView: View {
         }
         .buttonStyle(.plain)
         .padding(.horizontal, PixelSpacing.screenMargin)
-    }
-
-    // MARK: - 가이드 투어와 무엇이 다른가
-
-    /// **버튼 바로 위**에 둔다. 레퍼런스(Questo)도 구매를 망설이는 사람이
-    /// 마지막으로 보는 자리에 뒀다.
-    @ViewBuilder
-    private func comparisonSection(_ play: Play) -> some View {
-        if let comparison = play.comparison, !comparison.rows.isEmpty {
-            GuideComparisonSection(comparison: comparison)
-                .padding(PixelSpacing.screenMargin)
-        }
     }
 
     // MARK: - CTA
