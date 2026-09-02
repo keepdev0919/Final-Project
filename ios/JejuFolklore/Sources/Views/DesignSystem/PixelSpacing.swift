@@ -40,8 +40,4 @@ enum PixelSpacing {
     /// 버튼 그림자 — **아래로만.** 버튼은 눌리는 물건이라 옆으로 밀리면 안 된다.
     static let shadowButton: CGFloat = 4
 
-    /// 카드 귀퉁이 잉크 사각형 한 변
-    static let cornerAccent: CGFloat = 8
-    /// 코너 악센트를 테두리 밖으로 빼는 거리. 안쪽에 두면 잉크 위 잉크라 안 보인다.
-    static let cornerAccentOut: CGFloat = 2
 }

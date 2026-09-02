@@ -24,33 +24,11 @@ struct PixelShadow: ViewModifier {
     }
 }
 
-/// 큰 상자 귀퉁이의 8×8 잉크 사각형. RPG 상자 인상을 만드는 장치다.
-///
-/// ⚠️ 테두리 **밖으로** 빼야 한다. 안쪽에 두면 잉크 테두리 위 잉크 점이라 안 보인다.
-struct PixelCorners: ViewModifier {
-    private var out: CGFloat { PixelSpacing.cornerAccentOut }
-
-    func body(content: Content) -> some View {
-        content
-            .overlay(alignment: .topLeading)     { dot.offset(x: -out, y: -out) }
-            .overlay(alignment: .topTrailing)    { dot.offset(x:  out, y: -out) }
-            .overlay(alignment: .bottomLeading)  { dot.offset(x: -out, y:  out) }
-            .overlay(alignment: .bottomTrailing) { dot.offset(x:  out, y:  out) }
-    }
-
-    private var dot: some View {
-        PixelColor.ink.frame(width: PixelSpacing.cornerAccent,
-                             height: PixelSpacing.cornerAccent)
-    }
-}
-
 extension View {
     func pixelShadow(_ offset: CGFloat = PixelSpacing.shadowCard,
                      downOnly: Bool = false, isPressed: Bool = false) -> some View {
         modifier(PixelShadow(offset: offset, downOnly: downOnly, isPressed: isPressed))
     }
-
-    func pixelCorners() -> some View { modifier(PixelCorners()) }
 
     /// 반경 0 테두리. 기본 2px.
     func pixelBorder(_ color: Color = PixelColor.ink,
@@ -185,7 +163,6 @@ struct PixelButtonStyle: ButtonStyle {
 // MARK: - 카드
 
 struct PixelCard<Content: View>: View {
-    var corners: Bool = true
     /// 강조 상자는 그림자를 8px로 키운다 (대화상자·히어로).
     var strong: Bool = false
     @ViewBuilder let content: Content
@@ -193,17 +170,18 @@ struct PixelCard<Content: View>: View {
     var body: some View {
         content
             .background(PixelColor.surface)
-            // 시안의 `.pixel-border` — 4px 테두리 + 4px 그림자 (2026-09-02 시안 기준).
+            // 시안의 `.pixel-border` — 4px 테두리 + 4px 그림자. 그게 전부다.
+            //
+            // ⚠️ 2026-09-03: 귀퉁이 8pt 잉크 점(`PixelCorners`)을 걷어냈다.
+            // 시안 CSS 에 `dialogue-corner` 라는 4px 점 장식이 있긴 하다. 그런데
+            // `position: absolute` 의 기준은 **패딩 상자**라서 `top:-4px; left:-4px`
+            // 가 4px 테두리 **위에** 정확히 얹힌다. 색까지 같으니 화면에서는
+            // 좌상단도 우하단도 **아예 보이지 않는다** — 시안에서 이 장식은 없는 것과 같다.
+            //
+            // 우리가 찍던 점은 시안 것이 아니라 예전에 우리가 넣은 별개 장치였고,
+            // 8pt 를 2pt 밖으로 빼서 3배 화면에서는 24픽셀 덩어리로 튀었다.
             .pixelBorder(width: PixelSpacing.borderHeavy)
-            .modifier(OptionalCorners(on: corners))
             .pixelShadow(strong ? PixelSpacing.shadowStrong : PixelSpacing.shadowCard)
-    }
-}
-
-private struct OptionalCorners: ViewModifier {
-    let on: Bool
-    func body(content: Content) -> some View {
-        if on { content.pixelCorners() } else { content }
     }
 }
 
