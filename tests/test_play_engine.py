@@ -209,6 +209,23 @@ class TestSeongeupContent:
         m05 = next(m for p in seongeup.points for m in p.missions if m.id == "m05")
         assert all(s.input_type != "DIRECTION" for s in m05.steps)
 
+    def test_discovery_없는_미션이_있어도_된다(self, seongeup):
+        """콘텐츠.md §13 (2026-09-02 개정).
+
+        **모든 Mission 은 발견에 기여해야 하지만, 모든 Mission 이 독립적인
+        Discovery 를 가질 필요는 없다.**
+
+        M01 은 "대문이 없다"는 관찰로 M02 의 질문을 만든다. 여기에 억지로
+        Discovery 를 붙이면 **아직 발견하지 않은 것을 발견했다고 말하게 된다.**
+        나중에 이 자리를 "빠진 것"으로 보고 채우지 않도록 못 박아 둔다.
+        """
+        m01 = next(m for p in seongeup.points for m in p.missions if m.id == "m01")
+        assert m01.discovery is None
+        assert m01.progress_reward is None
+        # 대신 바로 다음 미션이 발견을 만든다
+        m02 = next(m for p in seongeup.points for m in p.missions if m.id == "m02")
+        assert m02.discovery is not None and m02.progress_reward == "boundary"
+
     def test_대표_시연_미션은_호령창이다(self, seongeup):
         """심사위원에게 하나만 보여준다면 이것이다.
 
