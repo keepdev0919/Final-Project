@@ -21,6 +21,9 @@ enum PixelFont {
     /// 작은 라벨 · 배지
     static let labelSmall = Font.system(size: 12, weight: .medium)
 
+    /// 시안 `body-sm` — 14 / 400. 카드 설명처럼 본문보다 한 단 작은 글.
+    static let bodySmall = Font.system(size: 14, weight: .regular)
+
     /// 앱 이름·로고 전용 픽셀 폰트. 여기 말고는 쓰지 않는다.
     static func logo(size: CGFloat = 22) -> Font {
         .custom("Galmuri11-Regular", fixedSize: size)

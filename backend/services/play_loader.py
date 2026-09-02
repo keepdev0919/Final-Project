@@ -126,6 +126,7 @@ def summarize(conn, play: Play) -> PlaySummary:
         place_name=play.place_name,
         title=play.title,
         objective=play.objective,
+        card_summary=play.card_summary,
         estimated_minutes_min=play.estimated_minutes_min,
         estimated_minutes_max=play.estimated_minutes_max,
         distance_meters=play.distance_meters,

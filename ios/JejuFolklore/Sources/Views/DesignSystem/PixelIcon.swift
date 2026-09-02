@@ -16,7 +16,7 @@ struct PixelIcon: View {
         // 세계관 라벨 6종
         case volcano, wave, drop, tree, house, gate
         // 2026-09-02 시안 추가 — 난이도 별, 퀘스트 탭, 안내 느낌표
-        case star, quest, bang
+        case star, quest, bang, walk
     }
 
     let glyph: Glyph
@@ -121,6 +121,10 @@ struct PixelIcon: View {
         case .quest: return [
             "........", ".######.", "##.##.##", "#######.",
             "#.####.#", "########", ".##..##.", "........"]
+        // 걷는 사람 — 카드의 거리 앞에 붙는다 (시안 directions_walk)
+        case .walk: return [
+            "...##...", "...##...", "..####..", ".#.##.#.",
+            "#..##..#", "...##...", "..#..#..", ".##..##."]
         // 안내 느낌표
         case .bang: return [
             "..####..", "..####..", "..####..", "..####..",

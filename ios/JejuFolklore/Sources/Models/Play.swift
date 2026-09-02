@@ -210,6 +210,7 @@ struct Play: Decodable, Identifiable, Equatable {
     let fantasy: String
     let role: String
     let objective: String
+    let cardSummary: String
 
     let estimatedMinutesMin: Int
     let estimatedMinutesMax: Int
@@ -297,6 +298,8 @@ struct PlaySummary: Decodable, Identifiable, Equatable, Hashable {
     let placeName: String
     let title: String
     let objective: String
+    /// 카드용 두 줄 요약. 비어 있으면 `objective` 를 쓴다.
+    let cardSummary: String
     let estimatedMinutesMin: Int
     let estimatedMinutesMax: Int
     let distanceMeters: Int

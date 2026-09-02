@@ -314,6 +314,12 @@ class Play(BaseModel):
     fantasy: str = ""           # 한 줄 세계관
     role: str = ""              # 「기록 복원자」
     objective: str = ""         # 이번 PLAY 에서 할 일 한 줄
+    # 카드에 들어가는 두 줄짜리 요약.
+    #
+    # `objective` 는 정본 문장이라 길다 — 카드에서는 「경계 / 출입 / 공간 / …」
+    # 목록이 잘려 «복원하…» 로 끝난다. 시안이 쓰는 짧은 판을 따로 둔다.
+    # 비어 있으면 화면이 `objective` 를 잘라 쓴다.
+    card_summary: str = ""
 
     estimated_minutes_min: int
     estimated_minutes_max: int
@@ -400,6 +406,7 @@ class PlaySummary(BaseModel):
     place_name: str
     title: str
     objective: str = ""
+    card_summary: str = ""
     estimated_minutes_min: int
     estimated_minutes_max: int
     distance_meters: int

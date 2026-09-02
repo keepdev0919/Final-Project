@@ -57,15 +57,18 @@ struct HomeView: View {
     /// 항상 띄운다(2026-09-02 조익준님 결정). 처음 여는 사람이 「퀘스트」라는 말만
     /// 보고는 관광 앱인지 게임인지 모른다.
     private var introCard: some View {
-        PixelCard(strong: true) {
-            HStack(alignment: .top, spacing: PixelSpacing.l) {
-                PixelIcon(.bang, size: 28, color: PixelColor.primaryContainer)
-                    .frame(width: 48, height: 48)
+        PixelCard {
+            // 시안은 `flex-col sm:flex-row` — 폰 폭에서는 **세로로 쌓인다.**
+            // 아이콘이 글자 옆이 아니라 위에 온다.
+            VStack(alignment: .leading, spacing: PixelSpacing.l) {   // gap-4
+                PixelIcon(.bang, size: 30, color: PixelColor.primaryContainer)
+                    .frame(width: 48, height: 48)                    // w-12 h-12
                     .background(PixelColor.ink)
-                    .pixelBorder(width: PixelSpacing.border)
+                    .pixelBorder(width: PixelSpacing.border)         // pixel-border-sm
+                    .pixelShadow(PixelSpacing.shadowSmall)
                     .accessibilityHidden(true)
 
-                VStack(alignment: .leading, spacing: PixelSpacing.s) {
+                VStack(alignment: .leading, spacing: PixelSpacing.s) {   // mb-2
                     // 「플레이」와 「클리어」만 강조색. 두 낱말이 이 앱의 전부다.
                     (Text("관광지를 ")
                      + Text("플레이").foregroundColor(PixelColor.primaryContainer)
@@ -81,7 +84,7 @@ struct HomeView: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            .padding(PixelSpacing.xl)
+            .padding(PixelSpacing.xxl - PixelSpacing.s)   // p-6 = 24
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
@@ -91,8 +94,20 @@ struct HomeView: View {
     @ViewBuilder
     private var questSection: some View {
         VStack(alignment: .leading, spacing: PixelSpacing.cardGap) {
-            PixelSectionHeader(title: "수행 가능한 퀘스트", icon: .book,
-                               accent: PixelColor.secondary)
+            // 시안: 아이콘만 파랑(secondary), 제목은 잉크, 밑줄은 잉크 4px.
+            VStack(spacing: 0) {
+                HStack(spacing: PixelSpacing.s) {                    // gap-2
+                    PixelIcon(.book, size: 24, color: PixelColor.secondary)
+                    Text("수행 가능한 퀘스트")
+                        .font(PixelFont.sectionTitle)                // headline-md 24
+                        .foregroundStyle(PixelColor.ink)
+                    Spacer(minLength: 0)
+                }
+                .padding(.bottom, PixelSpacing.s)                    // pb-2
+                Rectangle()
+                    .fill(PixelColor.ink)
+                    .frame(height: PixelSpacing.borderHeavy)         // border-b-4
+            }
 
             if vm.isLoading && vm.pins.isEmpty {
                 loadingRow

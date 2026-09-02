@@ -1,19 +1,19 @@
 import SwiftUI
 
-/// 퀘스트 카드 — 홈의 주인공.
+/// 퀘스트 카드.
 ///
-/// 시안(2026-09-02) 그대로다. 활성과 준비 중이 **같은 크기·같은 뼈대**를 쓰고,
-/// 사진의 색과 자물쇠, 버튼 상태로만 갈린다. 크기가 다르면 목록이 들쭉날쭉해지고
-/// "준비 중인 곳도 언젠가 이만큼 된다"는 인상이 사라진다.
+/// **시안 HTML 을 1:1로 옮긴 것이다.** 크기를 우리 토큰 이름으로 "번역"하지 않고
+/// 시안에 적힌 px 를 그대로 쓴다 — 한 번 그렇게 했다가 제목이 14 대신 24가 되어
+/// 카드가 부풀었고, 한 화면에 세 장 들어갈 것이 한 장만 들어갔다(2026-09-02).
 ///
-///     [커버]
-///     성읍 생활기록 복원작전        🕐 60-75분
-///     ★★☆☆☆
-///     네 채의 집을 직접 조사하여…
-///     [ 퀘스트 수락 ]
-///
-/// 거리와 미션 수는 **일부러 뺐다**(조익준님 결정). 카드가 벽이 되지 않게
-/// 하고, 그 둘은 PLAY 상세에서 보여준다.
+///     div.bg-surface.pixel-border.p-4.flex.flex-col.gap-4
+///       div.h-40.pixel-border-sm                     커버 160
+///       div
+///         h4.font-label-lg           14 / w700       제목
+///         div.font-label-sm          12 / w500       🕐 60-75분  🚶 1km
+///         ★★☆☆☆                     14
+///         p.text-body-sm             14 / line-clamp-2
+///       button.py-2.font-label-lg    14 / w700       퀘스트 수락
 struct PlayCard: View {
     let play: PlaySummary
     /// 진행 중이면 「이어서 하기」처럼 버튼 문구가 바뀐다.
@@ -22,64 +22,70 @@ struct PlayCard: View {
 
     var body: some View {
         PixelCard {
-            VStack(alignment: .leading, spacing: PixelSpacing.l) {
-                cover
-                VStack(alignment: .leading, spacing: PixelSpacing.s) {
+            VStack(alignment: .leading, spacing: PixelSpacing.l) {   // gap-4
+                QuestCoverImage(url: play.thumbnail, locked: false)
+
+                VStack(alignment: .leading, spacing: 0) {
                     titleRow
+                        .padding(.bottom, PixelSpacing.xs)           // mb-1
                     StarRating(filled: play.difficultyStars)
-                    if !play.objective.isEmpty {
-                        Text(play.objective)
-                            .font(PixelFont.body)
-                            .foregroundStyle(PixelColor.inkWeak)
-                            .multilineTextAlignment(.leading)
-                            .lineLimit(2)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
+                        .padding(.bottom, PixelSpacing.s)            // mb-2
+                    Text(play.cardText)
+                        .font(PixelFont.bodySmall)                   // text-body-sm 14
+                        .foregroundStyle(PixelColor.inkWeak)
+                        .lineLimit(2)                                // line-clamp-2
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                PixelButton(title: progressText ?? "퀘스트 수락",
-                            style: .primary, action: action)
+
+                QuestButton(title: progressText ?? "퀘스트 수락",
+                            filled: true, action: action)
             }
-            .padding(PixelSpacing.cardPadding)
+            .padding(PixelSpacing.cardPadding)                       // p-4
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
-            "\(play.title). \(play.placeName). \(play.durationText). "
-            + "난이도 별 \(play.difficultyStars)개. \(play.objective)")
+            "\(play.title). \(play.placeName). \(play.durationText), \(play.distanceShort). "
+            + "난이도 별 \(play.difficultyStars)개. \(play.cardText)")
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { action() }
     }
 
+    /// 제목 왼쪽, 시간·거리 오른쪽. 시안의 `justify-between`.
     private var titleRow: some View {
-        HStack(alignment: .firstTextBaseline, spacing: PixelSpacing.s) {
+        HStack(alignment: .center, spacing: PixelSpacing.l) {
             Text(play.title)
-                .font(PixelFont.sectionTitle)
+                .font(PixelFont.label)                               // label-lg 14 / w700
                 .foregroundStyle(PixelColor.ink)
                 .lineLimit(1)
                 .truncationMode(.tail)
             Spacer(minLength: 0)
-            HStack(spacing: PixelSpacing.xs) {
-                PixelIcon(.clock, size: 14, color: PixelColor.inkWeak)
-                Text(play.durationText)
-                    .font(PixelFont.labelSmall)
-                    .foregroundStyle(PixelColor.inkWeak)
+            HStack(spacing: PixelSpacing.l) {                        // gap-4
+                metaItem(.clock, play.durationText)
+                metaItem(.walk, play.distanceShort)
             }
             .layoutPriority(1)
         }
     }
 
-    @ViewBuilder
-    private var cover: some View {
-        CoverImage(url: play.thumbnail, dimmed: false)
+    private func metaItem(_ icon: PixelIcon.Glyph, _ text: String) -> some View {
+        HStack(spacing: PixelSpacing.xs) {                           // gap-1
+            PixelIcon(icon, size: 18, color: PixelColor.inkWeak)     // text-[18px]
+            Text(text)
+                .font(PixelFont.labelSmall)                          // label-sm 12
+                .foregroundStyle(PixelColor.inkWeak)
+                .fixedSize()
+        }
     }
 }
 
 // MARK: - 준비 중 카드
 
-/// 아직 PLAY 가 없는 곳.
+/// 아직 퀘스트가 없는 곳.
 ///
-/// 활성 카드와 **같은 뼈대**에 사진을 흑백으로 낮추고 자물쇠를 얹는다.
-/// 색만으로 구분하지 않는다 — 자물쇠·회색 별·비활성 버튼이 같이 말한다.
+/// 시안대로 **활성 카드와 같은 뼈대**에 사진만 흑백으로 낮추고 자물쇠를 얹는다.
+/// 별도, 별점도, 우상단 딱지도 **없다** — 아직 정한 것이 없으니 보여줄 것도 없다.
 struct PreparingPlaceCard: View {
     let placeName: String
     let thumbnail: String?
@@ -88,34 +94,20 @@ struct PreparingPlaceCard: View {
     var body: some View {
         PixelCard {
             VStack(alignment: .leading, spacing: PixelSpacing.l) {
-                CoverImage(url: thumbnail, dimmed: true)
-                VStack(alignment: .leading, spacing: PixelSpacing.s) {
-                    HStack(alignment: .firstTextBaseline, spacing: PixelSpacing.s) {
-                        Text(placeName)
-                            .font(PixelFont.sectionTitle)
-                            .foregroundStyle(PixelColor.ink)
-                            .lineLimit(1)
-                        Spacer(minLength: 0)
-                        Text("준비 중")
-                            .font(PixelFont.labelSmall)
-                            .foregroundStyle(PixelColor.inkWeak)
-                    }
-                    // 별은 회색으로 다 비워 둔다 — 아직 난이도를 정하지 않았다.
-                    StarRating(filled: 0)
+                QuestCoverImage(url: thumbnail, locked: true)
+
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(placeName)
+                        .font(PixelFont.label)
+                        .foregroundStyle(PixelColor.ink)
+                        .lineLimit(1)
+                        .padding(.bottom, PixelSpacing.s)
                     Text("준비 중인 퀘스트입니다.")
-                        .font(PixelFont.body)
+                        .font(PixelFont.bodySmall)
                         .foregroundStyle(PixelColor.inkWeak)
                 }
-                Button(action: action) {
-                    Text("준비 중")
-                        .font(PixelFont.label)
-                        .foregroundStyle(PixelColor.outline)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, PixelSpacing.m)
-                        .background(PixelColor.surfaceVariant)
-                        .pixelBorder()
-                }
-                .buttonStyle(.plain)
+
+                QuestButton(title: "준비 중", filled: false, action: action)
             }
             .padding(PixelSpacing.cardPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -129,14 +121,14 @@ struct PreparingPlaceCard: View {
 
 // MARK: - 부품
 
-/// 카드 커버.
+/// 카드 커버. 시안 `div.h-40.pixel-border-sm`.
 ///
-/// ⚠️ 지금은 KTO 실사 사진이다. **픽셀 커버로 바꾸기로 했지만**(2026-09-02)
-/// 아직 그림 파일이 없다. 시안에서 뽑아 넣으면 여기만 바뀐다.
-private struct CoverImage: View {
+/// ⚠️ 지금은 KTO 실사 사진이다. 픽셀 커버로 가기로 했지만 그림 파일이 없다.
+/// 넣으면 여기만 바뀐다.
+struct QuestCoverImage: View {
     let url: String?
-    /// 준비 중이면 흑백으로 낮추고 자물쇠를 얹는다.
-    let dimmed: Bool
+    /// 준비 중이면 흑백으로 낮추고 자물쇠를 얹는다 (시안 `grayscale opacity-50`).
+    let locked: Bool
 
     var body: some View {
         ZStack {
@@ -153,28 +145,52 @@ private struct CoverImage: View {
                 PixelIcon(.photo, size: 40, color: PixelColor.inkWeak)
             }
         }
-        .frame(height: 160)
+        .frame(height: 160)                                      // h-40
         .frame(maxWidth: .infinity)
         .clipped()
-        .grayscale(dimmed ? 1 : 0)
-        .opacity(dimmed ? 0.5 : 1)
+        .grayscale(locked ? 1 : 0)
+        .opacity(locked ? 0.5 : 1)
         .overlay {
-            if dimmed { PixelIcon(.lock, size: 36, color: PixelColor.ink) }
+            if locked {
+                PixelIcon(.lock, size: 36, color: PixelColor.ink)  // text-4xl
+            }
         }
-        .pixelBorder(width: PixelSpacing.border)
-        .pixelShadow(PixelSpacing.shadowSmall)
+        .pixelBorder(width: PixelSpacing.border)                 // 2px
+        .pixelShadow(PixelSpacing.shadowSmall)                   // 2px
         .accessibilityHidden(true)
     }
 }
 
-/// 난이도 별 다섯 개.
+/// 카드 맨 아래 버튼. 시안 `button.py-2.font-label-lg.pixel-border`.
+///
+/// `PixelButton` 을 쓰지 않는다 — 그쪽은 높이 48에 글자가 16이라 카드 안에서
+/// 시안보다 두 배로 두꺼워진다.
+private struct QuestButton: View {
+    let title: String
+    let filled: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(PixelFont.label)                            // label-lg 14 / w700
+                .foregroundStyle(filled ? PixelColor.onPrimary : PixelColor.outline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, PixelSpacing.s)               // py-2
+                .background(filled ? PixelColor.primary : PixelColor.surfaceVariant)
+                .pixelBorder(width: PixelSpacing.borderHeavy)     // 4px
+                .pixelShadow(PixelSpacing.shadowCard)             // 4px
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+/// 난이도 별 다섯 개. 시안 14px.
 ///
 /// 5단계 척도는 **콘텐츠를 만들면서 PLAY 끼리 견줘 정한다**(2026-09-02 결정).
-/// 지금은 성읍(별 2) 하나뿐이라 기준점이 없다.
-///
-/// 시안의 별색은 `#F2B233` 인데 **우리 팔레트에 없다.** 팔레트는
-/// `tests/test_design_tokens.py` 가 정확히 고정하고 있어서 새 색을 넣을 수 없다.
-/// 가장 가까운 역할색인 `accent`(#D9AF00)를 쓴다.
+/// 시안 별색 `#F2B233` 은 우리 팔레트에 없다 —
+/// `tests/test_design_tokens.py` 가 팔레트를 정확히 고정하고 있어서
+/// 가장 가까운 역할색 `accent`(#D9AF00)를 쓴다.
 struct StarRating: View {
     let filled: Int
     var total: Int = 5
@@ -189,5 +205,20 @@ struct StarRating: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(filled > 0 ? "난이도 별 \(filled)개" : "난이도 미정")
+    }
+}
+
+// MARK: - 카드가 쓰는 글
+
+extension PlaySummary {
+    /// 카드 설명. 짧은 판이 있으면 그것을, 없으면 목표 문장을 쓴다.
+    var cardText: String { cardSummary.isEmpty ? objective : cardSummary }
+
+    /// 시안은 거리를 「1km」로 쓴다 — 「약」을 붙이지 않는다.
+    var distanceShort: String {
+        distanceMeters < 1000
+            ? "\(distanceMeters)m"
+            : String(format: "%.1fkm", Double(distanceMeters) / 1000)
+                .replacingOccurrences(of: ".0km", with: "km")
     }
 }
