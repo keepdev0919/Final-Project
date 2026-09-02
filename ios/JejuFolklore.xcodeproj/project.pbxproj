@@ -15,6 +15,7 @@
 		12786FB262DEB2F73A3AD8F4 /* JejuRegion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56510A2D59EB508CE47BE90F /* JejuRegion.swift */; };
 		174F84207B32BD1FF0089EA3 /* CoursePreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */; };
 		181950EB48299EE76985B887 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D5CC6DDEC1C1B656071D157 /* AuthManager.swift */; };
+		18E4CA6BBCC86AD84FCFD234 /* jeju-stone-park.png in Resources */ = {isa = PBXBuildFile; fileRef = A879853F4651906EE40B20D1 /* jeju-stone-park.png */; };
 		1EFFDAF78ADAE81D2021D06E /* SavedCourse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E81A390764D24D99F14B2DA /* SavedCourse.swift */; };
 		1F8E431CBD4FDEDB15BB328D /* CoursePlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = A744E956106F34C9C2D95F2F /* CoursePlace.swift */; };
 		290137D764E6A47F84FD38EB /* LoginSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABFB1F82A4D609716075142E /* LoginSheet.swift */; };
@@ -38,6 +39,7 @@
 		587E768898899E1D9B66B4F9 /* PixelIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB383F822D48F10D4C482C1B /* PixelIcon.swift */; };
 		58DF075E69988AA2F359FE58 /* StoryAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F360898F00360C7F075BAB6C /* StoryAudioPlayer.swift */; };
 		59BC2160448B1CDAE4804A6D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 435CA89B62B4B29FDF95DF2A /* GoogleService-Info.plist */; };
+		5E2DF12857CFA4FFB471EA68 /* suwolbong.png in Resources */ = {isa = PBXBuildFile; fileRef = DCCD25368FA26CE125559621 /* suwolbong.png */; };
 		67157E9A54F763785AB8AAE4 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB19D914698888F9F31CB4C /* Config.swift */; };
 		6993D4B38E663044C3335FF3 /* PixelChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 700D4CE53167A5AD8EBB8340 /* PixelChrome.swift */; };
 		6D5F8CF07FD03DF0A2306308 /* PlayPinMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B862C5DD38A16E14785379 /* PlayPinMap.swift */; };
@@ -74,6 +76,7 @@
 		D75C8DE79E08139D56DCC142 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8287E78AE638FE1F48F3E7E8 /* FirebaseStorage */; };
 		DA537D46F6F9CCF7654E489D /* DeviceIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */; };
 		E308940579FA9D956796897F /* CourseHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F710DAFC1FB6A28109BE7C66 /* CourseHubView.swift */; };
+		E5FFD4F4F6D0F52E73744CAA /* seongeup-folk-village.png in Resources */ = {isa = PBXBuildFile; fileRef = 89D35949EC99A65964351085 /* seongeup-folk-village.png */; };
 		E6EA2A2EE0C5198E6788CEEE /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 88F2B5856C2815B6FA279A89 /* FirebaseFirestore */; };
 		F475DC455EF699B2C68D1803 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8932708010A3431E486DF98 /* APIClient.swift */; };
 		F5FDCEF545D4023A70256DEC /* PlayCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F89AFFDE8A57B6CA8E1D40 /* PlayCard.swift */; };
@@ -118,12 +121,14 @@
 		7BFB45E01F6089646021CEA5 /* SharedComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedComponents.swift; sourceTree = "<group>"; };
 		80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRecommendViewModel.swift; sourceTree = "<group>"; };
 		8106FE651DF3B5201C58AE54 /* Galmuri9.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Galmuri9.ttf; sourceTree = "<group>"; };
+		89D35949EC99A65964351085 /* seongeup-folk-village.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "seongeup-folk-village.png"; sourceTree = "<group>"; };
 		8A0349BE64A4DE0DBB4EDA32 /* FirestoreSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreSyncService.swift; sourceTree = "<group>"; };
 		8E81A390764D24D99F14B2DA /* SavedCourse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCourse.swift; sourceTree = "<group>"; };
 		94F529E10D83F4E5A63726E5 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		997538FBFEB00536EF630FCB /* PlaceAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceAPI.swift; sourceTree = "<group>"; };
 		A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		A744E956106F34C9C2D95F2F /* CoursePlace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePlace.swift; sourceTree = "<group>"; };
+		A879853F4651906EE40B20D1 /* jeju-stone-park.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "jeju-stone-park.png"; sourceTree = "<group>"; };
 		AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		ABCB9C34210E2B619207A45E /* PlayAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayAPI.swift; sourceTree = "<group>"; };
 		ABFB1F82A4D609716075142E /* LoginSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginSheet.swift; sourceTree = "<group>"; };
@@ -137,6 +142,7 @@
 		D2F59CC64DB30B5F69512C4E /* PlayDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayDetailView.swift; sourceTree = "<group>"; };
 		D9B862C5DD38A16E14785379 /* PlayPinMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayPinMap.swift; sourceTree = "<group>"; };
 		DBD5EDEE06A3A22C0EED714E /* PlaceDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDetail.swift; sourceTree = "<group>"; };
+		DCCD25368FA26CE125559621 /* suwolbong.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = suwolbong.png; sourceTree = "<group>"; };
 		DE6EAC554294F429D6DA6C88 /* OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OFL.txt; sourceTree = "<group>"; };
 		E11EACDCA05DCA02F59297D3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E25C6E205C7D773FC22CA00E /* Galmuri11.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Galmuri11.ttf; sourceTree = "<group>"; };
@@ -203,6 +209,17 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		4382E2DB714C38841ADF16F6 /* Covers */ = {
+			isa = PBXGroup;
+			children = (
+				A879853F4651906EE40B20D1 /* jeju-stone-park.png */,
+				89D35949EC99A65964351085 /* seongeup-folk-village.png */,
+				DCCD25368FA26CE125559621 /* suwolbong.png */,
+			);
+			name = Covers;
+			path = JejuFolklore/Resources/Covers;
+			sourceTree = "<group>";
+		};
 		496F9C74CA25FBFDEAFCED32 /* App */ = {
 			isa = PBXGroup;
 			children = (
@@ -239,6 +256,7 @@
 		75D21EA6AC81E560B87E62D9 = {
 			isa = PBXGroup;
 			children = (
+				4382E2DB714C38841ADF16F6 /* Covers */,
 				66AB70CD712AA77DD4300D3D /* Fonts */,
 				F76BEBAB352F3DCCB021C0F7 /* JejuFolklore */,
 				9FF2A0088192C74D186B9AF2 /* Resources */,
@@ -421,6 +439,9 @@
 				1063ECB9D961E9145B031E02 /* Galmuri9.ttf in Resources */,
 				59BC2160448B1CDAE4804A6D /* GoogleService-Info.plist in Resources */,
 				4376C2AAA8BD0BDF615AB8A6 /* OFL.txt in Resources */,
+				18E4CA6BBCC86AD84FCFD234 /* jeju-stone-park.png in Resources */,
+				E5FFD4F4F6D0F52E73744CAA /* seongeup-folk-village.png in Resources */,
+				5E2DF12857CFA4FFB471EA68 /* suwolbong.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

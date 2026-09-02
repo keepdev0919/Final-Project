@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// 퀘스트 카드.
 ///
@@ -23,15 +24,18 @@ struct PlayCard: View {
     var body: some View {
         PixelCard {
             VStack(alignment: .leading, spacing: PixelSpacing.l) {   // gap-4
-                QuestCoverImage(url: play.thumbnail, locked: false)
+                QuestCoverImage(coverName: play.placeKey, url: play.thumbnail, locked: false)
 
                 VStack(alignment: .leading, spacing: 0) {
                     titleRow
-                        .padding(.bottom, PixelSpacing.xs)           // mb-1
+                        .padding(.bottom, PixelSpacing.m)
                     StarRating(filled: play.difficultyStars)
-                        .padding(.bottom, PixelSpacing.s)            // mb-2
+                        .padding(.bottom, PixelSpacing.m)
                     Text(play.cardText)
-                        .font(PixelFont.bodySmall)                   // text-body-sm 14
+                        // ⚠️ 시안의 `text-body-sm` 은 **Tailwind config 에 없는 클래스**다.
+                        // 무시되고 브라우저 기본 16px 로 렌더된다. 클래스 이름을 믿고
+                        // 14로 줄였다가 글자가 작아졌다(2026-09-02).
+                        .font(PixelFont.body)                        // 16
                         .foregroundStyle(PixelColor.inkWeak)
                         .lineLimit(2)                                // line-clamp-2
                         .multilineTextAlignment(.leading)
@@ -88,13 +92,14 @@ struct PlayCard: View {
 /// 별도, 별점도, 우상단 딱지도 **없다** — 아직 정한 것이 없으니 보여줄 것도 없다.
 struct PreparingPlaceCard: View {
     let placeName: String
+    let coverName: String?
     let thumbnail: String?
     let action: () -> Void
 
     var body: some View {
         PixelCard {
             VStack(alignment: .leading, spacing: PixelSpacing.l) {
-                QuestCoverImage(url: thumbnail, locked: true)
+                QuestCoverImage(coverName: coverName, url: thumbnail, locked: true)
 
                 VStack(alignment: .leading, spacing: 0) {
                     Text(placeName)
@@ -103,7 +108,7 @@ struct PreparingPlaceCard: View {
                         .lineLimit(1)
                         .padding(.bottom, PixelSpacing.s)
                     Text("준비 중인 퀘스트입니다.")
-                        .font(PixelFont.bodySmall)
+                        .font(PixelFont.body)
                         .foregroundStyle(PixelColor.inkWeak)
                 }
 
@@ -123,17 +128,32 @@ struct PreparingPlaceCard: View {
 
 /// 카드 커버. 시안 `div.h-40.pixel-border-sm`.
 ///
-/// ⚠️ 지금은 KTO 실사 사진이다. 픽셀 커버로 가기로 했지만 그림 파일이 없다.
-/// 넣으면 여기만 바뀐다.
+/// **픽셀 커버가 있으면 그것을, 없으면 KTO 실사 사진을 쓴다.**
+/// 파일은 `Resources/Covers/<place_key>.png` — 시안이 만든 그림을 받아 둔 것이다.
+///
+/// ⚠️ 픽셀아트는 `.interpolation(.none)` 으로 그린다. 기본 보간을 쓰면 확대할 때
+/// 도트가 뭉개져서 픽셀아트가 아니라 흐린 그림이 된다.
 struct QuestCoverImage: View {
+    /// 픽셀 커버 파일 이름 (= place_key). 번들에 없으면 사진으로 떨어진다.
+    let coverName: String?
     let url: String?
     /// 준비 중이면 흑백으로 낮추고 자물쇠를 얹는다 (시안 `grayscale opacity-50`).
     let locked: Bool
 
+    private var pixelCover: UIImage? {
+        guard let coverName else { return nil }
+        return UIImage(named: coverName)
+    }
+
     var body: some View {
         ZStack {
             PixelColor.surfaceDim
-            if let url, let u = URL(string: url) {
+            if let cover = pixelCover {
+                Image(uiImage: cover)
+                    .interpolation(.none)
+                    .resizable()
+                    .scaledToFill()
+            } else if let url, let u = URL(string: url) {
                 AsyncImage(url: u) { phase in
                     switch phase {
                     case .success(let image): image.resizable().scaledToFill()
@@ -198,7 +218,7 @@ struct StarRating: View {
     var body: some View {
         HStack(spacing: PixelSpacing.xs) {
             ForEach(0..<total, id: \.self) { i in
-                PixelIcon(.star, size: 14,
+                PixelIcon(.star, size: 16,
                           color: i < filled ? PixelColor.accent
                                             : PixelColor.outlineVariant)
             }

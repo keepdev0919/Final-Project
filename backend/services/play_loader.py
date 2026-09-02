@@ -123,6 +123,7 @@ def summarize(conn, play: Play) -> PlaySummary:
     return PlaySummary(
         id=play.id,
         place_id=play.place_id,
+        place_key=play.place_key,
         place_name=play.place_name,
         title=play.title,
         objective=play.objective,
@@ -165,6 +166,7 @@ def map_pins(conn) -> list[MapPin]:
 
         pins.append(MapPin(
             place_id=place["id"],
+            place_key=place["place_key"],
             place_name=place["display_name"],
             lat=place["lat"],
             lng=place["lng"],

@@ -81,6 +81,9 @@ struct HomeView: View {
                      + Text("하세요."))
                         .font(PixelFont.bodyLarge)
                         .foregroundStyle(PixelColor.inkWeak)
+                        // 시안 `leading-relaxed` = 1.625. 18 × 1.625 = 29.25 →
+                        // 기본 줄높이(약 22)에 7 을 더한다.
+                        .lineSpacing(7)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -121,6 +124,7 @@ struct HomeView: View {
                         }
                     } else {
                         PreparingPlaceCard(placeName: pin.placeName,
+                                           coverName: pin.placeKey,
                                            thumbnail: pin.thumbnail) {
                             selectedPlace = pin
                         }

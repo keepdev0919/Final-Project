@@ -49,6 +49,7 @@ targets:
       - path: JejuFolklore/Sources
       - path: JejuFolklore/Resources/Assets.xcassets
       - path: JejuFolklore/Resources/Fonts
+      - path: JejuFolklore/Resources/Covers
       - path: JejuFolklore/Resources/GoogleService-Info.plist
         optional: true
       - path: JejuFolklore/debug-route.gpx

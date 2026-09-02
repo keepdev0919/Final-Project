@@ -403,6 +403,8 @@ class PlaySummary(BaseModel):
     """홈 카드·지도 핀·장소 상세가 쓰는 가벼운 형태."""
     id: str
     place_id: str
+    # 픽셀 커버 파일 이름이기도 하다 (`Resources/Covers/<place_key>.png`).
+    place_key: str = ""
     place_name: str
     title: str
     objective: str = ""
@@ -424,6 +426,7 @@ class MapPin(BaseModel):
     색각 이상이 있는 사용자에게 두 상태가 같아 보이면 안 된다.
     """
     place_id: str
+    place_key: str = ""
     place_name: str
     lat: float
     lng: float

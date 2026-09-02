@@ -295,6 +295,8 @@ struct Play: Decodable, Identifiable, Equatable {
 struct PlaySummary: Decodable, Identifiable, Equatable, Hashable {
     let id: String
     let placeId: String
+    /// 픽셀 커버 파일 이름이기도 하다 (`Resources/Covers/<placeKey>.png`).
+    let placeKey: String
     let placeName: String
     let title: String
     let objective: String
@@ -333,6 +335,7 @@ struct PlayMapPin: Decodable, Identifiable, Equatable, Hashable {
     }
 
     let placeId: String
+    let placeKey: String
     let placeName: String
     let lat: Double
     let lng: Double
