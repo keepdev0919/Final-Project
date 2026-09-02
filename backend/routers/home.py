@@ -1,7 +1,5 @@
 """홈 화면용 엔드포인트.
 
-- `GET /home/stages` — **스테이지 카드 6곳.** 홈의 주인공이다. 라벨(종류)마다 1등을
-  하나씩 손으로 골라 `data/home_stage.json`에 적어 둔다
 - `GET /home/places` — 순위 목록 전체. 지도·검색이 쓴다. 홈은 쓰지 않는다
 - `GET /home/recommendations` — 추천 코스 3선. 코스 탭으로 들어가는 곁길
 """
@@ -49,17 +47,6 @@ def _hero_image_for_place(conn, primary_place: str) -> Optional[str]:
     except Exception:
         return None
     return None
-
-
-@router.get("/stages")
-@limiter.limit("30/minute")
-def get_home_stages(request: Request) -> dict[str, Any]:
-    """홈 스테이지 카드. 개수는 `data/home_stage.json`이 정한다 (지금 6곳)."""
-    try:
-        return {"stages": home_places.stages()}
-    except Exception as exc:  # noqa: BLE001
-        logger.exception("home.stages failed")
-        raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}")
 
 
 @router.get("/places")

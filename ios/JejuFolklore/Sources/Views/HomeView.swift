@@ -1,16 +1,17 @@
 import SwiftUI
 
-/// 홈 — **스테이지 선택 화면**이다 (`docs/공고.md` §2).
+/// 홈 — **PLAY 로 들어가는 화면**이다 (`CLAUDE.md` 제품 구조).
 ///
-/// 장소 목록이 아니다. 게임의 스테이지 선택 화면처럼 「여기서 할 일」과 「내 상태」를
-/// 보여주고, 해설 길이·운영시간·방문 시간대 같은 여행 정보는 장소 상세로 내렸다.
+/// 장소 목록이 아니다. 「제주 둘러보기」 같은 섹션을 기본 구조로 두지 않는다.
+/// 지금 플레이할 수 있는 PLAY 를 맨 위에 두고, 준비 중인 곳을 아래에 둔다.
 ///
-/// 6곳은 **라벨(종류)마다 1등 하나씩** 손으로 골랐다 — 순위 상위 6을 그냥 자르면
-/// 바다가 3개가 되어 라벨이 단조로워진다. 무엇을 띄우는지는 서버 `data/home_stage.json`.
+/// 무엇이 뜨는지는 서버 `data/places.json` 의 상태가 정한다 —
+/// `LIVE` 는 PLAY 카드, `PLANNED` 는 준비 중 카드, `CANDIDATE` 는 안 뜬다.
 struct HomeView: View {
     @StateObject private var vm = HomeViewModel()
 
-    @State private var selectedStage: HomeStage?
+    @State private var selectedPlay: PlaySummary?
+    @State private var selectedPlace: PlayMapPin?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -18,63 +19,135 @@ struct HomeView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: PixelSpacing.sectionGap) {
-                    stagesSection
-                    statusSection
+                    if vm.isLoading && vm.pins.isEmpty {
+                        loadingRow
+                    } else if vm.pins.isEmpty {
+                        emptyRow
+                    } else {
+                        playSection
+                        preparingSection
+                    }
                 }
                 .padding(.horizontal, PixelSpacing.screenMargin)
                 .padding(.top, PixelSpacing.xxl)
-                // ⚠️ 직접 만든 탭바는 ScrollView가 알지 못한다. 하단 여백을 주지 않으면
+                // ⚠️ 직접 만든 탭바는 ScrollView 가 알지 못한다. 하단 여백을 주지 않으면
                 // 마지막 카드가 탭바에 가린다(2026-08-20에 실제로 겪음).
                 .padding(.bottom, PixelSpacing.xxxl)
             }
         }
         .background(PixelColor.background.ignoresSafeArea())
         .navigationBarHidden(true)
-        // 장소 상세로는 **밀어 넣는다**(시트가 아니다). 사진·해설·이용정보가 길고,
-        // 뒤로가기·스와이프가 시스템 내비게이션에 붙어 있어야 한다(DESIGN.md §6 시스템 크롬).
-        .navigationDestination(item: $selectedStage) { stage in
-            PlaceDetailView(place: stage.asCoursePlace)
+        .navigationDestination(item: $selectedPlay) { play in
+            PlayDetailView(playId: play.id)
         }
-        .task { await vm.loadHome() }
+        .navigationDestination(item: $selectedPlace) { pin in
+            PlaceDetailView(place: CoursePlace(name: pin.placeName, lat: pin.lat,
+                                               lng: pin.lng, day: 0))
+        }
+        .task { await vm.load() }
+        .refreshable { await vm.load(force: true) }
     }
 
-    // MARK: - 밟을 곳 (홈의 주인공)
+    // MARK: - 플레이할 수 있는 것
 
     @ViewBuilder
-    private var stagesSection: some View {
-        if !vm.stages.isEmpty {
+    private var playSection: some View {
+        let active = vm.pins.filter { $0.status == .active }
+        if !active.isEmpty {
             VStack(alignment: .leading, spacing: PixelSpacing.cardGap) {
-                PixelSectionHeader(title: "밟을 곳", icon: .target)
-
-                ForEach(vm.stages) { stage in
-                    StageCard(stage: stage) { selectedStage = stage }
-                }
-            }
-        }
-    }
-
-    // MARK: - 상태
-
-    @ViewBuilder
-    private var statusSection: some View {
-        if vm.isLoading {
-            Text("불러오는 중…")
-                .font(PixelFont.body)
-                .foregroundStyle(PixelColor.inkWeak)
-                .frame(maxWidth: .infinity)
-        } else if let message = vm.errorMessage {
-            PixelCard(corners: false) {
-                VStack(alignment: .leading, spacing: PixelSpacing.m) {
-                    Text(message)
-                        .font(PixelFont.body)
-                        .foregroundStyle(PixelColor.ink)
-                    PixelButton(title: "다시 시도", style: .plain) {
-                        Task { await vm.reload() }
+                PixelSectionHeader(title: "지금 플레이할 수 있어요", icon: .target)
+                ForEach(active) { pin in
+                    if let play = pin.play {
+                        PlayCard(play: play, progressText: vm.progressText(for: play.id)) {
+                            selectedPlay = play
+                        }
                     }
                 }
-                .padding(PixelSpacing.cardPadding)
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
+    }
+
+    // MARK: - 준비 중
+
+    @ViewBuilder
+    private var preparingSection: some View {
+        let waiting = vm.pins.filter { $0.status == PlayMapPin.Status.preparing }
+        if !waiting.isEmpty {
+            VStack(alignment: .leading, spacing: PixelSpacing.cardGap) {
+                PixelSectionHeader(title: "곧 열려요", icon: .clock,
+                                   accent: PixelColor.secondary)
+                ForEach(waiting) { pin in
+                    PreparingPlaceCard(placeName: pin.placeName) { selectedPlace = pin }
+                }
+            }
+        }
+    }
+
+    // MARK: - 비었을 때
+
+    private var loadingRow: some View {
+        VStack(spacing: PixelSpacing.m) {
+            ProgressView()
+            Text("불러오는 중…")
+                .font(PixelFont.labelSmall)
+                .foregroundStyle(PixelColor.inkWeak)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, PixelSpacing.xxxl)
+    }
+
+    private var emptyRow: some View {
+        VStack(spacing: PixelSpacing.s) {
+            PixelIcon(.warn, size: 40, color: PixelColor.locked)
+            Text("PLAY 를 불러오지 못했어요.")
+                .font(PixelFont.body)
+                .foregroundStyle(PixelColor.inkWeak)
+            Text("아래로 당겨 다시 시도해보세요.")
+                .font(PixelFont.labelSmall)
+                .foregroundStyle(PixelColor.inkWeak)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, PixelSpacing.xxxl)
+    }
+}
+
+// MARK: - 뷰모델
+
+@MainActor
+final class HomeViewModel: ObservableObject {
+    @Published var pins: [PlayMapPin] = []
+    @Published var isLoading = false
+
+    /// 「생활기록 4 / 6」. 진행 중인 PLAY 만 값이 있다.
+    private var progressLabels: [String: String] = [:]
+
+    func load(force: Bool = false) async {
+        if !force && !pins.isEmpty { return }
+        isLoading = true
+        defer { isLoading = false }
+        let result = try? await PlayAPI.mapPins()
+        // 활성 → 준비 중 순으로. 같은 상태 안에서는 서버 순서를 지킨다.
+        pins = (result?.pins ?? []).sorted { a, b in
+            a.status == .active && b.status != .active
+        }
+        refreshProgress()
+    }
+
+    func progressText(for playId: String) -> String? { progressLabels[playId] }
+
+    /// 저장된 진행을 읽어 카드 도장에 쓸 문구를 만든다.
+    ///
+    /// 기록 칸의 **총 개수는 PLAY 상세를 열어야 알 수 있다.** 홈에서 전부
+    /// 받아오면 목록 하나에 PLAY 전체를 딸려오게 하는 셈이라, 여기서는
+    /// 「이어서 하기」만 알린다.
+    private func refreshProgress() {
+        var map: [String: String] = [:]
+        for p in PlayProgressStore.shared.inProgress() {
+            map[p.playId] = "이어서 하기"
+        }
+        for p in PlayProgressStore.shared.completed() {
+            map[p.playId] = "CLEAR"
+        }
+        progressLabels = map
     }
 }
