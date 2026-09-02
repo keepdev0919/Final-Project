@@ -309,6 +309,40 @@ class TestStoryIsOurs:
             assert s.sources, f"{s.id} 에 출처가 없습니다"
 
 
+# ── Story 음성 ────────────────────────────────────────────────────────────────
+
+class TestStoryTTS:
+    """`GET /tts/story?play_id=&story_id=`.
+
+    **읽을 문장을 클라이언트가 보내지 않는다** (2026-09-02 결정).
+    id 두 개만 받고 서버가 원고에서 꺼낸다.
+    """
+
+    def test_클라이언트가_읽을_텍스트를_못_보낸다(self):
+        """여기가 무너지면 **우리 Typecast 크레딧으로 아무 문장이나 읽게 된다.**
+
+        옛 `/tts/odii` 가 stid 만 받도록 만들어진 이유와 같다. 편의를 위해
+        `text=` 파라미터를 열어주고 싶어지는데, 열면 되돌리기 어렵다.
+        """
+        import inspect
+        from routers import tts
+        params = inspect.signature(tts.tts_for_story).parameters
+        assert "text" not in params and "script" not in params
+        assert {"play_id", "story_id"} <= set(params)
+
+    def test_모든_story_가_읽힌다(self, conn, seongeup):
+        """FINAL 뒤의 Story 도 포함해서, 화면이 열 수 있는 이야기는 전부
+        음성 경로가 있어야 한다. 하나만 소리가 안 나면 현장에서 그 자리만 어색해진다.
+        """
+        from routers.tts import tts_for_story  # noqa: F401  (임포트만 확인)
+        ids = {s.id for s in seongeup.stories}
+        if seongeup.final and seongeup.final.story:
+            ids.add(seongeup.final.story.id)
+        assert len(ids) == len(seongeup.stories) + (
+            1 if (seongeup.final and seongeup.final.story) else 0
+        ), "Story id 가 겹칩니다 — 겹치면 엉뚱한 음성이 재생된다"
+
+
 # ── 모델 방어 ─────────────────────────────────────────────────────────────────
 
 class TestModelGuards:

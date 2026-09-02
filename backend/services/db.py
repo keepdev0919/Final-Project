@@ -243,6 +243,32 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
         "CREATE INDEX IF NOT EXISTS idx_place_ext_place ON place_external_ids(place_id)"
     )
 
+    # ── 미션 신고 ───────────────────────────────────────────────────────
+    #
+    # 현장 답사를 하지 않기로 했으므로(2026-09-02) 웹으로 시야까지 확정 못 한
+    # 미션이 있다(성읍 M04·M07). "출시 후 사용자 리뷰로 잡는다"는 전략은
+    # **이 표가 채워져야 성립한다.** 안 채워지면 그냥 「검증 안 함」이다.
+    #
+    # ⚠️ **사용자를 식별하는 값을 담지 않는다.** 기기 ID·위치·사진 없음.
+    # 신고 화면이 "위치나 사진은 함께 보내지 않습니다"라고 약속하고 있어서,
+    # 여기에 무엇을 더하려면 그 문구부터 고쳐야 한다.
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS mission_reports (
+            id          TEXT PRIMARY KEY,
+            play_id     TEXT NOT NULL,
+            mission_id  TEXT,
+            reason      TEXT NOT NULL,
+            note        TEXT,
+            reported_at REAL NOT NULL
+        )
+        """
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_mission_reports_play "
+        "ON mission_reports(play_id, mission_id)"
+    )
+
     conn.commit()
 
 

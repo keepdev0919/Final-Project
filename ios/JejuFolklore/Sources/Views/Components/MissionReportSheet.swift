@@ -11,10 +11,15 @@ import SwiftUI
 /// 그래서 "출시 후 사용자 리뷰로 잡는다"고 정했는데, **이 신고 경로가 없으면
 /// 그건 리뷰 보정이 아니라 그냥 「검증 안 함」이다.** 이 화면이 그 전략을 성립시킨다.
 ///
-/// ⚠️ 아직 서버로 보내지 않는다. 단말에 쌓아두고 다음 묶음에서 보낸다 —
-/// **보내는 척하지 않는다.** 사용자에게도 "기록됐다"까지만 말한다.
+/// ## 못 보내도 잃지 않는다
+///
+/// 현장은 통신이 불안하다. 서버로 못 보내면 **단말에 쌓아두고 다음에 다시 보낸다.**
+/// 사용자에게는 어느 쪽이든 "기록했어요"라고 말한다 — 신고한 사람 입장에서는
+/// 지금 전송됐는지가 중요하지 않고, 우리가 잃지 않는 것이 중요하다.
 struct MissionReportSheet: View {
+    let playId: String
     let playTitle: String
+    let missionId: String
     let missionTitle: String
     let onDone: () -> Void
 
@@ -91,10 +96,14 @@ struct MissionReportSheet: View {
 
             PixelButton(title: "보내기", style: .primary) {
                 guard let reason else { return }
-                MissionReportStore.shared.add(MissionReport(
-                    playTitle: playTitle, missionTitle: missionTitle,
-                    reason: reason, note: note))
+                let report = MissionReport(
+                    playId: playId, playTitle: playTitle,
+                    missionId: missionId, missionTitle: missionTitle,
+                    reason: reason, note: note)
+                // 화면은 기다리지 않는다. 보내는 동안 사용자를 붙잡아두면
+                // 통신이 느린 현장에서 화면이 멈춘 것처럼 보인다.
                 sent = true
+                Task { await MissionReportStore.shared.submit(report) }
             }
             .opacity(reason == nil ? 0.4 : 1)
             .disabled(reason == nil)
@@ -139,32 +148,77 @@ struct MissionReport: Codable, Identifiable {
     }
 
     var id = UUID()
+    let playId: String
     let playTitle: String
+    let missionId: String
     let missionTitle: String
     let reason: Reason
     let note: String
     var reportedAt = Date()
 }
 
-/// 단말에 쌓아두는 신고. 서버 전송은 다음 묶음이다.
+/// 신고를 서버로 보내고, 못 보낸 것은 단말에 쌓아 다음에 다시 보낸다.
 @MainActor
 final class MissionReportStore {
     static let shared = MissionReportStore()
-    private let key = "mission_reports_v1"
+
+    /// 아직 못 보낸 것만 담는다. 보낸 것은 서버에 있으므로 단말에 남기지 않는다.
+    private let key = "mission_reports_pending_v1"
+
+    private struct Payload: Encodable {
+        let playId: String
+        let missionId: String
+        let reason: String
+        let note: String
+    }
+
+    private struct Ack: Decodable { let id: String }
+
     private init() {}
 
-    func add(_ report: MissionReport) {
-        var all = load()
-        all.append(report)
-        if let data = try? JSONEncoder().encode(all) {
-            UserDefaults.standard.set(data, forKey: key)
+    /// 보낸다. 실패하면 쌓아둔다.
+    func submit(_ report: MissionReport) async {
+        if await send(report) { return }
+        var pending = loadPending()
+        pending.append(report)
+        savePending(pending)
+    }
+
+    /// 쌓인 것을 다시 보낸다. 앱을 켤 때 한 번 부른다.
+    func flush() async {
+        var pending = loadPending()
+        guard !pending.isEmpty else { return }
+        var left: [MissionReport] = []
+        for report in pending {
+            if await send(report) == false { left.append(report) }
+        }
+        pending = left
+        savePending(pending)
+    }
+
+    private func send(_ report: MissionReport) async -> Bool {
+        let body = Payload(playId: report.playId, missionId: report.missionId,
+                           reason: report.reason.rawValue, note: report.note)
+        do {
+            let _: Ack = try await APIClient.shared.post("/report/mission", body: body)
+            return true
+        } catch {
+            return false
         }
     }
 
-    func load() -> [MissionReport] {
+    private func loadPending() -> [MissionReport] {
         guard let data = UserDefaults.standard.data(forKey: key),
               let all = try? JSONDecoder().decode([MissionReport].self, from: data)
         else { return [] }
         return all
+    }
+
+    private func savePending(_ all: [MissionReport]) {
+        if all.isEmpty {
+            UserDefaults.standard.removeObject(forKey: key)
+        } else if let data = try? JSONEncoder().encode(all) {
+            UserDefaults.standard.set(data, forKey: key)
+        }
     }
 }

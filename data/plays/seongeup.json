@@ -16,7 +16,7 @@
   "title": "성읍 생활기록 복원작전",
   "fantasy": "성읍의 오래된 집에는 옛 제주 사람들의 생활방식이 흔적으로 남아 있습니다.",
   "role": "기록 복원자",
-  "objective": "네 채의 옛집을 조사해 집의 경계·출입·공간·가족·물·소통에 관한 사라진 생활기록을 복원하세요.",
+  "objective": "네 채의 집을 직접 조사해 집의 경계 / 출입 / 공간 / 가족 / 물 / 소통에 관한 사라진 생활기록을 복원하세요.",
 
   "estimated_minutes_min": 60,
   "estimated_minutes_max": 75,
@@ -68,7 +68,7 @@
           "steps": [
             {
               "input_type": "CHOICE",
-              "prompt": "여닫는 대문이 있나요?",
+              "prompt": "",
               "options": [
                 { "id": "yes", "label": "대문이 보여요" },
                 { "id": "no",  "label": "아무리 찾아도 없어요" }
@@ -165,7 +165,7 @@
           "steps": [
             {
               "input_type": "CHOICE",
-              "prompt": "집채와 마당의 관계는?",
+              "prompt": "",
               "options": [
                 { "id": "line",   "label": "집채들이 한쪽에 일렬로 모여 있다" },
                 { "id": "around", "label": "여러 집채가 마당 주변을 둘러싼다" },
@@ -180,7 +180,7 @@
             { "text": "한 방향이 아니라 여러 방향에서 집채가 마당을 둘러싸는지 확인하세요." }
           ],
           "discovery": {
-            "title": "마당을 둘러싼 집채",
+            "title": "",
             "body": "객주집은 집 한 채가 아니라 여러 집채와 마당이 함께 하나의 생활공간을 이룹니다."
           },
           "progress_reward": "space"
@@ -205,7 +205,7 @@
           "steps": [
             {
               "input_type": "CHOICE",
-              "prompt": "주요 생활공간의 배치는?",
+              "prompt": "",
               "options": [
                 { "id": "one",    "label": "중요한 생활공간이 한 채뿐이다" },
                 { "id": "facing", "label": "두 주요 집채가 마당을 사이에 두고 마주 본다" },
@@ -217,7 +217,7 @@
           ],
           "hints": [
             { "text": "마당 양쪽의 주요 집채를 함께 비교해보세요." },
-            { "text": "안거리와 밖거리라는 두 주요 생활공간을 찾는 미션입니다." }
+            { "text": "안거리와 밖거리라는 두 주요 생활공간을 찾는 Mission입니다." }
           ],
           "discovery": {
             "title": "안거리 + 밖거리",
@@ -233,7 +233,7 @@
           "steps": [
             {
               "input_type": "CHOICE",
-              "prompt": "왜 살림공간을 나누었을까요?",
+              "prompt": "",
               "options": [
                 { "id": "gender",     "label": "남성과 여성이 나뉘어 살기 위해" },
                 { "id": "generation", "label": "부모 세대와 자녀 세대가 각각 살림하기 위해" },
@@ -248,7 +248,7 @@
             { "text": "부모와 결혼한 자녀 세대가 각각 별도의 살림공간을 둘 수 있었습니다." }
           ],
           "discovery": {
-            "title": "세대별 살림",
+            "title": "",
             "body": "한 울타리 안에서도 부모와 자녀 세대가 각자의 살림을 꾸릴 수 있었습니다."
           },
           "progress_reward": "family"
@@ -307,7 +307,7 @@
           "steps": [
             {
               "input_type": "CONFIRM",
-              "prompt": "큰 문 안에 숨은 작은 문을 찾아보세요."
+              "prompt": ""
             },
             {
               "input_type": "DIRECTION",

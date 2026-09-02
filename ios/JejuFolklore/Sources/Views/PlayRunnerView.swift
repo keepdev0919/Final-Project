@@ -19,6 +19,7 @@ struct PlayRunnerView: View {
 
     @StateObject private var vm: RunnerViewModel
     @StateObject private var location = LocationService.shared
+    @StateObject private var audio = StoryAudioPlayer.shared
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
@@ -65,12 +66,19 @@ struct PlayRunnerView: View {
             }
             .sheet(isPresented: $showReport) {
                 MissionReportSheet(
+                    playId: play.id,
                     playTitle: play.title,
+                    missionId: vm.currentMission?.id ?? play.final?.id ?? "",
                     missionTitle: vm.currentMission?.title ?? play.final?.title ?? ""
                 ) { showReport = false }
             }
         }
-        .onAppear { location.requestCurrentLocationOnce() }
+        .onAppear {
+            location.requestCurrentLocationOnce()
+            // 지난번에 못 보낸 신고가 있으면 지금 보낸다.
+            Task { await MissionReportStore.shared.flush() }
+        }
+        .onDisappear { audio.stop() }
     }
 
     // MARK: - 진행도
@@ -287,12 +295,16 @@ struct PlayRunnerView: View {
                     .padding(.vertical, PixelSpacing.xs)
                     .background(PixelColor.accent)
                     .pixelBorder()
-                Text(d.title)
-                    .font(PixelFont.screenTitle)
-                    .foregroundStyle(PixelColor.ink)
+                // 제목은 이름 있는 사물(정주석·물팡·호령창)에만 있다.
+                // 없는 발견은 본문만 보여준다 — 없는 이름을 지어내지 않는다.
+                if !d.title.isEmpty {
+                    Text(d.title)
+                        .font(PixelFont.screenTitle)
+                        .foregroundStyle(PixelColor.ink)
+                }
                 if !d.body.isEmpty {
                     Text(d.body)
-                        .font(PixelFont.bodyLarge)
+                        .font(d.title.isEmpty ? PixelFont.sectionTitle : PixelFont.bodyLarge)
                         .foregroundStyle(PixelColor.ink)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -326,6 +338,8 @@ struct PlayRunnerView: View {
                         .font(PixelFont.sectionTitle)
                         .foregroundStyle(PixelColor.ink)
                 }
+
+                storyAudioButton(story)
                 // 픽셀 폰트를 쓰지 않는다 — 긴 글은 읽기가 먼저다 (DESIGN.md §3).
                 Text(story.script)
                     .font(PixelFont.bodyLarge)
@@ -348,10 +362,56 @@ struct PlayRunnerView: View {
                 }
 
                 PixelButton(title: vm.isLastMission ? "마지막으로" : "다음", style: .primary) {
+                    // 다음 화면으로 넘어가면 소리를 끊는다. 미션 화면에서 앞
+                    // 이야기가 계속 흐르면 현실을 보는 데 방해가 된다.
+                    audio.stop()
                     vm.afterStory()
                 }
                 .padding(.top, PixelSpacing.m)
             }
+        }
+    }
+
+    /// 이야기를 소리로 듣는 버튼.
+    ///
+    /// **이어폰을 끼면 화면을 안 보고 현실을 볼 수 있어야 한다** (콘텐츠.md §10 —
+    /// 오디오가 주인, 글자는 자막). 다만 소리가 안 나도 자막은 그대로 있고
+    /// **진행은 막지 않는다** — 현장은 통신이 불안하다.
+    @ViewBuilder
+    private func storyAudioButton(_ story: PlayStory) -> some View {
+        let active = audio.isActive(story.id)
+        Button {
+            if active { audio.stop() }
+            else { audio.play(playId: play.id, storyId: story.id) }
+        } label: {
+            HStack(spacing: PixelSpacing.s) {
+                if audio.currentStoryId == story.id && audio.state == .loading {
+                    ProgressView().scaleEffect(0.8)
+                } else {
+                    PixelIcon(active ? .pause : .play, size: 18,
+                              color: PixelColor.onPrimary)
+                }
+                Text(audioLabel(story))
+                    .font(PixelFont.label)
+                    .foregroundStyle(PixelColor.onPrimary)
+                Spacer(minLength: 0)
+            }
+            .padding(PixelSpacing.m)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(PixelColor.primary)
+            .pixelBorder()
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(active ? "이야기 멈추기" : "이야기 듣기")
+    }
+
+    private func audioLabel(_ story: PlayStory) -> String {
+        guard audio.currentStoryId == story.id else { return "이야기 듣기" }
+        switch audio.state {
+        case .loading: return "소리를 준비하고 있어요…"
+        case .playing: return "멈추기"
+        case .failed:  return "소리를 못 불러왔어요 (자막으로 읽으세요)"
+        case .idle:    return "이야기 듣기"
         }
     }
 

@@ -36,6 +36,7 @@
 		54D584F75B5C044657405032 /* PixelFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5F583B0BC011D915FE152F /* PixelFont.swift */; };
 		551CF310DF3AE8E66E0D1AF7 /* PlayRunnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8F9DD63A88EBCCF172DEE06 /* PlayRunnerView.swift */; };
 		587E768898899E1D9B66B4F9 /* PixelIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB383F822D48F10D4C482C1B /* PixelIcon.swift */; };
+		58DF075E69988AA2F359FE58 /* StoryAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F360898F00360C7F075BAB6C /* StoryAudioPlayer.swift */; };
 		59BC2160448B1CDAE4804A6D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 435CA89B62B4B29FDF95DF2A /* GoogleService-Info.plist */; };
 		67157E9A54F763785AB8AAE4 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB19D914698888F9F31CB4C /* Config.swift */; };
 		6993D4B38E663044C3335FF3 /* PixelChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 700D4CE53167A5AD8EBB8340 /* PixelChrome.swift */; };
@@ -142,6 +143,7 @@
 		E8F9DD63A88EBCCF172DEE06 /* PlayRunnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayRunnerView.swift; sourceTree = "<group>"; };
 		EB5F583B0BC011D915FE152F /* PixelFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelFont.swift; sourceTree = "<group>"; };
 		EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyCourseListView.swift; sourceTree = "<group>"; };
+		F360898F00360C7F075BAB6C /* StoryAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryAudioPlayer.swift; sourceTree = "<group>"; };
 		F710DAFC1FB6A28109BE7C66 /* CourseHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseHubView.swift; sourceTree = "<group>"; };
 		FB383F822D48F10D4C482C1B /* PixelIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelIcon.swift; sourceTree = "<group>"; };
 		FB8400CD98E1FD2E1045AE84 /* TravelSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelSession.swift; sourceTree = "<group>"; };
@@ -315,6 +317,7 @@
 				ABCB9C34210E2B619207A45E /* PlayAPI.swift */,
 				C96AFB3E0EDE3F60AD5E68C6 /* PlayProgressStore.swift */,
 				0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */,
+				F360898F00360C7F075BAB6C /* StoryAudioPlayer.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -484,6 +487,7 @@
 				4FF8E3BA2A1CBF3EB0E700D8 /* SessionRestoreView.swift in Sources */,
 				8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */,
 				39E84B4B300BE84BCBDC781F /* SpeechRecognizer.swift in Sources */,
+				58DF075E69988AA2F359FE58 /* StoryAudioPlayer.swift in Sources */,
 				B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */,
 				C74D798F99D1945551A212E6 /* TravelSession.swift in Sources */,
 			);
