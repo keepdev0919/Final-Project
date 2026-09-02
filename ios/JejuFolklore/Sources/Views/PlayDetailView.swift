@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 import MapKit
 
 /// PLAY 상세 — **시작 전에 무엇을 하게 되는지 알려주는 화면**이다.
@@ -15,7 +14,6 @@ struct PlayDetailView: View {
     let playId: String
 
     @StateObject private var vm = PlayDetailViewModel()
-    @Environment(\.openURL) private var openURL
     @State private var showRunner = false
 
     var body: some View {
@@ -236,32 +234,23 @@ struct PlayDetailView: View {
 
     // MARK: - CTA
 
+    /// CTA 는 **하나뿐이다** (2026-09-02 조익준님 결정).
+    ///
+    /// 전에는 `[시작점으로 가기]` 와 `[PLAY 시작]` 을 나란히 뒀는데, 시작점 좌표가
+    /// 아직 없어 둘이 **같은 곳(첫 Point)으로 가고 있었다.** 같은 일을 하는 버튼이
+    /// 두 개면 "뭘 눌러야 하지"가 생긴다.
+    ///
+    /// 길찾기는 없앤 게 아니라 옮겼다 — `[PLAY 시작]` 을 누르면 나오는 첫 화면이
+    /// 이미 「어디로 가세요」 + `[길찾기]` + `[도착했어요]` 다.
+    ///
+    /// 주차장 좌표가 확정되면 첫 Point 앞에 「START — 주차장」 단계를 하나 넣는다.
     @ViewBuilder
     private func ctaSection(_ play: Play) -> some View {
-        VStack(spacing: PixelSpacing.m) {
-            PixelButton(title: "시작점으로 가기", style: .plain) {
-                openNavigation(to: play)
-            }
-            PixelButton(title: vm.hasProgress ? "이어서 하기" : "PLAY 시작", style: .primary) {
-                showRunner = true
-            }
+        PixelButton(title: vm.hasProgress ? "이어서 하기" : "PLAY 시작", style: .primary) {
+            showRunner = true
         }
         .padding(PixelSpacing.screenMargin)
         .padding(.bottom, PixelSpacing.xxl)
-    }
-
-    /// 외부 지도 앱으로 넘긴다. 우리가 길찾기를 만들지 않는다 —
-    /// 검증된 보행 경로가 없으면 직선으로 이어 길처럼 보이게 하지 않는다(`데이터.md` §5).
-    private func openNavigation(to play: Play) {
-        guard let c = play.startCoordinate else { return }
-        let app = "comgooglemaps://?daddr=\(c.latitude),\(c.longitude)&directionsmode=walking"
-        if let url = URL(string: app), UIApplication.shared.canOpenURL(url) {
-            openURL(url); return
-        }
-        if let web = URL(string:
-            "https://www.google.com/maps/dir/?api=1&destination=\(c.latitude),\(c.longitude)") {
-            openURL(web)
-        }
     }
 
     private var failedView: some View {
