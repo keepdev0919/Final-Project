@@ -404,7 +404,7 @@ struct PlayDetailView: View {
         } label: {
             HStack(spacing: PixelSpacing.s) {
                 PixelIcon(.play, size: 24, color: PixelColor.onPrimary)
-                Text(vm.hasProgress ? play.resumeLabel : play.startLabel)
+                Text(play.startLabel)
                     .font(PixelFont.sectionTitle)                // headline-md 24
                     .foregroundStyle(PixelColor.onPrimary)
                     .lineLimit(1)
@@ -500,10 +500,9 @@ final class PlayDetailViewModel: ObservableObject {
     @Published var play: Play?
     @Published var thumbnail: String?
     @Published var failed = false
-    @Published var hasProgress = false
 
     func load(playId: String) async {
-        if play != nil { refreshProgress(playId: playId); return }
+        if play != nil { return }
         do {
             play = try await PlayAPI.detail(id: playId)
             // 사진은 목록 응답에만 있다. 상세를 무겁게 만들지 않으려고 따로 가져온다.
@@ -512,10 +511,5 @@ final class PlayDetailViewModel: ObservableObject {
         } catch {
             failed = true
         }
-        refreshProgress(playId: playId)
-    }
-
-    private func refreshProgress(playId: String) {
-        hasProgress = PlayProgressStore.shared.load(playId: playId) != nil
     }
 }

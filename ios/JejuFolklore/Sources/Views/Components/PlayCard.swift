@@ -17,8 +17,6 @@ import UIKit
 ///       button.py-2.font-label-lg    14 / w700       퀘스트 수락
 struct PlayCard: View {
     let play: PlaySummary
-    /// 진행 중이면 「이어서 하기」처럼 버튼 문구가 바뀐다.
-    var progressText: String? = nil
     let action: () -> Void
 
     var body: some View {
@@ -45,8 +43,9 @@ struct PlayCard: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                QuestButton(title: progressText ?? "퀘스트 수락",
-                            filled: true, action: action)
+                // **문구가 상태에 따라 갈리지 않는다** — 진행 저장을 걷어냈다
+                // (2026-09-04). 전에는 「이어서 하기」·「다시 하기」로 바뀌었다.
+                QuestButton(title: "퀘스트 수락", filled: true, action: action)
             }
             .padding(PixelSpacing.cardPadding)                       // p-4
             .frame(maxWidth: .infinity, alignment: .leading)

@@ -117,7 +117,7 @@ struct HomeView: View {
             } else {
                 ForEach(vm.pins) { pin in
                     if let play = pin.play {
-                        PlayCard(play: play, progressText: vm.progressText(for: play.id)) {
+                        PlayCard(play: play) {
                             selectedPlay = play
                         }
                     } else {
@@ -167,8 +167,6 @@ final class HomeViewModel: ObservableObject {
     @Published var pins: [PlayMapPin] = []
     @Published var isLoading = false
 
-    private var progressLabels: [String: String] = [:]
-
     func load(force: Bool = false) async {
         if !force && !pins.isEmpty { return }
         isLoading = true
@@ -178,16 +176,5 @@ final class HomeViewModel: ObservableObject {
         pins = (result?.pins ?? []).sorted { a, b in
             a.status == .active && b.status != .active
         }
-        refreshProgress()
-    }
-
-    /// 카드 버튼에 쓸 문구. 손 안 댄 퀘스트는 nil 이라 「퀘스트 수락」이 뜬다.
-    func progressText(for playId: String) -> String? { progressLabels[playId] }
-
-    private func refreshProgress() {
-        var map: [String: String] = [:]
-        for p in PlayProgressStore.shared.inProgress() { map[p.playId] = "이어서 하기" }
-        for p in PlayProgressStore.shared.completed() { map[p.playId] = "다시 하기" }
-        progressLabels = map
     }
 }
