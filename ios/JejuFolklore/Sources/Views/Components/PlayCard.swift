@@ -199,7 +199,13 @@ private struct QuestButton: View {
                 .font(PixelFont.label)                            // label-lg 14 / w700
                 .foregroundStyle(filled ? PixelColor.onPrimary : PixelColor.outline)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, PixelSpacing.s)               // py-2
+                // 시안은 `py-2`(8) 라 높이가 33 이었다. 손가락으로 누르는 물건의
+                // 최소 크기가 44 인데 그보다 작았고, 카드 안에서도 눌러달라는
+                // 물건치고 얇았다 (2026-09-03 조익준님 요청).
+                //
+                // ⚠️ `퀘스트 수락` 과 `준비 중` 이 이 버튼 하나를 같이 쓴다 —
+                // 여기만 고치면 둘 다 바뀐다.
+                .frame(height: 44)
                 .background(filled ? PixelColor.primary : PixelColor.surfaceVariant)
                 .pixelBorder(width: PixelSpacing.borderHeavy)     // 4px
                 .pixelShadow(PixelSpacing.shadowCard)             // 4px
