@@ -16,6 +16,7 @@
 		174F84207B32BD1FF0089EA3 /* CoursePreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */; };
 		181950EB48299EE76985B887 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D5CC6DDEC1C1B656071D157 /* AuthManager.swift */; };
 		18E4CA6BBCC86AD84FCFD234 /* jeju-stone-park.png in Resources */ = {isa = PBXBuildFile; fileRef = A879853F4651906EE40B20D1 /* jeju-stone-park.png */; };
+		1D31F774AFAFA32EA214BE61 /* Galmuri11-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = ACC8CE9035C23D8D25277A7D /* Galmuri11-Bold.ttf */; };
 		1EFFDAF78ADAE81D2021D06E /* SavedCourse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E81A390764D24D99F14B2DA /* SavedCourse.swift */; };
 		1F8E431CBD4FDEDB15BB328D /* CoursePlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = A744E956106F34C9C2D95F2F /* CoursePlace.swift */; };
 		290137D764E6A47F84FD38EB /* LoginSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABFB1F82A4D609716075142E /* LoginSheet.swift */; };
@@ -134,6 +135,7 @@
 		AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		ABCB9C34210E2B619207A45E /* PlayAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayAPI.swift; sourceTree = "<group>"; };
 		ABFB1F82A4D609716075142E /* LoginSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginSheet.swift; sourceTree = "<group>"; };
+		ACC8CE9035C23D8D25277A7D /* Galmuri11-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Galmuri11-Bold.ttf"; sourceTree = "<group>"; };
 		BCB19D914698888F9F31CB4C /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		BE302B828FB176D1DA8415CD /* SessionRestoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRestoreView.swift; sourceTree = "<group>"; };
 		C0E3C9D9B595012C0EAF66BF /* ProfileTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTabView.swift; sourceTree = "<group>"; };
@@ -247,6 +249,7 @@
 			isa = PBXGroup;
 			children = (
 				8106FE651DF3B5201C58AE54 /* Galmuri9.ttf */,
+				ACC8CE9035C23D8D25277A7D /* Galmuri11-Bold.ttf */,
 				E25C6E205C7D773FC22CA00E /* Galmuri11.ttf */,
 				680EEF39BE20B00165C19DAA /* Galmuri14.ttf */,
 				52D86945625489F0FAF637E3 /* MaterialIcons-Regular.ttf */,
@@ -437,6 +440,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8C282DF964A29D9C75C3B99A /* Assets.xcassets in Resources */,
+				1D31F774AFAFA32EA214BE61 /* Galmuri11-Bold.ttf in Resources */,
 				29733E529895877A8C3055B5 /* Galmuri11.ttf in Resources */,
 				72807356FA10C0EE8D9EC901 /* Galmuri14.ttf in Resources */,
 				1063ECB9D961E9145B031E02 /* Galmuri9.ttf in Resources */,

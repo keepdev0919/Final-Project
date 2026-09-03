@@ -77,7 +77,8 @@ struct ExploreView: View {
                     explorationCompleted = true
                 }
                 .foregroundColor(PixelColor.primary)
-                .fontWeight(.semibold)
+                // ⚠️ 픽셀 폰트에 없는 굵기를 씌우면 도트가 번진다 — 서체로 준다.
+                .font(PixelFont.label)
             }
         }
         .navigationDestination(item: $selectedPlace) { place in

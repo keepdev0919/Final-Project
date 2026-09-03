@@ -19,7 +19,7 @@ PROJECT_YML = ROOT / "ios/project.yml"
 PIXEL_FONT_SWIFT = ROOT / "ios/JejuFolklore/Sources/Views/DesignSystem/PixelFont.swift"
 
 REQUIRED_FONTS = [
-    "Galmuri9.ttf", "Galmuri11.ttf", "Galmuri14.ttf",
+    "Galmuri9.ttf", "Galmuri11.ttf", "Galmuri11-Bold.ttf", "Galmuri14.ttf",
     # 시안이 쓰는 아이콘 폰트. 이게 안 실리면 아이콘이 전부 두부(□)가 된다.
     "MaterialIcons-Regular.ttf",
 ]
@@ -30,6 +30,7 @@ REQUIRED_FONTS = [
 POSTSCRIPT_NAMES = {
     "Galmuri9.ttf": "Galmuri9-Regular",
     "Galmuri11.ttf": "Galmuri11-Regular",
+    "Galmuri11-Bold.ttf": "Galmuri11-Bold",
     "Galmuri14.ttf": "Galmuri14-Regular",
 }
 
@@ -94,19 +95,39 @@ def test_font_file_declares_expected_postscript_name(filename, postscript):
 def test_swift_uses_postscript_names():
     """갈무리를 쓰는 자리는 파일명이 아니라 PostScript 이름을 써야 한다.
 
-    ⚠️ 2026-08-20: 갈무리를 **UI 본문에서 뺐다**. 시안 4개가 전부
-    산세리프이고, 시안이 촘촘하고 읽기 쉬운 이유의 절반이 폰트였다.
-    지금 갈무리는 **로고에만** 쓴다 — `PixelFont.logo()` 하나뿐이다.
+    ⚠️ 2026-09-03: 갈무리를 **화면 글자 전체에** 다시 썼다(조익준님 결정).
+    2026-08-20 에 「시안이 산세리프라서」 뺐었는데, 시안이 산세리프인 것은
+    선택이 아니라 사고였다 — Space Grotesk·Work Sans 에 한글 글리프가 없어
+    브라우저가 시스템 폰트로 떨어뜨린 결과였다.
 
-    폰트 파일과 번들 등록은 그대로 검사한다(위 테스트들). 로고가 조용히
-    시스템 폰트로 폴백되면 앱 이름의 픽셀 정체성이 사라지는데, 그건 눈으로
-    잡기 어렵다.
+    이름을 한 글자라도 틀리면 예외 없이 시스템 폰트로 폴백해 화면이 멀쩡해 보인다.
     """
     source = PIXEL_FONT_SWIFT.read_text(encoding="utf-8")
-    used = set(re.findall(r'\.custom\(\s*"([^"]+)"', source))
-    assert used, "PixelFont.swift에서 갈무리를 쓰는 자리를 찾지 못했다 (로고가 사라졌나?)"
+    used = set(re.findall(r'^\s*private static let \w+\s*=\s*"([^"]+)"', source, re.M))
+    used |= set(re.findall(r'\.custom\(\s*"([^"]+)"', source))
+    assert used, "PixelFont.swift 에서 갈무리를 쓰는 자리를 찾지 못했다"
     assert used <= set(POSTSCRIPT_NAMES.values()), (
         f"PostScript 이름이 아닌 값이 쓰였다: {used - set(POSTSCRIPT_NAMES.values())}"
+    )
+
+
+def test_no_synthetic_bold_over_pixel_font():
+    """픽셀 폰트 위에 `.bold()`·`.fontWeight()` 를 씌우지 않는다.
+
+    갈무리에는 Regular 와 Bold 두 벌뿐이다. 없는 굵기를 요구하면 iOS 가 획을
+    부풀려 흉내 내고, **도트가 번져서** 픽셀 폰트를 쓰는 의미가 사라진다.
+    굵게 하려면 `PixelFont` 의 Bold 항목을 쓴다.
+    """
+    views = (ROOT / "ios/JejuFolklore/Sources/Views").rglob("*.swift")
+    offenders = []
+    for f in views:
+        for n, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
+            if "//" in line and line.index("//") < (line.find(".bold(") + 1 or 10**9):
+                continue
+            if re.search(r"\.bold\(\)|\.fontWeight\(", line):
+                offenders.append(f"{f.name}:{n}")
+    assert not offenders, (
+        "픽셀 폰트에 가짜 굵기를 씌우는 자리: " + ", ".join(offenders)
     )
 
 

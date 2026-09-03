@@ -74,7 +74,8 @@ struct HomeView: View {
                         .foregroundStyle(PixelColor.ink)
 
                     (Text("제주 관광지 하나가 통째로 게임 속 장소가 됩니다. 실제 장소를 돌아다니며 미션을 수행하고 그곳을 ")
-                     + Text("클리어").foregroundColor(PixelColor.primaryContainer).bold()
+                     + Text("클리어").foregroundColor(PixelColor.primaryContainer)
+                        .font(PixelFont.bodyLargeBold)
                      + Text("하세요."))
                         .font(PixelFont.bodyLarge)
                         .foregroundStyle(PixelColor.inkWeak)
