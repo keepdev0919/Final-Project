@@ -11,14 +11,16 @@ struct PlaceDetailView: View {
     @State private var currentPhotoIndex = 0
     @State private var placeReviews: PlaceReviewsResponse? = nil
 
+    /// PLAY 상세와 같이 탭바를 숨긴다 — 장소 하나를 보는 화면이라 다른 탭으로 갈 일이 없고,
+    /// 뒤로 가는 길은 위쪽 화살표가 갖고 있다.
+    @Environment(\.tabBarVisibility) private var tabBar
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 photoCarousel
-                actionRow
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
-                Divider()
+                // 「공유하기」 줄을 걷어냈다(2026-09-03 조익준님 결정). 그 줄만 있던
+                // 띠라 아래 구분선도 함께 없앴다 — 사진 바로 밑에 선만 남는다.
                 if let detail {
                     overviewSection(detail)
                     basicInfoSection(detail)
@@ -34,8 +36,11 @@ struct PlaceDetailView: View {
                 }
             }
         }
-        .navigationTitle(place.name)
-        .navigationBarTitleDisplayMode(.inline)
+        // PLAY 상세와 같다 — 상단바를 걷어내고 픽셀 뒤로가기 버튼을 사진 위에 얹는다.
+        // 사진이 화면 맨 위에서 시작하므로 기본 여백(8)이면 사진 안에 들어간다.
+        .pixelFloatingBack()
+        .onAppear { tabBar?.hide() }
+        .onDisappear { tabBar?.show() }
         .task {
             async let detailTask: () = loadDetail()
             async let reviewTask: () = loadReviews()
@@ -89,22 +94,6 @@ struct PlaceDetailView: View {
     }
 
     // MARK: - Action Row
-
-    private var actionRow: some View {
-        HStack(spacing: 0) {
-            ShareLink(
-                item: "\(place.name)\n\(detail?.address ?? "")"
-            ) {
-                VStack(spacing: 6) {
-                    PixelIcon(.share, size: 16)
-                    Text("공유하기")
-                        .font(PixelFont.labelSmall)
-                }
-                .frame(maxWidth: .infinity)
-                .foregroundColor(PixelColor.ink)
-            }
-        }
-    }
 
     // MARK: - Overview
 
