@@ -102,13 +102,26 @@ struct PlayRunnerView: View {
         .padding(.top, PixelSpacing.s)
     }
 
-    // MARK: - 아래 (대화상자 + 버튼)
+    // MARK: - 아래 (정보판 + 말풍선 + 버튼)
 
+    /// **대화창에는 곱딱이가 말하는 것만 넣는다** (2026-09-04 조익준님 결정).
+    ///
+    ///     [ 배지 ]        자기 색이 채워져 있어 그림 위에 그냥 둬도 읽힌다
+    ///     ┌ 정보판 ┐      나머지 전부. 가라앉은 바탕 · 2px 테두리
+    ///     ┌ 대화창 ┐      초상화 · 이름 · 대사 · ▼. 흰 바탕 · 4px · 귀퉁이 점
+    ///     [ 버튼 ]
+    ///
+    /// 전에는 단계마다 대화창 안에 든 것이 달라서 크기가 들쭉날쭉했다. 곱딱이
+    /// 목소리만 남기면 **대화창은 언제나 같은 모양**이고, 바뀌는 것은 그 위다.
+    ///
+    /// 글자가 있는 것은 반드시 상자에 담는다 — 배경 그림 위에 그냥 얹으면
+    /// 하늘에서는 읽히고 돌담에서는 사라진다.
     private var sceneBottom: some View {
-        VStack(spacing: PixelSpacing.m) {
+        VStack(alignment: .leading, spacing: PixelSpacing.m) {
+            infoSection
             PixelDialogueBox(showsNext: vm.phase != .mission && vm.phase != .finalStage) {
                 VStack(alignment: .leading, spacing: PixelSpacing.m) {
-                    boxContent
+                    speechSection
                 }
             }
             actionRow
@@ -118,16 +131,56 @@ struct PlayRunnerView: View {
         .padding(.bottom, PixelSpacing.xl)
     }
 
+    /// 대화창 **위** — 곱딱이 말이 아닌 모든 것.
     @ViewBuilder
-    private var boxContent: some View {
+    private var infoSection: some View {
         switch vm.phase {
-        case .pointIntro: pointIntroBox
-        case .mission:    missionBox
-        case .discovery:  discoveryBox
-        case .story:      storyBox
-        case .finalStage: finalBox
-        case .clear:      clearBox
+        case .pointIntro:   pointIntroInfo
+        case .mission:      missionInfo
+        case .stepFeedback: stepFeedbackInfo
+        case .discovery:    discoveryInfo
+        case .story:        storyInfo
+        case .finalStage:   finalInfo
+        case .clear:        clearInfo
         }
+    }
+
+    /// 대화창 **안** — 곱딱이가 말하는 것.
+    @ViewBuilder
+    private var speechSection: some View {
+        switch vm.phase {
+        case .pointIntro:
+            if let point = vm.currentPoint {
+                speech(point.navigationText.isEmpty ? point.objective : point.navigationText)
+            }
+        case .mission:
+            if let mission = vm.currentMission, let step = vm.currentStep {
+                speech(missionSpeech(mission, step))
+            }
+        case .stepFeedback:
+            if let text = vm.pendingSuccess { speech(text) }
+        case .discovery:
+            if let d = vm.pendingDiscovery { speech(d.body) }
+        case .story:
+            if let story = vm.pendingStory { speech(story.script, story: story) }
+        case .finalStage:
+            if let final = play.final { speech(final.prompt) }
+        case .clear:
+            if let body = play.clear?.body, !body.isEmpty { speech(body) }
+        }
+    }
+
+    /// 정보판의 겉모양. 대화창과 **일부러 다르게** 한다 —
+    /// 테두리가 얇고(2px), 바탕이 가라앉았고, 귀퉁이 점이 없다.
+    private func infoFrame<C: View>(@ViewBuilder _ content: () -> C) -> some View {
+        VStack(alignment: .leading, spacing: PixelSpacing.m) {
+            content()
+        }
+        .padding(PixelSpacing.cardPadding)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(PixelColor.surfaceLow)
+        .pixelBorder(width: PixelSpacing.border)
+        .pixelShadow(PixelSpacing.shadowCard)
     }
 
     /// 곱딱이가 말하는 줄 — 초상화 · 이름 · (소리) · 한 글자씩 나타나는 글.
@@ -164,29 +217,30 @@ struct PlayRunnerView: View {
         }
     }
 
-    // MARK: - 「가는 중」 화면
+    // MARK: - 「가는 중」 정보판
 
     /// **도착한 뒤가 아니라 아직 안 갔을 때** 뜨는 화면이다.
     /// 「대장간집으로 가세요」 → 걸어가서 → `[도착했어요]`.
     @ViewBuilder
-    private var pointIntroBox: some View {
+    private var pointIntroInfo: some View {
         if let point = vm.currentPoint {
-            HStack {
-                Text("POINT \(vm.pointNumber) / \(play.points.count)")
-                    .font(PixelFont.labelSmall)
-                    .foregroundStyle(PixelColor.inkWeak)
-                Spacer(minLength: 0)
-                distanceRow(to: point)
-            }
-            Text(point.title)
-                .font(PixelFont.sectionTitle)
-                .foregroundStyle(PixelColor.ink)
-            speech(point.navigationText.isEmpty ? point.objective : point.navigationText)
-            if !point.navigationText.isEmpty, !point.objective.isEmpty {
-                Text(point.objective)
-                    .font(PixelFont.body)
-                    .foregroundStyle(PixelColor.inkWeak)
-                    .fixedSize(horizontal: false, vertical: true)
+            infoFrame {
+                HStack {
+                    Text("POINT \(vm.pointNumber) / \(play.points.count)")
+                        .font(PixelFont.labelSmall)
+                        .foregroundStyle(PixelColor.inkWeak)
+                    Spacer(minLength: 0)
+                    distanceRow(to: point)
+                }
+                Text(point.title)
+                    .font(PixelFont.sectionTitle)
+                    .foregroundStyle(PixelColor.ink)
+                if !point.navigationText.isEmpty, !point.objective.isEmpty {
+                    Text(point.objective)
+                        .font(PixelFont.body)
+                        .foregroundStyle(PixelColor.inkWeak)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         }
     }
@@ -208,45 +262,58 @@ struct PlayRunnerView: View {
         }
     }
 
-    // MARK: - Mission
+    // MARK: - Mission 정보판
 
     /// ⚠️ 미션 화면은 시안(3)을 그대로 못 쓴다. 시안은 「읽고 → 다음」 한 장면인데
     /// 미션은 **답을 넣어야** 한다 (보기 고르기 8 · 확인 3 · 방향 1).
-    /// 지금은 대화상자 안에 입력을 넣어 뒀다 — 미션 전용 시안이 오면 다시 짠다.
+    /// 미션 전용 시안이 오면 다시 짠다.
     @ViewBuilder
-    private var missionBox: some View {
+    private var missionInfo: some View {
         if let mission = vm.currentMission, let step = vm.currentStep {
-            HStack {
-                Text(vm.currentPoint?.title ?? "")
-                    .font(PixelFont.labelSmall)
-                    .foregroundStyle(PixelColor.inkWeak)
-                Spacer(minLength: 0)
-                Text("MISSION")
-                    .font(PixelFont.labelSmall)
-                    .foregroundStyle(PixelColor.inkWeak)
-            }
-            Text(mission.title)
-                .font(PixelFont.sectionTitle)
-                .foregroundStyle(PixelColor.ink)
-            speech(missionSpeech(mission, step))
-
-            if let wrong = vm.wrongMessage {
-                HStack(alignment: .top, spacing: PixelSpacing.s) {
-                    PixelIcon(.refresh, size: 16, color: PixelColor.locked)
-                    Text(wrong)
-                        .font(PixelFont.body)
-                        .foregroundStyle(PixelColor.locked)
-                        .fixedSize(horizontal: false, vertical: true)
+            infoFrame {
+                HStack {
+                    Text(vm.currentPoint?.title ?? "")
+                        .font(PixelFont.labelSmall)
+                        .foregroundStyle(PixelColor.inkWeak)
+                    Spacer(minLength: 0)
+                    Text("MISSION")
+                        .font(PixelFont.labelSmall)
+                        .foregroundStyle(PixelColor.inkWeak)
                 }
-                .padding(PixelSpacing.m)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(PixelColor.surfaceHigh)
-                .pixelBorder()
-            }
+                Text(mission.title)
+                    .font(PixelFont.sectionTitle)
+                    .foregroundStyle(PixelColor.ink)
 
-            MissionStepInput(step: step) { vm.submit($0) }
-            revealedHints(mission)
-            escapeRow
+                if let wrong = vm.wrongMessage {
+                    HStack(alignment: .top, spacing: PixelSpacing.s) {
+                        PixelIcon(.refresh, size: 16, color: PixelColor.locked)
+                        Text(wrong)
+                            .font(PixelFont.body)
+                            .foregroundStyle(PixelColor.locked)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(PixelSpacing.m)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(PixelColor.surface)
+                    .pixelBorder()
+                }
+
+                MissionStepInput(step: step) { vm.submit($0) }
+                revealedHints(mission)
+                escapeRow(mission)
+            }
+        }
+    }
+
+    /// 맞혔을 때 — 어느 미션을 맞혔는지만 남기고, 칭찬은 곱딱이가 한다.
+    @ViewBuilder
+    private var stepFeedbackInfo: some View {
+        if let mission = vm.currentMission {
+            infoFrame {
+                Text(mission.title)
+                    .font(PixelFont.sectionTitle)
+                    .foregroundStyle(PixelColor.ink)
+            }
         }
     }
 
@@ -282,17 +349,36 @@ struct PlayRunnerView: View {
             }
             .padding(PixelSpacing.m)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(PixelColor.surfaceLow)
+            .background(PixelColor.surface)
             .pixelBorder()
         }
     }
 
     /// **막히면 나갈 길이 항상 있다.** 미션 하나 때문에 관광이 멈추지 않는다.
     ///
-    /// 대화상자 **안**에 둔다 — 밖은 배경 그림 위라 작은 글자가 안 읽힌다.
-    private var escapeRow: some View {
+    /// 정보판 **안**에 둔다 — 밖은 배경 그림 위라 작은 글자가 안 읽힌다.
+    ///
+    /// ## `정답과 이야기 보기` 는 힌트를 다 본 뒤에만 나온다
+    ///
+    /// 2026-09-04 조익준님 결정. 이 버튼은 답을 못 맞혀도 발견·이야기를 열고
+    /// 다음으로 넘어간다 (진행도 칸도 채워지지만 「건너뛴 미션」으로 따로 세어
+    /// CLEAR 에서 구분한다).
+    ///
+    /// 전에는 보기 버튼 바로 아래에 **처음부터** 있었다. 그러면 한 번도 안
+    /// 풀어본 사람이 그냥 눌러서, 현실을 보고 발견하는 경험이 글 읽기로
+    /// 바뀐다 — 성읍의 대표 미션(호령창)도 그렇게 넘어갈 수 있었다.
+    ///
+    /// 힌트를 다 본 뒤에 열면 「막히면 안 갇힌다」(CLAUDE.md)는 지키면서 답을
+    /// 먼저 보는 길만 한 칸 뒤로 미룬다. 힌트가 없는 미션은 바로 열린다 —
+    /// 열어 볼 힌트가 없는데 막아두면 갇힌다.
+    ///
+    /// `현장에서 찾을 수 없어요` 는 **항상** 있다. 콘텐츠 신고이고, 현장 답사를
+    /// 하지 않기로 했으므로(2026-09-02) 이 경로가 콘텐츠 QA 의 눈이다.
+    private func escapeRow(_ mission: Mission) -> some View {
         HStack(spacing: PixelSpacing.l) {
-            Button("정답과 이야기 보기") { vm.skipMission() }
+            if vm.hintLevel >= mission.hints.count {
+                Button("정답과 이야기 보기") { vm.skipMission() }
+            }
             Button("현장에서 찾을 수 없어요") { showReport = true }
             Spacer(minLength: 0)
         }
@@ -301,37 +387,40 @@ struct PlayRunnerView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Discovery
+    // MARK: - Discovery 정보판
 
     @ViewBuilder
-    private var discoveryBox: some View {
+    private var discoveryInfo: some View {
         if let d = vm.pendingDiscovery {
             sceneBadge(vm.lastSkipped ? "정답" : "NEW DISCOVERY",
                        fill: PixelColor.accent, label: PixelColor.onAccent)
             // 제목은 이름 있는 사물(정주석·물팡·호령창)에만 있다.
             // 없는 발견은 본문만 보여준다 — 없는 이름을 지어내지 않는다.
-            if !d.title.isEmpty {
-                Text(d.title)
-                    .font(PixelFont.sectionTitle)
-                    .foregroundStyle(PixelColor.ink)
-            }
-            speech(d.body)
-            if let record = vm.justEarnedRecord {
-                HStack(spacing: PixelSpacing.s) {
-                    PixelIcon(.check, size: 18, color: PixelColor.primary)
-                    Text("\(record) 기록 복원")
-                        .font(PixelFont.label)
-                        .foregroundStyle(PixelColor.ink)
+            if !d.title.isEmpty || vm.justEarnedRecord != nil {
+                infoFrame {
+                    if !d.title.isEmpty {
+                        Text(d.title)
+                            .font(PixelFont.sectionTitle)
+                            .foregroundStyle(PixelColor.ink)
+                    }
+                    if let record = vm.justEarnedRecord {
+                        HStack(spacing: PixelSpacing.s) {
+                            PixelIcon(.check, size: 18, color: PixelColor.primary)
+                            Text("\(record) 기록 복원")
+                                .font(PixelFont.label)
+                                .foregroundStyle(PixelColor.ink)
+                        }
+                        .padding(PixelSpacing.m)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(PixelColor.surface)
+                        .pixelBorder()
+                    }
                 }
-                .padding(PixelSpacing.m)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(PixelColor.surfaceLow)
-                .pixelBorder()
             }
         }
     }
 
-    // MARK: - Story
+    // MARK: - Story 정보판
 
     /// 발견 뒤에 오는 의미. **놀멍봅서가 직접 쓴 문장이다** — 오디 대본이 아니다.
     ///
@@ -339,23 +428,24 @@ struct PlayRunnerView: View {
     /// 따로 있었는데, 상단에도 소리 표시를 두려니 켜는 곳이 두 개가 됐다 —
     /// **소리는 한 곳으로 몰았다** (2026-09-03 조익준님 지적).
     @ViewBuilder
-    private var storyBox: some View {
-        if let story = vm.pendingStory {
-            if !story.title.isEmpty {
-                Text(story.title)
-                    .font(PixelFont.sectionTitle)
-                    .foregroundStyle(PixelColor.ink)
-            }
-            speech(story.script, story: story)
-            if !story.sources.isEmpty {
-                VStack(alignment: .leading, spacing: PixelSpacing.xs) {
-                    Text("참고 자료")
-                        .font(PixelFont.labelSmall)
-                        .foregroundStyle(PixelColor.inkWeak)
-                    ForEach(Array(story.sources.enumerated()), id: \.offset) { _, s in
-                        Text("· \(sourceLabel(s))")
+    private var storyInfo: some View {
+        if let story = vm.pendingStory, !story.title.isEmpty || !story.sources.isEmpty {
+            infoFrame {
+                if !story.title.isEmpty {
+                    Text(story.title)
+                        .font(PixelFont.sectionTitle)
+                        .foregroundStyle(PixelColor.ink)
+                }
+                if !story.sources.isEmpty {
+                    VStack(alignment: .leading, spacing: PixelSpacing.xs) {
+                        Text("참고 자료")
                             .font(PixelFont.labelSmall)
                             .foregroundStyle(PixelColor.inkWeak)
+                        ForEach(Array(story.sources.enumerated()), id: \.offset) { _, s in
+                            Text("· \(sourceLabel(s))")
+                                .font(PixelFont.labelSmall)
+                                .foregroundStyle(PixelColor.inkWeak)
+                        }
                     }
                 }
             }
@@ -382,43 +472,43 @@ struct PlayRunnerView: View {
         }
     }
 
-    // MARK: - FINAL
+    // MARK: - FINAL 정보판
 
     @ViewBuilder
-    private var finalBox: some View {
+    private var finalInfo: some View {
         if let final = play.final {
             sceneBadge("FINAL", fill: PixelColor.primary, label: PixelColor.onPrimary)
-            Text(final.title)
-                .font(PixelFont.sectionTitle)
-                .foregroundStyle(PixelColor.ink)
-            speech(final.prompt)
-            if let wrong = vm.wrongMessage {
-                Text(wrong)
-                    .font(PixelFont.body)
-                    .foregroundStyle(PixelColor.locked)
-                    .fixedSize(horizontal: false, vertical: true)
+            infoFrame {
+                Text(final.title)
+                    .font(PixelFont.sectionTitle)
+                    .foregroundStyle(PixelColor.ink)
+                if let wrong = vm.wrongMessage {
+                    Text(wrong)
+                        .font(PixelFont.body)
+                        .foregroundStyle(PixelColor.locked)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                MissionStepInput(step: final.step) { vm.submitFinal($0) }
             }
-            MissionStepInput(step: final.step) { vm.submitFinal($0) }
         }
     }
 
-    // MARK: - CLEAR
+    // MARK: - CLEAR 정보판
 
     @ViewBuilder
-    private var clearBox: some View {
+    private var clearInfo: some View {
         sceneBadge("CLEAR", fill: PixelColor.primary, label: PixelColor.onPrimary)
-        Text(play.clear?.title ?? play.title)
-            .font(PixelFont.sectionTitle)
-            .foregroundStyle(PixelColor.ink)
-        HStack(spacing: PixelSpacing.m) {
-            statBox("\(vm.progress.completedMissionIds.count) / \(play.missionCount)", "완료 미션")
-            if !vm.progress.skippedMissionIds.isEmpty {
-                statBox("\(vm.progress.skippedMissionIds.count)", "건너뛴 미션")
+        infoFrame {
+            Text(play.clear?.title ?? play.title)
+                .font(PixelFont.sectionTitle)
+                .foregroundStyle(PixelColor.ink)
+            HStack(spacing: PixelSpacing.m) {
+                statBox("\(vm.progress.completedMissionIds.count) / \(play.missionCount)", "완료 미션")
+                if !vm.progress.skippedMissionIds.isEmpty {
+                    statBox("\(vm.progress.skippedMissionIds.count)", "건너뛴 미션")
+                }
+                statBox(vm.elapsedText, "걸린 시간")
             }
-            statBox(vm.elapsedText, "걸린 시간")
-        }
-        if let body = play.clear?.body, !body.isEmpty {
-            speech(body)
         }
     }
 
@@ -429,7 +519,7 @@ struct PlayRunnerView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, PixelSpacing.s)
-        .background(PixelColor.surfaceLow)
+        .background(PixelColor.surface)
         .pixelBorder()
     }
 
@@ -441,6 +531,7 @@ struct PlayRunnerView: View {
             .padding(.vertical, PixelSpacing.xs)
             .background(fill)
             .pixelBorder()
+            .pixelShadow(PixelSpacing.shadowSmall)
     }
 
     // MARK: - 아래 버튼
@@ -457,6 +548,8 @@ struct PlayRunnerView: View {
                 sceneButton(vm.hintLevel == 0 ? "힌트 보기" : "힌트 하나 더",
                             filled: false) { vm.showNextHint() }
             }
+        case .stepFeedback:
+            sceneButton("계속", filled: true) { vm.afterStepFeedback() }
         case .discovery:
             sceneButton("계속", filled: true) { vm.afterDiscovery() }
         case .story:
@@ -509,13 +602,15 @@ struct PlayRunnerView: View {
 @MainActor
 final class RunnerViewModel: ObservableObject {
 
-    enum Phase { case pointIntro, mission, discovery, story, finalStage, clear }
+    enum Phase { case pointIntro, mission, stepFeedback, discovery, story, finalStage, clear }
 
     @Published private(set) var phase: Phase = .pointIntro
     @Published private(set) var missionIndex = 0
     @Published private(set) var stepIndex = 0
     @Published private(set) var hintLevel = 0
     @Published private(set) var wrongMessage: String?
+    /// 맞혔을 때 곱딱이가 해 주는 말. 원고가 적어 둔 Step 에만 있다.
+    @Published private(set) var pendingSuccess: String?
     @Published private(set) var pendingDiscovery: MissionDiscovery?
     @Published private(set) var pendingStory: PlayStory?
     @Published private(set) var justEarnedRecord: String?
@@ -580,8 +675,28 @@ final class RunnerViewModel: ObservableObject {
             return
         }
         wrongMessage = nil
+        // **맞혔다는 말을 삼키지 않는다** (2026-09-04). 발견이 없는 Step 은
+        // 정답을 눌러도 다음 화면으로 툭 넘어가서 맞았는지 알 수 없었다.
+        // 원고가 성공 문구를 적어 둔 Step 은 그 말을 먼저 듣고 넘어간다.
+        if !step.successFeedback.isEmpty {
+            pendingSuccess = step.successFeedback
+            phase = .stepFeedback
+            return
+        }
+        proceedAfterStep(mission)
+    }
+
+    /// 성공 문구를 읽고 [계속] 을 눌렀을 때.
+    func afterStepFeedback() {
+        pendingSuccess = nil
+        guard let mission = currentMission else { return }
+        proceedAfterStep(mission)
+    }
+
+    private func proceedAfterStep(_ mission: Mission) {
         if stepIndex + 1 < mission.steps.count {
             stepIndex += 1
+            phase = .mission
         } else {
             completeMission(mission, skipped: false)
         }
@@ -604,6 +719,7 @@ final class RunnerViewModel: ObservableObject {
         // 진행도 칸. 모든 미션이 칸을 채우지는 않는다 — 앞 미션이 뒤 미션의
         // 발견을 준비하는 경우가 있다 (콘텐츠.md §13).
         justEarnedRecord = nil
+        pendingSuccess = nil
         if let reward = mission.progressReward,
            !progress.discoveredRecordIds.contains(reward) {
             progress.discoveredRecordIds.append(reward)
