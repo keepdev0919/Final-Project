@@ -339,3 +339,108 @@ struct PixelProgressBar: View {
         .accessibilityLabel("\(total)개 중 \(filled)개")
     }
 }
+
+// MARK: - 떠 있는 뒤로가기 버튼
+
+/// 시스템 상단바를 걷어내고 왼쪽 위에 **픽셀 버튼**을 얹는다
+/// (2026-09-03 조익준님 결정).
+///
+/// **왜.** 시스템 상단바는 회색 띠 + 시스템 서체 + 둥근 화살표로 되어 있어
+/// 이 앱에서 혼자 이질적이다. 게임 화면의 HUD 버튼처럼 그림 위에 작게 띄운다.
+///
+/// **높이를 먹지 않는다.** 버튼을 위해 줄을 따로 만들면 상단바를 없애서 아낀
+/// 44pt 를 그대로 다시 쓴다. 그래서 내용 **위에 겹쳐** 놓는다.
+///
+/// ⚠️ `navigationBarBackButtonHidden` 을 쓰지 않는다 — 그걸 쓰면 화면을 옆으로
+/// 밀어 뒤로 가는 제스처가 함께 죽는다. 상단바만 숨긴다.
+struct PixelFloatingBack: ViewModifier {
+    /// 버튼이 그림 위에 얹히도록 위에서 얼마나 내릴지. 화면마다 내용이 시작하는
+    /// 높이가 달라서 호출부가 정한다.
+    var topInset: CGFloat = PixelSpacing.s
+    /// 왼쪽에서 얼마나 들일지. 카드 안쪽에서 시작하는 화면은 더 들여야 한다.
+    var leadingInset: CGFloat = PixelSpacing.xl
+
+    @Environment(\.dismiss) private var dismiss
+
+    func body(content: Content) -> some View {
+        content
+            .toolbar(.hidden, for: .navigationBar)
+            .overlay(alignment: .topLeading) {
+                Button { dismiss() } label: {
+                    PixelIcon(.back, size: 20, color: PixelColor.ink)
+                        .frame(width: 36, height: 36)
+                        .background(PixelColor.surface)
+                        .pixelBorder(width: PixelSpacing.border)
+                        .pixelShadow(PixelSpacing.shadowSmall)
+                }
+                .buttonStyle(.plain)
+                .padding(.leading, leadingInset)
+                .padding(.top, topInset)
+                .accessibilityLabel("뒤로")
+            }
+    }
+}
+
+extension View {
+    func pixelFloatingBack(topInset: CGFloat = PixelSpacing.s,
+                           leadingInset: CGFloat = PixelSpacing.xl) -> some View {
+        modifier(PixelFloatingBack(topInset: topInset, leadingInset: leadingInset))
+    }
+}
+
+// MARK: - 눌리는 상자 (레이블을 직접 그린 버튼·NavigationLink 에)
+
+/// **카드가 아니라 버튼임을 형태로 말한다.**
+///
+///     카드   그림자를 대각선(오른쪽 아래)으로 던진다
+///     버튼   그림자를 아래로만 던지고, 누르면 그림자 속으로 가라앉는다
+///
+/// `PixelButtonStyle` 과 달리 글자·색·여백을 건드리지 않는다 — 레이블을 이미
+/// 다 그려 놓은 자리(예: PLAY 상세의 「장소 정보」 상자)에 씌우는 용도다.
+struct PixelPressStyle: ButtonStyle {
+    var offset: CGFloat = PixelSpacing.shadowButton
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .pixelShadow(offset, downOnly: true, isPressed: configuration.isPressed)
+    }
+}
+
+// MARK: - 깜빡이는 글자
+
+/// 옛 게임의 「PRESS START」 처럼 **사라졌다 나타났다** 한다.
+///
+/// 1초 보이고 1초 사라진다 (2026-09-03 조익준님 결정).
+///
+/// **서서히 흐려지지 않는다.** 아예 보이거나 아예 안 보인다. 옛 게임의 깜빡임이
+/// 그랬고, 픽셀 글자는 반투명해지는 순간 도트가 흐릿하게 뭉개진다.
+///
+/// 자리는 차지한 채 안 보이기만 하므로 **버튼 크기가 들썩이지 않는다.**
+///
+/// ⚠️ 설정에서 **「동작 줄이기」**를 켠 사용자에게는 깜빡이지 않는다.
+struct PixelBlink: ViewModifier {
+    /// 한 칸이 몇 초 머무는가.
+    var frameDuration: TimeInterval = 1.0
+    /// 칸마다 보이는가. 1초 보임 · 1초 사라짐.
+    var visible: [Bool] = [true, false]
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        if reduceMotion {
+            content
+        } else {
+            TimelineView(.periodic(from: .now, by: frameDuration)) { timeline in
+                let tick = Int(timeline.date.timeIntervalSinceReferenceDate / frameDuration)
+                content
+                    .opacity(visible[abs(tick) % visible.count] ? 1 : 0)
+                    // 사이 값을 만들지 않는다 — 켜짐에서 꺼짐으로 바로 건너뛴다.
+                    .animation(nil, value: tick)
+            }
+        }
+    }
+}
+
+extension View {
+    func pixelBlink() -> some View { modifier(PixelBlink()) }
+}
