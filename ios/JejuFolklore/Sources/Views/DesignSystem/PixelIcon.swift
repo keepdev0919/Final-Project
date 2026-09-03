@@ -28,6 +28,8 @@ struct PixelIcon: View {
         case volcano, wave, drop, tree, house, gate
         /// 시안 추가 — 난이도 별, 퀘스트 탭, 안내 느낌표, 걷는 거리
         case star, quest, bang, walk, compass
+        /// 현장 진행 화면 — 소리 켜기·끄기, 다음 표시
+        case sound, soundOff, caret
 
         /// Material Icons 글리프. 주석은 원래 아이콘 이름이다.
         var codepoint: String {
@@ -75,6 +77,9 @@ struct PixelIcon: View {
             case .bang:      return "\u{e645}"  // priority_high
             case .walk:      return "\u{e536}"  // directions_walk
             case .compass:   return "\u{e87a}"  // explore
+            case .sound:     return "\u{e050}"  // volume_up
+            case .soundOff:  return "\u{e04f}"  // volume_off
+            case .caret:     return "\u{e5c5}"  // arrow_drop_down
             }
         }
     }
@@ -139,6 +144,7 @@ extension PixelIcon {
         .calendar, .clock, .warn, .refresh, .shuffle, .share, .edit, .more,
         .target, .book, .headphone, .coin, .car, .phone, .stop, .mic,
         .volcano, .wave, .drop, .tree, .house, .gate, .star, .quest, .bang, .walk, .compass,
+        .sound, .soundOff, .caret,
     ]
     return ScrollView {
         LazyVGrid(columns: Array(repeating: GridItem(), count: 6), spacing: PixelSpacing.l) {
