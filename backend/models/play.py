@@ -311,8 +311,6 @@ class Play(BaseModel):
     place_name: str = ""        # 화면 표시용. identity 가 아니다
 
     title: str                  # 「성읍 생활기록 복원작전」
-    fantasy: str = ""           # 한 줄 세계관
-    role: str = ""              # 「기록 복원자」
     objective: str = ""         # 이번 PLAY 에서 할 일 한 줄
     # 카드에 들어가는 두 줄짜리 요약.
     #
@@ -337,13 +335,6 @@ class Play(BaseModel):
 
     # 시작 버튼 문구. **Game Fantasy 의 일부다** (2026-09-02 결정).
     #
-    # 정본은 버튼 문구를 세계관 말로 쓴다 — 성읍은 `[복원 시작]` · `[조사 계속]` ·
-    # `[기록 복원 완료]`. 「PLAY 시작」 같은 시스템 말이 끼면
-    # `기록 복원자 → 생활기록 2/6 → 기록 복원 완료` 로 이어지던 줄이 한 번 끊긴다.
-    #
-    # 비워두면 화면이 공통 문구(「탐험 시작」)를 쓴다 — 새 PLAY 원고를 쓸 때
-    # 문구를 아직 안 정했다고 버튼이 비지는 않는다.
-    start_cta: str = ""
 
     # 탐험 경로를 PLAY 상세에서 미리 다 보여줄지.
     # 성읍은 FULL 이다 — 이 PLAY 의 재미는 다음 목적지를 추리하는 데 있지 않고
@@ -355,7 +346,6 @@ class Play(BaseModel):
     start_lng: Optional[float] = None
     finish_name: str = ""
 
-    cautions: list[str] = Field(default_factory=list)
 
     points: list[Point] = Field(default_factory=list)
     stories: list[Story] = Field(default_factory=list)

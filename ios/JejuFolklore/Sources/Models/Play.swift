@@ -207,8 +207,6 @@ struct Play: Decodable, Identifiable, Equatable {
     let placeName: String
 
     let title: String
-    let fantasy: String
-    let role: String
     let objective: String
     let cardSummary: String
 
@@ -222,8 +220,6 @@ struct Play: Decodable, Identifiable, Equatable {
 
     let progressLabel: String
     let progressRecords: [ProgressRecord]
-    /// 시작 버튼 문구. 원고가 비워두면 공통 문구를 쓴다.
-    let startCta: String
 
     let routeRevealMode: RouteRevealMode
     let startName: String
@@ -231,7 +227,6 @@ struct Play: Decodable, Identifiable, Equatable {
     let startLng: Double?
     let finishName: String
 
-    let cautions: [String]
     let points: [PlayPoint]
     let stories: [PlayStory]
     let final: FinalStage?
@@ -239,19 +234,14 @@ struct Play: Decodable, Identifiable, Equatable {
 
     var missionCount: Int { points.reduce(0) { $0 + $1.missions.count } }
 
-    /// 시작 버튼에 쓸 말. **버튼 문구는 Game Fantasy 의 일부다** —
-    /// 성읍은 「복원 시작」이고, 문구를 안 정한 PLAY 는 「탐험 시작」이다.
-    var startLabel: String {
-        startCta.isEmpty ? "탐험 시작" : startCta
-    }
+    /// 시작 버튼에 쓸 말. **모든 PLAY 가 같은 말을 쓴다** —
+    /// 전에는 원고마다 세계관 말(「복원 시작」)을 따로 정했는데,
+    /// PLAY 가 늘수록 같은 자리의 버튼이 매번 달라 보였다 (2026-09-03 결정).
+    var startLabel: String { "플레이하기" }
 
-    /// 이어서 할 때. 「복원 시작」 → 「이어서 복원하기」처럼 앞말을 살린다.
-    /// 시작 문구가 `~ 시작` 꼴이 아니면 그냥 「이어서 하기」로 둔다.
-    var resumeLabel: String {
-        let label = startLabel
-        guard label.hasSuffix(" 시작") else { return "이어서 하기" }
-        return "이어서 " + label.replacingOccurrences(of: " 시작", with: "") + "하기"
-    }
+    /// 이어서 할 때. 시작 문구에서 만들어 쓰지 않고 따로 둔다 —
+    /// 「플레이하기」에서 「이어서 …하기」를 조립하면 말이 어색해진다.
+    var resumeLabel: String { "이어서 하기" }
 
     /// 「60~75분」. 최소·최대가 같으면 하나만 쓴다.
     var durationText: String {

@@ -226,18 +226,19 @@ class TestSeongeupContent:
         m02 = next(m for p in seongeup.points for m in p.missions if m.id == "m02")
         assert m02.discovery is not None and m02.progress_reward == "boundary"
 
-    def test_시작_버튼_문구가_원고에서_온다(self, seongeup):
-        """**버튼 문구는 Game Fantasy 의 일부다** (2026-09-02 결정).
+    def test_시작_버튼_문구를_원고가_정하지_않는다(self):
+        """**모든 PLAY 가 같은 시작 버튼을 쓴다** (2026-09-03 결정).
 
-        정본은 버튼을 세계관 말로 쓴다 — `[복원 시작]` · `[조사 계속]` ·
-        `[기록 복원 완료]`. 「PLAY 시작」 같은 시스템 말이 끼면
+        전에는 원고마다 세계관 말(`[복원 시작]`)을 따로 정했다. PLAY 가 늘수록
+        같은 자리의 버튼이 매번 달라 보였고, 이어하기 문구를 시작 문구에서
+        조립하다 보니 원고에 따라 어색한 말이 만들어졌다. 지금은 화면이
+        「플레이하기」 · 「이어서 하기」 두 말을 고정으로 쓴다.
 
-            기록 복원자 → 생활기록 2/6 → 기록 복원 완료
-
-        로 이어지던 줄이 한 번 끊긴다. 화면에 문구를 하드코딩하면 다음 PLAY 를
-        만들 때 그 PLAY 의 세계관 말을 쓸 수 없게 된다.
+        원고에 버튼 문구가 다시 생기면 그 통일이 조용히 깨지므로 여기서 막는다.
         """
-        assert seongeup.start_cta == "복원 시작"
+        for path in sorted(play_loader.PLAY_DIR.glob("*.json")):
+            raw = json.loads(path.read_text(encoding="utf-8"))
+            assert "start_cta" not in raw, f"{path.name} 에 버튼 문구가 다시 생겼습니다"
 
     def test_대표_시연_미션은_호령창이다(self, seongeup):
         """심사위원에게 하나만 보여준다면 이것이다.
