@@ -229,6 +229,9 @@ struct PixelTypewriter: View {
     var color: Color = PixelColor.ink
     /// 1초에 몇 글자.
     var charsPerSecond: Double = 26
+    /// 글이 다 나왔는지 바깥에 알려준다. 화면이 이걸 보고 **다음 것을 띄운다** —
+    /// 미션 칸이 말하는 도중에 떠 있으면 눈이 두 곳으로 갈린다 (2026-09-04).
+    var isFinished: Binding<Bool>? = nil
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var shown = 0
@@ -250,19 +253,27 @@ struct PixelTypewriter: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .contentShape(Rectangle())
-            .onTapGesture { shown = text.count }
+            .onTapGesture { finish() }
             .task(id: text) { await type() }
             .accessibilityLabel(text)
     }
 
     private func type() async {
-        guard !reduceMotion else { shown = text.count; return }
+        guard !reduceMotion else { finish(); return }
         shown = 0
+        isFinished?.wrappedValue = false
         let step = UInt64(1_000_000_000 / max(charsPerSecond, 1))
         while shown < text.count {
             try? await Task.sleep(nanoseconds: step)
             if Task.isCancelled { return }
             shown += 1
         }
+        isFinished?.wrappedValue = true
+    }
+
+    /// 즉시 다 보여준다 — 눌렀을 때와 「동작 줄이기」일 때.
+    private func finish() {
+        shown = text.count
+        isFinished?.wrappedValue = true
     }
 }

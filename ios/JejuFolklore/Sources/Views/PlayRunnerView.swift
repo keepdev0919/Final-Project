@@ -25,6 +25,8 @@ struct PlayRunnerView: View {
 
     @State private var showQuit = false
     @State private var showReport = false
+    /// 곱딱이가 말을 다 했는지. 미션 칸을 언제 띄울지 이걸로 정한다.
+    @State private var speechDone = false
 
     init(play: Play) {
         self.play = play
@@ -118,17 +120,45 @@ struct PlayRunnerView: View {
     /// 하늘에서는 읽히고 돌담에서는 사라진다.
     private var sceneBottom: some View {
         VStack(alignment: .leading, spacing: PixelSpacing.m) {
-            infoSection
-            PixelDialogueBox(showsNext: vm.phase != .mission && vm.phase != .finalStage) {
+            if showsTask { infoSection }
+            PixelDialogueBox(showsNext: waitsForSpeech ? !speechDone : true) {
                 VStack(alignment: .leading, spacing: PixelSpacing.m) {
                     speechSection
                 }
             }
-            actionRow
+            if showsTask { actionRow }
         }
+        // 말이 바뀌면 다시 기다린다. 대장간집 미션은 Step 이 둘이라 두 번째
+        // 질문도 곱딱이가 말하고 나서 보기가 뜬다.
+        .onChange(of: speechKey) { speechDone = false }
         .padding(.horizontal, PixelSpacing.l)
         .padding(.top, PixelSpacing.xl)
         .padding(.bottom, PixelSpacing.xl)
+    }
+
+    /// **곱딱이 말이 끝난 뒤에 위 칸이 나타나는 단계**
+    /// (2026-09-04 조익준님 결정).
+    ///
+    /// 말하는 중에 보기 버튼이 이미 떠 있으면 눈이 두 곳으로 갈려서, 글을 다
+    /// 안 읽고 누르게 된다. 기다리는 동안에는 `▼` 가 깜빡여 「누르면 다 나온다」를
+    /// 알려주고, 말이 끝나면 `▼` 가 사라지며 칸이 나타난다.
+    ///
+    /// 미션·FINAL 은 **답을 넣어야 해서** 그렇고, 발견은 이유가 다르다 —
+    /// 곱딱이가 무엇을 찾았는지 설명하는 동안 `NEW DISCOVERY` 배지가 이미 떠
+    /// 있으면 **상이 설명보다 먼저 온다.** 설명이 끝나고 나서 배지가 떠야
+    /// 「이래서 이걸 찾은 거였구나」가 된다.
+    ///
+    /// 가는 중·이야기·CLEAR 는 그대로 같이 띄운다 — 그쪽 위 칸은 목적지 이름이나
+    /// 제목·참고자료·통계라서 곱딱이 말과 **같이 봐야** 이해된다.
+    private var waitsForSpeech: Bool {
+        vm.phase == .mission || vm.phase == .finalStage || vm.phase == .discovery
+    }
+
+    private var showsTask: Bool { !waitsForSpeech || speechDone }
+
+    /// 말이 바뀌었는지 알아보는 열쇠. 단계·미션·Step 중 하나만 바뀌어도 달라진다.
+    private var speechKey: String {
+        "\(vm.phase)-\(vm.currentMission?.id ?? "")-\(vm.stepIndex)"
     }
 
     /// 대화창 **위** — 곱딱이 말이 아닌 모든 것.
@@ -200,7 +230,7 @@ struct PlayRunnerView: View {
                     Spacer(minLength: 0)
                     if let story { soundButton(story) }
                 }
-                PixelTypewriter(text: text)
+                PixelTypewriter(text: text, isFinished: $speechDone)
             }
         }
     }
