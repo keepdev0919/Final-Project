@@ -109,13 +109,11 @@ struct PixelHudProgress: View {
 
 // MARK: - 대화상자
 
-/// RPG 대화상자. 4px 테두리 + 4px 그림자 + **네 귀퉁이에 삐져나온 잉크 점**.
+/// RPG 대화상자. 4px 테두리 + 4px 그림자.
 ///
-/// 귀퉁이 점은 시안 `absolute -top-1 -left-1 w-2 h-2 bg-on-background` 다.
-/// 8pt 사각형을 4pt 밖으로 빼서 모서리가 톡 튀어나온다.
-///
-/// ⚠️ 예전에 `PixelCard` 에서 걷어낸 귀퉁이 점과 **다른 것이다.** 그쪽 시안은
-/// 점이 테두리에 정확히 겹쳐 화면에서 안 보였다. 이 시안은 실제로 삐져나온다.
+/// ⚠️ 예전에는 시안대로 네 귀퉁이에 8pt 잉크색 점을 4pt 밖으로 빼서 삐져나오게
+/// 그렸었다. 눈에 거슬린다는 지적(2026-09-07)으로 걷어냈다 — `PixelCard` 처럼
+/// 테두리 + 그림자만 남는다.
 struct PixelDialogueBox<Content: View>: View {
     /// 오른쪽 아래에 「더 있다」는 표시를 깜빡일지.
     var showsNext: Bool = true
@@ -134,21 +132,7 @@ struct PixelDialogueBox<Content: View>: View {
                         .pixelBlink()
                 }
             }
-            .overlay { cornerNubs }
             .pixelShadow(PixelSpacing.shadowCard)
-    }
-
-    private var cornerNubs: some View {
-        let nub = Rectangle().fill(PixelColor.ink).frame(width: 8, height: 8)
-        return ZStack {
-            VStack {
-                HStack { nub; Spacer(); nub }
-                Spacer()
-                HStack { nub; Spacer(); nub }
-            }
-            .padding(-PixelSpacing.xs)
-        }
-        .accessibilityHidden(true)
     }
 }
 

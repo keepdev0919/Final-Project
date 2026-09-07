@@ -42,12 +42,21 @@ struct PlayRunnerView: View {
             topHUD
             // 내용이 짧으면 아래에 붙어 있고, 길면(미션 보기 3개·긴 이야기)
             // 이 안에서 스크롤한다. 대화상자를 화면 위로 키우지 않는다.
-            ScrollView {
-                sceneBottom
+            //
+            // ⚠️ `.defaultScrollAnchor(.bottom)` 만으로는 안 됐다(2026-09-07 확인).
+            // 짧은 내용이 이 앵커를 안 타고 위에 붙어 배경 그림만 아래로 길게
+            // 남았다 — 미션 화면(내용이 짧다)마다 매번 이랬다. `GeometryReader`
+            // 로 실제 여백 높이를 재서 `frame(minHeight:alignment: .bottom)` 으로
+            // 직접 밀어붙이는 쪽이 이 SwiftUI 버전에서 더 확실하다.
+            GeometryReader { geo in
+                ScrollView {
+                    sceneBottom
+                        .frame(minHeight: geo.size.height, alignment: .bottom)
+                }
+                .scrollBounceBehavior(.basedOnSize)
             }
-            .defaultScrollAnchor(.bottom)
-            .scrollBounceBehavior(.basedOnSize)
         }
+
         // 배경은 `.background` 로 깐다 — ZStack 형제로 두면 그림이 화면 크기를
         // 정해 버려서 위에 얹은 것들이 밖으로 밀려난다.
         .background { PixelSceneBackground(imageName: play.placeKey) }
@@ -217,6 +226,14 @@ struct PlayRunnerView: View {
     ///
     /// `story` 를 주면 이름 옆에 소리 버튼이 붙는다. 소리가 없는 단계에서는
     /// 안 그린다.
+    ///
+    /// **출처 표시는 대화상자 안, 우측 하단에 작게 붙인다** (2026-09-07 결정).
+    /// 한국관광공사 OpenAPI(공공누리)는 가공해서 쓰더라도 출처표시가 공통
+    /// 필수 조건이라 없앨 수 없다 — 대신 눈에 덜 띄게 자리만 옮겼다. 캐릭터
+    /// 이름이 아니라 사실 정보라서 곱딱이 말풍선 타자기 효과 밖에, 조용한
+    /// 글자로 둔다. 관광공사 관련 출처가 없는 Story(예: 국가유산·학술자료만
+    /// 쓴 곳)에는 아무것도 안 뜬다 — 법적 의무가 없는 출처까지 화면에
+    /// 늘어놓지 않는다.
     @ViewBuilder
     private func speech(_ text: String, story: PlayStory? = nil) -> some View {
         HStack(alignment: .top, spacing: PixelSpacing.l) {
@@ -231,8 +248,21 @@ struct PlayRunnerView: View {
                     if let story { soundButton(story) }
                 }
                 PixelTypewriter(text: text, isFinished: $speechDone)
+                if let story, let ref = ktoSourceLabel(story) {
+                    Text(ref)
+                        .font(PixelFont.labelSmall)
+                        .foregroundStyle(PixelColor.inkWeak)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
             }
         }
+    }
+
+    /// 한국관광공사(오디) 출처만 골라 표시 문구를 만든다. 없으면 nil.
+    private func ktoSourceLabel(_ story: PlayStory) -> String? {
+        guard let s = story.sources.first(where: { $0.kind == "odii" || $0.kind == "kto" })
+        else { return nil }
+        return sourceLabel(s)
     }
 
     private func soundButton(_ story: PlayStory) -> some View {
@@ -457,27 +487,19 @@ struct PlayRunnerView: View {
     /// 소리는 곱딱이 이름 옆 스피커 버튼이 맡는다. 예전에는 초록 막대 버튼이
     /// 따로 있었는데, 상단에도 소리 표시를 두려니 켜는 곳이 두 개가 됐다 —
     /// **소리는 한 곳으로 몰았다** (2026-09-03 조익준님 지적).
+    ///
+    /// **참고 자료 목록은 여기서 뺐다** (2026-09-07 결정). 국가유산·학술자료
+    /// 출처는 콘텐츠 검증용으로 `콘텐츠/성읍민속마을.md` 에만 남기고 화면에는
+    /// 안 보여준다 — 법적 의무가 없는 출처를 화면에 늘어놓을 이유가 없다.
+    /// 법적 의무가 있는 관광공사 출처만 `speech()` 쪽 대화상자 귀퉁이에
+    /// 작게 남았다.
     @ViewBuilder
     private var storyInfo: some View {
-        if let story = vm.pendingStory, !story.title.isEmpty || !story.sources.isEmpty {
+        if let story = vm.pendingStory, !story.title.isEmpty {
             infoFrame {
-                if !story.title.isEmpty {
-                    Text(story.title)
-                        .font(PixelFont.sectionTitle)
-                        .foregroundStyle(PixelColor.ink)
-                }
-                if !story.sources.isEmpty {
-                    VStack(alignment: .leading, spacing: PixelSpacing.xs) {
-                        Text("참고 자료")
-                            .font(PixelFont.labelSmall)
-                            .foregroundStyle(PixelColor.inkWeak)
-                        ForEach(Array(story.sources.enumerated()), id: \.offset) { _, s in
-                            Text("· \(sourceLabel(s))")
-                                .font(PixelFont.labelSmall)
-                                .foregroundStyle(PixelColor.inkWeak)
-                        }
-                    }
-                }
+                Text(story.title)
+                    .font(PixelFont.sectionTitle)
+                    .foregroundStyle(PixelColor.ink)
             }
         }
     }
