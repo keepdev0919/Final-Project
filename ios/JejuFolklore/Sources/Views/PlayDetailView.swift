@@ -38,6 +38,7 @@ struct PlayDetailView: View {
 
     @StateObject private var vm = PlayDetailViewModel()
     @State private var showRunner = false
+    @State private var showResetConfirm = false
 
     /// 커버 비율. 시안은 1.34 였는데 **첫 화면에 스탯 4개까지 들어오게** 납작하게
     /// 눌렀다 (2026-09-03 조익준님 요청). 위쪽 하늘이 조금 잘리고, 아래 3분의 1은
@@ -327,15 +328,27 @@ struct PlayDetailView: View {
         .pixelShadow(PixelSpacing.shadowCard)
     }
 
-
     // MARK: - 아래 고정 바
 
     /// 시안대로 **버튼 하나만** 고정한다 (2026-09-03 조익준님 결정).
     ///
     /// 한동안 `[장소 정보 보기]` 를 위에 얹어 뒀는데, 같은 자리에서 `[플레이하기]` 와
     /// 경쟁하니 눌리지 않았다. 그 문은 스탯 격자의 다섯째 칸으로 옮겼다.
+    ///
+    /// **진행 중일 때만, 버튼 아래에 「처음부터 다시 하기」를 작게 둔다**
+    /// (2026-09-07 결정). 이어하기는 서비스 기본값으로 그대로 두되, 심사위원처럼
+    /// 짧은 기간에 같은 PLAY 를 여러 번 훑어보는 사람에게 탈출구를 준다 — 안
+    /// 그러면 진행 중엔 "이어서 하기"만 뜨고 처음부터 다시 볼 길이 앱 삭제뿐이었다.
     private func bottomBar(_ play: Play) -> some View {
-        startButton(play)
+        VStack(spacing: PixelSpacing.s) {
+            startButton(play)
+            if vm.hasProgress && !vm.isFinished {
+                Button("처음부터 다시 하기") { showResetConfirm = true }
+                    .font(PixelFont.labelSmall)
+                    .foregroundStyle(PixelColor.inkWeak)
+                    .buttonStyle(.plain)
+            }
+        }
         .padding(PixelSpacing.l)                                 // p-4
         .frame(maxWidth: .infinity)
         // 탭바를 숨겼으니 홈 인디케이터 자리까지 이 바가 채운다.
@@ -343,6 +356,15 @@ struct PlayDetailView: View {
         .background(PixelColor.surface.ignoresSafeArea(edges: .bottom))
         .overlay(alignment: .top) {
             PixelColor.ink.frame(height: PixelSpacing.borderHeavy)   // border-t-4
+        }
+        .confirmationDialog("지금까지 진행한 게 사라져요. 처음부터 다시 할까요?",
+                            isPresented: $showResetConfirm, titleVisibility: .visible) {
+            Button("처음부터 다시 하기", role: .destructive) {
+                PlayProgressStore.shared.clear(playId: playId)
+                vm.refreshProgress(playId: playId)
+                showRunner = true
+            }
+            Button("계속 이어서 하기", role: .cancel) {}
         }
     }
 
