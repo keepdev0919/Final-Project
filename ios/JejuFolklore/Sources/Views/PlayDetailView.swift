@@ -313,11 +313,11 @@ struct PlayDetailView: View {
                 .pixelBorder(width: PixelSpacing.border)
 
             VStack(spacing: PixelSpacing.s) {                    // gap-2
-                routeRow(marker: "START", text: play.startName, kind: .terminal)
+                RouteListRow(marker: "START", text: play.startName, kind: .terminal)
                 ForEach(Array(play.points.enumerated()), id: \.element.id) { i, point in
-                    routeRow(marker: "\(i + 1)", text: point.title, kind: .step)
+                    RouteListRow(marker: "\(i + 1)", text: point.title, kind: .step)
                 }
-                routeRow(marker: "FINISH", text: play.finishName, kind: .terminal)
+                RouteListRow(marker: "FINISH", text: play.finishName, kind: .terminal)
             }
         }
         .padding(PixelSpacing.cardPadding)                       // p-4
@@ -327,61 +327,6 @@ struct PlayDetailView: View {
         .pixelShadow(PixelSpacing.shadowCard)
     }
 
-    private enum RouteMarkerKind {
-        case terminal   // START · FINISH
-        case step       // 1 · 2 · 3 …
-
-        /// 시안 `bg-amber-500` 은 Tailwind 기본 팔레트라 우리 테마에 없다.
-        /// 별점 색처럼 이 자리에만 둔다.
-        static let stepFill = Color(red: 0xF5 / 255, green: 0x9E / 255, blue: 0x0B / 255)
-        /// 시안은 주황 위에 흰 글자(`text-on-primary`)를 얹는데 대비가 2:1 밖에 안 된다.
-        /// 시안 팔레트의 `on-tertiary-fixed`(#231B00)로 바꿨다 — 8:1 이 넘는다.
-        static let stepLabel = Color(red: 0x23 / 255, green: 0x1B / 255, blue: 0x00 / 255)
-
-        var fill: Color {
-            switch self {
-            case .terminal: return PixelColor.primary
-            case .step:     return Self.stepFill
-            }
-        }
-        var label: Color {
-            switch self {
-            case .terminal: return PixelColor.onPrimary
-            case .step:     return Self.stepLabel
-            }
-        }
-        /// 번호는 정사각형에 가깝게 맞춘다. START·FINISH 는 글자 길이만큼 늘어난다.
-        var minWidth: CGFloat? {
-            switch self {
-            case .terminal: return nil
-            case .step:     return 20
-            }
-        }
-    }
-
-    private func routeRow(marker: String, text: String, kind: RouteMarkerKind) -> some View {
-        HStack(spacing: PixelSpacing.m) {                        // gap-3
-            Text(marker)
-                .font(PixelFont.labelSmall)                      // text-xs 12
-                .foregroundStyle(kind.label)
-                .frame(minWidth: kind.minWidth)
-                .padding(.horizontal, PixelSpacing.s)
-                .padding(.vertical, 2)
-                .background(kind.fill)
-                .pixelBorder(width: PixelSpacing.border)
-                .pixelShadow(PixelSpacing.shadowSmall)
-            Text(text.isEmpty ? "—" : text)
-                .font(PixelFont.bodySmall)                       // text-sm 14
-                .foregroundStyle(PixelColor.ink)
-                .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 0)
-        }
-        .padding(PixelSpacing.m)                                 // p-2.5 → 4의 배수로 12
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(PixelColor.surface)
-        .pixelBorder(width: PixelSpacing.border)
-        .accessibilityElement(children: .combine)
-    }
 
     // MARK: - 아래 고정 바
 
@@ -447,6 +392,78 @@ private struct StartCTAStyle: ButtonStyle {
             .pixelBorder(width: PixelSpacing.borderHeavy)        // border-4
             .pixelShadow(PixelSpacing.shadowButton,
                          downOnly: true, isPressed: configuration.isPressed)
+    }
+}
+
+// MARK: - 경로 목록 줄
+
+/// START·번호·FINISH 표. PLAY 상세의 경로 안내와 러너의 진행 지도
+/// (`PlayRunnerView` 의 `ProgressMapSheet`)가 같이 쓴다.
+enum RouteMarkerKind {
+    case terminal   // START · FINISH
+    case step       // 1 · 2 · 3 …
+
+    /// 시안 `bg-amber-500` 은 Tailwind 기본 팔레트라 우리 테마에 없다.
+    /// 별점 색처럼 이 자리에만 둔다.
+    static let stepFill = Color(red: 0xF5 / 255, green: 0x9E / 255, blue: 0x0B / 255)
+    /// 시안은 주황 위에 흰 글자(`text-on-primary`)를 얹는데 대비가 2:1 밖에 안 된다.
+    /// 시안 팔레트의 `on-tertiary-fixed`(#231B00)로 바꿨다 — 8:1 이 넘는다.
+    static let stepLabel = Color(red: 0x23 / 255, green: 0x1B / 255, blue: 0x00 / 255)
+
+    var fill: Color {
+        switch self {
+        case .terminal: return PixelColor.primary
+        case .step:     return Self.stepFill
+        }
+    }
+    var label: Color {
+        switch self {
+        case .terminal: return PixelColor.onPrimary
+        case .step:     return Self.stepLabel
+        }
+    }
+    /// 번호는 정사각형에 가깝게 맞춘다. START·FINISH 는 글자 길이만큼 늘어난다.
+    var minWidth: CGFloat? {
+        switch self {
+        case .terminal: return nil
+        case .step:     return 20
+        }
+    }
+}
+
+/// `done` 을 주면 완료색으로 칠하고 체크를 붙인다 — 러너 진행 지도가
+/// "몇 번째까지 클리어했는지"를 보여줄 때 쓴다 (2026-09-07 추가).
+struct RouteListRow: View {
+    let marker: String
+    let text: String
+    let kind: RouteMarkerKind
+    var done: Bool = false
+
+    var body: some View {
+        HStack(spacing: PixelSpacing.m) {                        // gap-3
+            Text(marker)
+                .font(PixelFont.labelSmall)                      // text-xs 12
+                .foregroundStyle(done ? PixelColor.onDone : kind.label)
+                .frame(minWidth: kind.minWidth)
+                .padding(.horizontal, PixelSpacing.s)
+                .padding(.vertical, 2)
+                .background(done ? PixelColor.done : kind.fill)
+                .pixelBorder(width: PixelSpacing.border)
+                .pixelShadow(PixelSpacing.shadowSmall)
+            Text(text.isEmpty ? "—" : text)
+                .font(PixelFont.bodySmall)                       // text-sm 14
+                .foregroundStyle(PixelColor.ink)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+            if done {
+                PixelIcon(.check, size: 18, color: PixelColor.primary)
+            }
+        }
+        .padding(PixelSpacing.m)                                 // p-2.5 → 4의 배수로 12
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(PixelColor.surface)
+        .pixelBorder(width: PixelSpacing.border)
+        .accessibilityElement(children: .combine)
     }
 }
 

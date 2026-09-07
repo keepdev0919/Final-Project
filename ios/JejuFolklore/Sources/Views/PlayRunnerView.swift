@@ -21,10 +21,10 @@ struct PlayRunnerView: View {
     @StateObject private var location = LocationService.shared
     @StateObject private var audio = StoryAudioPlayer.shared
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.openURL) private var openURL
 
     @State private var showQuit = false
     @State private var showReport = false
+    @State private var showProgressMap = false
     /// 곱딱이가 말을 다 했는지. 미션 칸을 언제 띄울지 이걸로 정한다.
     @State private var speechDone = false
 
@@ -56,7 +56,6 @@ struct PlayRunnerView: View {
                 .scrollBounceBehavior(.basedOnSize)
             }
         }
-
         // 배경은 `.background` 로 깐다 — ZStack 형제로 두면 그림이 화면 크기를
         // 정해 버려서 위에 얹은 것들이 밖으로 밀려난다.
         .background { PixelSceneBackground(imageName: play.placeKey) }
@@ -75,6 +74,10 @@ struct PlayRunnerView: View {
                 missionTitle: vm.currentMission?.title ?? play.final?.title ?? ""
             ) { showReport = false }
         }
+        .sheet(isPresented: $showProgressMap) {
+            ProgressMapSheet(play: play, clearedPointIds: vm.clearedPointIds,
+                             isFinished: vm.phase == .clear)
+        }
         .onAppear {
             location.requestCurrentLocationOnce()
             // 지난번에 못 보낸 신고가 있으면 지금 보낸다.
@@ -85,29 +88,29 @@ struct PlayRunnerView: View {
 
     // MARK: - 상단 HUD
 
-    /// 배경 위에 떠 있는 세 칸 — 나가기 · 진행도 · 길찾기.
+    /// 배경 위에 떠 있는 세 칸 — 나가기 · 진행도 · 진행 지도.
     ///
-    /// **길찾기가 여기 있다** (2026-09-03 조익준님 결정). 전에는 「가는 중」 화면의
-    /// 버튼 두 개 중 하나였는데, 시안에 이미 지도 버튼 자리가 있어서 옮겼다.
-    /// 아래 버튼은 `[도착했어요]` 하나만 남아 무엇을 눌러야 하는지가 분명해진다.
+    /// **진행 지도가 여기 있다** (2026-09-03 조익준님 결정, 2026-09-07 외부
+    /// 길찾기에서 자체 지도로 교체). 전에는 이 자리가 외부 지도 앱 길찾기였다 —
+    /// Point 4개가 이제 다 좌표를 갖고 있어(성읍 답사 완료) 자체 지도로도
+    /// "몇 번째까지 왔는지"를 보여줄 수 있게 됐고, 그게 길찾기보다 이 화면에
+    /// 더 필요한 정보였다. START(무료공영주차장)만 좌표가 없는데, 이름으로
+    /// 찾을 수 있는 공공장소라 정밀 길찾기가 없어도 크게 아쉽지 않다.
     ///
-    /// 성읍은 시작점 좌표가 아직 없고 Point 4개가 마을 안쪽 초가집이라,
-    /// **외부 지도 길찾기가 「대장간집이 어디야」의 유일한 답이다.** 없애면 안 된다.
+    /// **나가기 아이콘은 화살표(←)가 아니라 X다** (2026-09-07 결정). 이 화면은
+    /// `.fullScreenCover`로 띄운 모달이다 — 애플 HIG 기준 화살표는 NavigationStack
+    /// 계층 이동(뒤로 가기)에, X는 모달 닫기에 쓴다. 화살표를 쓰면 "이전 미션으로
+    /// 돌아간다"는 기대를 주는데 실제로는 PLAY 전체를 나가는 동작이라 어긋났다.
     private var topHUD: some View {
         HStack(spacing: PixelSpacing.s) {
-            PixelHudButton(glyph: .back, label: "나가기") { showQuit = true }
+            PixelHudButton(glyph: .close, label: "나가기") { showQuit = true }
             Spacer(minLength: 0)
             PixelHudProgress(
                 label: play.progressLabel.isEmpty ? "진행" : play.progressLabel,
                 total: play.progressRecords.count,
                 done: vm.progress.discoveredRecordIds.count)
             Spacer(minLength: 0)
-            if let point = vm.currentPoint, point.coordinate != nil {
-                PixelHudButton(glyph: .map, label: "길찾기") { openNavigation(to: point) }
-            } else {
-                // 자리를 비워 둔다 — 없애면 가운데 진행도가 옆으로 밀린다.
-                Color.clear.frame(width: 36, height: 36)
-            }
+            PixelHudButton(glyph: .map, label: "진행 지도") { showProgressMap = true }
         }
         .padding(.horizontal, PixelSpacing.xl)
         .padding(.top, PixelSpacing.s)
@@ -639,18 +642,49 @@ struct PlayRunnerView: View {
         }
         .buttonStyle(PixelPressStyle())
     }
+}
 
-    // MARK: - 길찾기
+// MARK: - 진행 지도 시트
 
-    private func openNavigation(to point: PlayPoint) {
-        guard let c = point.coordinate else { return }
-        let app = "comgooglemaps://?daddr=\(c.latitude),\(c.longitude)&directionsmode=walking"
-        if let url = URL(string: app), UIApplication.shared.canOpenURL(url) {
-            openURL(url); return
-        }
-        if let web = URL(string:
-            "https://www.google.com/maps/dir/?api=1&destination=\(c.latitude),\(c.longitude)") {
-            openURL(web)
+/// 러너 안에서 보는 진행 지도. **외부 지도 길찾기를 대체한다** (2026-09-07 결정).
+/// Point 4개는 이제 다 좌표가 있어 자체 지도로도 위치를 보여줄 수 있고, 클리어한
+/// 곳은 체크로 표시해 "몇 번째까지 왔는지"도 같이 보여준다. `PlayDetailView` 의
+/// 경로 안내와 같은 `PlayRouteMap`·`RouteListRow` 를 그대로 쓴다.
+private struct ProgressMapSheet: View {
+    let play: Play
+    let clearedPointIds: Set<String>
+    let isFinished: Bool
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: PixelSpacing.m) {
+                    PlayRouteMap(play: play)
+                        .frame(height: 220)
+                        .pixelBorder(width: PixelSpacing.border)
+                    VStack(spacing: PixelSpacing.s) {
+                        // 시작은 러너에 들어온 시점에 이미 지난 일이라 항상 완료로 본다.
+                        RouteListRow(marker: "START", text: play.startName,
+                                     kind: .terminal, done: true)
+                        ForEach(Array(play.points.enumerated()), id: \.element.id) { i, point in
+                            RouteListRow(marker: "\(i + 1)", text: point.title, kind: .step,
+                                         done: clearedPointIds.contains(point.id))
+                        }
+                        RouteListRow(marker: "FINISH", text: play.finishName,
+                                     kind: .terminal, done: isFinished)
+                    }
+                }
+                .padding(PixelSpacing.l)
+            }
+            .background(PixelColor.background)
+            .navigationTitle("진행 지도")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("닫기") { dismiss() }
+                }
+            }
         }
     }
 }
@@ -698,7 +732,6 @@ final class RunnerViewModel: ObservableObject {
         }
     }
 
-
     // MARK: 조회
 
     var currentPoint: PlayPoint? { flat[safe: missionIndex]?.point }
@@ -709,6 +742,14 @@ final class RunnerViewModel: ObservableObject {
     var pointNumber: Int {
         guard let p = currentPoint else { return 1 }
         return (play.points.firstIndex { $0.id == p.id } ?? 0) + 1
+    }
+
+    /// 진행 지도가 체크 표시를 넣을 Point id 들 — 그 Point 의 미션을 전부 끝냈을 때.
+    var clearedPointIds: Set<String> {
+        Set(play.points.filter { pt in
+            !pt.missions.isEmpty
+                && pt.missions.allSatisfy { progress.completedMissionIds.contains($0.id) }
+        }.map(\.id))
     }
 
     var navigationTitle: String {
