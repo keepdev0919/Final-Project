@@ -278,6 +278,8 @@ class FinalStage(BaseModel):
     prompt: str = ""
     step: Step
     story: Optional[Story] = None
+    # 2026-09-07 추가. FINAL 도 다른 Mission 처럼 힌트 2단계를 갖는다.
+    hints: list[Hint] = Field(default_factory=list)
 
 
 class ClearStage(BaseModel):
@@ -424,3 +426,6 @@ class MapPin(BaseModel):
     # 준비 중인 곳도 카드에 사진이 필요하다. PLAY 요약에만 두면 준비 중 카드가 빈다.
     thumbnail: Optional[str] = None
     play: Optional[PlaySummary] = None
+    # 지도에는 다 뜨지만 홈 「수행 가능한 퀘스트」에는 일부만 노출한다 —
+    # 콘텐츠 제작 착수 전 후보지까지 퀘스트 카드로 보이면 안 된다.
+    home_visible: bool = True

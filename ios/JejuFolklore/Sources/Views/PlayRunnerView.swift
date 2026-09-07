@@ -329,7 +329,7 @@ struct PlayRunnerView: View {
                 }
 
                 MissionStepInput(step: step) { vm.submit($0) }
-                revealedHints(mission)
+                revealedHints(mission.hints)
                 escapeRow(mission)
             }
         }
@@ -358,10 +358,10 @@ struct PlayRunnerView: View {
     }
 
     @ViewBuilder
-    private func revealedHints(_ mission: Mission) -> some View {
+    private func revealedHints(_ hints: [MissionHint]) -> some View {
         if vm.hintLevel > 0 {
             VStack(alignment: .leading, spacing: PixelSpacing.s) {
-                ForEach(Array(mission.hints.prefix(vm.hintLevel).enumerated()),
+                ForEach(Array(hints.prefix(vm.hintLevel).enumerated()),
                         id: \.offset) { i, hint in
                     HStack(alignment: .top, spacing: PixelSpacing.s) {
                         Text("힌트 \(i + 1)")
@@ -519,6 +519,7 @@ struct PlayRunnerView: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 MissionStepInput(step: final.step) { vm.submitFinal($0) }
+                revealedHints(final.hints)
             }
         }
     }
@@ -590,7 +591,12 @@ struct PlayRunnerView: View {
                 vm.afterStory()
             }
         case .finalStage:
-            EmptyView()
+            // FINAL 은 720가지(6!) 순서 중 하나를 맞혀야 해서 다른 미션보다
+            // 막히기 쉽다 — 그래서 여기도 힌트 2단계를 준다(2026-09-07).
+            if let hints = play.final?.hints, vm.hintLevel < hints.count {
+                sceneButton(vm.hintLevel == 0 ? "힌트 보기" : "힌트 하나 더",
+                            filled: false) { vm.showNextFinalHint() }
+            }
         case .clear:
             sceneButton("PLAY 종료", filled: true) { dismiss() }
         }
@@ -709,6 +715,11 @@ final class RunnerViewModel: ObservableObject {
         hintLevel = min(hintLevel + 1, m.hints.count)
     }
 
+    func showNextFinalHint() {
+        guard let hints = play.final?.hints else { return }
+        hintLevel = min(hintLevel + 1, hints.count)
+    }
+
     func submit(_ answer: MissionAnswer) {
         guard let step = currentStep, let mission = currentMission else { return }
         guard step.isCorrect(answer) else {
@@ -802,16 +813,25 @@ final class RunnerViewModel: ObservableObject {
             let nextPoint = flat[missionIndex].point
             phase = introducedPointIds.contains(nextPoint.id) ? .mission : .pointIntro
         } else if play.final != nil {
+            hintLevel = 0
             phase = .finalStage
         } else {
             finish()
         }
     }
 
+    /// 틀렸을 때 "몇 개 중 몇 개는 맞았는지"를 먼저 말해준다 (2026-09-07).
+    /// 6개짜리 순서 세우기는 한 번에 다 맞히기 어렵다 — 완전히 틀렸다와
+    /// 거의 다 왔다를 구분해줘야 다시 시도할 힘이 난다.
     func submitFinal(_ answer: MissionAnswer) {
         guard let final = play.final else { finish(); return }
         guard final.step.isCorrect(answer) else {
-            wrongMessage = final.step.failureText
+            if let n = final.step.partialCorrectCount(answer) {
+                let total = final.step.options.count
+                wrongMessage = "\(total)개 중 \(n)개는 순서가 맞았어! " + final.step.failureText
+            } else {
+                wrongMessage = final.step.failureText
+            }
             return
         }
         wrongMessage = nil

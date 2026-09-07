@@ -264,13 +264,21 @@ class TestSeongeupContent:
         """정본 §12 「신규 지식 출제: 금지」.
 
         Final 에서 새 잡학을 물으면 지금까지 현실을 본 경험이 시험으로 바뀐다.
-        6쌍 전부가 앞에서 사용자가 직접 발견한 것이어야 한다.
+        6개 전부가 앞에서 사용자가 직접 발견한 것이어야 한다.
+
+        2026-09-07: 카테고리 짝짓기(match_targets)에서 「성읍 사람의 하루」
+        순서 세우기로 바꿨다 — match_targets 는 비어 있고, answer 는 옵션
+        id 를 하루 순서대로 나열한 것이다. 짝짓기든 순서든 answer 가 가리키는
+        id 는 options 6개와 정확히 같아야 한다는 본질은 그대로다.
         """
         assert seongeup.final is not None
         step = seongeup.final.step
         assert step.input_type == "MATCH_ORDER"
+        assert len(step.options) == 6
         assert len(step.answer) == 6
-        assert len(step.options) == 6 and len(step.match_targets) == 6
+        option_ids = {o.id for o in step.options}
+        answer_ids = {a.split(">")[0] for a in step.answer}
+        assert answer_ids == option_ids
 
     def test_모든_미션에_힌트가_둘_있다(self, seongeup):
         """Hint 1 은 **어디를 볼지**, Hint 2 는 **무엇을 볼지**.

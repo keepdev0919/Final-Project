@@ -100,6 +100,25 @@ struct MissionStep: Decodable, Identifiable, Equatable {
             return false
         }
     }
+
+    /// 순서 세우기·짝짓기가 몇 개나 맞았는지. 다른 입력 타입에는 없다(nil).
+    ///
+    /// FINAL 같은 6개짜리 MATCH_ORDER 는 한 번에 다 맞히기 어렵다. 오답이어도
+    /// 몇 개는 맞았다고 알려주면 「완전히 틀렸다」와 「거의 다 왔다」를
+    /// 구분할 수 있어 다시 시도할 힘이 생긴다.
+    func partialCorrectCount(_ submitted: MissionAnswer) -> Int? {
+        guard inputType == .matchOrder,
+              case .list(let want) = answer, case .list(let got) = submitted
+        else { return nil }
+        if matchTargets.isEmpty {
+            // 순서 세우기: 같은 자리에 같은 id 가 와야 맞은 것이다.
+            return zip(want, got).filter { $0 == $1 }.count
+        } else {
+            // 짝짓기: 제출한 "id>target" 쌍이 정답 집합에 있으면 맞은 것이다.
+            let wantSet = Set(want)
+            return got.filter { wantSet.contains($0) }.count
+        }
+    }
 }
 
 // MARK: - Mission
@@ -178,6 +197,9 @@ struct FinalStage: Decodable, Equatable {
     let prompt: String
     let step: MissionStep
     let story: PlayStory?
+    /// 2026-09-07 추가. FINAL 도 다른 Mission 처럼 힌트 2단계를 갖는다 —
+    /// 「막히면 갇히지 않는다」가 FINAL 에는 빠져 있었다.
+    let hints: [MissionHint]
 }
 
 struct ClearStage: Decodable, Equatable {

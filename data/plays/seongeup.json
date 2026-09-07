@@ -562,10 +562,10 @@
   "final": {
     "id": "final",
     "title": "생활기록 복원",
-    "prompt": "네 채의 집에서 찾은 흔적들이 모두 모였습니다.\n이제 직접 발견한 것들을 각각의 생활기록과 연결해 성읍의 기록을 완성하세요.",
+    "prompt": "네 채 집에서 찾은 흔적들, 이제 다 모였어! 이걸로 성읍 사람의 하루를 한번 그려볼까? 순서대로 이어봐.",
     "step": {
       "input_type": "MATCH_ORDER",
-      "prompt": "발견한 것과 그것이 말해주는 생활을 이어보세요.",
+      "prompt": "새벽부터 저녁까지, 방금 찾은 것들로 성읍 사람의 하루를 순서대로 세워봐.",
       "options": [
         {
           "id": "jeongjuseok",
@@ -592,43 +592,26 @@
           "label": "호령창"
         }
       ],
-      "match_targets": [
-        {
-          "id": "t-boundary",
-          "label": "경계"
-        },
-        {
-          "id": "t-entrance",
-          "label": "출입"
-        },
-        {
-          "id": "t-space",
-          "label": "공간"
-        },
-        {
-          "id": "t-family",
-          "label": "가족"
-        },
-        {
-          "id": "t-water",
-          "label": "물"
-        },
-        {
-          "id": "t-talk",
-          "label": "소통"
-        }
-      ],
+      "match_targets": [],
       "answer": [
-        "jeongjuseok>t-boundary",
-        "daemungan>t-entrance",
-        "madang>t-space",
-        "geori>t-family",
-        "mulpang>t-water",
-        "horyeongchang>t-talk"
+        "jeongjuseok",
+        "mulpang",
+        "geori",
+        "daemungan",
+        "madang",
+        "horyeongchang"
       ],
-      "success_feedback": "6개의 생활기록이 모두 연결되었습니다.",
-      "failure_feedback": "아직 아닌 것 같아요. 각각을 발견했을 때 들었던 이야기를 떠올려보세요."
-    }
+      "success_feedback": "성읍 사람의 하루를 완벽하게 그려냈어! 진짜 하나도 안 놓쳤네.",
+      "failure_feedback": "나머지도 다시 한번 생각해봐."
+    },
+    "hints": [
+      {
+        "text": "하루는 새벽에 경계를 넘는 것으로 시작해서, 밤에 짧은 인사로 끝나."
+      },
+      {
+        "text": "아침엔 물부터 길어야 밥을 지을 수 있었고, 손님은 대문간을 지나 들어와 마당에서 하루를 보내다 갔어."
+      }
+    ]
   },
   "clear": {
     "title": "성읍 생활기록 복원 완료",
