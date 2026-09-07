@@ -89,6 +89,9 @@ struct PlayDetailView: View {
                 PlayRunnerView(play: play)
             }
         }
+        // 현장에서 돌아오면 버튼 문구를 새로 읽는다 — 미션을 하나라도 끝냈으면
+        // 「플레이하기」가 「이어서 하기」로 바뀐다.
+        .onChange(of: showRunner) { if !showRunner { vm.refreshProgress(playId: playId) } }
     }
 
     // MARK: - 머리 (커버 + 걸쳐 올라온 제목 카드)
@@ -404,7 +407,7 @@ struct PlayDetailView: View {
         } label: {
             HStack(spacing: PixelSpacing.s) {
                 PixelIcon(.play, size: 24, color: PixelColor.onPrimary)
-                Text(play.startLabel)
+                Text(vm.isFinished ? "다시 하기" : (vm.hasProgress ? play.resumeLabel : play.startLabel))
                     .font(PixelFont.sectionTitle)                // headline-md 24
                     .foregroundStyle(PixelColor.onPrimary)
                     .lineLimit(1)
@@ -500,9 +503,12 @@ final class PlayDetailViewModel: ObservableObject {
     @Published var play: Play?
     @Published var thumbnail: String?
     @Published var failed = false
+    @Published var hasProgress = false
+    /// 이미 CLEAR 한 기록이 있는지. 버튼 문구를 「이어서」 대신 「다시」로 바꾼다.
+    @Published var isFinished = false
 
     func load(playId: String) async {
-        if play != nil { return }
+        if play != nil { refreshProgress(playId: playId); return }
         do {
             play = try await PlayAPI.detail(id: playId)
             // 사진은 목록 응답에만 있다. 상세를 무겁게 만들지 않으려고 따로 가져온다.
@@ -511,5 +517,12 @@ final class PlayDetailViewModel: ObservableObject {
         } catch {
             failed = true
         }
+        refreshProgress(playId: playId)
+    }
+
+    func refreshProgress(playId: String) {
+        let saved = PlayProgressStore.shared.load(playId: playId)
+        hasProgress = saved != nil
+        isFinished = saved?.isFinished ?? false
     }
 }

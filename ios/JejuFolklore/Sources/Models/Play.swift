@@ -239,6 +239,10 @@ struct Play: Decodable, Identifiable, Equatable {
     /// PLAY 가 늘수록 같은 자리의 버튼이 매번 달라 보였다 (2026-09-03 결정).
     var startLabel: String { "플레이하기" }
 
+    /// 이어서 할 때. 시작 문구에서 만들어 쓰지 않고 따로 둔다 —
+    /// 「플레이하기」에서 「이어서 …하기」를 조립하면 말이 어색해진다.
+    var resumeLabel: String { "이어서 하기" }
+
     /// 「60~75분」. 최소·최대가 같으면 하나만 쓴다.
     var durationText: String {
         estimatedMinutesMin == estimatedMinutesMax
@@ -328,6 +332,9 @@ struct PlayMapPin: Decodable, Identifiable, Equatable, Hashable {
     let status: Status
     let thumbnail: String?
     let play: PlaySummary?
+    /// 지도에는 다 뜨지만 홈 「수행 가능한 퀘스트」에는 일부만 노출한다 —
+    /// 콘텐츠 제작 착수 전 후보지까지 퀘스트 카드로 보이면 안 된다.
+    let homeVisible: Bool
 
     var id: String { placeId }
 

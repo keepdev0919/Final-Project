@@ -39,6 +39,9 @@ struct HomeView: View {
         .navigationDestination(item: $selectedPlay) { play in
             PlayDetailView(playId: play.id)
         }
+        // PLAY 상세·현장에서 돌아왔을 때 카드 문구를 새로 읽는다 —
+        // 「퀘스트 수락」이 「이어서 하기」·「다시 하기」로 바뀌는 시점이다.
+        .onChange(of: selectedPlay) { if selectedPlay == nil { vm.refreshProgress() } }
         .navigationDestination(item: $selectedPlace) { pin in
             PlaceDetailView(place: CoursePlace(name: pin.placeName, lat: pin.lat,
                                                lng: pin.lng, day: 0))
@@ -117,7 +120,7 @@ struct HomeView: View {
             } else {
                 ForEach(vm.pins) { pin in
                     if let play = pin.play {
-                        PlayCard(play: play) {
+                        PlayCard(play: play, progressText: vm.progressText(for: play.id)) {
                             selectedPlay = play
                         }
                     } else {
@@ -166,15 +169,29 @@ struct HomeView: View {
 final class HomeViewModel: ObservableObject {
     @Published var pins: [PlayMapPin] = []
     @Published var isLoading = false
+    private var progressLabels: [String: String] = [:]
 
     func load(force: Bool = false) async {
-        if !force && !pins.isEmpty { return }
+        if !force && !pins.isEmpty { refreshProgress(); return }
         isLoading = true
         defer { isLoading = false }
         let result = try? await PlayAPI.mapPins()
+        // 지도에는 다 뜨지만 홈 퀘스트 카드는 `homeVisible` 인 곳만 —
+        // 콘텐츠 제작에 아직 착수하지 않은 후보지까지 퀘스트로 보이면 안 된다.
         // 플레이할 수 있는 것부터. 같은 상태 안에서는 서버 순서를 지킨다.
-        pins = (result?.pins ?? []).sorted { a, b in
+        pins = (result?.pins ?? []).filter(\.homeVisible).sorted { a, b in
             a.status == .active && b.status != .active
         }
+        refreshProgress()
+    }
+
+    /// 카드 버튼에 쓸 문구. 손 안 댄 퀘스트는 nil 이라 「퀘스트 수락」이 뜬다.
+    func progressText(for playId: String) -> String? { progressLabels[playId] }
+
+    func refreshProgress() {
+        var map: [String: String] = [:]
+        for p in PlayProgressStore.shared.inProgress() { map[p.playId] = "이어서 하기" }
+        for p in PlayProgressStore.shared.completed() { map[p.playId] = "다시 하기" }
+        progressLabels = map
     }
 }

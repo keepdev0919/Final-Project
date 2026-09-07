@@ -51,11 +51,11 @@ struct PlayRunnerView: View {
         // 배경은 `.background` 로 깐다 — ZStack 형제로 두면 그림이 화면 크기를
         // 정해 버려서 위에 얹은 것들이 밖으로 밀려난다.
         .background { PixelSceneBackground(imageName: play.placeKey) }
-        .confirmationDialog("PLAY 를 그만할까요?", isPresented: $showQuit,
+        .confirmationDialog("퀘스트를 그만할까요?", isPresented: $showQuit,
                             titleVisibility: .visible) {
-            // ⚠️ 진행을 저장하지 않으므로 **여기서 나가면 사라진다.**
-            // 「저장돼요」라고 써 두면 거짓말이 된다 (2026-09-04).
-            Button("나가기 (진행은 사라져요)", role: .destructive) { dismiss() }
+            // 미션 단위로 저장한다 — 완료한 미션까지는 남고, 지금 풀던 미션의
+            // Step·힌트는 사라진다. 「저장돼요」라고만 쓰면 과장이라 정도를 밝힌다.
+            Button("나가기 (완료한 지점까지 저장돼요)", role: .destructive) { dismiss() }
             Button("계속하기", role: .cancel) {}
         }
         .sheet(isPresented: $showReport) {
@@ -652,13 +652,24 @@ final class RunnerViewModel: ObservableObject {
     /// 이미 안내를 마친 Point. 같은 Point 의 두 번째 미션에서 또 도착 화면을 띄우지 않는다.
     private var introducedPointIds: Set<String> = []
 
-    /// **언제나 처음부터 시작한다** (2026-09-04 조익준님 결정).
-    /// 저장된 진행을 이어받던 분기를 걷어냈다 — `PlayProgress` 주석 참조.
+    /// **저장된 진행이 있으면 이어받는다** (2026-09-07 되살림, `PlayProgress` 주석 참조).
+    ///
+    /// 이미 CLEAR 한 기록은 이어받지 않는다 — 「다시 하기」는 처음부터가 맞다.
+    /// 이어받을 때는 **완료한 미션 다음**에서 시작한다. 지금 하던 미션의 Step·힌트는
+    /// 저장하지 않으므로 그 미션은 처음부터 다시 푼다.
     init(play: Play) {
         self.play = play
         self.flat = play.orderedMissions
-        self.progress = PlayProgress(play: play)
+
+        if let saved = PlayProgressStore.shared.load(playId: play.id), !saved.isFinished {
+            self.progress = saved
+            self.missionIndex = flat.firstIndex { !saved.completedMissionIds.contains($0.mission.id) }
+                ?? max(flat.count - 1, 0)
+        } else {
+            self.progress = PlayProgress(play: play)
+        }
     }
+
 
     // MARK: 조회
 
@@ -759,6 +770,7 @@ final class RunnerViewModel: ObservableObject {
         pendingStory = play.story(after: mission.id)
         hintLevel = 0
         stepIndex = 0
+        PlayProgressStore.shared.save(progress)
 
         // Discovery 가 없는 미션이 있다 — M01 처럼 다음 미션의 발견을 준비하는 것이다
         // (콘텐츠.md §13). 그때는 발견 화면을 건너뛰고 바로 다음으로 간다.
@@ -813,6 +825,8 @@ final class RunnerViewModel: ObservableObject {
 
     private func finish() {
         progress.finalCleared = true
+        // CLEAR 기록을 남긴다 — 홈 카드가 「다시 하기」로 바뀌는 근거다.
+        PlayProgressStore.shared.save(progress)
         phase = .clear
     }
 
