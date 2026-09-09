@@ -20,9 +20,9 @@ struct MapTabView: View {
     @State private var focus: JejuMapFocus = .wholeIsland
 
     var body: some View {
+        // ⚠️ 상단바를 두지 않는다 — 퀘스트·코스 탭과 같다 (2026-09-09 조익준님 결정).
         VStack(spacing: 0) {
-            PixelTopBar(title: "지도")
-            countLine
+            introCard
             legend
             regionChips
             mapArea
@@ -43,23 +43,54 @@ struct MapTabView: View {
 
     /// 숫자를 **서버가 준 값 그대로** 쓴다. 화면에 박아두면 PLAY 가 늘어날 때
     /// 조용히 거짓이 된다 — 「여행자 N명」과 같은 종류의 실수다.
-    private var countLine: some View {
-        HStack(spacing: PixelSpacing.xs) {
-            PixelIcon(.target, size: 16, color: PixelColor.inkWeak)
-            if vm.isLoading && vm.pins.isEmpty {
-                Text("불러오는 중…")
-                    .font(PixelFont.label).foregroundStyle(PixelColor.inkWeak)
-            } else {
-                Text("\(vm.activeCount)곳 플레이 가능 · \(vm.preparingCount)곳 준비 중")
-                    .font(PixelFont.label).foregroundStyle(PixelColor.ink)
-            }
-            Spacer(minLength: 0)
-        }
+    /// 퀘스트·코스 탭과 같은 머리말 카드. 전에는 「N곳 플레이 가능 · M곳 준비 중」
+    /// 한 줄만 덩그러니 있었는데, 그 숫자를 설명 문장 안으로 넣었다.
+    ///
+    /// 지도 탭의 색은 **파랑**이다 — 시안이 파랑에 「하늘·물·길찾기」를 맡겨 뒀다.
+    /// 잉크 블록에는 밝은 파랑, 글자 강조에는 진한 파랑을 쓴다.
+    private var introCard: some View {
+        PixelIntroCard(
+            icon: .mapPin,
+            iconColor: PixelColor.secondaryContainer,
+            // 「플레이할까요」가 아니라 **「열렸을까요」**다 (2026-09-09 조익준님 결정).
+            // 이 지도에는 아직 플레이할 수 없는 `준비 중` 핀이 같이 뜬다. 제목이
+            // 「플레이할까요」면 화면 절반을 설명하지 못해, 사용자가 빈 핀을 눌러보고
+            // 나서야 안 되는 곳임을 알게 된다. 「열림」은 `LIVE`/`PLANNED` 두 상태를
+            // 한 낱말로 덮으면서 게임 말이기도 하다 (색 이름도 이미 `locked` 다).
+            //
+            // 코스 탭이 「어느 쪽으로 떠날까요」라 「제주 어디서…할까요」를 그대로 두면
+            // 두 탭이 똑같이 방향을 묻는 것처럼 들렸다.
+            title: Text("제주 어디가 ")
+                + Text("열렸을까요").foregroundColor(PixelColor.secondary),
+            message: countMessage
+        )
         .padding(.horizontal, PixelSpacing.screenMargin)
         .padding(.top, PixelSpacing.m)
+        .padding(.bottom, PixelSpacing.l)
+    }
+
+    private var countMessage: Text {
+        if vm.isLoading && vm.pins.isEmpty {
+            return Text("열린 곳을 불러오는 중이에요")
+        }
+        // 숫자가 먼저 온다. 「열리는 중」만 있으면 아직 덜 만든 서비스로 읽힐 수
+        // 있는데, 「지금 N곳이 열렸고」가 앞에 서면 지금 할 수 있는 일이 먼저 보인다.
+        return Text("지금 ")
+            + Text("\(vm.activeCount)곳").foregroundColor(PixelColor.secondary)
+            + Text("이 열렸고, ")
+            + Text("\(vm.preparingCount)곳").foregroundColor(PixelColor.secondary)
+            + Text("이 곧 열려요")
     }
 
     /// 핀 뜻풀이. **색만으로 구분하지 않는다** — 모양도 다르다.
+    ///
+    /// ⚠️ 머리말은 「열림」인데 범례는 「플레이 가능 / 준비 중」이다. 일부러 그대로
+    /// 뒀다 (2026-09-09 조익준님 결정) — 머리말 낱말만 먼저 바꿔 보고, 범례까지
+    /// 「열림 / 곧 열림」으로 맞출지는 실제 화면을 보고 정한다.
+    /// 핀 뜻풀이와 권역 고르기를 **한 줄씩 나란히** 둔다.
+    ///
+    /// 전에는 범례가 제 줄, 칩이 제 줄로 따로 놀았다. 범례는 「지도를 읽는 법」이라
+    /// 작게 붙어 있으면 되고, 고르는 칩이 주인이다.
     private var legend: some View {
         HStack(spacing: PixelSpacing.l) {
             legendItem(color: PixelColor.primary, filled: true, text: "플레이 가능")
@@ -67,15 +98,16 @@ struct MapTabView: View {
             Spacer(minLength: 0)
         }
         .padding(.horizontal, PixelSpacing.screenMargin)
-        .padding(.vertical, PixelSpacing.s)
+        .padding(.bottom, PixelSpacing.s)
     }
 
+    /// **색만으로 구분하지 않는다** — 모양(채움/빈칸)도 다르다.
     private func legendItem(color: Color, filled: Bool, text: String) -> some View {
         HStack(spacing: PixelSpacing.xs) {
             Rectangle()
-                .fill(filled ? color : Color.clear)
+                .fill(filled ? color : PixelColor.surface)
                 .frame(width: 12, height: 12)
-                .overlay(Rectangle().stroke(PixelColor.ink, lineWidth: 2))
+                .overlay(Rectangle().stroke(PixelColor.ink, lineWidth: PixelSpacing.border))
             Text(text).font(PixelFont.labelSmall).foregroundStyle(PixelColor.inkWeak)
         }
     }
@@ -95,15 +127,19 @@ struct MapTabView: View {
         }
     }
 
+    /// 고른 권역은 **그 권역의 색**이다 — 코스 탭 권역 버튼·코스 카드 배지와 같다
+    /// (2026-09-09 조익준님 결정). 전에는 금색 하나였고, 그 전에는 초록이라
+    /// 범례의 「플레이 가능」 초록과 헷갈렸다.
     private func chip(_ target: JejuMapFocus, title: String) -> some View {
         let on = focus == target
+        let c = JejuRegionDef.colors(for: title)
         return Button {
             focus = target
             selected = nil
         } label: {
             PixelChip(text: title,
-                      fill: on ? PixelColor.primary : PixelColor.surface,
-                      label: on ? PixelColor.onPrimary : PixelColor.ink)
+                      fill: on ? c.fill : PixelColor.surface,
+                      label: on ? c.on : PixelColor.ink)
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(on ? [.isSelected] : [])
