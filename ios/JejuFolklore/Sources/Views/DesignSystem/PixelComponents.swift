@@ -50,35 +50,92 @@ extension View {
 
 // MARK: - 섹션 헤더 (시안의 가장 특징적인 패턴)
 
-/// 아이콘 + 제목 + 하단 2px 밑줄. 카드마다 반복되면서 "일지" 인상을 만든다.
+/// 아이콘 + 제목 + 하단 밑줄. 카드마다 반복되면서 "일지" 인상을 만든다.
+///
+/// 밑줄 두께가 **층을 나눈다** (2026-09-09 조익준님 결정).
+///
+///     2px (`border`)        카드 **안**의 작은 구획 — 기본정보·이용팁 같은 것
+///     4px (`borderHeavy`)   화면을 가르는 큰 섹션 — 퀘스트 목록, 코스 탭 두 섹션
+///
+/// 퀘스트 탭이 4px 짜리를 자기 파일에서 따로 그리고 있었는데, 코스 탭 두 섹션이
+/// 같은 모양을 쓰게 되면서 이 부품 하나로 합쳤다.
 struct PixelSectionHeader<Trailing: View>: View {
     let title: String
     var icon: PixelIcon.Glyph? = nil
     var accent: Color = PixelColor.ink
-    /// 제목 줄 오른쪽에 붙는 것 ("총 12명" 같은 곁수치).
+    /// 아이콘만 다른 색으로 두고 싶을 때. 비우면 `accent` 를 따른다 —
+    /// 시안의 큰 섹션은 **아이콘만 색이고 제목·밑줄은 잉크**다.
+    var iconColor: Color? = nil
+    var underline: CGFloat = PixelSpacing.border
+    /// 제목 줄 오른쪽에 붙는 것 ("총 12명" 같은 곁수치, 「다른 코스」 같은 버튼).
     @ViewBuilder var trailing: Trailing
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: PixelSpacing.s) {
-                if let icon { PixelIcon(icon, size: 24, color: accent) }
+                if let icon { PixelIcon(icon, size: 24, color: iconColor ?? accent) }
                 Text(title)
                     .font(PixelFont.sectionTitle)
                     .foregroundStyle(accent)
-                Spacer(minLength: 0)
+                Spacer(minLength: PixelSpacing.s)
                 trailing
             }
             .padding(.bottom, PixelSpacing.s)
             Rectangle()
                 .fill(accent)
-                .frame(height: PixelSpacing.border)
+                .frame(height: underline)
         }
     }
 }
 
 extension PixelSectionHeader where Trailing == EmptyView {
-    init(title: String, icon: PixelIcon.Glyph? = nil, accent: Color = PixelColor.ink) {
-        self.init(title: title, icon: icon, accent: accent) { EmptyView() }
+    init(title: String,
+         icon: PixelIcon.Glyph? = nil,
+         accent: Color = PixelColor.ink,
+         iconColor: Color? = nil,
+         underline: CGFloat = PixelSpacing.border) {
+        self.init(title: title, icon: icon, accent: accent,
+                  iconColor: iconColor, underline: underline) { EmptyView() }
+    }
+}
+
+// MARK: - 통통 (제자리에서 떠다니기)
+
+/// 화면에 뜬 채로 **계속 위아래로 통통 떠다닌다** (2026-09-09 조익준님 결정).
+///
+/// 누를 때 반응하는 게 아니라 **가만히 있어도 움직인다**. 게임 화면의 지도 표식이
+/// 그렇듯, 이게 있어야 「고르는 판」이 정지 그림이 아니라 살아 있는 것으로 보인다.
+///
+/// `delay` 로 표식마다 시작을 어긋나게 한다. 넷이 한 몸처럼 같이 오르내리면
+/// 살아 있다기보다 화면 전체가 흔들리는 것처럼 보인다.
+struct PixelBob: ViewModifier {
+    /// 위아래 진폭(pt). 크면 멀미 난다 — 3pt 안팎이 「떠 있다」로 읽히는 선이다.
+    var distance: CGFloat = 3
+    /// 한 번 오르내리는 데 걸리는 시간(초).
+    var period: Double = 1.8
+    /// 표식마다 어긋나게 시작하는 시간(초).
+    var delay: Double = 0
+
+    @State private var up = false
+
+    func body(content: Content) -> some View {
+        content
+            .offset(y: up ? -distance : distance)
+            .onAppear {
+                withAnimation(
+                    .easeInOut(duration: period / 2)
+                        .repeatForever(autoreverses: true)
+                        .delay(delay)
+                ) { up = true }
+            }
+    }
+}
+
+extension View {
+    func pixelBob(delay: Double = 0,
+                  distance: CGFloat = 3,
+                  period: Double = 1.8) -> some View {
+        modifier(PixelBob(distance: distance, period: period, delay: delay))
     }
 }
 
@@ -443,4 +500,56 @@ struct PixelBlink: ViewModifier {
 
 extension View {
     func pixelBlink() -> some View { modifier(PixelBlink()) }
+}
+
+// MARK: - 탭 머리말 카드
+
+/// **이 탭이 무엇을 하는 곳인지** 화면 맨 위에서 말하는 카드.
+///
+/// 퀘스트·코스·지도 세 탭이 같은 것을 쓴다 (2026-09-09 조익준님 결정). 전에는 탭마다
+/// 문법이 달랐다 — 퀘스트는 카드, 코스는 맨 텍스트, 지도는 숫자줄. 같은 앱으로 보이지
+/// 않았다.
+///
+///     [잉크 블록 + 그 탭의 색 아이콘]
+///     굵은 제목
+///     여러 줄 설명
+///
+/// **색은 탭마다 다르고, 톤은 자리마다 다르다.**
+/// 잉크 블록 위에는 밝은 톤(`*Container`)을, 글자 강조에는 진한 톤을 쓴다 —
+/// 금색 #FFC61A 를 흰 카드 위 글자에 쓰면 대비가 1.57:1 이라 사실상 안 보인다.
+struct PixelIntroCard: View {
+    let icon: PixelIcon.Glyph
+    /// 잉크 블록 안 아이콘 색. 그 탭을 대표하는 **밝은 톤**.
+    let iconColor: Color
+    /// 강조 낱말에 색을 넣을 수 있도록 `Text` 를 그대로 받는다.
+    let title: Text
+    let message: Text
+
+    var body: some View {
+        PixelCard {
+            VStack(alignment: .leading, spacing: PixelSpacing.l) {
+                PixelIcon(icon, size: 30, color: iconColor)
+                    .frame(width: 48, height: 48)
+                    .background(PixelColor.ink)
+                    .pixelBorder(width: PixelSpacing.border)
+                    .pixelShadow(PixelSpacing.shadowSmall)
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: PixelSpacing.s) {
+                    title
+                        .font(PixelFont.sectionTitle)
+                        .foregroundStyle(PixelColor.ink)
+                    message
+                        .font(PixelFont.bodyLarge)
+                        .foregroundStyle(PixelColor.inkWeak)
+                        // 시안 `leading-relaxed` = 1.625. 18 × 1.625 = 29.25 →
+                        // 기본 줄높이(약 22)에 7 을 더한다.
+                        .lineSpacing(7)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(PixelSpacing.xxl - PixelSpacing.s)   // 24
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
 }
