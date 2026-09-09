@@ -75,3 +75,7 @@ skills-lock.json
 # 필요하면 다시 뽑는다: scripts/dump_odii_raw.py
 data/exports/오디_원본_API응답.json
 data/exports/오디_원본_API응답.csv
+
+# Xcode 빌드 산출물 — 빌드할 때마다 다시 생기고 593MB 나간다.
+# `git add .` 한 번에 통째로 딸려 들어가면 되돌리기 번거로우므로 막아 둔다.
+ios/DerivedData/
