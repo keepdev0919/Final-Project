@@ -41,6 +41,10 @@ PAIRS = [
     ("tertiaryContainer", "onTertiaryContainer"),
     ("tertiaryFixed", "onTertiaryFixed"),
     ("error", "onError"),
+    # 권역 색. 배지 위 권역 이름이 안 읽히면 색만 남고 이름표 노릇을 못 한다.
+    ("regionEast", "onRegionEast"),
+    ("regionWest", "onRegionWest"),
+    ("regionSouth", "onRegionSouth"),
 ]
 
 
@@ -93,9 +97,16 @@ def test_palette_matches_design_doc():
         "secondary": 0x0062A2, "onSecondary": 0xFFFFFF,
         "secondaryContainer": 0x54ABFD, "onSecondaryContainer": 0x003E69,
         "tertiary": 0x735C00, "onTertiary": 0xFFFFFF,
-        "tertiaryContainer": 0xD9AF00, "onTertiaryContainer": 0x554400,
+        # 시안은 #D9AF00 이지만 겨자색으로 읽혀 금색으로 올렸다 (2026-09-09).
+        # 코스 탭에서 「고르는 자리」 전부가 이 색이라 인상이 화면을 좌우한다.
+        "tertiaryContainer": 0xFFC61A, "onTertiaryContainer": 0x554400,
         "tertiaryFixed": 0xFFE085, "onTertiaryFixed": 0x231B00,
         "error": 0xBA1A1A, "onError": 0xFFFFFF,
+        # 권역 색 (2026-09-09). 해돋이=동, 노을=서, 남쪽 바다=남.
+        # 북부는 팔레트에 이미 있는 파랑(secondaryContainer)을, 전체는 잉크를 별칭으로 쓴다.
+        "regionEast": 0xFF9E3D, "onRegionEast": 0x4A2200,
+        "regionWest": 0xA98BFF, "onRegionWest": 0x2E1065,
+        "regionSouth": 0x3ECFD5, "onRegionSouth": 0x00363A,
     }
     assert dark == {
         "background": 0x12141F, "surface": 0x22243A, "surfaceLow": 0x1B1D2E,
@@ -111,6 +122,9 @@ def test_palette_matches_design_doc():
         "tertiaryContainer": 0x574500, "onTertiaryContainer": 0xFFE085,
         "tertiaryFixed": 0xFFE085, "onTertiaryFixed": 0x231B00,
         "error": 0xFFB4AB, "onError": 0x93000A,
+        "regionEast": 0x6E3A00, "onRegionEast": 0xFFDCC2,
+        "regionWest": 0x4A2E8C, "onRegionWest": 0xDCC9FF,
+        "regionSouth": 0x004F53, "onRegionSouth": 0xA8F0F5,
     }
 
 

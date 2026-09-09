@@ -17,7 +17,8 @@ enum PixelUIColor {
     static let onPrimary = UIColor(PixelColor.onPrimary)
     static let surfaceMid = UIColor(PixelColor.surfaceMid)
     static let background = UIColor(PixelColor.background)
-    // 제주 4개 권역을 구분하는 데 쓴다 — 팔레트 밖 색(보라·분홍)을 쓰지 않으려고
+    // ⚠️ 권역 색은 더 이상 여기서 오지 않는다 — `JejuRegionDef.color`(SwiftUI 쪽)가
+    // 정본이다 (2026-09-09). 아래 둘은 UIKit 쪽에서 쓸 일이 생길 때를 위해 남긴다.
     static let secondary = UIColor(PixelColor.secondary)
     static let tertiary  = UIColor(PixelColor.tertiary)
     static let locked    = UIColor(PixelColor.locked)
