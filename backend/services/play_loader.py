@@ -28,6 +28,7 @@ import json
 import logging
 from pathlib import Path
 
+from services.image_url import to_https
 from models.play import MapPin, Play, PlaySummary
 from services import place_registry as registry
 
@@ -116,7 +117,8 @@ def _thumbnail(conn, place_id: str) -> str | None:
         "AND thumbnail IS NOT NULL AND thumbnail != '' LIMIT 1",
         stids,
     ).fetchone()
-    return row["thumbnail"] if row else None
+    # KTO 사진은 http 로 저장돼 있다. iOS 가 막으므로 나갈 때 https 로 올린다.
+    return to_https(row["thumbnail"]) if row else None
 
 
 def summarize(conn, play: Play) -> PlaySummary:
@@ -175,6 +177,7 @@ def map_pins(conn) -> list[MapPin]:
             # 한 Place 에 PLAY 가 여럿이면 핀에는 첫 번째만 붙인다.
             # 전부 보려면 장소 상세의 「이 장소에서 할 수 있는 PLAY」 로 간다.
             play=summarize(conn, plays[0]) if plays else None,
+            home_visible=place["home_visible"],
         ))
 
     return pins

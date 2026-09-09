@@ -23,6 +23,12 @@ class CourseListItem(BaseModel):
     id: str
     title: str
     duration_days: int
+    # 동부 | 서부 | 남부 | 북부 | 전체. 코스 장소가 한 권역에 과반으로 몰리지
+    # 않으면 "전체"다 (`build_curated_courses.py`). 앱이 권역색 배지에 쓴다.
+    region: str = "전체"
+    # 대표 장소(제목에 뜨는 그 장소)의 KTO 대표사진. 캐시에 없으면 None —
+    # 앱은 그때 권역색 픽셀 블록을 깐다.
+    thumbnail: str | None = None
     places: list[CoursePlace]
 
 

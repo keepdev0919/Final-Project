@@ -77,7 +77,7 @@ def run_course_list(
     if region == "전체":
         rows = conn.execute(
             """
-            SELECT id, title, duration_days
+            SELECT id, title, duration_days, region
             FROM curated_courses
             WHERE duration_days BETWEEN ? AND ?
               AND place_count >= 3
@@ -91,7 +91,7 @@ def run_course_list(
         # 요청 지역 코스 우선, 부족하면 "전체"로 분류된 코스로 보완
         rows = conn.execute(
             """
-            SELECT id, title, duration_days
+            SELECT id, title, duration_days, region
             FROM curated_courses
             WHERE region IN (?, '전체')
               AND duration_days BETWEEN ? AND ?
@@ -111,8 +111,15 @@ def run_course_list(
     sample_size = min(top_n, len(rows))
     top_rows = random.sample(rows, sample_size)
 
-    # 장소 목록 배치 조회
-    course_ids = [r["id"] for r in top_rows]
+    return {"result_courses": _with_places(conn, top_rows), "error": ""}
+
+
+def _with_places(conn, rows: list) -> list[dict[str, Any]]:
+    """코스 행에 장소 목록을 붙인다. 코스 하나씩 조회하지 않고 한 번에 가져온다."""
+    course_ids = [r["id"] for r in rows]
+    if not course_ids:
+        return []
+
     placeholders = ",".join("?" * len(course_ids))
     place_rows = conn.execute(
         f"""
@@ -139,16 +146,71 @@ def run_course_list(
             "day": p["day"],
         })
 
-    result_courses = []
-    for row in top_rows:
-        result_courses.append({
+    return [
+        {
             "id": row["id"],
             "title": row["title"],
             "duration_days": row["duration_days"],
+            # 권역은 DB에 이미 있었는데 앱까지 내려보내지 않고 있었다. 코스 카드가
+            # 권역색 배지를 달면서 필요해졌다 — 제목 앞의 「서부 」를 글자로 파싱하는
+            # 대신 데이터를 그대로 쓴다 (2026-09-09).
+            "region": row["region"],
             "places": places_by_course.get(row["id"], []),
-        })
+        }
+        for row in rows
+    ]
 
-    return {"result_courses": result_courses, "error": ""}
+
+# ─── 「이런 코스는 어때요?」 ───────────────────────────────────────────────────
+#
+# 권역·기간을 고르기 전에, 코스 탭 첫 화면에서 그냥 둘러보라고 깔아 두는 목록이다.
+# 「추천」이 아니라 「이런 것도 있어요」다 — 사용자 취향을 반영하지 않는다.
+
+# 품질 하한. curated_courses 는 이미 한 번 걸러진 목록이지만 점수 편차가 있다.
+# 1,255개 중 0.7 미만이 105개(8%)라, 하한 없이 뽑으면 열두 장에 한 장꼴로
+# 「하루에 섬을 왕복하는」 코스가 첫 화면에 올라온다.
+FEATURED_MIN_SCORE = 0.8
+
+
+def run_featured_courses(limit: int = 5) -> dict[str, Any]:
+    """조건 없이 둘러볼 코스를 무작위로 뽑는다. 부를 때마다 다른 코스가 나온다.
+
+    ## 제목이 지저분한 코스를 왜 거르나
+
+    코스 제목은 원본 여행 일정의 장소 이름으로 자동 생성되는데
+    (`build_curated_courses.py::_make_title`), 비짓제주 원본에 이런 게 섞여 있다:
+
+        북부 1일 · 수목원테마파크_2025.11.11 영업종료(리모델링공사) / 2026.03.01 재오픈 예정 외 2곳
+        북부 3일 · 이호테우해수욕장_old 외 7곳
+
+    0.8점 이상 687개 중 89개(13%)가 이 상태다. 거르지 않으면 다섯 장 중 한 장꼴로
+    깨진 카드가 첫 화면에 뜬다. **근본 해결은 대표 장소를 고를 때 이런 이름을
+    건너뛰도록 빌드 스크립트를 고치는 것**이고, 여기 필터는 그때까지의 방어선이다.
+    걸러내도 590개가 남아 매번 다른 다섯 장을 보여주기에 충분하다.
+    """
+    conn = get_db_connection()
+
+    rows = conn.execute(
+        r"""
+        SELECT id, title, duration_days, region
+        FROM curated_courses
+        WHERE composite_score >= ?
+          AND place_count >= 3
+          AND LENGTH(title) <= 40
+          AND title NOT LIKE '%(%'      -- 「(리모델링공사)」 같은 안내문
+          AND title NOT LIKE '%/%'      -- 「영업종료 / 재오픈 예정」
+          AND title NOT LIKE '%20%'     -- 「2025.11.11」 같은 날짜
+          AND title NOT LIKE '%\_%' ESCAPE '\'   -- 「이호테우해수욕장_old」
+        ORDER BY RANDOM()
+        LIMIT ?
+        """,
+        (FEATURED_MIN_SCORE, limit),
+    ).fetchall()
+
+    if not rows:
+        return {"result_courses": [], "error": "보여줄 코스를 찾지 못했습니다."}
+
+    return {"result_courses": _with_places(conn, rows), "error": ""}
 
 
 # ─── 라우터 호환 래퍼 ─────────────────────────────────────────────────────────

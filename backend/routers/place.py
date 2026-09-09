@@ -9,6 +9,7 @@ import time
 from fastapi import APIRouter, HTTPException, Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+from services.image_url import all_to_https
 from services.db import get_db_connection
 from routers.tourist import _kto_get, CACHE_TTL  # tourist.py와 중복 방지
 
@@ -228,7 +229,8 @@ def get_place_detail(request: Request, name: str, lat: float, lng: float):
         return {
             "name":             cached["name"],
             "overview":         cached["overview"] or "",
-            "images":           _json.loads(cached["images"] or "[]"),
+            # KTO 는 http 로 준다 — iOS 가 막으므로 나갈 때 https 로 올린다.
+            "images":           all_to_https(_json.loads(cached["images"] or "[]")),
             "address":          cached["address"] or "",
             "tel":              cached["tel"] or "",
             "open_time":        cached["open_time"] or "",
@@ -272,7 +274,7 @@ def get_place_detail(request: Request, name: str, lat: float, lng: float):
     return {
         "name":      name,
         "overview":  overview,
-        "images":    images,
+        "images":    all_to_https(images),
         "address":   address,
         "tel":       tel,
         "open_time": intro["open_time"],
