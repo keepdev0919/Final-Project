@@ -1,3 +1,14 @@
+//  ⚠️ **지금 이 시트로 들어오는 길이 없다.**
+//
+//  원래는 탐험 중 장소에 도착하면 떴는데, 코스 탐험(ExploreView)을 2026-09-10에
+//  걷어내면서 마지막 진입 경로가 사라졌다. 코스 탭은 여행 전 「어디 갈까」를
+//  푸는 곳이고 현장 경험은 PLAY 가 맡는다는 정리에 따른 것이다.
+//
+//  **죽은 코드로 보고 지우지 말 것.** 돌아올 자리는 PLAY 다 — Story 를 다 들은
+//  뒤 그 장소에 대한 감상을 남기는 흐름. 같은 이유로 아래 둘도 함께 남긴다:
+//    - Services/SpeechRecognizer.swift (음성 받아쓰기)
+//    - backend/routers/review.py (POST /place/review, GET /place/reviews/{name})
+
 import SwiftUI
 import Speech
 
@@ -13,13 +24,11 @@ struct PlaceReviewSheet: View {
         ("역사적이에요","📜 역사적이에요"),
     ]
 
-    @EnvironmentObject private var authManager: AuthManager
     @State private var selectedKeys: Set<String> = []
     @State private var note: String = ""
     @State private var isSubmitting = false
     @StateObject private var speech = SpeechRecognizer()
     @State private var pulse = false
-    @State private var showLogin = false
 
     var body: some View {
         NavigationStack {
@@ -121,9 +130,6 @@ struct PlaceReviewSheet: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .presentationDetents([.medium, .large])
-        .sheet(isPresented: $showLogin) {
-            LoginSheet()
-        }
         .task {
             // TTS가 점유한 .playback AVAudioSession을 해제해야 마이크 캡처(.playAndRecord)가 가능.
             // 이 호출 없이는 input node가 invalid format(sampleRate=0)을 반환해 "마이크 초기화 실패" 에러가 뜸.
@@ -195,10 +201,6 @@ struct PlaceReviewSheet: View {
     }
 
     private func submit() async {
-        guard authManager.isLoggedIn else {
-            showLogin = true
-            return
-        }
         isSubmitting = true
         await APIClient.shared.submitReview(
             placeName: placeName,

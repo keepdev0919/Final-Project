@@ -11,37 +11,29 @@
 		00FC7841F8092978094DF3C7 /* PixelColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D6797DC3296F2174D2169A /* PixelColor.swift */; };
 		027C49A35BB62E3C9B535323 /* CoursePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */; };
 		09CA36B2590769BAEEDDE8C9 /* PlayProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = C067AF921E238CC37BAD19F4 /* PlayProgress.swift */; };
-		0EC1CB2AEEC08D50A8762866 /* ExploreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8528DFE3BA78C29CA022D3 /* ExploreView.swift */; };
-		3C5016B24FD9436D8A84F7CE /* PlayProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE8417CDE5E4A4F8252B380 /* PlayProgressStore.swift */; };
 		1063ECB9D961E9145B031E02 /* Galmuri9.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8106FE651DF3B5201C58AE54 /* Galmuri9.ttf */; };
 		12786FB262DEB2F73A3AD8F4 /* JejuRegion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56510A2D59EB508CE47BE90F /* JejuRegion.swift */; };
 		174F84207B32BD1FF0089EA3 /* CoursePreviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */; };
-		181950EB48299EE76985B887 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D5CC6DDEC1C1B656071D157 /* AuthManager.swift */; };
 		18E4CA6BBCC86AD84FCFD234 /* jeju-stone-park.png in Resources */ = {isa = PBXBuildFile; fileRef = A879853F4651906EE40B20D1 /* jeju-stone-park.png */; };
 		1D31F774AFAFA32EA214BE61 /* Galmuri11-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = ACC8CE9035C23D8D25277A7D /* Galmuri11-Bold.ttf */; };
 		1EFFDAF78ADAE81D2021D06E /* SavedCourse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E81A390764D24D99F14B2DA /* SavedCourse.swift */; };
 		1F8E431CBD4FDEDB15BB328D /* CoursePlace.swift in Sources */ = {isa = PBXBuildFile; fileRef = A744E956106F34C9C2D95F2F /* CoursePlace.swift */; };
-		290137D764E6A47F84FD38EB /* LoginSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABFB1F82A4D609716075142E /* LoginSheet.swift */; };
 		29733E529895877A8C3055B5 /* Galmuri11.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E25C6E205C7D773FC22CA00E /* Galmuri11.ttf */; };
 		2BDBCF5B8C7C61F1C9478ABC /* JejuFolkloreApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEF7C5A76ABA12369016601 /* JejuFolkloreApp.swift */; };
-		2EB651D81236DB74288380DA /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 93A7AD4147147A644C148CA6 /* GoogleSignIn */; };
 		2F421FD8AD3B408FB4CB94C4 /* PlaceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD5EDEE06A3A22C0EED714E /* PlaceDetail.swift */; };
 		344CFDCD02C0689B73F83D69 /* CourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */; };
 		369D553E0685619EEAF02597 /* PixelUIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1903FC08AB7833E41E253682 /* PixelUIColor.swift */; };
 		39E84B4B300BE84BCBDC781F /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */; };
-		3A1219C0BE883136CBF1FEBD /* ProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4000E728FBE0443E2CE67EA5 /* ProfileSheet.swift */; };
+		3C5016B24FD9436D8A84F7CE /* PlayProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE8417CDE5E4A4F8252B380 /* PlayProgressStore.swift */; };
 		3C924367BF6D98281ABDEE6F /* PlaceAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997538FBFEB00536EF630FCB /* PlaceAPI.swift */; };
 		3F87278B10B282BE0924C3DC /* PlaceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */; };
 		4376C2AAA8BD0BDF615AB8A6 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = DE6EAC554294F429D6DA6C88 /* OFL.txt */; };
 		4B5F8136E4813312F1CE5976 /* CourseAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */; };
 		4C1F407BDC88A1B264CEB27F /* ArrivalOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101A2B03B831695C27D31659 /* ArrivalOverlayView.swift */; };
-		4FF8E3BA2A1CBF3EB0E700D8 /* SessionRestoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE302B828FB176D1DA8415CD /* SessionRestoreView.swift */; };
-		522757289D4B9A4C480111F5 /* ExploreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */; };
 		54D584F75B5C044657405032 /* PixelFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB5F583B0BC011D915FE152F /* PixelFont.swift */; };
 		551CF310DF3AE8E66E0D1AF7 /* PlayRunnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8F9DD63A88EBCCF172DEE06 /* PlayRunnerView.swift */; };
 		587E768898899E1D9B66B4F9 /* PixelIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB383F822D48F10D4C482C1B /* PixelIcon.swift */; };
 		58DF075E69988AA2F359FE58 /* StoryAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F360898F00360C7F075BAB6C /* StoryAudioPlayer.swift */; };
-		59BC2160448B1CDAE4804A6D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 435CA89B62B4B29FDF95DF2A /* GoogleService-Info.plist */; };
 		5E2DF12857CFA4FFB471EA68 /* suwolbong.png in Resources */ = {isa = PBXBuildFile; fileRef = DCCD25368FA26CE125559621 /* suwolbong.png */; };
 		67157E9A54F763785AB8AAE4 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB19D914698888F9F31CB4C /* Config.swift */; };
 		6993D4B38E663044C3335FF3 /* PixelChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 700D4CE53167A5AD8EBB8340 /* PixelChrome.swift */; };
@@ -50,7 +42,6 @@
 		72807356FA10C0EE8D9EC901 /* Galmuri14.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 680EEF39BE20B00165C19DAA /* Galmuri14.ttf */; };
 		7485325AAD31ADF859E86B09 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 73D434DC7C36590FAF11FE46 /* GoogleMaps */; };
 		74DCBD57A66368EA7F46C223 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */; };
-		751B960A8F06079680845A12 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 4B18F75428772D8916E25374 /* FirebaseAuth */; };
 		80B828EB6E2FF404384F49FF /* OdiiAudioAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470F7F2D203392C83F32E3AA /* OdiiAudioAPI.swift */; };
 		8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFB45E01F6089646021CEA5 /* SharedComponents.swift */; };
 		8A05764F76E9D6D931D89427 /* PlayAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCB9C34210E2B619207A45E /* PlayAPI.swift */; };
@@ -59,27 +50,21 @@
 		8E332C8B628EB5E1E42AC01C /* MyCourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */; };
 		96B2DDC6F8D6FF8F60FB204C /* PixelComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D8AB8D49C66B553084056EF /* PixelComponents.swift */; };
 		96D843ECB5200BC6F444CAE1 /* ProfileTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E3C9D9B595012C0EAF66BF /* ProfileTabView.swift */; };
-		99347349DD8C78539C1B7447 /* FirestoreSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0349BE64A4DE0DBB4EDA32 /* FirestoreSyncService.swift */; };
 		9CE22D9AFDBBB268C8DC5204 /* PixelGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BFC0010E988BDABFC32500E /* PixelGalleryView.swift */; };
 		9CE3AAF8CFE0F62B647E2B1B /* CourseRecommendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */; };
 		A2C31EC58EACE3EE26ECF576 /* MapTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58575F513772C542278732E4 /* MapTabView.swift */; };
 		A354561FC140C77CD26F19D8 /* GoogleMapPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC15B8EA8FB8D80D2EA8016 /* GoogleMapPreview.swift */; };
 		A8ED1424FD6D36F3B538B12A /* PixelTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 147E26AF7E61D093C74F6104 /* PixelTabBar.swift */; };
-		AAE7C1FCF5B5E1B0894E0B23 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 56FD528AF8D8BAAD9FA0738D /* GoogleSignInSwift */; };
 		AC684B8C1956FFD93A8835F3 /* PlaceReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC21DDC81DEE2B5D42F38320 /* PlaceReview.swift */; };
 		B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */; };
 		BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */; };
 		C73841BC51AF0A0EC4A72670 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F529E10D83F4E5A63726E5 /* LocationService.swift */; };
-		C74D798F99D1945551A212E6 /* TravelSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB8400CD98E1FD2E1045AE84 /* TravelSession.swift */; };
 		CB763EDFE880AAC77792628A /* Play.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BAB5BC9C63961CEA7CC226B /* Play.swift */; };
-		D12BBA198F3A069A7B2D0090 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E3F0ADC1193435A1799743F4 /* FirebaseFirestoreSwift */; };
 		D3DFEBC6D7B98B9C46F9BA81 /* PixelSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 770550065A60F3F6D772B9A0 /* PixelSpacing.swift */; };
 		D726750ECE035B9C28D50F72 /* Course.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3716E52689657C66A89C990A /* Course.swift */; };
-		D75C8DE79E08139D56DCC142 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8287E78AE638FE1F48F3E7E8 /* FirebaseStorage */; };
 		DA537D46F6F9CCF7654E489D /* DeviceIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */; };
 		E308940579FA9D956796897F /* CourseHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F710DAFC1FB6A28109BE7C66 /* CourseHubView.swift */; };
 		E5FFD4F4F6D0F52E73744CAA /* seongeup-folk-village.png in Resources */ = {isa = PBXBuildFile; fileRef = 89D35949EC99A65964351085 /* seongeup-folk-village.png */; };
-		E6EA2A2EE0C5198E6788CEEE /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 88F2B5856C2815B6FA279A89 /* FirebaseFirestore */; };
 		F475DC455EF699B2C68D1803 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8932708010A3431E486DF98 /* APIClient.swift */; };
 		F5FDCEF545D4023A70256DEC /* PlayCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F89AFFDE8A57B6CA8E1D40 /* PlayCard.swift */; };
 		F6293A665BCC1AEA370BE95C /* MaterialIcons-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 52D86945625489F0FAF637E3 /* MaterialIcons-Regular.ttf */; };
@@ -102,14 +87,10 @@
 		30363681E0458D5424F54A31 /* MissionStepInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionStepInput.swift; sourceTree = "<group>"; };
 		34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseListView.swift; sourceTree = "<group>"; };
 		3716E52689657C66A89C990A /* Course.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
-		4000E728FBE0443E2CE67EA5 /* ProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSheet.swift; sourceTree = "<group>"; };
-		435CA89B62B4B29FDF95DF2A /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		470F7F2D203392C83F32E3AA /* OdiiAudioAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdiiAudioAPI.swift; sourceTree = "<group>"; };
 		49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasteDiscoveryView.swift; sourceTree = "<group>"; };
 		4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JejuFolklore.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BAB5BC9C63961CEA7CC226B /* Play.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Play.swift; sourceTree = "<group>"; };
-		4D5CC6DDEC1C1B656071D157 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
-		4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewModel.swift; sourceTree = "<group>"; };
 		50714B04510A0105DCCEE895 /* debug-route.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "debug-route.gpx"; sourceTree = "<group>"; };
 		52D86945625489F0FAF637E3 /* MaterialIcons-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "MaterialIcons-Regular.ttf"; sourceTree = "<group>"; };
 		56510A2D59EB508CE47BE90F /* JejuRegion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JejuRegion.swift; sourceTree = "<group>"; };
@@ -127,7 +108,6 @@
 		80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRecommendViewModel.swift; sourceTree = "<group>"; };
 		8106FE651DF3B5201C58AE54 /* Galmuri9.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Galmuri9.ttf; sourceTree = "<group>"; };
 		89D35949EC99A65964351085 /* seongeup-folk-village.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "seongeup-folk-village.png"; sourceTree = "<group>"; };
-		8A0349BE64A4DE0DBB4EDA32 /* FirestoreSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreSyncService.swift; sourceTree = "<group>"; };
 		8E81A390764D24D99F14B2DA /* SavedCourse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCourse.swift; sourceTree = "<group>"; };
 		94F529E10D83F4E5A63726E5 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		997538FBFEB00536EF630FCB /* PlaceAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceAPI.swift; sourceTree = "<group>"; };
@@ -136,12 +116,10 @@
 		A879853F4651906EE40B20D1 /* jeju-stone-park.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "jeju-stone-park.png"; sourceTree = "<group>"; };
 		AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		ABCB9C34210E2B619207A45E /* PlayAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayAPI.swift; sourceTree = "<group>"; };
-		ABFB1F82A4D609716075142E /* LoginSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginSheet.swift; sourceTree = "<group>"; };
 		ACC8CE9035C23D8D25277A7D /* Galmuri11-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Galmuri11-Bold.ttf"; sourceTree = "<group>"; };
-		BCB19D914698888F9F31CB4C /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
-		BE302B828FB176D1DA8415CD /* SessionRestoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRestoreView.swift; sourceTree = "<group>"; };
-		C067AF921E238CC37BAD19F4 /* PlayProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayProgress.swift; sourceTree = "<group>"; };
 		BAE8417CDE5E4A4F8252B380 /* PlayProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayProgressStore.swift; sourceTree = "<group>"; };
+		BCB19D914698888F9F31CB4C /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		C067AF921E238CC37BAD19F4 /* PlayProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayProgress.swift; sourceTree = "<group>"; };
 		C0E3C9D9B595012C0EAF66BF /* ProfileTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTabView.swift; sourceTree = "<group>"; };
 		C8932708010A3431E486DF98 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseAPI.swift; sourceTree = "<group>"; };
@@ -160,10 +138,8 @@
 		F360898F00360C7F075BAB6C /* StoryAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryAudioPlayer.swift; sourceTree = "<group>"; };
 		F710DAFC1FB6A28109BE7C66 /* CourseHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseHubView.swift; sourceTree = "<group>"; };
 		FB383F822D48F10D4C482C1B /* PixelIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelIcon.swift; sourceTree = "<group>"; };
-		FB8400CD98E1FD2E1045AE84 /* TravelSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelSession.swift; sourceTree = "<group>"; };
 		FC21DDC81DEE2B5D42F38320 /* PlaceReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceReview.swift; sourceTree = "<group>"; };
 		FE1015A20E1B4F561042D346 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		FF8528DFE3BA78C29CA022D3 /* ExploreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,12 +148,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				7485325AAD31ADF859E86B09 /* GoogleMaps in Frameworks */,
-				751B960A8F06079680845A12 /* FirebaseAuth in Frameworks */,
-				E6EA2A2EE0C5198E6788CEEE /* FirebaseFirestore in Frameworks */,
-				D12BBA198F3A069A7B2D0090 /* FirebaseFirestoreSwift in Frameworks */,
-				D75C8DE79E08139D56DCC142 /* FirebaseStorage in Frameworks */,
-				2EB651D81236DB74288380DA /* GoogleSignIn in Frameworks */,
-				AAE7C1FCF5B5E1B0894E0B23 /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -197,7 +167,6 @@
 			children = (
 				161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */,
 				80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */,
-				4EDDF2F69EAF131A3ED859D8 /* ExploreViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -213,7 +182,6 @@
 				4BAB5BC9C63961CEA7CC226B /* Play.swift */,
 				C067AF921E238CC37BAD19F4 /* PlayProgress.swift */,
 				8E81A390764D24D99F14B2DA /* SavedCourse.swift */,
-				FB8400CD98E1FD2E1045AE84 /* TravelSession.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -280,7 +248,6 @@
 			isa = PBXGroup;
 			children = (
 				E11EACDCA05DCA02F59297D3 /* Assets.xcassets */,
-				435CA89B62B4B29FDF95DF2A /* GoogleService-Info.plist */,
 				6A4C37778C65DA1DF7951735 /* Secrets.xcconfig */,
 			);
 			name = Resources;
@@ -312,18 +279,14 @@
 				F710DAFC1FB6A28109BE7C66 /* CourseHubView.swift */,
 				34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */,
 				72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */,
-				FF8528DFE3BA78C29CA022D3 /* ExploreView.swift */,
 				AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */,
-				ABFB1F82A4D609716075142E /* LoginSheet.swift */,
 				58575F513772C542278732E4 /* MapTabView.swift */,
 				EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */,
 				2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */,
 				0EB46F8631558DA14B8DE90F /* PlaceReviewSheet.swift */,
 				D2F59CC64DB30B5F69512C4E /* PlayDetailView.swift */,
 				E8F9DD63A88EBCCF172DEE06 /* PlayRunnerView.swift */,
-				4000E728FBE0443E2CE67EA5 /* ProfileSheet.swift */,
 				C0E3C9D9B595012C0EAF66BF /* ProfileTabView.swift */,
-				BE302B828FB176D1DA8415CD /* SessionRestoreView.swift */,
 				7BFB45E01F6089646021CEA5 /* SharedComponents.swift */,
 				49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */,
 				4B9524F3E48D13C2441EFF33 /* Components */,
@@ -337,10 +300,8 @@
 			children = (
 				C8932708010A3431E486DF98 /* APIClient.swift */,
 				A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */,
-				4D5CC6DDEC1C1B656071D157 /* AuthManager.swift */,
 				CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */,
 				27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */,
-				8A0349BE64A4DE0DBB4EDA32 /* FirestoreSyncService.swift */,
 				94F529E10D83F4E5A63726E5 /* LocationService.swift */,
 				470F7F2D203392C83F32E3AA /* OdiiAudioAPI.swift */,
 				997538FBFEB00536EF630FCB /* PlaceAPI.swift */,
@@ -391,12 +352,6 @@
 			name = JejuFolklore;
 			packageProductDependencies = (
 				73D434DC7C36590FAF11FE46 /* GoogleMaps */,
-				4B18F75428772D8916E25374 /* FirebaseAuth */,
-				88F2B5856C2815B6FA279A89 /* FirebaseFirestore */,
-				E3F0ADC1193435A1799743F4 /* FirebaseFirestoreSwift */,
-				8287E78AE638FE1F48F3E7E8 /* FirebaseStorage */,
-				93A7AD4147147A644C148CA6 /* GoogleSignIn */,
-				56FD528AF8D8BAAD9FA0738D /* GoogleSignInSwift */,
 			);
 			productName = JejuFolklore;
 			productReference = 4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */;
@@ -426,9 +381,7 @@
 			mainGroup = 75D21EA6AC81E560B87E62D9;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				DC5ED3C557176FCC202DA207 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				3B887012B207487E9482AEC2 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */,
-				260351A6C2E18FEED1232710 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 008A9C8980608A8515E098EF /* Products */;
@@ -450,7 +403,6 @@
 				29733E529895877A8C3055B5 /* Galmuri11.ttf in Resources */,
 				72807356FA10C0EE8D9EC901 /* Galmuri14.ttf in Resources */,
 				1063ECB9D961E9145B031E02 /* Galmuri9.ttf in Resources */,
-				59BC2160448B1CDAE4804A6D /* GoogleService-Info.plist in Resources */,
 				F6293A665BCC1AEA370BE95C /* MaterialIcons-Regular.ttf in Resources */,
 				4376C2AAA8BD0BDF615AB8A6 /* OFL.txt in Resources */,
 				18E4CA6BBCC86AD84FCFD234 /* jeju-stone-park.png in Resources */,
@@ -469,7 +421,6 @@
 				F475DC455EF699B2C68D1803 /* APIClient.swift in Sources */,
 				4C1F407BDC88A1B264CEB27F /* ArrivalOverlayView.swift in Sources */,
 				BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */,
-				181950EB48299EE76985B887 /* AuthManager.swift in Sources */,
 				67157E9A54F763785AB8AAE4 /* Config.swift in Sources */,
 				8A08DE3EE1EDECFC01390C82 /* ContentView.swift in Sources */,
 				D726750ECE035B9C28D50F72 /* Course.swift in Sources */,
@@ -481,15 +432,11 @@
 				174F84207B32BD1FF0089EA3 /* CoursePreviewViewModel.swift in Sources */,
 				9CE3AAF8CFE0F62B647E2B1B /* CourseRecommendViewModel.swift in Sources */,
 				DA537D46F6F9CCF7654E489D /* DeviceIdentity.swift in Sources */,
-				0EC1CB2AEEC08D50A8762866 /* ExploreView.swift in Sources */,
-				522757289D4B9A4C480111F5 /* ExploreViewModel.swift in Sources */,
-				99347349DD8C78539C1B7447 /* FirestoreSyncService.swift in Sources */,
 				A354561FC140C77CD26F19D8 /* GoogleMapPreview.swift in Sources */,
 				74DCBD57A66368EA7F46C223 /* HomeView.swift in Sources */,
 				2BDBCF5B8C7C61F1C9478ABC /* JejuFolkloreApp.swift in Sources */,
 				12786FB262DEB2F73A3AD8F4 /* JejuRegion.swift in Sources */,
 				C73841BC51AF0A0EC4A72670 /* LocationService.swift in Sources */,
-				290137D764E6A47F84FD38EB /* LoginSheet.swift in Sources */,
 				A2C31EC58EACE3EE26ECF576 /* MapTabView.swift in Sources */,
 				724570403E04D82E56626B33 /* MissionReportSheet.swift in Sources */,
 				00C83AC475A055101EC2142C /* MissionStepInput.swift in Sources */,
@@ -518,15 +465,12 @@
 				09CA36B2590769BAEEDDE8C9 /* PlayProgress.swift in Sources */,
 				3C5016B24FD9436D8A84F7CE /* PlayProgressStore.swift in Sources */,
 				551CF310DF3AE8E66E0D1AF7 /* PlayRunnerView.swift in Sources */,
-				3A1219C0BE883136CBF1FEBD /* ProfileSheet.swift in Sources */,
 				96D843ECB5200BC6F444CAE1 /* ProfileTabView.swift in Sources */,
 				1EFFDAF78ADAE81D2021D06E /* SavedCourse.swift in Sources */,
-				4FF8E3BA2A1CBF3EB0E700D8 /* SessionRestoreView.swift in Sources */,
 				8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */,
 				39E84B4B300BE84BCBDC781F /* SpeechRecognizer.swift in Sources */,
 				58DF075E69988AA2F359FE58 /* StoryAudioPlayer.swift in Sources */,
 				B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */,
-				C74D798F99D1945551A212E6 /* TravelSession.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -720,14 +664,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		260351A6C2E18FEED1232710 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 7.0.0;
-			};
-		};
 		3B887012B207487E9482AEC2 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/googlemaps/ios-maps-sdk";
@@ -736,51 +672,13 @@
 				minimumVersion = 9.0.0;
 			};
 		};
-		DC5ED3C557176FCC202DA207 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 10.0.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		4B18F75428772D8916E25374 /* FirebaseAuth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DC5ED3C557176FCC202DA207 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAuth;
-		};
-		56FD528AF8D8BAAD9FA0738D /* GoogleSignInSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 260351A6C2E18FEED1232710 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
-			productName = GoogleSignInSwift;
-		};
 		73D434DC7C36590FAF11FE46 /* GoogleMaps */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 3B887012B207487E9482AEC2 /* XCRemoteSwiftPackageReference "ios-maps-sdk" */;
 			productName = GoogleMaps;
-		};
-		8287E78AE638FE1F48F3E7E8 /* FirebaseStorage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DC5ED3C557176FCC202DA207 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseStorage;
-		};
-		88F2B5856C2815B6FA279A89 /* FirebaseFirestore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DC5ED3C557176FCC202DA207 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseFirestore;
-		};
-		93A7AD4147147A644C148CA6 /* GoogleSignIn */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 260351A6C2E18FEED1232710 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
-			productName = GoogleSignIn;
-		};
-		E3F0ADC1193435A1799743F4 /* FirebaseFirestoreSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DC5ED3C557176FCC202DA207 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseFirestoreSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

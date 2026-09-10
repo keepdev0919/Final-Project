@@ -54,15 +54,9 @@ extension EnvironmentValues {
 }
 
 struct ContentView: View {
-    @State private var savedSession: TravelSession?
-    @State private var showRestoreSheet = false
-    @State private var resumeCourse: Course?
-    @State private var resumeTransport = "car"
-    @State private var navigateToExplore = false
     @StateObject private var tabBarVisibility = TabBarVisibility()
 
     @AppStorage("selected_tab") private var selectedTabRaw: String = AppTab.home.rawValue
-    @EnvironmentObject private var authManager: AuthManager
     @Environment(\.modelContext) private var modelContext
 
     /// 탭 하나를 그린다. 안 보이는 탭도 계층에 남겨 상태를 보존한다.
@@ -102,7 +96,7 @@ struct ContentView: View {
                 tabContent(.home)    { HomeView() }
                 tabContent(.course)  { CourseHubView() }
                 tabContent(.map)     { MapTabView() }
-                tabContent(.profile) { ProfileTabView().environmentObject(authManager) }
+                tabContent(.profile) { ProfileTabView() }
             }
             // PLAY 상세처럼 「지금 이것만 정하는」 화면은 탭바를 숨긴다.
             if !tabBarVisibility.isHidden {
@@ -118,53 +112,5 @@ struct ContentView: View {
         }
         .environment(\.tabBarVisibility, tabBarVisibility)
         .background(PixelColor.background.ignoresSafeArea())
-        // SessionRestore 경로: 이전에는 NavigationStack push였지만, 탭별 NavigationStack 분리 이후
-        // 어떤 탭에 push할지 모호해서 fullScreenCover로 띄운다. ExploreView 내부 navigationDestination을
-        // 위해 자체 NavigationStack 감싸기.
-        .fullScreenCover(isPresented: $navigateToExplore) {
-            if let course = resumeCourse {
-                NavigationStack {
-                    ExploreView(course: course, transport: resumeTransport)
-                }
-            }
-        }
-        .sheet(isPresented: $showRestoreSheet) {
-            if let session = savedSession {
-                SessionRestoreView(
-                    session: session,
-                    onResume: { course, transport in
-                        showRestoreSheet = false
-                        resumeCourse = course
-                        resumeTransport = transport
-                        navigateToExplore = true
-                    },
-                    onDiscard: {
-                        TravelStore.shared.clear()
-                        savedSession = nil
-                        showRestoreSheet = false
-                    }
-                )
-            }
-        }
-        .onAppear {
-            if let session = TravelStore.shared.load() {
-                savedSession = session
-                showRestoreSheet = true
-            }
-        }
-        // SessionRestore 경로(ContentView가 직접 ExploreView를 push)로 진입한 경우
-        // 탐험 완료 시 navigation stack을 비워 TabView root로 복귀.
-        .onReceive(NotificationCenter.default.publisher(for: .exploreDidComplete)) { _ in
-            navigateToExplore = false
-            selectedTabRaw = AppTab.course.rawValue
-        }
-        // Firestore 동기화 트리거: 로그인 ↔ 로그아웃에 따라 listener 시작/종료
-        .onChange(of: authManager.currentUser?.uid, initial: true) { _, newUid in
-            if let uid = newUid {
-                FirestoreSyncService.shared.startListening(uid: uid, modelContext: modelContext)
-            } else {
-                FirestoreSyncService.shared.stopListening()
-            }
-        }
     }
 }
