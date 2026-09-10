@@ -21,8 +21,19 @@ struct CoursePreviewView: View {
     /// 기본이라 지도에 사흘치 경로가 한꺼번에 그려졌고, 그러면 어느 선이 어느 날인지
     /// 알 수 없어 「경로를 본다」는 목적이 무너진다. `onAppear` 에서 첫날로 맞춘다.
     @State private var selectedDay: Int = 1
-    /// 시트가 실제로 차지한 높이. 지도 카메라가 이만큼을 빼고 경로를 맞춘다.
-    @State private var sheetHeight: CGFloat = 0
+    /// 지도의 아래 끝과 시트의 윗변이 화면에서 각각 어디인지.
+    ///
+    /// ⚠️ **시트의 「높이」가 아니라 「윗변 위치」를 잰다** (2026-09-10 조익준님 지적).
+    /// 높이만 재면 시트 아래 여백(8)과 홈 인디케이터 자리(34)를 빼먹어 늘 42pt 쯤
+    /// 덜 빼고 맞췄다. 지도는 화면 맨 아래까지 깔려 있어서(시트 밑으로 지도가 보인다)
+    /// 그 42pt 도 가려지는 자리다. 경계에 걸린 마커가 있는 날에만 잘려 보였다.
+    @State private var mapBottomY: CGFloat = 0
+    @State private var sheetTopY: CGFloat = 0
+
+    /// 지도에서 시트가 덮은 높이.
+    private var coveredBySheet: CGFloat {
+        max(0, mapBottomY - sheetTopY)
+    }
     @State private var isSheetExpanded = true
     @State private var selectedPlace: CoursePlace?
 
@@ -102,11 +113,20 @@ struct CoursePreviewView: View {
             // 경로를 **보이는 자리**에 맞춘다 (2026-09-09 조익준님 결정).
             // 전에는 화면 전체를 기준으로 맞춰서, 시트가 아래 절반을 덮고 있는 동안
             // 경로가 시트 뒤에 숨고 위에는 바다만 남았다.
-            bottomInset: sheetHeight,
+            bottomInset: coveredBySheet,
             topInset: 56,        // 떠 있는 뒤로가기·제목 줄
             onCollapse: onCollapse
         )
         .ignoresSafeArea(edges: .top)
+        // 지도의 아래 끝이 화면에서 어디인지 잰다. 홈 인디케이터 자리까지 깔리므로
+        // 「화면 높이」로 갈음하면 그만큼 어긋난다.
+        .background(
+            GeometryReader { geo in
+                Color.clear.preference(key: MapBottomKey.self,
+                                       value: geo.frame(in: .global).maxY)
+            }
+        )
+        .onPreferenceChange(MapBottomKey.self) { mapBottomY = $0 }
     }
 
     // MARK: - Bottom Sheet
@@ -184,10 +204,11 @@ struct CoursePreviewView: View {
         // 시트를 접거나 기기가 바뀔 때 경로가 다시 숨는다.
         .background(
             GeometryReader { geo in
-                Color.clear.preference(key: SheetHeightKey.self, value: geo.size.height)
+                Color.clear.preference(key: SheetTopKey.self,
+                                       value: geo.frame(in: .global).minY)
             }
         )
-        .onPreferenceChange(SheetHeightKey.self) { sheetHeight = $0 }
+        .onPreferenceChange(SheetTopKey.self) { sheetTopY = $0 }
     }
 
     // MARK: - Day Tab Bar
@@ -365,23 +386,31 @@ private struct MapWithPolyline: UIViewRepresentable {
 
     func updateUIView(_ mapView: MKMapView, context: Context) {
         context.coordinator.onCollapse = onCollapse
-        // 기존 오버레이/어노테이션 제거
-        mapView.removeOverlays(mapView.overlays)
-        mapView.removeAnnotations(mapView.annotations)
 
-        // 어노테이션 추가
-        for item in annotationItems {
-            let annotation = NumberedAnnotation(
-                index: item.index,
-                coordinate: CLLocationCoordinate2D(latitude: item.place.lat, longitude: item.place.lng)
-            )
-            mapView.addAnnotation(annotation)
-        }
+        // ⚠️ **경로가 그대로면 마커도 그대로 둔다** (2026-09-10 조익준님 지적).
+        //
+        // 이 함수는 시트를 올리고 내릴 때도 불린다. 그때마다 마커를 지웠다 다시
+        // 만들면, 새로 만든 뷰가 제자리를 찾기까지 한 박자가 뜬다. 시트를 만질
+        // 때마다 번호가 흔들리던 이유다. 바뀐 게 시트뿐이면 **카메라만** 다시 맞춘다.
+        let key = annotationItems.map { "\($0.index):\($0.place.lat),\($0.place.lng)" }
+            .joined(separator: "|")
+        if context.coordinator.routeKey != key {
+            context.coordinator.routeKey = key
+            mapView.removeOverlays(mapView.overlays)
+            mapView.removeAnnotations(mapView.annotations)
 
-        // Polyline 추가
-        if coordinates.count >= 2 {
-            let polyline = MKPolyline(coordinates: coordinates, count: coordinates.count)
-            mapView.addOverlay(polyline, level: .aboveRoads)
+            for item in annotationItems {
+                mapView.addAnnotation(NumberedAnnotation(
+                    index: item.index,
+                    coordinate: CLLocationCoordinate2D(latitude: item.place.lat,
+                                                       longitude: item.place.lng)
+                ))
+            }
+            if coordinates.count >= 2 {
+                mapView.addOverlay(MKPolyline(coordinates: coordinates,
+                                              count: coordinates.count),
+                                   level: .aboveRoads)
+            }
         }
 
         // 영역 맞추기 — **보이는 자리에** 맞춘다 (2026-09-09 조익준님 결정).
@@ -427,6 +456,8 @@ private struct MapWithPolyline: UIViewRepresentable {
 
     final class Coordinator: NSObject, MKMapViewDelegate {
         var onCollapse: (() -> Void)?
+        /// 지금 지도에 올라가 있는 경로의 지문. 이게 그대로면 마커를 다시 만들지 않는다.
+        var routeKey: String = ""
 
         @objc func handleTap(_ gesture: UITapGestureRecognizer) {
             onCollapse?()
@@ -452,14 +483,27 @@ private struct MapWithPolyline: UIViewRepresentable {
             view.subviews.forEach { $0.removeFromSuperview() }
             view.canShowCallout = false
 
-            // 번호 원형 마커를 UIHostingController로 렌더링
+            // ⚠️ `view.frame` 을 건드리지 않는다 (2026-09-10 조익준님 지적).
+            //
+            // 마커의 자리는 **MapKit 이 정한다** — 좌표를 화면으로 옮긴 뒤 이 뷰의
+            // `center` 를 거기에 놓는다. 그런데 `frame` 을 통째로 넣으면 **위치까지**
+            // 함께 덮어써서(원점 0,0) 지도 왼쪽 위로 튀고, MapKit 이 다음 배치에서
+            // 다시 제자리로 돌려놓기 전까지 어긋난 채로 보인다.
+            //
+            // 그 「다음 배치」가 언제 오느냐가 시트에 달려 있었다. 시트를 올리거나
+            // 내리면 화면을 다시 맞추면서 배치가 한 번 더 돌아 제자리를 찾고, 안
+            // 건드리면 어긋난 채로 남는다 — 번호만 경로에서 떨어져 보이던 이유다.
+            //
+            // 크기는 `bounds` 로 준다. `bounds` 는 위치를 건드리지 않는다.
             let marker = UIHostingController(
                 rootView: NumberedMarker(number: numbered.index + 1)
             )
             marker.view.backgroundColor = .clear
-            marker.view.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
+            view.bounds = CGRect(x: 0, y: 0, width: 32, height: 32)
+            view.centerOffset = .zero      // 번호 한가운데가 그 좌표다
+            marker.view.frame = view.bounds
+            marker.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             view.addSubview(marker.view)
-            view.frame = marker.view.frame
             return view
         }
     }
@@ -556,10 +600,19 @@ struct PlaceCard: View {
 }
 
 
-/// 시트가 덮은 높이를 지도에 전하는 통로. 지도 카메라가 이만큼을 빼고 경로를 맞춘다.
-private struct SheetHeightKey: PreferenceKey {
+/// 시트 **윗변**의 화면 위치. 지도 카메라가 여기부터 아래를 가려진 자리로 친다.
+private struct SheetTopKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
+        value = nextValue()
+    }
+}
+
+/// 지도 **아래 끝**의 화면 위치. 지도가 홈 인디케이터 자리까지 깔리므로
+/// 화면 높이로 갈음하지 않고 직접 잰다.
+private struct MapBottomKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
