@@ -33,12 +33,6 @@ packages:
   GoogleMaps:
     url: https://github.com/googlemaps/ios-maps-sdk
     from: 9.0.0
-  FirebaseSDK:
-    url: https://github.com/firebase/firebase-ios-sdk
-    from: 10.0.0
-  GoogleSignIn:
-    url: https://github.com/google/GoogleSignIn-iOS
-    from: 7.0.0
 
 targets:
   JejuFolklore:
@@ -50,8 +44,6 @@ targets:
       - path: JejuFolklore/Resources/Assets.xcassets
       - path: JejuFolklore/Resources/Fonts
       - path: JejuFolklore/Resources/Covers
-      - path: JejuFolklore/Resources/GoogleService-Info.plist
-        optional: true
       - path: JejuFolklore/debug-route.gpx
         optional: true
     configFiles:
@@ -60,18 +52,6 @@ targets:
     dependencies:
       - package: GoogleMaps
         product: GoogleMaps
-      - package: FirebaseSDK
-        product: FirebaseAuth
-      - package: FirebaseSDK
-        product: FirebaseFirestore
-      - package: FirebaseSDK
-        product: FirebaseFirestoreSwift
-      - package: FirebaseSDK
-        product: FirebaseStorage
-      - package: GoogleSignIn
-        product: GoogleSignIn
-      - package: GoogleSignIn
-        product: GoogleSignInSwift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.keepdev.jejufolklore
@@ -96,19 +76,16 @@ targets:
           UIColorName: ""
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
-        NSLocationWhenInUseUsageDescription: "관광지에 도착했을 때 준비된 이야기를 안내하기 위해 위치를 사용합니다. 위치는 기기 안에서만 확인하며 서버로 보내지 않습니다."
-        NSLocationAlwaysAndWhenInUseUsageDescription: "화면이 꺼져 있거나 앱이 백그라운드일 때도 관광지 도착을 감지해 이야기를 안내하기 위해 위치 접근이 필요합니다. 위치는 기기 안에서만 확인하며 서버로 보내지 않습니다."
+        # 스토어 심사 대비로 뺀 것들 (2026-09-09) — 리뷰 시트를 되살릴 때 함께 복구할 것.
+        #   백그라운드 위치: 화면을 끈 채로 도착을 감지하려면 필요하지만 심사에서 사유를
+        #     강하게 요구받는다. 도착 감지는 앱을 켜 둔 동안만 동작하는 것으로 충분하다.
+        #   마이크·음성인식: PlaceReviewSheet에서만 쓰는데 그 화면에 도달할 경로가 없다.
+        #     쓰지 않는 권한을 선언하면 그 자체가 리젝 사유다.
+        NSLocationWhenInUseUsageDescription: "현재 위치에서 관광지까지 남은 거리를 보여 주고, 코스를 따라 이동할 때 도착을 안내하기 위해 위치를 사용합니다. 위치는 기기 안에서만 확인하며 서버로 보내지 않습니다."
         UIBackgroundModes:
-          - location
           - audio
-        NSMicrophoneUsageDescription: "이야기를 들으며 음성으로 답하거나 리뷰를 남길 때 마이크를 사용합니다."
-        NSSpeechRecognitionUsageDescription: "말한 내용을 글자로 바꾸기 위해 Apple 음성 인식을 사용합니다. 이 앱은 음성을 저장하지 않습니다."
         NSAppTransportSecurity:
-          NSAllowsArbitraryLoads: true
+          NSAllowsLocalNetworking: true
         LSApplicationQueriesSchemes:
           - comgooglemaps
         GOOGLE_MAPS_API_KEY: $(GOOGLE_MAPS_API_KEY)
-        CFBundleURLTypes:
-          - CFBundleTypeRole: Editor
-            CFBundleURLSchemes:
-              - com.googleusercontent.apps.107241453785-do85fcu2l0i2fdt0805tb646vhgv5g9f

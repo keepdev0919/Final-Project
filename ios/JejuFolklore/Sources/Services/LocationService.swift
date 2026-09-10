@@ -2,6 +2,13 @@ import Foundation
 import CoreLocation
 import Combine
 
+/// 현재 위치를 **1회성으로만** 받아 오는 서비스.
+///
+/// 쓰이는 곳은 PLAY 진행 화면 하나다 — 다음 지점까지 남은 거리를 보여 주기 위해서다.
+/// 진행 자체는 사용자가 「도착했어요」를 누르는 방식이라 연속 추적이 필요 없다.
+///
+/// 코스를 따라가며 도착을 자동 감지하던 기능은 2026-09-10에 걷어냈고,
+/// 그에 딸렸던 연속 위치 갱신·체류 판정·도착 콜백도 함께 지웠다.
 @MainActor
 final class LocationService: NSObject, ObservableObject {
     static let shared = LocationService()
@@ -10,30 +17,9 @@ final class LocationService: NSObject, ObservableObject {
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
 
     private let manager = CLLocationManager()
-    private var visitedPlaceIDs: Set<String> = []
     /// 권한이 아직 안 나온 상태에서 1회성 위치를 요청받았는지.
     /// 권한 대화상자는 비동기라, 승인된 뒤에 다시 요청해야 한다.
     private var wantsOneShotLocation = false
-
-    var onArrival: ((String) -> Void)?  // (placeName)
-
-    // 탐험 중인 코스 장소 목록
-    private var activePlaces: [CoursePlace] = []
-    private var transportMode: String = "car"  // "car" | "walk"
-    private var pendingArrivals: [String: Date] = [:]
-    #if DEBUG
-    private let dwellRequired: TimeInterval = 3
-    #else
-    private let dwellRequired: TimeInterval = 30
-    #endif
-
-    private var arrivalRadius: Double {
-        #if DEBUG
-        return 99999.0
-        #else
-        return transportMode == "walk" ? 100.0 : 300.0
-        #endif
-    }
 
     private override init() {
         super.init()
@@ -42,24 +28,11 @@ final class LocationService: NSObject, ObservableObject {
         authorizationStatus = manager.authorizationStatus
     }
 
-    func requestWhenInUseAuthorization() {
-        manager.requestWhenInUseAuthorization()
-    }
-
-    func requestAlwaysAuthorization() {
-        manager.requestAlwaysAuthorization()
-    }
-
-    /// 홈·스토리 탭의 "지금 여기예요" 판정을 위한 **1회성** 위치 요청.
-    ///
-    /// 탐험 중이 아닐 때도 현재 위치가 필요하지만, 배터리를 위해 지속 추적은 하지 않는다.
-    /// 권한 대화상자가 비동기라 아직 미결정이면 승인 시점에 자동으로 다시 요청한다.
+    /// 다음 지점까지 남은 거리를 계산하기 위한 **1회성** 위치 요청.
     ///
     /// ⚠️ 받은 좌표는 **단말 안에서만** 쓴다. 서버로 보내지 않는다 (설계 §6).
+    /// 이 불변식이 깨지면 위치기반서비스사업자 신고 대상이 된다.
     func requestCurrentLocationOnce() {
-        // 탐험 중이면 이미 연속 갱신되고 있다.
-        guard activePlaces.isEmpty else { return }
-
         switch manager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
             wantsOneShotLocation = false
@@ -68,54 +41,8 @@ final class LocationService: NSObject, ObservableObject {
             wantsOneShotLocation = true
             manager.requestWhenInUseAuthorization()
         default:
-            // 거부·제한 상태에서는 조용히 넘어간다. 배지가 안 뜰 뿐 앱은 정상 동작한다.
+            // 거부·제한 상태에서는 조용히 넘어간다. 거리가 안 보일 뿐 PLAY 는 끝까지 진행된다.
             wantsOneShotLocation = false
-        }
-    }
-
-    func startExploring(places: [CoursePlace], transport: String, alreadyVisited: Set<String> = []) {
-        activePlaces = places
-        transportMode = transport
-        // 세션 복원 시 이미 방문한 장소의 placeID를 미리 등록해 재감지를 방지한다
-        visitedPlaceIDs = Set(
-            places
-                .filter { alreadyVisited.contains($0.name) }
-                .map { "\($0.name)-\($0.day)" }
-        )
-        pendingArrivals.removeAll()
-        manager.allowsBackgroundLocationUpdates = true
-        manager.pausesLocationUpdatesAutomatically = false
-        manager.startUpdatingLocation()
-    }
-
-    func stopExploring() {
-        activePlaces = []
-        pendingArrivals.removeAll()
-        manager.allowsBackgroundLocationUpdates = false
-        manager.stopUpdatingLocation()
-    }
-
-    private func checkArrival(for location: CLLocation) {
-        for place in activePlaces {
-            let placeID = "\(place.name)-\(place.day)"
-            guard !visitedPlaceIDs.contains(placeID) else { continue }
-
-            let target = CLLocation(latitude: place.lat, longitude: place.lng)
-            let distance = location.distance(from: target)
-
-            if distance <= arrivalRadius {
-                if let enteredAt = pendingArrivals[placeID] {
-                    if Date().timeIntervalSince(enteredAt) >= dwellRequired {
-                        visitedPlaceIDs.insert(placeID)
-                        pendingArrivals.removeValue(forKey: placeID)
-                        onArrival?(place.name)
-                    }
-                } else {
-                    pendingArrivals[placeID] = Date()
-                }
-            } else {
-                pendingArrivals.removeValue(forKey: placeID)
-            }
         }
     }
 }
@@ -125,7 +52,6 @@ extension LocationService: CLLocationManagerDelegate {
         guard let location = locations.last else { return }
         Task { @MainActor in
             self.currentLocation = location
-            self.checkArrival(for: location)
         }
     }
 
@@ -139,8 +65,8 @@ extension LocationService: CLLocationManagerDelegate {
         }
     }
 
-    /// `requestLocation()`은 실패 콜백 구현을 요구한다.
-    /// 위치를 못 받으면 "지금 여기예요" 배지가 안 뜰 뿐이므로 조용히 넘어간다.
+    /// `requestLocation()` 은 실패 콜백 구현을 요구한다.
+    /// 위치를 못 받으면 거리 표시가 비는 것뿐이므로 조용히 넘어간다.
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         Task { @MainActor in
             self.wantsOneShotLocation = false
