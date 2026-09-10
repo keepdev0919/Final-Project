@@ -4,7 +4,7 @@ from typing import Optional
 
 class CourseListRequest(BaseModel):
     region: str                          # 동부 | 서부 | 남부 | 북부 | 전체
-    duration_days: int                   # 1~5
+    duration_days: int                   # 1~4 (4 = 「3박4일 이상」, 4~7일 코스)
 
 
 class CourseDetailRequest(BaseModel):

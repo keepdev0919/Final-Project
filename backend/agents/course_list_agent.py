@@ -1,8 +1,7 @@
 """코스 리스트 에이전트.
 
-`curated_courses`에서 지역×기간 조건으로 후보를 가져와 **코스 품질 점수**
-(`composite_score`) 상위 풀에서 무작위로 top_n개를 반환한다. LLM 없이 DB 조회만으로
-동작한다.
+`curated_courses`에서 지역×기간 조건에 맞는 코스를 **무작위로** top_n개 반환한다.
+LLM 없이 DB 조회만으로 동작한다.
 
 ## 설화 의존 제거 (2026-08-13)
 
@@ -15,20 +14,31 @@
 - 설화는 로컬 파일 데이터라 공모전 데이터 활용 점수에 기여하지 않는다
   (공지 FAQ: "OpenAPI 형태만 인정, 파일데이터 활용은 인정되지 않음")
 
-코스 품질 기준은 `backend/scripts/build_curated_courses.py`가 미리 계산해
-`composite_score`에 담아둔다 — 경로 효율 40% + 하루 장소 수 적정성 35% +
-관광지 비율 25%.
+## 점수제 제거 (2026-09-10)
 
-⚠️ `category_scores` 파라미터는 **호출부 호환을 위해 남아 있지만 무시된다.**
-취향 퀴즈 제거(단계 1)와 함께 API 스키마에서 없앨 예정이다.
+이전에는 `composite_score`(경로 효율·하루 장소 수·관광지 비율의 가중합) 상위 12개를
+뽑아 그중 일부를 보여줬다. 점수제를 통째로 없앤 이유는 **잘려나가던 것이 못 쓸
+데이터가 아니라 정상 여행이었기 때문**이다 — 숙소·식당이 낀 보통 일정은 이동이
+길고 관광지 비율이 낮아 자동으로 낮은 점수를 받았다. 그렇게 1,793개가 버려지고
+있었다.
+
+지금은 `build_curated_courses.py`가 하드필터로 「일정이 아닌 데이터」만 걷어내고,
+여기서는 조건에 맞는 것 중 무작위로 뽑는다. 목록이 1,255개 → 6,339개로 늘었다.
+
+코스 사이에 우열은 없다. 화면이 「추천 TOP N」이라 부르며 번호를 붙이지만 그대로
+두기로 했다 (2026-09-10 조익준님 결정) — 번호는 순위가 아니라 목록의 자리 표시다.
+
+설화 취향 점수를 받던 `category_scores` 파라미터는 2026-09-10에 없앴다. API 스키마와
+앱에서 이미 빠져 있어 아무도 넘기지 않고 있었다.
 """
 from __future__ import annotations
 
 import math
-import random
 from typing import Any
 
 from services.db import get_db_connection
+from services.place_display_names import display_names
+
 
 
 # ─── 유틸 (테스트에서도 사용) ──────────────────────────────────────────────────
@@ -44,24 +54,25 @@ def _haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
 
 # ─── 퍼블릭 API ───────────────────────────────────────────────────────────────
 
-# 상위 몇 개를 무작위 추출 풀로 쓸지. 매번 같은 코스만 나오지 않게 하되
-# 품질이 낮은 코스가 섞이지 않을 만큼만.
-CANDIDATE_POOL_SIZE = 12
+# 제목 중복을 걸러낼 여유분. 필요한 개수의 몇 배를 뽑아 두고 추린다
+# (`_dedupe_by_title`). 4배면 5장을 채우는 데 실패한 적이 없다.
+OVERFETCH = 4
+
+# 추천 목록이 한 번에 보여주는 코스 수. 화면 제목 「추천 TOP N」이 이 숫자다
+# (2026-09-10 조익준님 결정, 3 → 5). 라우터도 이 값으로 자른다.
+RESULT_COUNT = 5
 
 
 def run_course_list(
     region: str,
     duration_days: int,
-    category_scores: dict[str, int] | None = None,
-    top_n: int = 3,
+    top_n: int = RESULT_COUNT,
 ) -> dict[str, Any]:
-    """curated_courses에서 조건에 맞는 코스를 품질 순으로 가져와 반환.
+    """curated_courses에서 조건에 맞는 코스를 무작위로 가져와 반환.
 
     Args:
         region: 동부 | 서부 | 남부 | 북부 | 전체
         duration_days: 여행 일수
-        category_scores: **무시된다.** 설화 취향 기반 정렬을 제거했다(위 모듈 문서 참조).
-            호출부 호환을 위해 시그니처만 유지한다.
         top_n: 반환할 코스 수
 
     Returns:
@@ -69,49 +80,86 @@ def run_course_list(
     """
     conn = get_db_connection()
 
-    duration_min = max(1, duration_days - 1)
-    duration_max = duration_days + 1
+    # 고른 일수와 **정확히 같은** 코스만 준다 (2026-09-10).
+    #
+    # 예전에는 ±1일이었다. 목록이 1,255개뿐이라 후보가 모자랄까 봐 넓혀둔 것인데,
+    # 그 탓에 「2박3일」을 고른 사람에게 1박2일 코스가 뜨고 「당일치기」의 절반이
+    # 1박2일로 왔다. 사용자는 이미 자기 여행에 맞는 일수를 고른 것이므로 그대로
+    # 주는 게 맞다. 점수제를 없애면서 목록이 6,339개가 되어 정확히 맞춰도
+    # 권역당 79~354개가 남는다.
+    #
+    # 예외는 앱의 마지막 선택지 「3박4일 이상」뿐이다. 이 옵션은 라벨 자체가
+    # 「이상」이라 5일·6일 여행자도 여기를 고른다. 정확 매칭하면 5일 이상 코스
+    # 692개가 영영 안 보이므로 위로 열어 둔다.
+    #
+    # 다만 일주일에서 끊는다. 원본에는 28일·21일짜리 일정도 있는데 그건 여행이
+    # 아니라 한 달 살기다 — 4일 여행자에게 보여줄 것이 아니다. 8일 이상은
+    # 4일 이상 코스 2,154개 중 48개(2%)뿐이라 잃는 것도 거의 없다.
+    OPEN_ENDED_FROM = 4   # 앱의 마지막 선택지가 보내는 값 (TasteDiscoveryView)
+    OPEN_ENDED_TO = 7     # 보통 여행의 상한. 그 위는 장기 체류라 성격이 다르다
 
-    # 부실 코스 필터: place_count >= 3 AND >= duration_days
-    # (1박 2일에 갈 곳이 1~2곳인 일정을 배제)
+    duration_min = duration_days
+    duration_max = OPEN_ENDED_TO if duration_days >= OPEN_ENDED_FROM else duration_days
+
+    # 부실 코스 걸러내기는 여기서 하지 않는다. 「이건 일정이 아니다」 판정은
+    # 전부 빌드 단계(`build_curated_courses.py`)에 모여 있고, curated_courses에
+    # 들어온 것은 이미 통과한 것이다. 같은 규칙을 두 곳에서 관리하지 않는다.
     if region == "전체":
         rows = conn.execute(
             """
             SELECT id, title, duration_days, region
             FROM curated_courses
             WHERE duration_days BETWEEN ? AND ?
-              AND place_count >= 3
-              AND place_count >= ?
-            ORDER BY composite_score DESC
+            ORDER BY RANDOM()
             LIMIT ?
             """,
-            (duration_min, duration_max, duration_days, CANDIDATE_POOL_SIZE),
+            (duration_min, duration_max, top_n * OVERFETCH),
         ).fetchall()
     else:
-        # 요청 지역 코스 우선, 부족하면 "전체"로 분류된 코스로 보완
+        # 요청 지역 코스 우선, 부족하면 "전체"로 분류된 코스로 보완.
+        # 지역 우선순위 안에서는 무작위다.
         rows = conn.execute(
             """
             SELECT id, title, duration_days, region
             FROM curated_courses
             WHERE region IN (?, '전체')
               AND duration_days BETWEEN ? AND ?
-              AND place_count >= 3
-              AND place_count >= ?
-            ORDER BY CASE WHEN region = ? THEN 0 ELSE 1 END, composite_score DESC
+            ORDER BY CASE WHEN region = ? THEN 0 ELSE 1 END, RANDOM()
             LIMIT ?
             """,
-            (region, duration_min, duration_max, duration_days, region, CANDIDATE_POOL_SIZE),
+            (region, duration_min, duration_max, region, top_n * OVERFETCH),
         ).fetchall()
 
     if not rows:
         return {"result_courses": [], "error": "조건에 맞는 코스를 찾지 못했습니다."}
 
-    # 품질 상위 풀에서 무작위 추출 — 같은 조건으로 다시 받으면 다른 코스를 보여준다.
-    # 정렬은 SQL의 composite_score DESC가 이미 했다.
-    sample_size = min(top_n, len(rows))
-    top_rows = random.sample(rows, sample_size)
+    # 순서도 무작위다. 점수제를 없앤 뒤로 코스 사이에 우열이 없어서, 화면의
+    # 번호는 순위가 아니라 목록의 자리 표시다 (2026-09-10 결정).
+    return {"result_courses": _with_places(conn, _dedupe_by_title(rows, top_n)), "error": ""}
 
-    return {"result_courses": _with_places(conn, top_rows), "error": ""}
+
+def _dedupe_by_title(rows: list, limit: int) -> list:
+    """제목이 같은 코스가 한 화면에 두 번 나오지 않게 한다.
+
+    제목은 `{지역} {일수}일 · {대표장소} 외 N곳`으로 자동 생성되는데, 대표 장소와
+    개수만 쓰다 보니 **6,339개 중 47%가 다른 코스와 제목이 겹친다.** 「북부 4일 ·
+    산굼부리 외 10곳」은 70개나 된다. 내용은 서로 다르지만(장소 겹침 11~23%)
+    사용자 눈에는 같은 카드 두 장으로 보인다.
+
+    근본 해결은 제목에 장소를 하나 더 넣는 것인데, 그러면 40자를 넘어가
+    첫 화면의 `LENGTH(title) <= 40` 필터에 걸린다. 제목 형식을 다시 잡기 전까지
+    여기서 막는다.
+    """
+    seen: set[str] = set()
+    out = []
+    for row in rows:
+        if row["title"] in seen:
+            continue
+        seen.add(row["title"])
+        out.append(row)
+        if len(out) >= limit:
+            break
+    return out
 
 
 def _with_places(conn, rows: list) -> list[dict[str, Any]]:
@@ -132,6 +180,7 @@ def _with_places(conn, rows: list) -> list[dict[str, Any]]:
         course_ids,
     ).fetchall()
 
+    names = display_names()
     places_by_course: dict[str, list[dict]] = {cid: [] for cid in course_ids}
     seen: set[tuple] = set()
     for p in place_rows:
@@ -140,7 +189,7 @@ def _with_places(conn, rows: list) -> list[dict[str, Any]]:
             continue
         seen.add(key)
         places_by_course[p["course_id"]].append({
-            "place_name": p["place_name"],
+            "place_name": names.get(p["place_name"], p["place_name"]),
             "lat": p["lat"],
             "lng": p["lng"],
             "day": p["day"],
@@ -166,51 +215,43 @@ def _with_places(conn, rows: list) -> list[dict[str, Any]]:
 # 권역·기간을 고르기 전에, 코스 탭 첫 화면에서 그냥 둘러보라고 깔아 두는 목록이다.
 # 「추천」이 아니라 「이런 것도 있어요」다 — 사용자 취향을 반영하지 않는다.
 
-# 품질 하한. curated_courses 는 이미 한 번 걸러진 목록이지만 점수 편차가 있다.
-# 1,255개 중 0.7 미만이 105개(8%)라, 하한 없이 뽑으면 열두 장에 한 장꼴로
-# 「하루에 섬을 왕복하는」 코스가 첫 화면에 올라온다.
-FEATURED_MIN_SCORE = 0.8
-
-
 def run_featured_courses(limit: int = 5) -> dict[str, Any]:
     """조건 없이 둘러볼 코스를 무작위로 뽑는다. 부를 때마다 다른 코스가 나온다.
 
-    ## 제목이 지저분한 코스를 왜 거르나
+    ## 품질 하한이 없어졌다 (2026-09-10)
 
-    코스 제목은 원본 여행 일정의 장소 이름으로 자동 생성되는데
-    (`build_curated_courses.py::_make_title`), 비짓제주 원본에 이런 게 섞여 있다:
+    예전에는 `composite_score >= 0.8`으로 한 번 더 걸렀다. 점수제를 없애면서
+    이 하한도 사라졌다 — 「하루에 섬을 왕복하는」 코스는 이제 빌드 단계의
+    이동거리 하드필터(`MAX_KM_PER_DAY`)가 막는다.
 
-        북부 1일 · 수목원테마파크_2025.11.11 영업종료(리모델링공사) / 2026.03.01 재오픈 예정 외 2곳
+    ## 제목 필터도 걷어냈다 (2026-09-10)
+
+    예전에는 제목에 괄호·언더바·날짜가 있으면 통째로 걸렀다. 원본 장소 이름이
+    이랬기 때문이다:
+
+        북부 1일 · 수목원테마파크_2025.11.11 영업종료(리모델링공사) / … 외 2곳
         북부 3일 · 이호테우해수욕장_old 외 7곳
 
-    0.8점 이상 687개 중 89개(13%)가 이 상태다. 거르지 않으면 다섯 장 중 한 장꼴로
-    깨진 카드가 첫 화면에 뜬다. **근본 해결은 대표 장소를 고를 때 이런 이름을
-    건너뛰도록 빌드 스크립트를 고치는 것**이고, 여기 필터는 그때까지의 방어선이다.
-    걸러내도 590개가 남아 매번 다른 다섯 장을 보여주기에 충분하다.
+    그런데 **제목만 깨진 것이지 코스는 멀쩡했다.** 그 필터에 1,200개가 같이
+    빠지고 있었다. 지금은 장소 이름 자체를 정리해서 제목이 깨지지 않는다
+    (`backend/scripts/build_place_display_names.py`).
     """
     conn = get_db_connection()
 
     rows = conn.execute(
-        r"""
+        """
         SELECT id, title, duration_days, region
         FROM curated_courses
-        WHERE composite_score >= ?
-          AND place_count >= 3
-          AND LENGTH(title) <= 40
-          AND title NOT LIKE '%(%'      -- 「(리모델링공사)」 같은 안내문
-          AND title NOT LIKE '%/%'      -- 「영업종료 / 재오픈 예정」
-          AND title NOT LIKE '%20%'     -- 「2025.11.11」 같은 날짜
-          AND title NOT LIKE '%\_%' ESCAPE '\'   -- 「이호테우해수욕장_old」
         ORDER BY RANDOM()
         LIMIT ?
         """,
-        (FEATURED_MIN_SCORE, limit),
+        (limit * OVERFETCH,),
     ).fetchall()
 
     if not rows:
         return {"result_courses": [], "error": "보여줄 코스를 찾지 못했습니다."}
 
-    return {"result_courses": _with_places(conn, rows), "error": ""}
+    return {"result_courses": _with_places(conn, _dedupe_by_title(rows, limit)), "error": ""}
 
 
 # ─── 라우터 호환 래퍼 ─────────────────────────────────────────────────────────

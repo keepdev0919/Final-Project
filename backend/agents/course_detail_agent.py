@@ -19,11 +19,8 @@ LLM으로 여행 내러티브를 생성했다. 2026-08-13에 코스 추천에서
 """
 from __future__ import annotations
 
-from pathlib import Path
-
 from services.db import get_db_connection
-
-BASE_DIR = Path(__file__).parent.parent.parent
+from services.place_display_names import display_names
 
 
 def get_places_for_course(course_id: str) -> list[dict]:
@@ -38,6 +35,7 @@ def get_places_for_course(course_id: str) -> list[dict]:
         """,
         (course_id,),
     ).fetchall()
+    names = display_names()
     seen: set[tuple] = set()
     result = []
     for r in rows:
@@ -48,7 +46,9 @@ def get_places_for_course(course_id: str) -> list[dict]:
             continue
         seen.add(key)
         result.append({
-            "place_name": r["place_name"],
+            # 원본 이름은 identity라 그대로 두고, 화면에는 정리된 이름을 보낸다
+            # (`backend/scripts/build_place_display_names.py`).
+            "place_name": names.get(r["place_name"], r["place_name"]),
             "lat": r["lat"],
             "lng": r["lng"],
             "day": r["day"],

@@ -58,5 +58,42 @@ def test_matches_the_titles_the_builder_actually_makes():
     ]
     meta = {"곽지해수욕장": {"is_attraction": True},
             "협재해수욕장": {"is_attraction": True}}
-    title = _make_title("서부", 2, places, meta)
+    title = _make_title("서부", 2, places, meta, {}, set())
     assert lead_place_name(title) == "곽지해수욕장", title
+
+
+def test_title_uses_the_display_name():
+    """제목에는 정리된 표시 이름이 들어간다.
+
+    원본은 `성산일출봉(UNESCO 세계자연유산)`인데 그대로 제목에 넣으면 카드가
+    깨져 보인다(`build_place_display_names.py`). 썸네일은 제목에서 이름을 되뽑아
+    사진을 찾으므로, **여기서 쓰는 이름과 `thumbnail_for` 가 찾는 이름이 어긋나면
+    사진이 조용히 사라진다.** 그 연결을 지키는 자리다.
+    """
+    sys.path.insert(0, str(Path(__file__).parent.parent / "backend" / "scripts"))
+    from build_curated_courses import _make_title
+
+    places = [{"place_name": "성산일출봉(UNESCO 세계자연유산)"}, {"place_name": "우도(해양도립공원)"}]
+    meta = {"성산일출봉(UNESCO 세계자연유산)": {"is_attraction": True}}
+    display = {"성산일출봉(UNESCO 세계자연유산)": "성산일출봉", "우도(해양도립공원)": "우도"}
+
+    title = _make_title("동부", 2, places, meta, display, set())
+    assert lead_place_name(title) == "성산일출봉", title
+
+
+def test_closed_place_is_not_the_lead():
+    """폐업한 곳은 코스를 대표하지 않는다.
+
+    원본에 `명월국민학교(폐업)` 같은 게 있다. 없어진 곳이 카드 제목이 되면
+    사용자가 헛걸음한다.
+    """
+    sys.path.insert(0, str(Path(__file__).parent.parent / "backend" / "scripts"))
+    from build_curated_courses import _make_title
+
+    places = [{"place_name": "명월국민학교(폐업)"}, {"place_name": "협재해수욕장"}]
+    meta = {"명월국민학교(폐업)": {"is_attraction": True},
+            "협재해수욕장": {"is_attraction": True}}
+    display = {"명월국민학교(폐업)": "명월국민학교"}
+
+    title = _make_title("서부", 2, places, meta, display, {"명월국민학교"})
+    assert lead_place_name(title) == "협재해수욕장", title

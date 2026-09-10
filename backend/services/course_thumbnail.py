@@ -34,10 +34,12 @@ import logging
 import re
 
 from services.image_url import to_https
+from services.place_display_names import origin_names
 
 logger = logging.getLogger(__name__)
 
 _REST_SUFFIX = re.compile(r"\s*외\s*\d+\s*곳$")
+
 
 
 def lead_place_name(title: str) -> str | None:
@@ -54,19 +56,31 @@ def thumbnail_for(conn, place_name: str | None) -> str | None:
 
     좌표는 보지 않는다 — 같은 이름의 장소가 코스마다 소수점 아래가 다른 좌표로
     들어 있어서, 좌표까지 맞추면 캐시가 있어도 못 찾는다.
+
+    **원본 이름으로도 한 번 더 찾는다.** 코스 제목은 정리된 표시 이름을 쓰는데
+    (`성산일출봉`), 사진 캐시는 KTO·비짓제주에서 받은 원본 이름으로 쌓여 있어
+    (`성산일출봉(UNESCO 세계자연유산)`) 한쪽만 보면 276개 코스가 사진을 잃는다.
     """
     if not place_name:
         return None
-    try:
-        row = conn.execute(
-            "SELECT images FROM place_detail_cache "
-            "WHERE name = ? AND images IS NOT NULL AND images != '' AND images != '[]' "
-            "LIMIT 1",
-            (place_name,),
-        ).fetchone()
-    except Exception as exc:
-        logger.warning("코스 썸네일 조회 실패 (%s): %s", place_name, exc)
-        return None
+    candidates = [place_name]
+    origin = origin_names().get(place_name)
+    if origin:
+        candidates.append(origin)
+    row = None
+    for name in candidates:
+        try:
+            row = conn.execute(
+                "SELECT images FROM place_detail_cache "
+                "WHERE name = ? AND images IS NOT NULL AND images != '' AND images != '[]' "
+                "LIMIT 1",
+                (name,),
+            ).fetchone()
+        except Exception as exc:
+            logger.warning("코스 썸네일 조회 실패 (%s): %s", name, exc)
+            return None
+        if row:
+            break
     if not row:
         return None
     try:
