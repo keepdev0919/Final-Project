@@ -1,6 +1,5 @@
 import Foundation
 import SwiftData
-import FirebaseFirestore
 
 @Model
 final class SavedCourse {
@@ -11,6 +10,21 @@ final class SavedCourse {
     var savedAt: Date
     var placesData: Data   // JSON-encoded [CoursePlace]
 
+    /// **코스의 진짜 신원.** `id` 는 서버가 상세를 줄 때마다 새로 만드는 UUID라
+    /// (`/course/detail` 이 `id=uuid4()`, 진짜 id 를 `source_course_id` 로 준다)
+    /// 같은 코스를 두 번 열면 서로 다른 값이 된다. 그래서 「이미 담았나」를
+    /// `id` 로 물으면 **영원히 아니오**다 — 같은 코스가 목록에 계속 쌓였다.
+    ///
+    /// 옵셔널인 것은 이 필드가 생기기 전에 담아 둔 코스가 이미 있기 때문이다
+    /// (2026-09-09). 값이 없으면 예전처럼 `id` 로 비교한다.
+    var sourceCourseId: String?
+
+    /// 중복 판정에 쓰는 키. 진짜 코스 id 가 있으면 그것을, 없으면 `id` 를 쓴다.
+    var identityKey: String {
+        if let s = sourceCourseId, !s.isEmpty { return s }
+        return id
+    }
+
     // MARK: - Exploration archive fields (Optional for auto-migration)
     // ⚠️ 일지·민화 생성은 2026-08-13에 제거했다. 아래 세 필드는 **기존 Firestore
     // 문서를 읽기 위해서만** 남긴다. 새로 값이 채워지는 경로는 없다.
@@ -20,12 +34,6 @@ final class SavedCourse {
     var visitedPlaceNamesData: Data?   // JSON-encoded [String]
     var exploredAt: Date?
 
-    // MARK: - Firestore sync fields (Optional for auto-migration)
-    /// 소유 사용자 UID. nil이면 익명(로컬 전용) 코스.
-    var userId: String?
-    /// Firestore 서버 기준 마지막 업데이트 시각 (LWW 비교용).
-    var serverUpdatedAt: Date?
-
     init(from course: Course) {
         self.id = course.id
         self.title = course.title
@@ -33,16 +41,14 @@ final class SavedCourse {
         self.estimatedMinutes = course.estimatedMinutes
         self.savedAt = Date()
         self.placesData = (try? JSONEncoder().encode(course.places)) ?? Data()
+        self.sourceCourseId = course.sourceCourseId.isEmpty ? nil : course.sourceCourseId
         self.journalText = nil
         self.journalImageData = nil
         self.journalImageUrl = nil
         self.visitedPlaceNamesData = nil
         self.exploredAt = nil
-        self.userId = nil
-        self.serverUpdatedAt = nil
     }
 
-    /// Firestore 동기화/마이그레이션에서 사용하는 빈 초기화.
     init(
         id: String,
         title: String,
@@ -54,9 +60,7 @@ final class SavedCourse {
         journalImageData: Data? = nil,
         journalImageUrl: String? = nil,
         visitedPlaceNamesData: Data? = nil,
-        exploredAt: Date? = nil,
-        userId: String? = nil,
-        serverUpdatedAt: Date? = nil
+        exploredAt: Date? = nil
     ) {
         self.id = id
         self.title = title
@@ -69,8 +73,6 @@ final class SavedCourse {
         self.journalImageUrl = journalImageUrl
         self.visitedPlaceNamesData = visitedPlaceNamesData
         self.exploredAt = exploredAt
-        self.userId = userId
-        self.serverUpdatedAt = serverUpdatedAt
     }
 
     var places: [CoursePlace] {
@@ -83,150 +85,6 @@ final class SavedCourse {
         return try? JSONDecoder().decode([String].self, from: data)
     }
 
-    /// 탐험 기록이 있는지 여부. **기록 표시용**이다.
-    ///
-    /// 예전에는 `journalText != nil`로 판정했다. 일지·민화 생성을 제거(2026-08-13)한
-    /// 뒤에는 일지가 항상 nil이므로 완료 시각으로 판정한다.
-    var hasExploration: Bool {
-        exploredAt != nil
-    }
 
-    /// 실제로 한 곳 이상 방문했는지. **"탐험 시작" 버튼의 게이트로 쓴다.**
-    ///
-    /// 게이트에 `hasExploration`을 쓰면 안 된다. "탐험 마치기"를 누르는 순간
-    /// `exploredAt`이 채워지므로, 장소를 0곳 방문한 채 실수로 한 번 누른 것만으로도
-    /// 그 코스가 영구히 탐험 불가가 되고 되돌릴 UI가 없다.
-    /// (일지 생성 시절에는 일지를 완성해야 true였기에 이 문제가 없었다.)
-    var hasVisitedAnyPlace: Bool {
-        !(visitedPlaceNames ?? []).isEmpty
-    }
 
-    /// 탐험 결과를 기록. 단계 1의 기록 화면이 이 데이터를 읽는다.
-    func recordExploration(visitedPlaces: [String]) {
-        self.visitedPlaceNamesData = (try? JSONEncoder().encode(visitedPlaces))
-        self.exploredAt = Date()
-    }
-}
-
-// MARK: - Firestore DTO
-
-extension SavedCourse {
-    /// Firestore 문서로 직렬화. `updatedAt`은 서버 타임스탬프를 사용한다.
-    func toFirestoreData() -> [String: Any] {
-        var dict: [String: Any] = [
-            "id": id,
-            "title": title,
-            "durationDays": durationDays,
-            "estimatedMinutes": estimatedMinutes,
-            "savedAt": Timestamp(date: savedAt),
-            "updatedAt": FieldValue.serverTimestamp(),
-        ]
-
-        // places: JSON 데이터를 디코드해서 [[String: Any]] 형태로 직렬화
-        let decodedPlaces = places
-        if let placesJSON = try? JSONEncoder().encode(decodedPlaces),
-           let placesArray = try? JSONSerialization.jsonObject(with: placesJSON) as? [[String: Any]] {
-            dict["places"] = placesArray
-        }
-
-        if let journalText {
-            dict["journalText"] = journalText
-        }
-        if let journalImageUrl {
-            dict["journalImageUrl"] = journalImageUrl
-        }
-        if let names = visitedPlaceNames {
-            dict["visitedPlaceNames"] = names
-        }
-        if let exploredAt {
-            dict["exploredAt"] = Timestamp(date: exploredAt)
-        }
-        if let userId {
-            dict["userId"] = userId
-        }
-        return dict
-    }
-
-    /// Firestore에서 받은 dict로 기존 SavedCourse를 upsert.
-    /// 기존 모델이 있으면 필드 업데이트, 없으면 신규 insert.
-    @MainActor
-    static func upsert(from dict: [String: Any], id: String, into context: ModelContext) {
-        // 기존 모델 조회
-        let descriptor = FetchDescriptor<SavedCourse>(
-            predicate: #Predicate<SavedCourse> { $0.id == id }
-        )
-        let existing = (try? context.fetch(descriptor))?.first
-
-        let title = dict["title"] as? String ?? "(제목 없음)"
-        let durationDays = dict["durationDays"] as? Int ?? 1
-        let estimatedMinutes = dict["estimatedMinutes"] as? Int ?? 0
-
-        let savedAt: Date = {
-            if let ts = dict["savedAt"] as? Timestamp { return ts.dateValue() }
-            if let d = dict["savedAt"] as? Date { return d }
-            return Date()
-        }()
-
-        let serverUpdatedAt: Date? = {
-            if let ts = dict["updatedAt"] as? Timestamp { return ts.dateValue() }
-            if let d = dict["updatedAt"] as? Date { return d }
-            return nil
-        }()
-
-        let placesData: Data = {
-            if let arr = dict["places"] as? [[String: Any]],
-               let data = try? JSONSerialization.data(withJSONObject: arr) {
-                return data
-            }
-            return Data()
-        }()
-
-        let journalText = dict["journalText"] as? String
-        let journalImageUrl = dict["journalImageUrl"] as? String
-        let visitedNames = dict["visitedPlaceNames"] as? [String]
-        let visitedData = visitedNames.flatMap { try? JSONEncoder().encode($0) }
-        let exploredAt: Date? = {
-            if let ts = dict["exploredAt"] as? Timestamp { return ts.dateValue() }
-            if let d = dict["exploredAt"] as? Date { return d }
-            return nil
-        }()
-        let userId = dict["userId"] as? String
-
-        if let existing {
-            // LWW: 서버 timestamp가 더 최신일 때만 덮어쓴다
-            if let incoming = serverUpdatedAt,
-               let local = existing.serverUpdatedAt,
-               incoming <= local {
-                return
-            }
-            existing.title = title
-            existing.durationDays = durationDays
-            existing.estimatedMinutes = estimatedMinutes
-            existing.savedAt = savedAt
-            existing.placesData = placesData
-            existing.journalText = journalText
-            existing.journalImageUrl = journalImageUrl
-            existing.visitedPlaceNamesData = visitedData
-            existing.exploredAt = exploredAt
-            existing.userId = userId
-            existing.serverUpdatedAt = serverUpdatedAt
-        } else {
-            let new = SavedCourse(
-                id: id,
-                title: title,
-                durationDays: durationDays,
-                estimatedMinutes: estimatedMinutes,
-                savedAt: savedAt,
-                placesData: placesData,
-                journalText: journalText,
-                journalImageData: nil,
-                journalImageUrl: journalImageUrl,
-                visitedPlaceNamesData: visitedData,
-                exploredAt: exploredAt,
-                userId: userId,
-                serverUpdatedAt: serverUpdatedAt
-            )
-            context.insert(new)
-        }
-    }
 }
