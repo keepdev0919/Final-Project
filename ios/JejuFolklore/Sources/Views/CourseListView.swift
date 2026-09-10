@@ -123,19 +123,6 @@ struct CourseListView: View {
                 .padding(.bottom, 24)
             }
 
-            // 처음으로 버튼 (하단)
-            Button {
-                vm.reset()
-            } label: {
-                HStack(spacing: 6) {
-                    PixelIcon(.refresh, size: 16)
-                    Text("취향 다시 고르기")
-                }
-                .font(PixelFont.body)
-                .foregroundColor(PixelColor.inkWeak)
-                .padding(.vertical, 8)
-            }
-            .padding(.bottom, 12)
         }
     }
 }
@@ -182,12 +169,12 @@ struct CourseCard: View {
                 AsyncImage(url: u) { phase in
                     switch phase {
                     case .success(let image): image.resizable().scaledToFill()
-                    case .failure:            PixelPlaceholderScene(onColor: c.on)
+                    case .failure:            PixelPlaceholderScene()
                     default:                  Color.clear
                     }
                 }
             } else {
-                PixelPlaceholderScene(onColor: c.on)
+                PixelPlaceholderScene()
             }
         }
         .frame(height: 120)
