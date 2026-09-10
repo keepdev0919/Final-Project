@@ -29,6 +29,7 @@ struct PlaceDetailView: View {
                         Divider()
                         communitySection(reviews: reviews)
                     }
+                    ktoAttribution
                 } else if isLoading {
                     skeletonView
                 } else {
@@ -86,11 +87,46 @@ struct PlaceDetailView: View {
         }
     }
 
+    /// KTO 에 사진이 없거나 못 불러왔을 때 까는 **놀멍봅서 기본 그림**
+    /// (2026-09-10 조익준님 결정). 코스 카드가 쓰는 것과 같은 장면이다.
+    ///
+    /// 전에는 옅은 판에 회색 사진 아이콘이었다. 그건 「사진을 못 불러왔다」로
+    /// 읽히는데, 실제로는 KTO 에 등록되지 않아 **처음부터 없는** 경우가 대부분이다.
+    /// 그림이 깔려 있으면 그 자체로 화면이 완성돼 보인다.
+    ///
+    /// 권역이 없는 화면이라 색은 앱의 파랑을 쓴다 — 260pt 짜리 큰 자리라
+    /// 곱딱이도 64의 두 배로 키운다(어중간한 배율은 도트를 가른다).
+    /// 이 화면의 사진·개요·주소·이용정보가 전부 KTO OpenAPI 에서 온다.
+    /// **출처는 그 데이터가 실제로 쓰이는 자리에 붙는다** (2026-09-10 조익준님 결정).
+    /// 프로필 탭의 앱 전체 고지는 그대로 두고 여기에 나란히 적는다.
+    ///
+    /// ⚠️ 공지가 지정한 유일한 형식이다. 텍스트만 허용되고 공사 CI/BI 로고는 금지다.
+    /// KTO 개요 본문에 이미 「(출처 : ○○ 홈페이지)」가 들어 있는 장소가 있어,
+    /// 그것과 섞이지 않도록 **화면 맨 아래**에 따로 둔다.
+    private var ktoAttribution: some View {
+        Text("관광정보 출처: ⓒ한국관광공사")
+            .font(PixelFont.labelSmall)
+            .foregroundStyle(PixelColor.inkWeak)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.top, 20)
+            .padding(.bottom, 28)
+    }
+
     private var placeholderPhoto: some View {
-        PixelColor.primary.opacity(0.08)
-            .overlay(
-                PixelIcon(.photo, size: 48, color: PixelColor.outlineVariant)
-            )
+        // ⚠️ `ZStack` 으로 쌓지 않는다. 안쪽 그림이 `scaledToFill` 이라 제 크기를
+        // 크게 부르는데, `ZStack` 은 가장 큰 아이를 따라 커진다. 그러면 이 자리가
+        // 화면보다 넓어지고 **아래 내용이 통째로 옆으로 밀려** 제목과 뒤로가기가
+        // 화면 밖으로 나갔다 (2026-09-10에 실제로 겪음).
+        //
+        // `clipped()` 로는 안 고쳐진다 — 그건 그려지는 것만 자르고 레이아웃 크기는
+        // 그대로 둔다. 크기를 정하는 것은 **색**이어야 한다. 색은 제 크기가 없어서
+        // 주어진 자리를 그대로 받고, 그림은 그 위에 얹혀 밖으로 못 나간다.
+        PixelColor.secondaryContainer
+            .overlay {
+                PixelPlaceholderScene()
+            }
+            .clipped()
     }
 
     // MARK: - Action Row
