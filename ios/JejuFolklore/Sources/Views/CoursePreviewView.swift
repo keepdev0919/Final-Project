@@ -6,22 +6,34 @@ import SwiftData
 
 struct CoursePreviewView: View {
     let course: Course
-    let hasNext: Bool
-    let onNext: (() -> Void)?
-    let onReset: (() -> Void)?
+    /// 「담기」를 보여줄지. 이미 담아 둔 코스로 들어왔으면 숨긴다.
+    var showsSaveButton: Bool = true
+    /// 담아 둔 코스를 관리하는 동작. 「내 코스」에서 들어왔을 때만 준다
+    /// (2026-09-10 조익준님 결정) — 담기도 탐험도 없어지면서 그 자리가 비었는데,
+    /// 이미 담아 둔 코스에 할 일은 이름을 고치거나 빼는 것이다.
+    var onRename: (() -> Void)? = nil
+    var onDelete: (() -> Void)? = nil
     @StateObject private var vm: CoursePreviewViewModel
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @State private var navigateToExplore = false
-    @State private var selectedDay: Int? = nil
+    @Environment(\.tabBarVisibility) private var tabBar
+    /// **늘 하루가 골라져 있다** (2026-09-09 조익준님 결정). 전에는 「전체」가
+    /// 기본이라 지도에 사흘치 경로가 한꺼번에 그려졌고, 그러면 어느 선이 어느 날인지
+    /// 알 수 없어 「경로를 본다」는 목적이 무너진다. `onAppear` 에서 첫날로 맞춘다.
+    @State private var selectedDay: Int = 1
+    /// 시트가 실제로 차지한 높이. 지도 카메라가 이만큼을 빼고 경로를 맞춘다.
+    @State private var sheetHeight: CGFloat = 0
     @State private var isSheetExpanded = true
     @State private var selectedPlace: CoursePlace?
 
-    init(course: Course, hasNext: Bool = false, onNext: (() -> Void)? = nil, onReset: (() -> Void)? = nil) {
+    init(course: Course,
+         showsSaveButton: Bool = true,
+         onRename: (() -> Void)? = nil,
+         onDelete: (() -> Void)? = nil) {
         self.course = course
-        self.hasNext = hasNext
-        self.onNext = onNext
-        self.onReset = onReset
+        self.showsSaveButton = showsSaveButton
+        self.onRename = onRename
+        self.onDelete = onDelete
         _vm = StateObject(wrappedValue: CoursePreviewViewModel(course: course))
     }
 
@@ -44,43 +56,39 @@ struct CoursePreviewView: View {
         ZStack(alignment: .bottom) {
             courseMap
             bottomSheet
-            if vm.showSavedToast {
-                toastView
+            if let text = vm.toastText {
+                toastView(text, isError: vm.toastIsError)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .animation(.spring(response: 0.3), value: vm.showSavedToast)
+        .animation(.spring(response: 0.3), value: vm.toastText)
         .navigationDestination(item: $selectedPlace) { place in
             PlaceDetailView(place: place)
         }
-        .navigationTitle(course.title)
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(isPresented: $navigateToExplore) {
-            ExploreView(
-                course: course,
-                transport: "car"
-            )
+        // 상단바를 없애고 그 자리에 뒤로가기 + 제목을 **떠 있는 한 벌**로 얹는다.
+        // 지도가 화면 끝까지 차는 화면이라 상단바가 그림 위를 가로로 잘랐다.
+        .pixelFloatingBack(topInset: PixelSpacing.s, title: course.title)
+        // 이 화면에서는 탭바도 내린다 — 장소 상세·PLAY 상세와 같은 방식.
+        .onAppear {
+            tabBar?.hide()
+            if let first = days.first { selectedDay = first }
+            // 이미 담긴 코스인지 저장소에 물어본다 — 화면 상태만 믿으면 나갔다
+            // 다시 들어왔을 때 같은 코스를 또 담게 된다.
+            vm.refreshSavedState(context: modelContext)
         }
-        // 탐험 완료 시 자신도 dismiss → TabView root까지 연쇄적으로 pop.
-        // ExploreView가 4단 push(TasteDiscovery → CourseList → CoursePreview → Explore)
-        // 안에 있을 수 있어, dismiss 한 번으로는 root에 도달 못 함.
-        .onReceive(NotificationCenter.default.publisher(for: .exploreDidComplete)) { _ in
-            navigateToExplore = false
-            dismiss()
-        }
+        .onDisappear { tabBar?.show() }
     }
 
     // MARK: - Map
 
     private var courseMap: some View {
-        let placesToShow = selectedDay == nil
-            ? course.places
-            : course.places.filter { $0.day == selectedDay }
-        let coords = placesToShow.map {
-            CLLocationCoordinate2D(latitude: $0.lat, longitude: $0.lng)
-        }
-        let markers = placesToShow.enumerated().map {
-            IndexedPlace(index: $0.offset, place: $0.element)
+        // ⚠️ 번호는 **코스 전체 기준**이다 (2026-09-09). 고른 날만 다시 1부터
+        // 세면, Day 2 를 골랐을 때 지도 마커는 1·2·3·4 인데 아래 목록은 5·6·7·8 이라
+        // 같은 장소에 번호가 두 개 붙는다. 「전체」가 기본이던 시절에는 전체를 볼 때만
+        // 맞았고, 하루가 늘 골라져 있게 되면서 항상 어긋나게 됐다.
+        let markers = indexedPlaces.filter { $0.place.day == selectedDay }
+        let coords = markers.map {
+            CLLocationCoordinate2D(latitude: $0.place.lat, longitude: $0.place.lng)
         }
         let onCollapse = {
             withAnimation(.spring(response: 0.35)) {
@@ -91,6 +99,11 @@ struct CoursePreviewView: View {
         return MapWithPolyline(
             coordinates: coords,
             annotationItems: markers,
+            // 경로를 **보이는 자리**에 맞춘다 (2026-09-09 조익준님 결정).
+            // 전에는 화면 전체를 기준으로 맞춰서, 시트가 아래 절반을 덮고 있는 동안
+            // 경로가 시트 뒤에 숨고 위에는 바다만 남았다.
+            bottomInset: sheetHeight,
+            topInset: 56,        // 떠 있는 뒤로가기·제목 줄
             onCollapse: onCollapse
         )
         .ignoresSafeArea(edges: .top)
@@ -140,24 +153,24 @@ struct CoursePreviewView: View {
                         .padding(.bottom, 4)
                 }
 
+                // 고른 하루만 보여준다. 위 칩이 이미 「Day 1」이라고 말하고 있어서
+                // 섹션 머리(「Day 1 ────」)는 같은 말을 두 번 하는 자리가 됐다.
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 0) {
-                        // Day 섹션별 장소 목록
-                        ForEach(days, id: \.self) { day in
-                            if selectedDay == nil || selectedDay == day {
-                                DaySectionView(
-                                    day: day,
-                                    places: placesByDay[day] ?? [],
-                                    globalOffset: globalOffset(for: day),
-                                    onPlaceTap: { selectedPlace = $0 }
-                                )
-                            }
-                        }
-
+                        DaySectionView(
+                            day: selectedDay,
+                            places: placesByDay[selectedDay] ?? [],
+                            globalOffset: globalOffset(for: selectedDay),
+                            onPlaceTap: { selectedPlace = $0 }
+                        )
                         Spacer(minLength: 8)
                     }
                 }
-                .frame(maxHeight: 260)
+                // ⚠️ 높이를 **고정**한다 (2026-09-09). `maxHeight` 로 두면 그날 장소
+                // 수에 따라 시트 높이가 달라지고, 지도 카메라는 그 높이를 기준으로
+                // 경로를 맞추므로 Day 를 바꿀 때마다 경로가 어긋났다.
+                // 어디서 왔느냐에 따라 결과가 달라지던 것도 이것 때문이다.
+                .frame(height: 260)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
 
@@ -167,21 +180,26 @@ struct CoursePreviewView: View {
         .background(PixelColor.surface)
         .padding(.horizontal, 8)
         .padding(.bottom, 8)
+        // 시트가 실제로 얼마나 덮는지 재서 지도에 알려준다. 값을 박아 두면
+        // 시트를 접거나 기기가 바뀔 때 경로가 다시 숨는다.
+        .background(
+            GeometryReader { geo in
+                Color.clear.preference(key: SheetHeightKey.self, value: geo.size.height)
+            }
+        )
+        .onPreferenceChange(SheetHeightKey.self) { sheetHeight = $0 }
     }
 
     // MARK: - Day Tab Bar
 
     private var dayTabBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
+            // 「전체」는 없앴다. 다시 누르면 해제되던 것도 없앴다 — 해제되면 결국
+            // 「전체」와 같은 상태로 돌아가, 없앤 것이 뒷문으로 다시 들어온다.
             HStack(spacing: 8) {
-                DayTabButton(title: "전체", isSelected: selectedDay == nil) {
-                    withAnimation(.easeInOut(duration: 0.2)) { selectedDay = nil }
-                }
                 ForEach(days, id: \.self) { day in
                     DayTabButton(title: "Day \(day)", isSelected: selectedDay == day) {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            selectedDay = (selectedDay == day) ? nil : day
-                        }
+                        withAnimation(.easeInOut(duration: 0.2)) { selectedDay = day }
                     }
                 }
             }
@@ -193,35 +211,18 @@ struct CoursePreviewView: View {
 
     private var actionButtons: some View {
         VStack(spacing: 12) {
-            Text("추천 일정이 마음에 드세요?")
-                .font(PixelFont.labelSmall)
-                .foregroundColor(PixelColor.inkWeak)
+            // 이 물음은 「담기」에게 하는 말이다. 이미 담아 둔 코스로 들어왔을 때는
+            // 담기와 함께 사라진다 — 남겨두면 답할 데 없는 질문만 떠 있다.
+            if showsSaveButton {
+                Text("추천 일정이 마음에 드세요?")
+                    .font(PixelFont.labelSmall)
+                    .foregroundColor(PixelColor.inkWeak)
+            }
 
-            HStack(spacing: 10) {
-                // 다시하기
-                Button {
-                    dismiss()
-                    onReset?()
-                } label: {
-                    Label { Text("다시하기") } icon: { PixelIcon(.refresh, size: 16) }
-                        .font(PixelFont.labelSmall)
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(PixelButtonStyle(.plain))
-
-                // 새로운 추천받기 (다음 코스 없으면 비활성)
-                Button {
-                    dismiss()
-                    onNext?()
-                } label: {
-                    Label { Text("새로운 추천") } icon: { PixelIcon(.shuffle, size: 16) }
-                        .font(PixelFont.labelSmall)
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(PixelButtonStyle(.plain))
-                .disabled(!hasNext)
-
-                // 내 일정으로 담기
+            // 「다시하기」·「새로운 추천」은 걷어냈다 (2026-09-09 조익준님 결정).
+            // 둘 다 뒤로 가서 목록에서 다른 코스를 고르는 것과 결과가 같았다 —
+            // 같은 일을 하는 문이 세 개면 어느 문이 무엇인지 오히려 흐려진다.
+            if showsSaveButton {
                 Button {
                     vm.save(context: modelContext)
                 } label: {
@@ -237,18 +238,30 @@ struct CoursePreviewView: View {
                 .disabled(vm.isSaved)
             }
 
-            Button {
-                navigateToExplore = true
-            } label: {
-                Label { Text("오늘 탐험 시작") } icon: { PixelIcon(.mapPin, size: 16) }
-                    .font(PixelFont.body)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(PixelColor.primary)
-                    .foregroundColor(PixelColor.onPrimary)
-                    .clipShape(Rectangle())
+            if onRename != nil || onDelete != nil {
+                HStack(spacing: 10) {
+                    if let onRename {
+                        Button(action: onRename) {
+                            Label { Text("이름 변경") } icon: { PixelIcon(.edit, size: 16) }
+                                .font(PixelFont.labelSmall)
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(PixelButtonStyle(.plain))
+                    }
+                    if let onDelete {
+                        // 삭제는 되돌릴 수 없다. 글자만 경고색으로 두고 면은 흰색으로
+                        // 남긴다 — 빨간 덩어리를 옆에 두면 누르라는 말처럼 보인다.
+                        Button(action: onDelete) {
+                            Label { Text("삭제") } icon: { PixelIcon(.close, size: 16) }
+                                .font(PixelFont.labelSmall)
+                                .foregroundColor(PixelColor.locked)
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(PixelButtonStyle(.plain))
+                    }
+                }
             }
-            .padding(.top, 4)
+
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
@@ -256,13 +269,16 @@ struct CoursePreviewView: View {
 
     // MARK: - Toast
 
-    private var toastView: some View {
-        Text("코스가 저장됐어요!")
+    /// 실패는 **다른 색**으로 띄운다. 같은 초록으로 띄우면 「담지 못했어요」가
+    /// 성공 알림처럼 스쳐 지나간다.
+    private func toastView(_ text: String, isError: Bool) -> some View {
+        Text(text)
             .font(PixelFont.body)
+            .multilineTextAlignment(.center)
             .padding(.horizontal, 20)
             .padding(.vertical, 10)
-            .background(PixelColor.done)
-            .foregroundColor(PixelColor.onDone)
+            .background(isError ? PixelColor.locked : PixelColor.done)
+            .foregroundColor(isError ? PixelColor.onLocked : PixelColor.onDone)
             .clipShape(Rectangle())
             .padding(.top, 60)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -289,26 +305,9 @@ private struct DaySectionView: View {
     let onPlaceTap: (CoursePlace) -> Void
 
     var body: some View {
+        // ⚠️ 섹션 머리(「Day 1 ────」)를 뺐다 (2026-09-09). 목록이 고른 하루만
+        // 보여주게 되면서, 바로 위 칩이 이미 하고 있는 말을 한 번 더 하는 자리가 됐다.
         VStack(alignment: .leading, spacing: 0) {
-            // 섹션 헤더
-            HStack {
-                Text("Day \(day)")
-                    .font(PixelFont.body)
-                    .foregroundColor(PixelColor.surface)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 5)
-                    .background(PixelColor.primary)
-                    .clipShape(Rectangle())
-
-                Rectangle()
-                    .fill(PixelColor.primary.opacity(0.25))
-                    .frame(height: 1)
-                    .frame(maxWidth: .infinity)
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 14)
-            .padding(.bottom, 8)
-
             // 장소 카드 목록
             ForEach(Array(places.enumerated()), id: \.offset) { idx, place in
                 PlaceCard(index: globalOffset + idx + 1, place: place)
@@ -345,6 +344,10 @@ private struct DayTabButton: View {
 private struct MapWithPolyline: UIViewRepresentable {
     let coordinates: [CLLocationCoordinate2D]
     let annotationItems: [IndexedPlace]
+    /// 아래에서 이만큼은 시트가 덮고 있다. 카메라가 이 자리를 빼고 경로를 맞춘다.
+    var bottomInset: CGFloat = 0
+    /// 위에서 이만큼은 떠 있는 뒤로가기·제목 줄이 덮는다.
+    var topInset: CGFloat = 0
     var onCollapse: (() -> Void)? = nil
 
     func makeUIView(context: Context) -> MKMapView {
@@ -381,9 +384,36 @@ private struct MapWithPolyline: UIViewRepresentable {
             mapView.addOverlay(polyline, level: .aboveRoads)
         }
 
-        // 영역 맞추기
-        if !mapView.annotations.isEmpty {
-            mapView.showAnnotations(mapView.annotations, animated: false)
+        // 영역 맞추기 — **보이는 자리에** 맞춘다 (2026-09-09 조익준님 결정).
+        //
+        // 전에는 `showAnnotations` 하나였다. 그건 지도 뷰 **전체**를 기준으로 맞추는데,
+        // 이 화면은 아래 절반을 시트가 덮고 있어서 경로가 시트 뒤로 들어가고 위에는
+        // 바다만 남았다. 화면은 멀쩡해 보이고 지도도 잘 도는데, 정작 보여주려던
+        // 경로만 안 보였다.
+        //
+        // ⚠️ 갈래를 **하나로** 둔다. 한때 「점이 하나일 때」만 따로 `setRegion` 을
+        // 썼는데, 그 갈래가 `edgePadding` 을 안 타서 장소가 하루에 한 곳뿐인 날은
+        // 마커가 시트 뒤 한가운데에 숨었다. 좁으면 넓히고, 맞추는 방법은 하나로 한다.
+        var rect = mapView.annotations.reduce(MKMapRect.null) { acc, ann in
+            let point = MKMapPoint(ann.coordinate)
+            return acc.union(MKMapRect(x: point.x, y: point.y, width: 0, height: 0))
+        }
+        if !rect.isNull {
+            // 점 하나거나 거의 한 줄이면 넓이가 0에 가까워 최대 배율로 붙는다.
+            // 그 자리에서 반경 800m 를 확보한다.
+            let center = MKMapPoint(x: rect.midX, y: rect.midY)
+            let minSide = MKMapPointsPerMeterAtLatitude(center.coordinate.latitude) * 800
+            if rect.size.width < minSide || rect.size.height < minSide {
+                let w = max(rect.size.width, minSide)
+                let h = max(rect.size.height, minSide)
+                rect = MKMapRect(x: center.x - w / 2, y: center.y - h / 2, width: w, height: h)
+            }
+            mapView.setVisibleMapRect(
+                rect,
+                edgePadding: UIEdgeInsets(top: topInset + 24, left: 40,
+                                          bottom: bottomInset + 24, right: 40),
+                animated: false
+            )
         } else if let first = coordinates.first {
             let region = MKCoordinateRegion(
                 center: first,
@@ -522,5 +552,14 @@ struct PlaceCard: View {
     )
     NavigationStack {
         CoursePreviewView(course: mockCourse)
+    }
+}
+
+
+/// 시트가 덮은 높이를 지도에 전하는 통로. 지도 카메라가 이만큼을 빼고 경로를 맞춘다.
+private struct SheetHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }

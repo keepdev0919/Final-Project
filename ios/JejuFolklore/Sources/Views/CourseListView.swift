@@ -3,7 +3,6 @@ import SwiftUI
 struct CourseListView: View {
     @ObservedObject var vm: CourseRecommendViewModel
     @State private var navigateToPreview = false
-    @State private var shouldLoadNext = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -29,24 +28,14 @@ struct CourseListView: View {
         .pixelFloatingBack()
         .navigationDestination(isPresented: $navigateToPreview) {
             if let course = vm.selectedCourse {
-                CoursePreviewView(
-                    course: course,
-                    hasNext: vm.hasNextCourse,
-                    onNext: { shouldLoadNext = true },
-                    onReset: { vm.reset() }
-                )
+                CoursePreviewView(course: course)
             }
         }
         .onChange(of: navigateToPreview) {
-            // 사용자가 PreviewView에서 뒤로 가면 selectedCourse 비워서 리스트 화면 복귀
-            if !navigateToPreview {
-                if shouldLoadNext {
-                    shouldLoadNext = false
-                    Task { await vm.advanceToNextCourse() }
-                } else {
-                    vm.selectedCourse = nil
-                }
-            }
+            // 사용자가 PreviewView에서 뒤로 가면 selectedCourse 비워서 리스트 화면 복귀.
+            // 「새로운 추천」 버튼이 사라지면서 다음 코스로 건너뛰는 갈래도 없앴다 —
+            // 뒤로 가서 목록에서 고르는 것과 같은 일이었다 (2026-09-09).
+            if !navigateToPreview { vm.selectedCourse = nil }
         }
         .onChange(of: vm.selectedCourse) {
             if vm.selectedCourse != nil {
@@ -60,11 +49,6 @@ struct CourseListView: View {
             Button("확인", role: .cancel) {}
         } message: {
             Text(vm.errorMessage ?? "다시 시도해주세요.")
-        }
-        // 탐험 완료 시 자신도 pop → TasteDiscoveryView(NavigationStack root)까지 연쇄적으로 복귀.
-        .onReceive(NotificationCenter.default.publisher(for: .exploreDidComplete)) { _ in
-            navigateToPreview = false
-            dismiss()
         }
     }
 
@@ -172,10 +156,11 @@ struct CourseCard: View {
     /// 사진이 딴 데면 카드가 두 말을 한다. 어느 장소인지는 서버가 정한다
     /// (`services/course_thumbnail.py`).
     ///
-    /// 사진이 없으면 **권역색 한 판**을 깐다. 빈 회색 네모를 두면 「사진을 못
-    /// 불러왔다」로 읽히는데, 실제로는 KTO 에 등록되지 않은 장소라 처음부터 없는
-    /// 것이다. 색이 깔려 있으면 그 자체로 카드가 완성돼 보이고, 권역색이라
-    /// 아래 배지와 같은 말을 한다.
+    /// 사진이 없으면 **권역색 판 위에 오름 풍경**을 깐다
+    /// (`PixelPlaceholderScene`). 빈 회색 네모를 두면 「사진을 못 불러왔다」로
+    /// 읽히는데, 실제로는 KTO 에 등록되지 않은 장소라 처음부터 없는 것이다.
+    /// 권역색을 그대로 쓰니 아래 배지와 같은 말을 하고, 그 위에 곱딱이가 서 있어
+    /// 사진이 빠진 카드도 놀멍봅서 화면으로 완성된다 (2026-09-09 조익준님 결정).
     /// 사진 없을 때 깔 색. 권역색을 쓰되 **「전체」만 예외**다 —
     /// 「전체」의 권역색은 잉크(검정)라 배지 한 칸에서는 멀쩡하지만 120pt 짜리
     /// 판으로 깔면 카드가 검은 덩어리가 된다. 목록의 3할이 「전체」라 더 그렇다.
@@ -197,12 +182,12 @@ struct CourseCard: View {
                 AsyncImage(url: u) { phase in
                     switch phase {
                     case .success(let image): image.resizable().scaledToFill()
-                    case .failure:            PixelIcon(.mapPin, size: 32, color: c.on)
+                    case .failure:            PixelPlaceholderScene(onColor: c.on)
                     default:                  Color.clear
                     }
                 }
             } else {
-                PixelIcon(.mapPin, size: 32, color: c.on)
+                PixelPlaceholderScene(onColor: c.on)
             }
         }
         .frame(height: 120)
