@@ -416,6 +416,10 @@ struct PixelFloatingBack: ViewModifier {
     var topInset: CGFloat = PixelSpacing.s
     /// 왼쪽에서 얼마나 들일지. 카드 안쪽에서 시작하는 화면은 더 들여야 한다.
     var leadingInset: CGFloat = PixelSpacing.xl
+    /// 뒤로가기 **옆에 나란히** 놓을 제목. 상단바를 숨기면서 화면 이름까지 사라지는
+    /// 화면에 쓴다 (2026-09-09 조익준님 결정) — 버튼과 같은 모양·같은 줄이라
+    /// 「떠 있는 한 벌」로 읽히고, 지도 같은 그림을 가리지 않을 만큼 작다.
+    var title: String? = nil
 
     @Environment(\.dismiss) private var dismiss
 
@@ -423,25 +427,44 @@ struct PixelFloatingBack: ViewModifier {
         content
             .toolbar(.hidden, for: .navigationBar)
             .overlay(alignment: .topLeading) {
-                Button { dismiss() } label: {
-                    PixelIcon(.back, size: 20, color: PixelColor.ink)
-                        .frame(width: 36, height: 36)
-                        .background(PixelColor.surface)
-                        .pixelBorder(width: PixelSpacing.border)
-                        .pixelShadow(PixelSpacing.shadowSmall)
+                HStack(spacing: PixelSpacing.s) {
+                    Button { dismiss() } label: {
+                        PixelIcon(.back, size: 20, color: PixelColor.ink)
+                            .frame(width: 36, height: 36)
+                            .background(PixelColor.surface)
+                            .pixelBorder(width: PixelSpacing.border)
+                            .pixelShadow(PixelSpacing.shadowSmall)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("뒤로")
+
+                    if let title {
+                        Text(title)
+                            .font(PixelFont.labelSmall)
+                            .foregroundColor(PixelColor.ink)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                            .padding(.horizontal, PixelSpacing.s)
+                            .frame(height: 36)
+                            .background(PixelColor.surface)
+                            .pixelBorder(width: PixelSpacing.border)
+                            .pixelShadow(PixelSpacing.shadowSmall)
+                    }
                 }
-                .buttonStyle(.plain)
                 .padding(.leading, leadingInset)
+                .padding(.trailing, leadingInset)
                 .padding(.top, topInset)
-                .accessibilityLabel("뒤로")
             }
     }
 }
 
 extension View {
     func pixelFloatingBack(topInset: CGFloat = PixelSpacing.s,
-                           leadingInset: CGFloat = PixelSpacing.xl) -> some View {
-        modifier(PixelFloatingBack(topInset: topInset, leadingInset: leadingInset))
+                           leadingInset: CGFloat = PixelSpacing.xl,
+                           title: String? = nil) -> some View {
+        modifier(PixelFloatingBack(topInset: topInset,
+                                   leadingInset: leadingInset,
+                                   title: title))
     }
 }
 
