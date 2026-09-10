@@ -149,8 +149,9 @@ struct QuestCoverImage: View {
     }
 
     var body: some View {
+        // 사진이 없을 때는 **놀멍봅서 기본 그림**을 깐다 (2026-09-10 조익준님 결정).
         ZStack {
-            PixelColor.surfaceDim
+            PixelColor.secondaryContainer
             if let cover = pixelCover {
                 Image(uiImage: cover)
                     .interpolation(.none)
@@ -160,12 +161,12 @@ struct QuestCoverImage: View {
                 AsyncImage(url: u) { phase in
                     switch phase {
                     case .success(let image): image.resizable().scaledToFill()
-                    case .failure: PixelIcon(.photo, size: 40, color: PixelColor.inkWeak)
-                    default: PixelColor.surfaceDim
+                    case .failure: Color.clear.overlay { PixelPlaceholderScene() }
+                    default: PixelColor.secondaryContainer
                     }
                 }
             } else {
-                PixelIcon(.photo, size: 40, color: PixelColor.inkWeak)
+                Color.clear.overlay { PixelPlaceholderScene() }
             }
         }
         .frame(height: 160)                                      // h-40

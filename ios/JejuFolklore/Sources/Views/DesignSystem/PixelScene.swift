@@ -261,3 +261,31 @@ struct PixelTypewriter: View {
         isFinished?.wrappedValue = true
     }
 }
+
+// MARK: - 사진 없는 자리
+
+/// 사진 자리가 빌 때 대신 까는 **제주 오름 풍경**이다 (2026-09-09 조익준님 결정).
+///
+/// 전에는 권역색 한 판에 지도핀 아이콘 하나였다. 핀은 아무 뜻이 없어서
+/// 「사진을 못 불러왔다」로 읽혔는데, 실제로는 그 장소가 KTO 에 사진을 올리지
+/// 않아 **처음부터 없는** 것이다. 없는 것을 고장난 것처럼 보이게 두지 않는다.
+///
+/// 오름 실루엣과 곱딱이를 코드로 겹쳐 그리던 것을 **그림 한 장**으로 바꿨다
+/// (2026-09-10 조익준님 결정). 갈림길에서 지도를 든 곱딱이 — 「여기서부터는
+/// 정보가 없다」를 그림이 직접 말한다.
+///
+/// ⚠️ 픽셀아트라 보간을 끈다(`interpolation(.none)`). 켜두면 도트가 뭉개져
+/// 흐린 그림이 된다.
+///
+/// ⚠️ 이 뷰를 `ZStack` 에 그냥 넣지 말 것. `scaledToFill` 이 제 크기를 크게
+/// 불러서 **부모가 화면보다 넓어지고 옆 내용이 통째로 밀린다** (2026-09-10에
+/// 실제로 겪음). 색이나 `Color.clear` 위에 `overlay` 로 얹어 자리를 먼저 정한다.
+struct PixelPlaceholderScene: View {
+    var body: some View {
+        Image("placeholder-scene")
+            .interpolation(.none)
+            .resizable()
+            .scaledToFill()
+            .accessibilityHidden(true)
+    }
+}

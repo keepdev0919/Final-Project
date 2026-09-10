@@ -117,8 +117,11 @@ struct PlayDetailView: View {
     /// ⚠️ 픽셀아트는 `.interpolation(.none)` 이다. 기본 보간은 도트를 뭉갠다.
     @ViewBuilder
     private func cover(_ play: Play) -> some View {
+        // 사진이 없을 때는 **놀멍봅서 기본 그림**을 깐다 (2026-09-10 조익준님 결정).
+        // 회색 사진 아이콘은 「못 불러왔다」로 읽히는데, 대개는 KTO 에 등록되지
+        // 않아 처음부터 없는 것이다. 코스 카드·장소 상세와 같은 장면을 쓴다.
         ZStack {
-            PixelColor.surfaceDim
+            PixelColor.secondaryContainer
             if let image = UIImage(named: play.placeKey) {
                 Image(uiImage: image)
                     .interpolation(.none)
@@ -128,12 +131,12 @@ struct PlayDetailView: View {
                 AsyncImage(url: url) { phase in
                     switch phase {
                     case .success(let img): img.resizable().scaledToFill()
-                    case .failure: PixelIcon(.photo, size: 40, color: PixelColor.inkWeak)
-                    default: PixelColor.surfaceDim
+                    case .failure: Color.clear.overlay { PixelPlaceholderScene() }
+                    default: PixelColor.secondaryContainer
                     }
                 }
             } else {
-                PixelIcon(.photo, size: 40, color: PixelColor.inkWeak)
+                Color.clear.overlay { PixelPlaceholderScene() }
             }
         }
         .aspectRatio(coverAspect, contentMode: .fit)
