@@ -1,27 +1,17 @@
 """SQLite 연결 싱글톤.
 
-ChromaDB(벡터 검색)는 제거된 설화 검색 기능의 잔재이며 런타임 요청 경로에서
-호출되지 않는다. 배포 이미지를 가볍게 하려고 top-level import를 걷어내고
-실제 쓰는 함수 안으로 옮겼다 — 다시 쓰려면 chromadb를 설치하면 그대로 동작한다.
+ChromaDB(벡터 검색)와 OpenAI 임베딩은 2026-09-10에 걷어냈다. 제거된 설화 검색
+기능의 잔재로, 호출부가 하나도 없었다. 인덱스 자체는 `storage/vector_db`에
+남아 있다 — git에 없는 빌드 산출물이라 지우려면 손으로 지운다.
 """
 import os
 import sqlite3
 import threading
 from pathlib import Path
-from functools import lru_cache
 
 
 BASE_DIR = Path(__file__).parent.parent.parent
 DB_PATH = BASE_DIR / "storage" / "metadata.db"
-CHROMA_PATH = BASE_DIR / "storage" / "vector_db"
-COLLECTION_NAME = "jeju_folklore_chunks"
-EMBEDDING_MODEL = "text-embedding-3-small"
-
-# PersistentClient를 모듈 레벨에 보관해 GC 방지
-# (lru_cache만으로는 client 로컬 변수가 GC되어 ChromaDB 내부 시스템이 해제됨)
-_chroma_client = None
-_chroma_collection = None
-_chroma_lock = threading.Lock()
 
 
 def _load_env() -> None:
@@ -91,34 +81,6 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
             device_id  TEXT    NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(place_name, device_id) ON CONFLICT REPLACE
-        )
-        """
-    )
-    _metadata_cols = {
-        row[1] for row in conn.execute("PRAGMA table_info(metadata)").fetchall()
-    }
-    if _metadata_cols and "hook" not in _metadata_cols:
-        conn.execute("ALTER TABLE metadata ADD COLUMN hook TEXT")
-
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS folklore_connection_cache (
-            code_no    TEXT NOT NULL,
-            place      TEXT NOT NULL,
-            connection TEXT NOT NULL,
-            cached_at  REAL,
-            PRIMARY KEY (code_no, place)
-        )
-        """
-    )
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS folklore_story_cache (
-            code_no    TEXT NOT NULL,
-            place      TEXT NOT NULL,
-            pages_json TEXT NOT NULL,
-            cached_at  REAL,
-            PRIMARY KEY (code_no, place)
         )
         """
     )
@@ -291,36 +253,3 @@ def get_db_connection() -> sqlite3.Connection:
     _ensure_schema(conn)
     _thread_local.conn = conn
     return conn
-
-
-def get_chroma_collection():
-    import chromadb
-
-    global _chroma_client, _chroma_collection
-    if _chroma_collection is None:
-        with _chroma_lock:
-            if _chroma_collection is None:
-                _chroma_client = chromadb.PersistentClient(path=str(CHROMA_PATH))
-                _chroma_collection = _chroma_client.get_collection(COLLECTION_NAME)
-    return _chroma_collection
-
-
-def embed_query(text: str) -> list[float]:
-    """OpenAI API로 텍스트를 1536-dim 벡터로 임베딩."""
-    import urllib.request
-    import json
-
-    api_key = os.environ.get("OPENAI_API_KEY", "")
-    payload = json.dumps({"input": text, "model": EMBEDDING_MODEL}).encode("utf-8")
-    req = urllib.request.Request(
-        "https://api.openai.com/v1/embeddings",
-        data=payload,
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        body = json.loads(resp.read().decode("utf-8"))
-    return body["data"][0]["embedding"]
