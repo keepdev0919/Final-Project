@@ -1,10 +1,19 @@
-fastapi>=0.111.0
-uvicorn[standard]>=0.30.0
-slowapi>=0.1.9
-chromadb>=0.5.0
-openai>=1.0.0
-langchain>=0.2.0
-langchain-openai>=0.1.0
-python-dotenv>=1.0.0
-httpx>=0.27.0
-firebase-admin>=6.0.0
+# ⚠️ 이 파일은 **서버 배포 전용**이다.
+#
+# 개발·테스트 환경의 정본은 저장소 루트의 `requirements.txt`다.
+# (pytest·firebase-admin·chromadb 등 배포에 필요 없는 것까지 포함한다)
+# 여기에는 서버가 요청을 처리하는 데 실제로 필요한 것만 둔다 —
+# 배포 이미지를 가볍게 하고 빌드 실패 지점을 줄이기 위해서다.
+#
+# 버전 상한은 루트 requirements.txt와 반드시 같게 유지할 것.
+# 특히 fastapi 0.137부터 include_router가 라우트를 app.routes에 펼치지 않아
+# 위치정보법 불변식을 지키는 감시 테스트가 깨진다 (루트 파일 주석 참조).
+
+fastapi>=0.136,<0.137
+uvicorn[standard]>=0.45,<1.0
+pydantic>=2.13,<3.0
+slowapi>=0.1.9,<0.2      # 요청 수 제한 (KTO 일일 한도 보호에도 관여)
+requests>=2.32,<3.0      # services/typecast.py — 루트 파일에 빠져 있던 것을 여기서 명시
+
+# 런타임에 쓰지 않아 뺀 것: chromadb·openai·langchain (제거된 설화 검색의 잔재),
+# firebase-admin (로그인 제거됨), python-dotenv (자체 .env 파서 사용), pytest 계열.

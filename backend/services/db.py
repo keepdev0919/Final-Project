@@ -1,11 +1,15 @@
-"""SQLite + ChromaDB 연결 싱글톤."""
+"""SQLite 연결 싱글톤.
+
+ChromaDB(벡터 검색)는 제거된 설화 검색 기능의 잔재이며 런타임 요청 경로에서
+호출되지 않는다. 배포 이미지를 가볍게 하려고 top-level import를 걷어내고
+실제 쓰는 함수 안으로 옮겼다 — 다시 쓰려면 chromadb를 설치하면 그대로 동작한다.
+"""
 import os
 import sqlite3
 import threading
 from pathlib import Path
 from functools import lru_cache
 
-import chromadb
 
 BASE_DIR = Path(__file__).parent.parent.parent
 DB_PATH = BASE_DIR / "storage" / "metadata.db"
@@ -15,7 +19,7 @@ EMBEDDING_MODEL = "text-embedding-3-small"
 
 # PersistentClient를 모듈 레벨에 보관해 GC 방지
 # (lru_cache만으로는 client 로컬 변수가 GC되어 ChromaDB 내부 시스템이 해제됨)
-_chroma_client: chromadb.PersistentClient | None = None
+_chroma_client = None
 _chroma_collection = None
 _chroma_lock = threading.Lock()
 
@@ -90,12 +94,6 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
         )
         """
     )
-    _review_cols = {
-        row[1] for row in conn.execute("PRAGMA table_info(place_reviews)").fetchall()
-    }
-    if "user_id" not in _review_cols:
-        conn.execute("ALTER TABLE place_reviews ADD COLUMN user_id TEXT")
-
     _metadata_cols = {
         row[1] for row in conn.execute("PRAGMA table_info(metadata)").fetchall()
     }
@@ -217,10 +215,16 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
             lat          REAL NOT NULL,
             lng          REAL NOT NULL,
             status       TEXT NOT NULL DEFAULT 'CANDIDATE',
+            home_visible INTEGER NOT NULL DEFAULT 1,  -- 홈 「수행 가능한 퀘스트」 노출 여부
             created_at   REAL NOT NULL
         )
         """
     )
+    _places_cols = {
+        row[1] for row in conn.execute("PRAGMA table_info(places)").fetchall()
+    }
+    if "home_visible" not in _places_cols:
+        conn.execute("ALTER TABLE places ADD COLUMN home_visible INTEGER NOT NULL DEFAULT 1")
     # 외부 식별자 = **Place 의 정체성이 아니라 바깥 자료로 가는 다리**다(데이터.md §3).
     # 한 Place 에 여러 개가 붙을 수 있고(KTO contentId + Odii stid + 국가유산 ID …),
     # 한 외부 ID 가 두 Place 에 붙는 것은 막는다(PK).
@@ -290,6 +294,8 @@ def get_db_connection() -> sqlite3.Connection:
 
 
 def get_chroma_collection():
+    import chromadb
+
     global _chroma_client, _chroma_collection
     if _chroma_collection is None:
         with _chroma_lock:

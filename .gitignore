@@ -8,7 +8,10 @@ __pycache__/
 .bkit/
 
 # 대용량 DB / 벡터 스토어
-storage/metadata.db
+# storage/metadata.db — 배포에 필요해 추적 대상으로 되돌렸다 (2026-09-10).
+#   Railway 는 git 에 있는 것만 빌드 컨텍스트로 받는다. 이 파일이 빠지면
+#   코스 1,255개·홈 장소·오디 목록이 통째로 없어져 앱이 빈 화면으로 뜬다.
+#   개인정보는 들어 있지 않음을 확인했다 (리뷰 2건은 test-device 더미, 신고는 식별정보 없음).
 storage/vector_db/
 storage/*.bak*
 storage/*.db.bak*
