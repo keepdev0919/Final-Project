@@ -35,6 +35,7 @@
 | 고유 장소 2곳 이상인데 이동 1km 미만 | 지오코딩 실패로 좌표가 겹친 것 |
 | 관광지 비율 15% 미만 | 여행 일정으로 보기 어렵다 |
 | **하루 이동 150km 초과** | 아래 참조 |
+| **폐업한 곳이 낀 코스** | 화면 표시 이름이 「(폐업)」을 떼어내 문 닫은 가게가 멀쩡해 보인다. 비짓제주가 폐업 표기를 단 20곳 기준 |
 
 ### 이동거리 상한이 찜 목록을 잡는다
 
@@ -271,6 +272,14 @@ def main() -> None:
             continue
 
         places = _dedupe_places(places)
+
+        # 폐업한 곳이 하나라도 낀 코스는 뺀다. 화면에서는 표시 이름이 「(폐업)」을
+        # 떼어내므로(`build_place_display_names.py`) 문 닫은 가게가 멀쩡한 곳처럼
+        # 보이고, 코스를 믿고 간 여행자가 헛걸음한다. 표시 이름으로 비교하므로
+        # 폐업 표기가 붙기 전에 등록된 같은 가게(「북촌에가면」)도 함께 걸린다.
+        if any(display.get(p["place_name"], p["place_name"]) in closed for p in places):
+            skipped["폐업 장소 포함"] += 1
+            continue
         non_transit = [p for p in places if not _is_transit(p["place_name"])]
 
         # 모든 day에 장소가 있어야 한다 (day가 빈 코스 761개 존재)

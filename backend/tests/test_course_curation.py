@@ -239,6 +239,33 @@ class TestFeaturedCourses:
                 offenders.append(title)
         assert not offenders, f"관리용 메모가 새어 나온 제목 {len(offenders)}개: {offenders[:3]}"
 
+    def test_no_course_sends_travelers_to_a_closed_place(self):
+        """폐업한 곳이 낀 코스는 추천 대상에 없어야 한다 (2026-09-11 조익준님 결정).
+
+        화면에 보여줄 때 표시 이름이 「(폐업)」 표기를 떼어낸다 — 괄호를 정리하는
+        규칙이 폐업 표기까지 같이 지운다(`build_place_display_names.py`). 그래서
+        「북촌에가면(폐업)」이 앱에서는 「북촌에가면」으로 멀쩡하게 보이고, 코스를
+        믿고 간 여행자가 문 닫은 가게 앞에서 헛걸음한다.
+
+        원본은 2018년부터 쌓인 일정이라 그 뒤 문 닫은 곳이 섞여 있다. 비짓제주가
+        폐업 표기를 단 곳만이라도 확실히 걸러낸다. 표시 이름으로 비교하므로 폐업
+        표기가 붙기 전에 등록된 같은 가게도 함께 걸린다.
+        """
+        import json
+        from services.place_display_names import JSON_PATH, shown
+
+        closed = set(json.loads(JSON_PATH.read_text(encoding="utf-8"))["closed"])
+        if not closed:
+            pytest.skip("폐업 목록이 비어 있음")
+
+        conn = get_db_connection()
+        offenders = conn.execute(
+            "SELECT DISTINCT cc.title, cp.place_name FROM curated_courses cc "
+            "JOIN course_places cp ON cp.course_id = cc.id"
+        ).fetchall()
+        hits = [(t, n) for t, n in offenders if shown(n) in closed]
+        assert not hits, f"폐업 장소를 품은 추천 코스 {len(hits)}건: {hits[:3]}"
+
     def test_every_course_has_places_to_show(self, featured):
         """카드에 대표 장소를 3개까지 보여준다. 장소가 없으면 빈 카드가 된다."""
         for course in featured:
