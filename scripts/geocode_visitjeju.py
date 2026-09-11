@@ -30,7 +30,7 @@ load_dotenv(Path(__file__).parent.parent / ".env")
 
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
 
-CSV_PATH = Path(__file__).parent.parent / "VISIT JEJU_여행세부일정.CSV"
+CSV_PATH = Path(__file__).parent.parent / "data" / "raw" / "VISIT JEJU_여행세부일정.CSV"
 OUTPUT_PATH = Path(__file__).parent.parent / "data" / "processed" / "visitjeju_places_geocoded.json"
 
 # 제주 지역 바이어스 (결과를 제주도 우선으로)
@@ -56,7 +56,7 @@ def geocode(place_name: str, api_key: str) -> dict:
     url = f"https://maps.googleapis.com/maps/api/geocode/json?{params}"
 
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "jeju-folklore-rag/0.1"})
+        req = urllib.request.Request(url, headers={"User-Agent": "nolmeongbopseo-geocoder/0.1"})
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read().decode())
     except Exception as e:

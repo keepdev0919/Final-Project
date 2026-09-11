@@ -77,7 +77,7 @@ def fetch_kto_attractions() -> list[dict]:
             params = {
                 "serviceKey": KEY,
                 "MobileOS": "ETC",
-                "MobileApp": "jeju-folklore",
+                "MobileApp": "Nolmeongbopseo",
                 "areaCode": "39",
                 "contentTypeId": ctid,
                 "numOfRows": "100",

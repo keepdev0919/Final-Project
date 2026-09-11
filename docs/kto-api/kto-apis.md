@@ -36,7 +36,7 @@
 
 **주의사항:**
 - `contentid`는 다른 API(상세정보, 사진 등)를 호출할 때 키처럼 쓰임
-- 우리 설화 데이터에는 `contentid`가 없어서 설화 ↔ KTO 장소 연결 시 별도 매핑 필요
+- 우리 `data/places.json`에는 `contentid`가 없어서 Place ↔ KTO 연결은 좌표·이름 검색으로 한다 (`backend/routers/place.py`)
 
 ---
 
@@ -94,7 +94,7 @@
 | `mapx` / `mapy` | 좌표 | 위치 |
 | `contentid` | `"126508"` | 고유 ID |
 
-**에이전트 활용:** 설화 장소 GPS → 반경 N km → 주변 관광지 목록. 현재 `enrich_with_visitjeju`가 하는 역할을 이 API로 대체 가능.
+**활용:** PLAY 장소 GPS → 반경 N km → 주변 관광지 목록. 현재 `enrich_with_visitjeju`가 하는 역할을 이 API로 대체 가능.
 
 ---
 
@@ -219,11 +219,11 @@ http://apis.data.go.kr/B551011/Odii/storyLocationBasedList
 |-----|---------|--------------|
 | 지역 관광지 목록 (areaBasedList2) | ✅ | 중간 — contentId 수집용 |
 | 관광지 상세정보 (detailCommon2) | ✅ | 높음 — overview(설명글) |
-| **GPS 기반 주변 조회 (locationBasedList2)** | ✅ | **매우 높음** — 설화 장소 근처 탐색 |
+| **GPS 기반 주변 조회 (locationBasedList2)** | ✅ | **매우 높음** — PLAY 장소 근처 탐색 |
 | 연관 관광지 (TarRlteTarService1) | ❌ 데이터 없음 | — |
 | 집중률 예측 (TatsCntrRateService) | ❌ 500 오류 | — |
 | 관광사진 (detailImage2) | ✅ | 중간 — 코스 화면 사진 |
 | **오디오 가이드 (Odii)** | ✅ | **매우 높음** — 대본·좌표·영어까지 |
 
 **핵심 결론 (2026-08-14 갱신):** `locationBasedList2` + **`Odii/storyLocationBasedList`** 둘 다 쓸 수 있다.  
-설화 장소 GPS → 반경 지정 → 주변 관광지 목록. 현재 course_places DB 조회를 이걸로 보완 가능.
+PLAY 장소 GPS → 반경 지정 → 주변 관광지 목록. 현재 course_places DB 조회를 이걸로 보완 가능.
