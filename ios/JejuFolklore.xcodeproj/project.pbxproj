@@ -23,7 +23,6 @@
 		2F421FD8AD3B408FB4CB94C4 /* PlaceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD5EDEE06A3A22C0EED714E /* PlaceDetail.swift */; };
 		344CFDCD02C0689B73F83D69 /* CourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */; };
 		369D553E0685619EEAF02597 /* PixelUIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1903FC08AB7833E41E253682 /* PixelUIColor.swift */; };
-		39E84B4B300BE84BCBDC781F /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */; };
 		3C924367BF6D98281ABDEE6F /* PlaceAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997538FBFEB00536EF630FCB /* PlaceAPI.swift */; };
 		3F87278B10B282BE0924C3DC /* PlaceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */; };
 		4376C2AAA8BD0BDF615AB8A6 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = DE6EAC554294F429D6DA6C88 /* OFL.txt */; };
@@ -33,6 +32,7 @@
 		587E768898899E1D9B66B4F9 /* PixelIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB383F822D48F10D4C482C1B /* PixelIcon.swift */; };
 		58DF075E69988AA2F359FE58 /* StoryAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F360898F00360C7F075BAB6C /* StoryAudioPlayer.swift */; };
 		5E2DF12857CFA4FFB471EA68 /* suwolbong.png in Resources */ = {isa = PBXBuildFile; fileRef = DCCD25368FA26CE125559621 /* suwolbong.png */; };
+		61C0030A922B080D04398BBE /* PlaceNearby.swift in Sources */ = {isa = PBXBuildFile; fileRef = 790BCBC137E74D33B1172214 /* PlaceNearby.swift */; };
 		67157E9A54F763785AB8AAE4 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCB19D914698888F9F31CB4C /* Config.swift */; };
 		6993D4B38E663044C3335FF3 /* PixelChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 700D4CE53167A5AD8EBB8340 /* PixelChrome.swift */; };
 		6D5F8CF07FD03DF0A2306308 /* PlayPinMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B862C5DD38A16E14785379 /* PlayPinMap.swift */; };
@@ -40,7 +40,7 @@
 		72807356FA10C0EE8D9EC901 /* Galmuri14.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 680EEF39BE20B00165C19DAA /* Galmuri14.ttf */; };
 		7485325AAD31ADF859E86B09 /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 73D434DC7C36590FAF11FE46 /* GoogleMaps */; };
 		74DCBD57A66368EA7F46C223 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB272DA5A0E88FF5D6FE70C5 /* HomeView.swift */; };
-		80B828EB6E2FF404384F49FF /* OdiiAudioAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470F7F2D203392C83F32E3AA /* OdiiAudioAPI.swift */; };
+		758B8B2D4F580D81D78DE0D8 /* PlaceInfoSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB5C2B77D1C62C8750CB21E2 /* PlaceInfoSections.swift */; };
 		8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFB45E01F6089646021CEA5 /* SharedComponents.swift */; };
 		8A05764F76E9D6D931D89427 /* PlayAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCB9C34210E2B619207A45E /* PlayAPI.swift */; };
 		8A08DE3EE1EDECFC01390C82 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE1015A20E1B4F561042D346 /* ContentView.swift */; };
@@ -54,38 +54,33 @@
 		A2C31EC58EACE3EE26ECF576 /* MapTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58575F513772C542278732E4 /* MapTabView.swift */; };
 		A354561FC140C77CD26F19D8 /* GoogleMapPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC15B8EA8FB8D80D2EA8016 /* GoogleMapPreview.swift */; };
 		A8ED1424FD6D36F3B538B12A /* PixelTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 147E26AF7E61D093C74F6104 /* PixelTabBar.swift */; };
-		AC684B8C1956FFD93A8835F3 /* PlaceReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC21DDC81DEE2B5D42F38320 /* PlaceReview.swift */; };
+		AEC00D4AD15BC10475440886 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 4913CD26382F80BA6A2940F6 /* PrivacyInfo.xcprivacy */; };
 		B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */; };
 		BE8283B245F07A8088CC086E /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */; };
 		C73841BC51AF0A0EC4A72670 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94F529E10D83F4E5A63726E5 /* LocationService.swift */; };
 		CB763EDFE880AAC77792628A /* Play.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BAB5BC9C63961CEA7CC226B /* Play.swift */; };
 		D3DFEBC6D7B98B9C46F9BA81 /* PixelSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 770550065A60F3F6D772B9A0 /* PixelSpacing.swift */; };
 		D726750ECE035B9C28D50F72 /* Course.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3716E52689657C66A89C990A /* Course.swift */; };
-		DA537D46F6F9CCF7654E489D /* DeviceIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */; };
 		E308940579FA9D956796897F /* CourseHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F710DAFC1FB6A28109BE7C66 /* CourseHubView.swift */; };
 		E5FFD4F4F6D0F52E73744CAA /* seongeup-folk-village.png in Resources */ = {isa = PBXBuildFile; fileRef = 89D35949EC99A65964351085 /* seongeup-folk-village.png */; };
 		F475DC455EF699B2C68D1803 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8932708010A3431E486DF98 /* APIClient.swift */; };
 		F5FDCEF545D4023A70256DEC /* PlayCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F89AFFDE8A57B6CA8E1D40 /* PlayCard.swift */; };
 		F6293A665BCC1AEA370BE95C /* MaterialIcons-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 52D86945625489F0FAF637E3 /* MaterialIcons-Regular.ttf */; };
 		F851175C25E3291397058468 /* PixelScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6BF11B2CFA33AAE93918072 /* PixelScene.swift */; };
-		F8D4029F14FE4EC28785AD5F /* PlaceReviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EB46F8631558DA14B8DE90F /* PlaceReviewSheet.swift */; };
 		FB5B56BEEBB0650A986C18EC /* PlayDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F59CC64DB30B5F69512C4E /* PlayDetailView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
 		0DBF4D19B73D91571B6BF2CC /* MissionReportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionReportSheet.swift; sourceTree = "<group>"; };
-		0EB46F8631558DA14B8DE90F /* PlaceReviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceReviewSheet.swift; sourceTree = "<group>"; };
 		147E26AF7E61D093C74F6104 /* PixelTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelTabBar.swift; sourceTree = "<group>"; };
 		161AAD315E57D0DCD4AEF673 /* CoursePreviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewViewModel.swift; sourceTree = "<group>"; };
 		1903FC08AB7833E41E253682 /* PixelUIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelUIColor.swift; sourceTree = "<group>"; };
 		1D8AB8D49C66B553084056EF /* PixelComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelComponents.swift; sourceTree = "<group>"; };
-		27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceIdentity.swift; sourceTree = "<group>"; };
 		2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDetailView.swift; sourceTree = "<group>"; };
 		30363681E0458D5424F54A31 /* MissionStepInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionStepInput.swift; sourceTree = "<group>"; };
 		34B9D496ABD9AFEFF77B6B63 /* CourseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseListView.swift; sourceTree = "<group>"; };
 		3716E52689657C66A89C990A /* Course.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
-		470F7F2D203392C83F32E3AA /* OdiiAudioAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdiiAudioAPI.swift; sourceTree = "<group>"; };
+		4913CD26382F80BA6A2940F6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		49D647B00BA05037D92D8A8D /* TasteDiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasteDiscoveryView.swift; sourceTree = "<group>"; };
 		4A6CDC61CF4A2F9B4C4E04B0 /* JejuFolklore.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JejuFolklore.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BAB5BC9C63961CEA7CC226B /* Play.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Play.swift; sourceTree = "<group>"; };
@@ -102,6 +97,7 @@
 		700D4CE53167A5AD8EBB8340 /* PixelChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelChrome.swift; sourceTree = "<group>"; };
 		72A2FDC0888CCB3FFE5D5F1B /* CoursePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursePreviewView.swift; sourceTree = "<group>"; };
 		770550065A60F3F6D772B9A0 /* PixelSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelSpacing.swift; sourceTree = "<group>"; };
+		790BCBC137E74D33B1172214 /* PlaceNearby.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceNearby.swift; sourceTree = "<group>"; };
 		7BFB45E01F6089646021CEA5 /* SharedComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedComponents.swift; sourceTree = "<group>"; };
 		80646C2F3C35C152B947F2A1 /* CourseRecommendViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseRecommendViewModel.swift; sourceTree = "<group>"; };
 		8106FE651DF3B5201C58AE54 /* Galmuri9.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Galmuri9.ttf; sourceTree = "<group>"; };
@@ -125,6 +121,7 @@
 		D2F59CC64DB30B5F69512C4E /* PlayDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayDetailView.swift; sourceTree = "<group>"; };
 		D6BF11B2CFA33AAE93918072 /* PixelScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelScene.swift; sourceTree = "<group>"; };
 		D9B862C5DD38A16E14785379 /* PlayPinMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayPinMap.swift; sourceTree = "<group>"; };
+		DB5C2B77D1C62C8750CB21E2 /* PlaceInfoSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceInfoSections.swift; sourceTree = "<group>"; };
 		DBD5EDEE06A3A22C0EED714E /* PlaceDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceDetail.swift; sourceTree = "<group>"; };
 		DCCD25368FA26CE125559621 /* suwolbong.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = suwolbong.png; sourceTree = "<group>"; };
 		DE6EAC554294F429D6DA6C88 /* OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OFL.txt; sourceTree = "<group>"; };
@@ -136,7 +133,6 @@
 		F360898F00360C7F075BAB6C /* StoryAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryAudioPlayer.swift; sourceTree = "<group>"; };
 		F710DAFC1FB6A28109BE7C66 /* CourseHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseHubView.swift; sourceTree = "<group>"; };
 		FB383F822D48F10D4C482C1B /* PixelIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelIcon.swift; sourceTree = "<group>"; };
-		FC21DDC81DEE2B5D42F38320 /* PlaceReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceReview.swift; sourceTree = "<group>"; };
 		FE1015A20E1B4F561042D346 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -176,7 +172,7 @@
 				A744E956106F34C9C2D95F2F /* CoursePlace.swift */,
 				56510A2D59EB508CE47BE90F /* JejuRegion.swift */,
 				DBD5EDEE06A3A22C0EED714E /* PlaceDetail.swift */,
-				FC21DDC81DEE2B5D42F38320 /* PlaceReview.swift */,
+				790BCBC137E74D33B1172214 /* PlaceNearby.swift */,
 				4BAB5BC9C63961CEA7CC226B /* Play.swift */,
 				C067AF921E238CC37BAD19F4 /* PlayProgress.swift */,
 				8E81A390764D24D99F14B2DA /* SavedCourse.swift */,
@@ -246,6 +242,7 @@
 			isa = PBXGroup;
 			children = (
 				E11EACDCA05DCA02F59297D3 /* Assets.xcassets */,
+				4913CD26382F80BA6A2940F6 /* PrivacyInfo.xcprivacy */,
 				6A4C37778C65DA1DF7951735 /* Secrets.xcconfig */,
 			);
 			name = Resources;
@@ -280,7 +277,7 @@
 				58575F513772C542278732E4 /* MapTabView.swift */,
 				EBC7164D2D582E9B1C26D3E8 /* MyCourseListView.swift */,
 				2849D430EC6C737EC3D50054 /* PlaceDetailView.swift */,
-				0EB46F8631558DA14B8DE90F /* PlaceReviewSheet.swift */,
+				DB5C2B77D1C62C8750CB21E2 /* PlaceInfoSections.swift */,
 				D2F59CC64DB30B5F69512C4E /* PlayDetailView.swift */,
 				E8F9DD63A88EBCCF172DEE06 /* PlayRunnerView.swift */,
 				C0E3C9D9B595012C0EAF66BF /* ProfileTabView.swift */,
@@ -298,13 +295,10 @@
 				C8932708010A3431E486DF98 /* APIClient.swift */,
 				A462576FFCE42FA00335CDB9 /* AudioPlayer.swift */,
 				CCA846B90A1C7E739C308EE5 /* CourseAPI.swift */,
-				27CE5CC4579C9317F2C1589A /* DeviceIdentity.swift */,
 				94F529E10D83F4E5A63726E5 /* LocationService.swift */,
-				470F7F2D203392C83F32E3AA /* OdiiAudioAPI.swift */,
 				997538FBFEB00536EF630FCB /* PlaceAPI.swift */,
 				ABCB9C34210E2B619207A45E /* PlayAPI.swift */,
 				C96AFB3E0EDE3F60AD5E68C6 /* PlayProgressStore.swift */,
-				0BDFF849FF12EECEFECB2E3E /* SpeechRecognizer.swift */,
 				F360898F00360C7F075BAB6C /* StoryAudioPlayer.swift */,
 			);
 			path = Services;
@@ -364,7 +358,8 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					58E5457657C3C958743B0C25 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = HB2ZHR35Y4;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -402,6 +397,7 @@
 				1063ECB9D961E9145B031E02 /* Galmuri9.ttf in Resources */,
 				F6293A665BCC1AEA370BE95C /* MaterialIcons-Regular.ttf in Resources */,
 				4376C2AAA8BD0BDF615AB8A6 /* OFL.txt in Resources */,
+				AEC00D4AD15BC10475440886 /* PrivacyInfo.xcprivacy in Resources */,
 				18E4CA6BBCC86AD84FCFD234 /* jeju-stone-park.png in Resources */,
 				E5FFD4F4F6D0F52E73744CAA /* seongeup-folk-village.png in Resources */,
 				5E2DF12857CFA4FFB471EA68 /* suwolbong.png in Resources */,
@@ -427,7 +423,6 @@
 				027C49A35BB62E3C9B535323 /* CoursePreviewView.swift in Sources */,
 				174F84207B32BD1FF0089EA3 /* CoursePreviewViewModel.swift in Sources */,
 				9CE3AAF8CFE0F62B647E2B1B /* CourseRecommendViewModel.swift in Sources */,
-				DA537D46F6F9CCF7654E489D /* DeviceIdentity.swift in Sources */,
 				A354561FC140C77CD26F19D8 /* GoogleMapPreview.swift in Sources */,
 				74DCBD57A66368EA7F46C223 /* HomeView.swift in Sources */,
 				2BDBCF5B8C7C61F1C9478ABC /* JejuFolkloreApp.swift in Sources */,
@@ -437,7 +432,6 @@
 				724570403E04D82E56626B33 /* MissionReportSheet.swift in Sources */,
 				00C83AC475A055101EC2142C /* MissionStepInput.swift in Sources */,
 				8E332C8B628EB5E1E42AC01C /* MyCourseListView.swift in Sources */,
-				80B828EB6E2FF404384F49FF /* OdiiAudioAPI.swift in Sources */,
 				6993D4B38E663044C3335FF3 /* PixelChrome.swift in Sources */,
 				00FC7841F8092978094DF3C7 /* PixelColor.swift in Sources */,
 				96B2DDC6F8D6FF8F60FB204C /* PixelComponents.swift in Sources */,
@@ -451,8 +445,8 @@
 				3C924367BF6D98281ABDEE6F /* PlaceAPI.swift in Sources */,
 				2F421FD8AD3B408FB4CB94C4 /* PlaceDetail.swift in Sources */,
 				3F87278B10B282BE0924C3DC /* PlaceDetailView.swift in Sources */,
-				AC684B8C1956FFD93A8835F3 /* PlaceReview.swift in Sources */,
-				F8D4029F14FE4EC28785AD5F /* PlaceReviewSheet.swift in Sources */,
+				758B8B2D4F580D81D78DE0D8 /* PlaceInfoSections.swift in Sources */,
+				61C0030A922B080D04398BBE /* PlaceNearby.swift in Sources */,
 				CB763EDFE880AAC77792628A /* Play.swift in Sources */,
 				8A05764F76E9D6D931D89427 /* PlayAPI.swift in Sources */,
 				F5FDCEF545D4023A70256DEC /* PlayCard.swift in Sources */,
@@ -464,7 +458,6 @@
 				96D843ECB5200BC6F444CAE1 /* ProfileTabView.swift in Sources */,
 				1EFFDAF78ADAE81D2021D06E /* SavedCourse.swift in Sources */,
 				8463900C5A7F33E6253DBFC7 /* SharedComponents.swift in Sources */,
-				39E84B4B300BE84BCBDC781F /* SpeechRecognizer.swift in Sources */,
 				58DF075E69988AA2F359FE58 /* StoryAudioPlayer.swift in Sources */,
 				B5B02C3BABAAB0A349124CCF /* TasteDiscoveryView.swift in Sources */,
 			);
@@ -477,19 +470,21 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6A4C37778C65DA1DF7951735 /* Secrets.xcconfig */;
 			buildSettings = {
+				API_BASE_URL = "https://api.jejufolklore.com";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = JejuFolklore/Resources/JejuFolklore.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HB2ZHR35Y4;
 				INFOPLIST_FILE = JejuFolklore/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.keepdev.jejufolklore;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keepdev.nolmeongbopseo;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -562,19 +557,21 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6A4C37778C65DA1DF7951735 /* Secrets.xcconfig */;
 			buildSettings = {
+				API_BASE_URL = "https://api.jejufolklore.com";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = JejuFolklore/Resources/JejuFolklore.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HB2ZHR35Y4;
 				INFOPLIST_FILE = JejuFolklore/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.keepdev.jejufolklore;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keepdev.nolmeongbopseo;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};

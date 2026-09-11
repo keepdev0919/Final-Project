@@ -44,6 +44,8 @@ targets:
       - path: JejuFolklore/Resources/Assets.xcassets
       - path: JejuFolklore/Resources/Fonts
       - path: JejuFolklore/Resources/Covers
+      - path: JejuFolklore/Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
       - path: JejuFolklore/debug-route.gpx
         optional: true
     configFiles:
@@ -54,9 +56,20 @@ targets:
         product: GoogleMaps
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.keepdev.jejufolklore
+        # 서비스 이름을 따라 바꿨다 (2026-09-11, 앱스토어 첫 업로드 전). 올린 뒤에는 못 바꾼다.
+        # 이전: com.keepdev.jejufolklore — 애플 개발자 계정에 등록된 적 없음.
+        PRODUCT_BUNDLE_IDENTIFIER: com.keepdev.nolmeongbopseo
         INFOPLIST_FILE: JejuFolklore/Resources/Info.plist
-        DEVELOPMENT_TEAM: ""
+        # Apple Distribution 인증서의 팀 (키체인 확인 2026-09-11). 비워 두면 아카이브가
+        # 서명 단계에서 멈춘다.
+        DEVELOPMENT_TEAM: HB2ZHR35Y4
+        CODE_SIGN_STYLE: Automatic
+        # 아이폰 전용 (2026-09-11 출시 준비). 걸어 다니며 쓰는 현장 앱이고 화면이
+        # 세로 전용이다. 아이패드까지 켜 두면 13인치 스크린샷과 아이패드 심사가 따라온다.
+        TARGETED_DEVICE_FAMILY: "1"
+        # 출시용 앱이 부를 서버 주소. 시뮬레이터·개발 기기는 Config.swift 가 따로 정한다.
+        # ⚠️ 운영 서버를 올린 뒤 실제 주소로 바꿀 것 — 2026-09-11 기준 이 도메인은 없다.
+        API_BASE_URL: https://api.jejufolklore.com
     entitlements:
       path: JejuFolklore/Resources/JejuFolklore.entitlements
     info:
@@ -76,11 +89,10 @@ targets:
           UIColorName: ""
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
-        # 스토어 심사 대비로 뺀 것들 (2026-09-09) — 리뷰 시트를 되살릴 때 함께 복구할 것.
+        # 스토어 심사 대비로 뺀 것들 (2026-09-09). 리뷰 기능은 2026-09-11에 코드째 제거했다.
         #   백그라운드 위치: 화면을 끈 채로 도착을 감지하려면 필요하지만 심사에서 사유를
         #     강하게 요구받는다. 도착 감지는 앱을 켜 둔 동안만 동작하는 것으로 충분하다.
-        #   마이크·음성인식: PlaceReviewSheet에서만 쓰는데 그 화면에 도달할 경로가 없다.
-        #     쓰지 않는 권한을 선언하면 그 자체가 리젝 사유다.
+        #   마이크·음성인식: 쓰던 리뷰 기능이 사라졌다. 쓰지 않는 권한 선언은 리젝 사유다.
         NSLocationWhenInUseUsageDescription: "현재 위치에서 관광지까지 남은 거리를 보여 주고, 코스를 따라 이동할 때 도착을 안내하기 위해 위치를 사용합니다. 위치는 기기 안에서만 확인하며 서버로 보내지 않습니다."
         UIBackgroundModes:
           - audio
@@ -89,3 +101,6 @@ targets:
         LSApplicationQueriesSchemes:
           - comgooglemaps
         GOOGLE_MAPS_API_KEY: $(GOOGLE_MAPS_API_KEY)
+        API_BASE_URL: $(API_BASE_URL)
+        # HTTPS 외에 자체 암호화를 쓰지 않는다 — 업로드마다 수출 규정 질문을 건너뛴다.
+        ITSAppUsesNonExemptEncryption: false

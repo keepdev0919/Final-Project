@@ -71,19 +71,14 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
             )
             """
         )
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS place_reviews (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            place_name TEXT    NOT NULL,
-            tags       TEXT    NOT NULL,
-            note       TEXT,
-            device_id  TEXT    NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(place_name, device_id) ON CONFLICT REPLACE
-        )
-        """
-    )
+    # 반복정보(화장실·주차요금 등)와 무장애 정보를 캐시에 함께 둔다 (2026-09-10).
+    # 없던 칸은 덧붙이기만 한다 — 테이블을 지우면 코스 카드 사진까지 같이 날아간다.
+    _existing_cols = {
+        row[1] for row in conn.execute("PRAGMA table_info(place_detail_cache)").fetchall()
+    }
+    for col in ("info", "accessibility"):
+        if col not in _existing_cols:
+            conn.execute(f"ALTER TABLE place_detail_cache ADD COLUMN {col} TEXT")
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS kto_call_log (
@@ -98,25 +93,6 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
     )
     conn.execute("CREATE INDEX IF NOT EXISTS idx_kto_call_log_at ON kto_call_log(called_at)")
 
-    # 오디 장소 목록. **대본(script)은 저장하지 않는다** — 있는지 여부만 둔다.
-    # 이유는 routers/odii.py 모듈 설명 참조 (재배포 회피 + 실시간 호출 요건).
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS odii_places (
-            stid        TEXT NOT NULL,
-            lang        TEXT NOT NULL,
-            title       TEXT,
-            audio_title TEXT,
-            lat         REAL,
-            lng         REAL,
-            play_time   INTEGER,
-            has_script  INTEGER,
-            has_audio   INTEGER,
-            synced_at   REAL,
-            PRIMARY KEY (stid, lang)
-        )
-        """
-    )
     # 홈 장소 카드 순위. 비짓제주 등장 빈도 × 오디 해설 유무를 미리 계산해 둔 것이다
     # (146,357 × 178 거리 계산을 매 요청마다 할 수 없다). 계산 규칙은
     # services/home_places.py 모듈 설명 참조.
@@ -139,20 +115,9 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
         )
         """
     )
-    # 재생 시 받아온 대본의 1시간 캐시. 연타·재방문 흡수용이며 영구 저장이 아니다.
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS odii_story_cache (
-            cache_key   TEXT PRIMARY KEY,
-            title       TEXT,
-            audio_title TEXT,
-            script      TEXT,
-            audio_url   TEXT,
-            play_time   INTEGER,
-            cached_at   REAL
-        )
-        """
-    )
+    # 오디(Odii) 연동은 2026-09-11 에 걷어냈다 — 서비스 화면 어디서도 부르지 않았고
+    # 기능설명서에 「실시간 조회」로 적혀 있던 것이 실제와 어긋났다. odii_places ·
+    # odii_story_cache 테이블은 더 만들지 않는다 (기존 DB 에 남은 표는 그대로 두어도 무해).
     # ── Place 레지스트리 ────────────────────────────────────────────────
     #
     # **놀멍봅서 Place의 정체성은 어느 외부 공급자에도 종속되지 않는다**

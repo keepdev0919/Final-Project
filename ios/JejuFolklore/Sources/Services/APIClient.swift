@@ -1,5 +1,4 @@
 import Foundation
-import FirebaseAuth
 
 enum APIError: Error, LocalizedError {
     case invalidURL
@@ -38,21 +37,6 @@ final class APIClient {
 
     private init() {}
 
-    /// Firebase Auth 의 현재 사용자 ID 토큰을 비동기로 가져온다.
-    /// - Firebase가 구성되지 않았거나 로그인되지 않은 경우 nil을 반환한다.
-    private func currentIDToken() async -> String? {
-        guard FirebaseAuth.Auth.auth().app != nil else { return nil }
-        guard let user = Auth.auth().currentUser else { return nil }
-        return try? await user.getIDToken()
-    }
-
-    /// 요청 직전에 Authorization 헤더를 부착한다 (토큰이 있을 때만).
-    private func attachAuthHeader(_ request: inout URLRequest) async {
-        if let token = await currentIDToken() {
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        }
-    }
-
     func get<T: Decodable>(_ path: String, query: [String: String] = [:]) async throws -> T {
         var components = URLComponents(string: Config.baseURL + path)!
         if !query.isEmpty {
@@ -61,7 +45,6 @@ final class APIClient {
         guard let url = components.url else { throw APIError.invalidURL }
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        await attachAuthHeader(&request)
         return try await perform(request)
     }
 
@@ -71,7 +54,6 @@ final class APIClient {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(body)
-        await attachAuthHeader(&request)
         return try await perform(request)
     }
 
@@ -81,56 +63,12 @@ final class APIClient {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(body)
-        await attachAuthHeader(&request)
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
             let code = (response as? HTTPURLResponse)?.statusCode ?? 0
             throw APIError.invalidResponse(code)
         }
         return data
-    }
-
-    /// DELETE 요청. 응답 본문을 쓰지 않는다.
-    ///
-    /// 계정 삭제(`DELETE /account`)에 쓴다. 인증 헤더는 attachAuthHeader가 붙인다 —
-    /// 서버가 토큰의 uid로 삭제 대상을 정하므로 헤더가 없으면 401이 된다.
-    /// DELETE 요청. 응답 본문을 쓰지 않는다.
-    ///
-    /// `bearerToken`을 넘기면 그 토큰을 쓰고, 넘기지 않으면 현재 로그인 사용자의
-    /// 토큰을 붙인다. 계정 삭제는 **Firebase Auth 레코드를 지운 뒤** 서버를
-    /// 호출하므로 미리 받아둔 토큰을 명시해야 한다.
-    ///
-    /// 본문을 넘기지 않을 때는 `delete("/x")`로 호출한다 — 타입 추론이 된다.
-    /// `body: nil`을 명시하면 제네릭 추론이 실패하므로 인자를 생략할 것.
-    func delete<B: Encodable>(
-        _ path: String,
-        body: B? = nil as String?,
-        bearerToken: String? = nil
-    ) async throws {
-        guard let url = URL(string: Config.baseURL + path) else { throw APIError.invalidURL }
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
-        if let body {
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = try encoder.encode(body)
-        }
-        if let bearerToken {
-            request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-        } else {
-            await attachAuthHeader(&request)
-        }
-
-        let data: Data
-        let response: URLResponse
-        do {
-            (data, response) = try await session.data(for: request)
-        } catch {
-            throw APIError.networkError(error)
-        }
-        _ = data
-        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-            throw APIError.invalidResponse((response as? HTTPURLResponse)?.statusCode ?? 0)
-        }
     }
 
     private func perform<T: Decodable>(_ request: URLRequest) async throws -> T {
@@ -150,24 +88,5 @@ final class APIClient {
         } catch {
             throw APIError.decodingFailed(error)
         }
-    }
-}
-
-// MARK: - Place Reviews
-extension APIClient {
-    func submitReview(placeName: String, tags: [String], note: String?) async {
-        let body = PlaceReviewBody(
-            placeName: placeName,
-            tags: tags,
-            note: note,
-            deviceId: DeviceIdentity.shared.id
-        )
-        _ = try? await postData("/place/review", body: body)
-    }
-
-    func fetchReviews(placeName: String) async throws -> PlaceReviewsResponse {
-        let encoded = placeName
-            .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? placeName
-        return try await get("/place/reviews/\(encoded)")
     }
 }
