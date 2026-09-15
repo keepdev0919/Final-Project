@@ -108,24 +108,39 @@ struct TasteDiscoveryView: View {
             // 아이콘이 나침반(`.compass`)이라 「어느 쪽」과 그림이 맞는다.
             title: Text("어느 쪽으로 ")
                 + Text("떠날까요").foregroundColor(PixelColor.accent),
-            // 「발자국」은 지어낸 설정이 아니라 사실 그대로다 — 실제로 제주를 다녀간
-            // 사람들의 여행 일정이 이 화면의 데이터다. 게임 말이면서 거짓말이 아니다.
+            // 「여행자가 직접 짠 코스」를 앞세운다 — 이 화면의 데이터가 우리가 지어낸
+            // 추천 규칙이 아니라 진짜 사람이 짠 제주 일정이라는 점이 가장 큰 어필이다.
             //
-            // ⚠️ 「천여 건」은 `curated_courses` 1,255개다 — 원본 여행 일정 9,134개에서
-            // 중복 장소·빈 날짜를 걷어내고 남은 수. **「9천 건」이라고 쓰면 거짓말이 된다.**
-            // **「여행자 천 명」이라고도 쓰지 않는다** — 코스 1,255개는 사람 1,255명이
-            // 아니다. 「검증된 경로」도 쓰지 않는다 — 우리가 검증한 게 아니라 실제 기록이다.
+            // ⚠️ 「다녀간」이라고 쓰지 않는다 (2026-09-11 조익준님 결정) — 원본은 비짓제주에
+            // 여행 전에 짜서 저장한 일정이라, 그대로 다녀왔는지는 데이터에 없다.
             //
-            // 「여행자들의」를 뺐다 (2026-09-09) — 넣었더니 실제 화면에서 줄바꿈이
-            // 「…발자국 천여 / 건에서」로 떨어져 수와 단위가 갈라졌다. 누구의
-            // 발자국인지는 「먼저 다녀간」이 이미 말한다.
-            message: Text("먼저 다녀간 ")
-                + Text("발자국 천여 건").foregroundColor(PixelColor.accent)
+            // 「6천여 건」은 원본 여행 일정 9,134개에서 중복 장소·빈 날짜·폐업한 곳을
+            // 걷어내고 남은 `curated_courses` 수다 (6,071 → 폐업 정리 후 5,871). 사용자가
+            // 「6천여 건」을 유지하기로 했다 (2026-09-11). **「9천 건」이라고 쓰면 거짓말이 된다.**
+            // **「방문객 6천 명」이라고도 쓰지 않는다** — 코스 수는 사람 수가 아니다.
+            // 「AI가 추천」도 쓰지 않는다 — 추천은 실제 일정을 권역·기간으로 거르는 것이지
+            // 모델이 고르는 게 아니다. 심사에서 「AI가 뭘 하느냐」에 답이 궁해진다.
+            //
+            // 두 줄로 끊는다 (2026-09-11 조익준님 결정) — 한 줄로 흘리면 「6천여 / 건에서」
+            // 처럼 수와 단위가 갈라졌다. 「직접 짠」 「6천여 건」 두 곳만 금색 + 굵게.
+            //
+            //     제주 여행자들이 직접 짠
+            //     코스 6천여 건에서 길을 찾아드려요
+            //
+            // 둘째 줄은 갈무리 18pt 로 약 294pt 라 폭 393pt 이상 기기에서 한 줄에 든다.
+            // 「코스 6천여 건에서」 사이는 줄바꿈 없는 공백(U+00A0)이라, 더 좁은 기기에서
+            // 넘쳐도 「길을 / 찾아드려요」 쪽에서 갈리지 수·단위 사이는 떨어지지 않는다.
+            // (「…코스 6천여 건 / 에서 길을…」로 끊는 안은 첫 줄이 327pt 라 Pro Max 에만
+            //  들어가서 접었다.)
+            message: Text("제주 여행자들이 ")
+                + Text("직접 짠").foregroundColor(PixelColor.accent).font(PixelFont.bodyLargeBold)
+                + Text("\n코스\u{00A0}")
+                + Text("6천여\u{00A0}건").foregroundColor(PixelColor.accent).font(PixelFont.bodyLargeBold)
                 + Text("에서 길을 찾아드려요")
         )
     }
 
-    // MARK: - 권역 & 기간 선택
+    // MARK: - 권역 · 기간 선택
 
     /// 지도·기간 칩·「코스 찾기」가 **한 섹션**이다 (2026-09-09 조익준님 결정).
     ///
@@ -141,7 +156,7 @@ struct TasteDiscoveryView: View {
             // 아이콘 색은 **쨍한 금색**(`accent`)이다 — 인트로 카드의 잉크 블록 위
             // 아이콘, 기간 칩과 같은 금색으로 맞춘다 (2026-09-09 조익준님 결정).
             // 흰 바탕 대비는 낮지만 아이콘은 장식이고 뜻은 제목이 다 전한다.
-            PixelSectionHeader(title: "권역 & 기간 선택",
+            PixelSectionHeader(title: "권역 · 기간 선택",
                                icon: .compass,
                                iconColor: PixelColor.accent,
                                underline: PixelSpacing.borderHeavy)
@@ -193,7 +208,7 @@ struct TasteDiscoveryView: View {
     /// 추천이라고 쓰면 실제로 하는 일과 다른 말이 된다.
     private var featuredSection: some View {
         VStack(alignment: .leading, spacing: PixelSpacing.cardGap) {
-            // 위 「권역 & 기간 선택」과 **같은 머리**다 — 제목 + 잉크 4px 밑줄.
+            // 위 「권역 · 기간 선택」과 **같은 머리**다 — 제목 + 잉크 4px 밑줄.
             // 결과는 파랑이다 — 이 화면의 색 규칙(고르는 것 금색 / 결과 파랑 /
             // 실행 초록)을 섹션 아이콘에도 그대로 쓴다.
             PixelSectionHeader(title: "이런 코스는 어때요?",
@@ -269,7 +284,7 @@ struct TasteDiscoveryView: View {
                 .pixelBorder(ready ? PixelColor.ink : PixelColor.outlineVariant)
                 // 꺼져 있을 때는 그림자도 없다. 눌리는 것과 안 눌리는 것이
                 // 색만이 아니라 **떠 있는 정도**로도 갈린다.
-                .pixelShadow(ready ? PixelSpacing.shadowButton : 0, downOnly: true)
+                .pixelShadow(ready ? PixelSpacing.shadowButton : 0)
         }
         .buttonStyle(.plain)
         // ⚠️ `.disabled` 를 쓰지 않는다. SwiftUI 가 버튼 **전체**를 흐리게 덮어서
@@ -319,8 +334,9 @@ struct JejuOverworldPicker: View {
     let selected: String
     let onSelect: (String) -> Void
 
-    /// 그림 원본 1200×896. 비율이 어긋나면 버튼이 엉뚱한 데 붙는다.
-    private static let imageAspect: CGFloat = 1200.0 / 896.0
+    /// 그림 원본 1500×1000 (2026-09-10 조익준님이 고른 새 섬 그림. 원본 2752×1536 을
+    /// 양옆 바다만 잘라 3:2 로 맞췄다). 비율이 어긋나면 버튼이 엉뚱한 데 붙는다.
+    private static let imageAspect: CGFloat = 1500.0 / 1000.0
 
     var body: some View {
         GeometryReader { geo in
@@ -385,8 +401,7 @@ struct JejuOverworldPicker: View {
 
 /// 그림 위에서 버튼이 앉는 자리. 가로·세로 **비율**이라 화면 크기가 달라져도 안 밀린다.
 ///
-/// ⚠️ 눈으로 잡은 값이다. 배경 그림(`jeju-overworld`)을 바꾸면 이 값도 같이 봐야 한다.
-/// 마을·숲·화산을 피해 빈 초원에 앉히는 것이 기준이다 — 그림을 가리지 않으려고.
+/// 카드 틀 기준의 나침반 자리라 배경 그림을 바꿔도 그대로 쓴다.
 private struct RegionSpot {
     let id: String
     let label: String
@@ -405,12 +420,15 @@ private struct RegionSpot {
     /// 라벨이 「전역 / 제주 전체」인 것은 네 권역과 **줄 수를 맞추기 위해서**다.
     /// 「제주 전역」 한 줄로 두면 이 표식만 높이가 달라진다.
     static let all: [RegionSpot] = [
-        RegionSpot(id: "북부", label: "북부", sublabel: "제주시",    x: 0.44, y: 0.20, bobDelay: 0.0),
-        RegionSpot(id: "동부", label: "동부", sublabel: "성산·구좌", x: 0.82, y: 0.44, bobDelay: 0.45),
-        RegionSpot(id: "서부", label: "서부", sublabel: "한림·애월", x: 0.16, y: 0.46, bobDelay: 0.9),
-        RegionSpot(id: "남부", label: "남부", sublabel: "서귀포",    x: 0.46, y: 0.72, bobDelay: 1.35),
+        // **지형이 아니라 카드 틀에 맞춘 나침반 배치** (2026-09-10 조익준님 결정).
+        // 북·남은 가로 정중앙 위·아래, 서·동은 세로 정중앙 왼·오른쪽. 그림을 바꿔도
+        // 자리가 흔들리지 않는다. 전역만 우하단 바다 구석 — 남부와 같은 높이.
+        RegionSpot(id: "북부", label: "북부", sublabel: "제주시",    x: 0.50, y: 0.20, bobDelay: 0.0),
+        RegionSpot(id: "동부", label: "동부", sublabel: "성산·구좌", x: 0.86, y: 0.50, bobDelay: 0.45),
+        RegionSpot(id: "서부", label: "서부", sublabel: "한림·애월", x: 0.14, y: 0.50, bobDelay: 0.9),
+        RegionSpot(id: "남부", label: "남부", sublabel: "서귀포",    x: 0.50, y: 0.80, bobDelay: 1.35),
         RegionSpot(id: JejuRegionDef.wholeIslandID,
-                   label: "전역", sublabel: "제주 전체",             x: 0.85, y: 0.82, bobDelay: 1.8),
+                   label: "전역", sublabel: "제주 전체",             x: 0.86, y: 0.80, bobDelay: 1.8),
     ]
 }
 

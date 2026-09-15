@@ -1,45 +1,19 @@
 import SwiftUI
 
-/// 코스 탭 — "코스 만들기"와 "내 코스"를 하나로 합쳤다 (설계 §3).
+/// 코스 탭 — **여행 전에 「어디 갈까」를 푸는 화면 하나**다.
+///
+/// 전에는 위쪽에 「코스 만들기 / 내 코스」 세그먼트가 있었다. 걷어낸 이유
+/// (2026-09-09 조익준님 결정):
+///
+/// - 담아 둔 코스를 보는 일은 「고르는 일」과 성격이 달라, 기록을 모으는
+///   프로필 탭이 제자리다 (`MyCourseListView`).
+/// - 세그먼트가 화면 맨 위 한 줄을 늘 차지하면서, 정작 이 탭이 무엇을 하는
+///   곳인지는 그 아래 제목이 말하고 있었다.
+/// ⚠️ 상단바(`PixelTopBar`)를 두지 않는다. 퀘스트 탭이 이미 상단바 없이 살고 있고
+/// (2026-09-03 「시안에 상단바가 없다」), 화면 맨 위 44pt 를 「코스」 한 낱말에
+/// 내주는 대신 무슨 화면인지는 아래 제목이 말한다 (2026-09-09 조익준님 결정).
 struct CourseHubView: View {
-    private enum Section: String, CaseIterable {
-        case create = "코스 만들기"
-        case saved = "내 코스"
-    }
-
-    @State private var section: Section = .create
-
     var body: some View {
-        VStack(spacing: 0) {
-            PixelTopBar(title: "코스", accent: PixelColor.secondary)
-
-            // 세그먼트 — 선택된 쪽만 주색으로 채우고 그림자를 준다 (시안 탭 방식).
-            HStack(spacing: PixelSpacing.s) {
-                ForEach(Section.allCases, id: \.self) { item in
-                    let on = section == item
-                    Button { section = item } label: {
-                        Text(item.rawValue)
-                            .font(PixelFont.label)
-                            .foregroundStyle(on ? PixelColor.onPrimary : PixelColor.ink)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: PixelSpacing.buttonHeight)
-                            .background(on ? PixelColor.primary : PixelColor.surface)
-                            .pixelBorder()
-                            .pixelShadow(on ? PixelSpacing.shadowSmall : 0)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityAddTraits(on ? [.isSelected] : [])
-                }
-            }
-            .padding(.horizontal, PixelSpacing.screenMargin)
-            .padding(.vertical, PixelSpacing.l)
-
-            switch section {
-            case .create: TasteDiscoveryView()
-            case .saved:  MyCourseListView()
-            }
-        }
-        .background(PixelColor.background.ignoresSafeArea())
-        .navigationBarHidden(true)
+        TasteDiscoveryView()
     }
 }

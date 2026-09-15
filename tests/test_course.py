@@ -2,6 +2,8 @@
 import pytest
 from unittest.mock import patch, MagicMock
 
+from agents.course_list_agent import RESULT_COUNT
+
 
 # ─── /course/list ──────────────────────────────────────────────────────────────
 
@@ -30,6 +32,32 @@ LIST_MOCK_STATE = {
             "duration_days": 1,
             "places": [
                 {"place_name": "제주민속촌", "lat": 33.374, "lng": 126.818, "day": 1},
+            ],
+        },
+        # 아래 셋은 **잘려야 하는 몫**이다. 목이 상한선보다 적으면
+        # 「몇 개까지 보여주나」를 검사하지 못하고 목 크기만 다시 세게 된다.
+        {
+            "id": "course-104",
+            "title": "동부 해녀 1일 코스",
+            "duration_days": 1,
+            "places": [
+                {"place_name": "해녀박물관", "lat": 33.527, "lng": 126.847, "day": 1},
+            ],
+        },
+        {
+            "id": "course-105",
+            "title": "동부 숲길 1일 코스",
+            "duration_days": 1,
+            "places": [
+                {"place_name": "비자림", "lat": 33.489, "lng": 126.810, "day": 1},
+            ],
+        },
+        {
+            "id": "course-106",
+            "title": "동부 바다 1일 코스",
+            "duration_days": 1,
+            "places": [
+                {"place_name": "월정리해변", "lat": 33.556, "lng": 126.795, "day": 1},
             ],
         },
     ],
@@ -62,12 +90,18 @@ def test_course_list_returns_200(client, mock_list_graph):
     assert res.status_code == 200
 
 
-def test_course_list_returns_3_courses(client, mock_list_graph):
-    """코스 3개 반환."""
+def test_course_list_caps_at_result_count(client, mock_list_graph):
+    """목록은 `RESULT_COUNT`개까지만 나간다.
+
+    화면이 이 개수를 그대로 제목에 적는다 — 「추천 TOP N」. 서버가 조용히 더
+    보내기 시작하면 제목과 카드 수가 어긋난다 (2026-09-10에 3 → 5로 올림).
+    """
     res = client.post("/course/list", json=LIST_PAYLOAD)
     body = res.json()
     assert isinstance(body, list)
-    assert len(body) == 3
+    assert len(body) == RESULT_COUNT
+    assert RESULT_COUNT < len(LIST_MOCK_STATE["result_courses"]), \
+        "목이 상한선보다 많아야 자르기가 실제로 검사된다"
 
 
 def test_course_list_structure(client, mock_list_graph):

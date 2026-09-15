@@ -24,6 +24,13 @@ struct CourseAPI {
         ))
     }
 
+    /// 코스 탭 첫 화면에서 그냥 둘러보라고 깔아 두는 목록.
+    /// 권역·기간을 보내지 않는다. **부를 때마다 서버가 다른 코스를 준다** —
+    /// 새로고침이 곧 갱신이다.
+    static func featured(limit: Int = 5) async throws -> [CourseListItem] {
+        try await APIClient.shared.get("/course/featured", query: ["limit": "\(limit)"])
+    }
+
     static func detail(courseId: String) async throws -> Course {
         try await APIClient.shared.post("/course/detail", body: CourseDetailRequest(
             courseId: courseId

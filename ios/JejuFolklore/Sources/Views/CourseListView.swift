@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct CourseListView: View {
     @ObservedObject var vm: CourseRecommendViewModel
@@ -54,13 +55,30 @@ struct CourseListView: View {
 
     // MARK: - States
 
+    /// 코스를 찾는 동안 뜨는 화면. **곱딱이가 떠 있고 아래에 한 줄.**
+    ///
+    /// 전에는 회색 스피너 하나였고, 서버가 빠르면 눈에 띄지도 않고 지나갔다.
+    /// 대신 카드가 먼저 서고 사진이 나중에 채워져서 **넘어간 뒤에 화면이 한 번 더
+    /// 움직였다** (2026-09-10 조익준님 지적). 이제 사진까지 받아 놓고 넘어가고,
+    /// 그동안 이 화면이 최소 3초 떠 있는다.
+    ///
+    /// 그림은 앱 아이콘의 곱딱이(64px)를 **정확히 2배**로 키운 것이다 — 정수
+    /// 배수라 도트가 갈리지 않는다. 보간을 끄지 않으면 흐린 그림이 된다.
     private var loadingView: some View {
-        VStack(spacing: 16) {
-            ProgressView().scaleEffect(1.4)
-            Text("AI가 코스를 추천하고 있어요...")
-                .font(PixelFont.body)
+        VStack(spacing: PixelSpacing.xl) {
+            Image("gamgyul")
+                .interpolation(.none)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 128, height: 128)
+                // 3초를 가만히 있는 그림으로 채우면 멈춘 화면으로 읽힌다.
+                .pixelBob()
+            Text(LoadingStep.searching.rawValue)
+                .font(PixelFont.label)
                 .foregroundColor(PixelColor.inkWeak)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(LoadingStep.searching.rawValue)
     }
 
     private func errorView(_ err: String) -> some View {
@@ -95,9 +113,12 @@ struct CourseListView: View {
         VStack(spacing: 0) {
             // 헤더
             VStack(alignment: .leading, spacing: 4) {
-                Text("당신을 위한 \(vm.courseList.count)가지 코스")
+                // 숫자는 **실제로 온 개수**다. 서버가 5개를 목표로 주지만 조건에
+                // 맞는 코스가 모자란 날은 3~4개가 온다 — 그때 「TOP 5」라고 적어
+                // 두면 화면이 거짓말을 한다.
+                Text("추천 TOP \(vm.courseList.count)")
                     .font(PixelFont.sectionTitle)
-                Text("마음에 드는 코스를 골라 탐험을 시작해보세요")
+                Text("마음에 드는 코스를 골라보세요")
                     .font(PixelFont.body)
                     .foregroundColor(PixelColor.inkWeak)
             }
@@ -166,11 +187,18 @@ struct CourseCard: View {
         ZStack {
             c.fill
             if let url = course.thumbnail, let u = URL(string: url) {
-                AsyncImage(url: u) { phase in
-                    switch phase {
-                    case .success(let image): image.resizable().scaledToFill()
-                    case .failure:            PixelPlaceholderScene()
-                    default:                  Color.clear
+                // 추천 목록으로 들어올 때 미리 받아 둔 사진이면 **첫 프레임부터** 그린다
+                // (`CourseCoverStore`). 둘러보기 목록은 미리 받지 않으니 그때만
+                // `AsyncImage` 가 맡는다 — 곁다리 목록까지 진입을 늦출 이유는 없다.
+                if let ready = CourseCoverStore.shared.image(for: url) {
+                    Image(uiImage: ready).resizable().scaledToFill()
+                } else {
+                    AsyncImage(url: u) { phase in
+                        switch phase {
+                        case .success(let image): image.resizable().scaledToFill()
+                        case .failure:            PixelPlaceholderScene()
+                        default:                  Color.clear
+                        }
                     }
                 }
             } else {
@@ -299,5 +327,86 @@ struct CourseCard: View {
             .pixelShadow(PixelSpacing.shadowCard)
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - 미리 받아 둔 카드 사진
+
+/// 코스 카드에 쓸 사진을 **화면을 넘기기 전에** 받아 두는 곳.
+///
+/// **왜 필요한가.** 카드 안의 `AsyncImage` 는 카드가 화면에 선 *다음에야* 사진을
+/// 받기 시작한다. 그래서 목록으로 넘어간 직후 카드는 서 있는데 사진 칸만 뒤늦게
+/// 채워졌다 — 다 온 화면이 한 번 더 움직이는 셈이라 어수선했다
+/// (2026-09-10 조익준님 지적).
+///
+/// 그래서 목록을 받은 직후 여기서 사진을 먼저 받고 `byPreparingForDisplay()` 로
+/// **그릴 준비까지** 끝낸다. 내려받기만 해두면 도트를 푸는 일이 그리는 순간으로
+/// 밀려서 첫 프레임이 또 늦는다.
+///
+/// ⚠️ `URLCache` 에 기대지 않는다. 사진을 주는 쪽이 캐시를 막는 헤더를 보내면
+/// 미리 받아 둔 것이 통째로 헛일이 된다. 푼 그림을 우리가 직접 들고 있는다.
+@MainActor
+final class CourseCoverStore {
+    static let shared = CourseCoverStore()
+
+    /// 최근 것만 들고 있는다. 권역·기간을 바꿔 가며 여러 번 찾으면 끝없이 쌓인다.
+    private let limit = 60
+    private var images: [String: UIImage] = [:]
+    private var order: [String] = []
+
+    func image(for url: String) -> UIImage? { images[url] }
+
+    /// 아직 없는 사진을 받아 둔다. **다 받거나 `deadline` 이 지나면** 돌아온다.
+    ///
+    /// 시간 제한이 있어야 하는 이유: 사진 주는 쪽이 응답하지 않는 날 「다 받을
+    /// 때까지 기다린다」를 곧이곧대로 지키면 로딩 화면에서 영영 못 나간다.
+    /// 사진 없이 카드가 뜨는 건 예전과 같은 상태라 손해가 없지만, 멈춘 화면은
+    /// 고장으로 읽힌다.
+    func warm(_ urls: [String], until deadline: Date) async {
+        var seen = Set<String>()
+        let pending: [(key: String, url: URL)] = urls.compactMap { raw in
+            guard images[raw] == nil, seen.insert(raw).inserted,
+                  let u = URL(string: raw) else { return nil }
+            return (key: raw, url: u)
+        }
+        guard !pending.isEmpty else { return }
+
+        await withTaskGroup(of: (String, UIImage?)?.self) { group in
+            for (key, url) in pending {
+                group.addTask { (key, await Self.load(url)) }
+            }
+            // 시간이 다 되면 `nil` 하나를 흘려보내 기다리기를 끝낸다.
+            group.addTask {
+                let left = deadline.timeIntervalSinceNow
+                if left > 0 {
+                    try? await Task.sleep(nanoseconds: UInt64(left * 1_000_000_000))
+                }
+                return nil
+            }
+
+            var remaining = pending.count
+            for await result in group {
+                guard let result else { break }   // 시간 초과 — 남은 건 두고 나간다
+                if let image = result.1 { put(image, for: result.0) }
+                remaining -= 1
+                if remaining == 0 { break }       // 다 받았으면 시간 다 차기를 기다리지 않는다
+            }
+            group.cancelAll()
+        }
+    }
+
+    private func put(_ image: UIImage, for key: String) {
+        if images[key] == nil { order.append(key) }
+        images[key] = image
+        while order.count > limit {
+            images.removeValue(forKey: order.removeFirst())
+        }
+    }
+
+    private nonisolated static func load(_ url: URL) async -> UIImage? {
+        guard let (data, response) = try? await URLSession.shared.data(from: url),
+              (response as? HTTPURLResponse)?.statusCode == 200,
+              let image = UIImage(data: data) else { return nil }
+        return await image.byPreparingForDisplay() ?? image
     }
 }

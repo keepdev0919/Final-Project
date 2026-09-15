@@ -9,7 +9,7 @@ from slowapi.util import get_remote_address
 logger = logging.getLogger(__name__)
 
 from models.schemas import CourseListRequest, CourseDetailRequest, CourseListItem, Course, CoursePlace
-from agents.course_list_agent import course_list_graph, run_featured_courses
+from agents.course_list_agent import RESULT_COUNT, course_list_graph, run_featured_courses
 from agents.course_detail_agent import run_detail_agent
 from services.course_thumbnail import attach_thumbnails
 from services.db import get_db_connection
@@ -32,7 +32,7 @@ def list_courses(request: Request, body: CourseListRequest):
     if state.get("error"):
         raise HTTPException(status_code=500, detail=state["error"])
 
-    courses = state.get("result_courses", [])[:3]
+    courses = state.get("result_courses", [])[:RESULT_COUNT]
     if not courses:
         raise HTTPException(status_code=404, detail="조건에 맞는 코스를 찾지 못했습니다.")
 
