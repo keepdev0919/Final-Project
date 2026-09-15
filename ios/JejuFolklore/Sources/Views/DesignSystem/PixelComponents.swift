@@ -6,28 +6,31 @@ import SwiftUI
 ///
 /// **테두리는 2px로 얇고 그림자는 4~8px로 크다.** 그 대비가 "종이가 떠 있는" 인상을 만든다.
 /// 둘 다 4px로 두면 뭉툭해진다(2026-08-20에 실제로 겪음).
+/// 그림자는 **카드든 버튼이든 오른쪽 아래 대각선**으로 던진다 (2026-09-10 조익준님 결정).
+///
+/// 전에는 버튼만 아래로 던졌다(「눌리는 물건이라 옆으로 밀리면 안 된다」). 그런데
+/// 같은 화면에 카드와 버튼이 나란히 있으면 그림자 방향이 둘로 갈려 어수선해 보였다.
+/// 누르면 그림자 속으로 가라앉는 것은 그대로다 — 방향만 카드와 같아졌다.
 struct PixelShadow: ViewModifier {
     var offset: CGFloat = PixelSpacing.shadowCard
-    /// 버튼은 아래로만 그림자를 던진다 — 눌리는 물건이라 옆으로 밀리면 안 된다.
-    var downOnly: Bool = false
     var isPressed: Bool = false
 
     func body(content: Content) -> some View {
         content
             .background(alignment: .topLeading) {
                 if !isPressed {
-                    PixelColor.ink.offset(x: downOnly ? 0 : offset, y: offset)
+                    PixelColor.ink.offset(x: offset, y: offset)
                 }
             }
-            .offset(x: isPressed && !downOnly ? offset : 0,
+            .offset(x: isPressed ? offset : 0,
                     y: isPressed ? offset : 0)
     }
 }
 
 extension View {
     func pixelShadow(_ offset: CGFloat = PixelSpacing.shadowCard,
-                     downOnly: Bool = false, isPressed: Bool = false) -> some View {
-        modifier(PixelShadow(offset: offset, downOnly: downOnly, isPressed: isPressed))
+                     isPressed: Bool = false) -> some View {
+        modifier(PixelShadow(offset: offset, isPressed: isPressed))
     }
 
     /// 반경 0 테두리. 기본 2px.
@@ -121,12 +124,26 @@ struct PixelBob: ViewModifier {
     func body(content: Content) -> some View {
         content
             .offset(y: up ? -distance : distance)
+            // ⚠️ `withAnimation { up = true }` 를 쓰지 말 것.
+            //
+            // `withAnimation` 은 **그 순간 화면에서 바뀌는 것 전부**에 애니메이션을
+            // 건다. 그런데 이 스위치를 켜는 시점이 하필 「이 뷰가 나타날 때」라,
+            // 같이 나타나던 것들이 죄다 이 애니메이션을 물려받았다 — 그것도
+            // **영원히 반복하는** 애니메이션을. 실제로 코스 로딩 화면에서
+            // 곱딱이 옆 글자와 떠 있는 뒤로가기 버튼까지 같이 둥둥 떴고,
+            // 다음 화면으로 넘어간 뒤에도 버튼이 계속 흔들렸다
+            // (2026-09-10 조익준님 지적).
+            //
+            // `.animation(_:value:)` 는 **이 뷰의 이 값**에만 걸려서 새어 나가지 않는다.
+            .animation(
+                .easeInOut(duration: period / 2)
+                    .repeatForever(autoreverses: true)
+                    .delay(delay),
+                value: up)
             .onAppear {
-                withAnimation(
-                    .easeInOut(duration: period / 2)
-                        .repeatForever(autoreverses: true)
-                        .delay(delay)
-                ) { up = true }
+                // 나타나는 그 프레임이 아니라 **다음 프레임**에 켠다. 나타남과
+                // 같은 순간에 바꾸면 SwiftUI 가 둘을 한 변화로 묶어 버린다.
+                DispatchQueue.main.async { up = true }
             }
     }
 }
@@ -144,12 +161,16 @@ extension View {
 struct PixelButton: View {
     enum Style {
         case primary, accent, plain
+        /// 화면의 문맥색을 입는 버튼 — 코스 상세의 「담기」가 그 코스의 권역색을 쓴다
+        /// (2026-09-10 조익준님 결정). 「전체」 코스는 권역 칩과 같이 잉크가 된다.
+        case tinted(fill: Color, label: Color)
 
         var fill: Color {
             switch self {
             case .primary: return PixelColor.primary
             case .accent:  return PixelColor.accent
             case .plain:   return PixelColor.surface
+            case .tinted(let fill, _): return fill
             }
         }
         var label: Color {
@@ -157,6 +178,7 @@ struct PixelButton: View {
             case .primary: return PixelColor.onPrimary
             case .accent:  return PixelColor.onAccent
             case .plain:   return PixelColor.ink
+            case .tinted(_, let label): return label
             }
         }
     }
@@ -182,7 +204,7 @@ struct PixelButton: View {
             .frame(height: PixelSpacing.buttonHeight)
             .background(style.fill)
             .pixelBorder()
-            .pixelShadow(PixelSpacing.shadowButton, downOnly: true, isPressed: isPressed)
+            .pixelShadow(PixelSpacing.shadowButton, isPressed: isPressed)
         }
         .buttonStyle(.plain)
         .simultaneousGesture(
@@ -212,8 +234,7 @@ struct PixelButtonStyle: ButtonStyle {
             .padding(.vertical, PixelSpacing.m)
             .background(kind.fill)
             .pixelBorder()
-            .pixelShadow(PixelSpacing.shadowButton,
-                         downOnly: true, isPressed: configuration.isPressed)
+            .pixelShadow(PixelSpacing.shadowButton, isPressed: configuration.isPressed)
     }
 }
 
@@ -470,10 +491,7 @@ extension View {
 
 // MARK: - 눌리는 상자 (레이블을 직접 그린 버튼·NavigationLink 에)
 
-/// **카드가 아니라 버튼임을 형태로 말한다.**
-///
-///     카드   그림자를 대각선(오른쪽 아래)으로 던진다
-///     버튼   그림자를 아래로만 던지고, 누르면 그림자 속으로 가라앉는다
+/// **누르면 그림자 속으로 가라앉는다** — 카드와 같은 대각선 그림자에 눌림만 더한다.
 ///
 /// `PixelButtonStyle` 과 달리 글자·색·여백을 건드리지 않는다 — 레이블을 이미
 /// 다 그려 놓은 자리(예: PLAY 상세의 「장소 정보」 상자)에 씌우는 용도다.
@@ -482,7 +500,7 @@ struct PixelPressStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .pixelShadow(offset, downOnly: true, isPressed: configuration.isPressed)
+            .pixelShadow(offset, isPressed: configuration.isPressed)
     }
 }
 

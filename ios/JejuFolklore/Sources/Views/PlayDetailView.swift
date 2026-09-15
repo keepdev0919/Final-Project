@@ -415,8 +415,7 @@ private struct StartCTAStyle: ButtonStyle {
             .padding(.vertical, PixelSpacing.m)                  // py-3
             .background(PixelColor.primary)
             .pixelBorder(width: PixelSpacing.borderHeavy)        // border-4
-            .pixelShadow(PixelSpacing.shadowButton,
-                         downOnly: true, isPressed: configuration.isPressed)
+            .pixelShadow(PixelSpacing.shadowButton, isPressed: configuration.isPressed)
     }
 }
 

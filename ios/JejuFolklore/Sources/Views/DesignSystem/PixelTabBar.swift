@@ -30,11 +30,13 @@ struct PixelTabBar: View {
                             .font(PixelFont.labelSmall)
                             .foregroundStyle(on ? PixelColor.onPrimary : PixelColor.inkWeak)
                     }
-                    .padding(.horizontal, PixelSpacing.m)
                     .padding(.vertical, PixelSpacing.s)
+                    // ⚠️ 폭을 **칠하기 전에** 벌린다. 순서가 뒤집히면 선택 탭의 초록 상자가
+                    // 글자 길이만큼만 커져서 「퀘스트」와 「코스」의 상자 너비가 달라진다
+                    // (늘어나는 건 터치 영역뿐이었다).
+                    .frame(maxWidth: .infinity)
                     .background(on ? PixelColor.primary : Color.clear)
                     .modifier(SelectedTabChrome(on: on))
-                    .frame(maxWidth: .infinity)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
