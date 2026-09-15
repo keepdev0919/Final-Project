@@ -780,6 +780,9 @@ final class RunnerViewModel: ObservableObject {
     private var flat: [(point: PlayPoint, mission: Mission)]
     /// 이미 안내를 마친 Point. 같은 Point 의 두 번째 미션에서 또 도착 화면을 띄우지 않는다.
     private var introducedPointIds: Set<String> = []
+    /// 지금 이야기가 FINAL 뒤 이야기(`final.story`)인가. 그 이야기 다음은 CLEAR 다 —
+    /// `advance()` 로 보내면 마지막 미션 다음 자리라 FINAL 을 다시 띄운다.
+    private var storyIsFinal = false
 
     /// **저장된 진행이 있으면 이어받는다** (2026-09-07 되살림, `PlayProgress` 주석 참조).
     ///
@@ -943,7 +946,16 @@ final class RunnerViewModel: ObservableObject {
         if pendingStory != nil { phase = .story } else { advance() }
     }
 
-    func afterStory() { advance() }
+    func afterStory() {
+        // FINAL 뒤 이야기는 끝나면 CLEAR 로 간다 (지금 성읍 원고엔 없어서 안 드러났다).
+        if storyIsFinal {
+            storyIsFinal = false
+            pendingStory = nil
+            finish()
+            return
+        }
+        advance()
+    }
 
     /// 다음 미션으로. 같은 Point 면 바로 미션, 다른 Point 면 도착 안내부터.
     private func advance() {
@@ -982,6 +994,7 @@ final class RunnerViewModel: ObservableObject {
         wrongMessage = nil
         if let story = final.story {
             pendingStory = story
+            storyIsFinal = true
             phase = .story
             return
         }
@@ -996,6 +1009,7 @@ final class RunnerViewModel: ObservableObject {
         wrongMessage = nil
         if let story = play.final?.story {
             pendingStory = story
+            storyIsFinal = true
             phase = .story
             return
         }
