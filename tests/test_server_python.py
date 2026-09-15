@@ -13,6 +13,15 @@ from services.ids import uuid7
 BACKEND = Path(__file__).resolve().parent.parent / "backend"
 
 
+def test_ci_tests_with_the_same_python_as_the_server():
+    """GitHub 자동 테스트가 서버와 다른 파이썬으로 돌면 오늘 같은 버그를 또 못 잡는다."""
+    root = BACKEND.parent
+    server = re.search(r"^FROM python:(\d+\.\d+)", (root / "Dockerfile").read_text(encoding="utf-8"), re.M)
+    ci = re.search(r'python-version:\s*"(\d+\.\d+)"',
+                   (root / ".github" / "workflows" / "server-tests.yml").read_text(encoding="utf-8"))
+    assert server and ci and server.group(1) == ci.group(1)
+
+
 def test_uuid7_is_a_real_time_ordered_uuid7():
     a, b = uuid7(), uuid7()
     assert uuid.UUID(a).version == 7
