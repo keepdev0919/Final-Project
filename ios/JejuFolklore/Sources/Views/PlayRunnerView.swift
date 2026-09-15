@@ -24,9 +24,13 @@ struct PlayRunnerView: View {
 
     @State private var showQuit = false
     @State private var showReport = false
-    @State private var showProgressMap = false
+    // 진행 지도 시트는 2026-09-11 에 HUD 에서 내려갔다 (그 자리가 소리 스위치가 됨).
+    // `ProgressMapSheet` 자체는 남겨 두었다 — 다른 자리에 다시 붙일 수 있다.
     /// 곱딱이가 말을 다 했는지. 미션 칸을 언제 띄울지 이걸로 정한다.
     @State private var speechDone = false
+    /// 소리를 기다리다 너무 오래 걸리면 글자를 먼저 내보낸다 (2.5초).
+    @State private var speechGateTimedOut = false
+    @State private var gateTimer: Task<Void, Never>?
 
     init(play: Play) {
         self.play = play
@@ -74,10 +78,6 @@ struct PlayRunnerView: View {
                 missionTitle: vm.currentMission?.title ?? play.final?.title ?? ""
             ) { showReport = false }
         }
-        .sheet(isPresented: $showProgressMap) {
-            ProgressMapSheet(play: play, clearedPointIds: vm.clearedPointIds,
-                             isFinished: vm.phase == .clear)
-        }
         .onAppear {
             location.requestCurrentLocationOnce()
             // 지난번에 못 보낸 신고가 있으면 지금 보낸다.
@@ -88,7 +88,7 @@ struct PlayRunnerView: View {
 
     // MARK: - 상단 HUD
 
-    /// 배경 위에 떠 있는 세 칸 — 나가기 · 진행도 · 진행 지도.
+    /// 배경 위에 떠 있는 세 칸 — 나가기 · 진행도 · 소리 스위치.
     ///
     /// **진행 지도가 여기 있다** (2026-09-03 조익준님 결정, 2026-09-07 외부
     /// 길찾기에서 자체 지도로 교체). 전에는 이 자리가 외부 지도 앱 길찾기였다 —
@@ -110,7 +110,15 @@ struct PlayRunnerView: View {
                 total: play.progressRecords.count,
                 done: vm.progress.discoveredRecordIds.count)
             Spacer(minLength: 0)
-            PixelHudButton(glyph: .map, label: "진행 지도") { showProgressMap = true }
+            // 오른쪽 칸은 **소리 스위치** (2026-09-11 조익준님 결정). 곱딱이 대사가
+            // 단계마다 자동으로 읽히고, 원치 않으면 여기서 끈다. 전에는 진행 지도가
+            // 이 자리였고 소리 버튼은 말풍선 안에 있었는데, 미션 하나를 풀어야 처음
+            // 만나는 버튼이라 있는 줄 모르기 쉬웠다.
+            PixelHudButton(glyph: audio.isMuted ? .soundOff : .sound,
+                           label: audio.isMuted ? "소리 켜기" : "소리 끄기") {
+                audio.setMuted(!audio.isMuted)
+                if !audio.isMuted { speakCurrentLine() }
+            }
         }
         .padding(.horizontal, PixelSpacing.xl)
         .padding(.top, PixelSpacing.s)
@@ -142,7 +150,12 @@ struct PlayRunnerView: View {
         }
         // 말이 바뀌면 다시 기다린다. 대장간집 미션은 Step 이 둘이라 두 번째
         // 질문도 곱딱이가 말하고 나서 보기가 뜬다.
-        .onChange(of: speechKey) { speechDone = false }
+        .onChange(of: speechKey) {
+            speechDone = false
+            speakCurrentLine()
+        }
+        .onAppear { speakCurrentLine() }
+        .onDisappear { gateTimer?.cancel() }
         .padding(.horizontal, PixelSpacing.l)
         .padding(.top, PixelSpacing.xl)
         .padding(.bottom, PixelSpacing.xl)
@@ -225,10 +238,10 @@ struct PlayRunnerView: View {
         .pixelShadow(PixelSpacing.shadowCard)
     }
 
-    /// 곱딱이가 말하는 줄 — 초상화 · 이름 · (소리) · 한 글자씩 나타나는 글.
+    /// 곱딱이가 말하는 줄 — 초상화 · 이름 · 한 글자씩 나타나는 글.
     ///
-    /// `story` 를 주면 이름 옆에 소리 버튼이 붙는다. 소리가 없는 단계에서는
-    /// 안 그린다.
+    /// 소리는 여기 없다 — 단계가 바뀌면 자동으로 읽히고 상단 HUD 에서 끈다
+    /// (2026-09-11). `story` 는 출처 표기를 위해서만 받는다.
     ///
     /// **출처 표시는 대화상자 안, 우측 하단에 작게 붙인다** (2026-09-07 결정).
     /// 한국관광공사 OpenAPI(공공누리)는 가공해서 쓰더라도 출처표시가 공통
@@ -242,15 +255,11 @@ struct PlayRunnerView: View {
         HStack(alignment: .top, spacing: PixelSpacing.l) {
             PixelPortrait()
             VStack(alignment: .leading, spacing: PixelSpacing.s) {
-                HStack(spacing: PixelSpacing.s) {
-                    Text(Self.speaker)
-                        .font(PixelFont.label)
-                        .foregroundStyle(PixelColor.primary)
-                        .tracking(2)
-                    Spacer(minLength: 0)
-                    if let story { soundButton(story) }
-                }
-                PixelTypewriter(text: text, isFinished: $speechDone)
+                Text(Self.speaker)
+                    .font(PixelFont.label)
+                    .foregroundStyle(PixelColor.primary)
+                    .tracking(2)
+                PixelTypewriter(text: text, isFinished: $speechDone, isReady: speechReady)
                 if let story, let ref = ktoSourceLabel(story) {
                     Text(ref)
                         .font(PixelFont.labelSmall)
@@ -268,16 +277,78 @@ struct PlayRunnerView: View {
         return sourceLabel(s)
     }
 
-    private func soundButton(_ story: PlayStory) -> some View {
-        let active = audio.isActive(story.id)
-        return PixelSoundButton(
-            isPlaying: active,
-            isLoading: audio.currentStoryId == story.id && audio.state == .loading,
-            label: audioLabel(story)
-        ) {
-            if active { audio.stop() }
-            else { audio.play(playId: play.id, storyId: story.id) }
+    /// 지금 화면의 곱딱이 대사를 가리키는 열쇠. 서버 `resolve_line` 과 같은 형식이다 —
+    /// 문장을 보내지 않고 열쇠만 보낸다.
+    private var currentLine: String? {
+        switch vm.phase {
+        case .pointIntro:
+            return vm.currentPoint.map { "point:\($0.id)" }
+        case .mission:
+            return vm.currentMission.map { "mission:\($0.id):\(vm.stepIndex)" }
+        case .stepFeedback:
+            guard vm.pendingSuccess != nil, let m = vm.currentMission else { return nil }
+            return "feedback:\(m.id):\(vm.stepIndex)"
+        case .discovery:
+            guard vm.pendingDiscovery != nil, let m = vm.currentMission else { return nil }
+            return "discovery:\(m.id)"
+        case .story:
+            return vm.pendingStory.map { "story:\($0.id)" }
+        case .finalStage:
+            return play.final == nil ? nil : "final"
+        case .clear:
+            return (play.clear?.body.isEmpty == false) ? "clear" : nil
         }
+    }
+
+    /// 지금 대사를 읽고, 그 다음 두 줄을 미리 받아 둔다. 음소거면 `audio` 가 재생만 건너뛴다.
+    private func speakCurrentLine() {
+        speechGateTimedOut = false
+        gateTimer?.cancel()
+        gateTimer = Task { [self] in
+            try? await Task.sleep(for: .milliseconds(2500))
+            if !Task.isCancelled { speechGateTimedOut = true }
+        }
+        guard let line = currentLine else { return }
+        audio.play(playId: play.id, line: line)
+        let order = speechOrder
+        if let i = order.firstIndex(of: line) {
+            for next in order.dropFirst(i + 1).prefix(2) {
+                audio.prefetch(playId: play.id, line: next)
+            }
+        }
+    }
+
+    /// **글자는 소리와 함께 출발한다** (2026-09-11 조익준님 지적). 소리가 준비되면,
+    /// 소리가 꺼져 있으면, 소리를 못 불러오면, 2.5초가 지나면 글자를 내보낸다.
+    private var speechReady: Bool {
+        guard let line = currentLine else { return true }
+        if audio.isMuted || speechGateTimedOut { return true }
+        guard audio.currentLine == line else { return false }
+        return audio.state == .playing || audio.state == .failed
+    }
+
+    /// 곱딱이 대사가 나올 순서. 미리 받아 둘 때 쓴다. 서버 `resolve_line` 열쇠 형식.
+    private var speechOrder: [String] {
+        var order: [String] = []
+        for point in play.points {
+            order.append("point:\(point.id)")
+            for mission in point.missions {
+                for (i, step) in mission.steps.enumerated() {
+                    order.append("mission:\(mission.id):\(i)")
+                    if !step.successFeedback.isEmpty { order.append("feedback:\(mission.id):\(i)") }
+                }
+                if let d = mission.discovery, !d.body.isEmpty { order.append("discovery:\(mission.id)") }
+                if let story = play.stories.first(where: { $0.unlockAfterMission == mission.id }) {
+                    order.append("story:\(story.id)")
+                }
+            }
+        }
+        if let final = play.final {
+            order.append("final")
+            if let story = final.story { order.append("story:\(story.id)") }
+        }
+        if play.clear?.body.isEmpty == false { order.append("clear") }
+        return order
     }
 
     // MARK: - 「가는 중」 정보판
@@ -487,9 +558,7 @@ struct PlayRunnerView: View {
 
     /// 발견 뒤에 오는 의미. **놀멍봅서가 직접 쓴 문장이다** — 오디 대본이 아니다.
     ///
-    /// 소리는 곱딱이 이름 옆 스피커 버튼이 맡는다. 예전에는 초록 막대 버튼이
-    /// 따로 있었는데, 상단에도 소리 표시를 두려니 켜는 곳이 두 개가 됐다 —
-    /// **소리는 한 곳으로 몰았다** (2026-09-03 조익준님 지적).
+    /// 소리는 상단 HUD 스피커 하나가 맡는다 — 단계가 바뀌면 자동 재생 (2026-09-11).
     ///
     /// **참고 자료 목록은 여기서 뺐다** (2026-09-07 결정). 국가유산·학술자료
     /// 출처는 콘텐츠 검증용으로 `콘텐츠/성읍민속마을.md` 에만 남기고 화면에는
@@ -504,16 +573,6 @@ struct PlayRunnerView: View {
                     .font(PixelFont.sectionTitle)
                     .foregroundStyle(PixelColor.ink)
             }
-        }
-    }
-
-    private func audioLabel(_ story: PlayStory) -> String {
-        guard audio.currentStoryId == story.id else { return "이야기 듣기" }
-        switch audio.state {
-        case .loading: return "소리를 준비하고 있어요"
-        case .playing: return "이야기 멈추기"
-        case .failed:  return "소리를 못 불러왔어요 (글로 읽으세요)"
-        case .idle:    return "이야기 듣기"
         }
     }
 
@@ -622,6 +681,14 @@ struct PlayRunnerView: View {
                 sceneButton(vm.hintLevel == 0 ? "힌트 보기" : "힌트 하나 더",
                             filled: false) { vm.showNextFinalHint() }
             }
+            #if DEBUG
+            // 개발 중 확인용. 6개짜리 순서 세우기는 720가지라 앞뒤 화면을 볼 때마다
+            // 다시 맞히기가 번거롭다 (2026-09-10 조익준님 요청).
+            //
+            // ⚠️ `#if DEBUG` 를 벗기지 말 것. 배포 빌드에 나가면 「현실을 보고
+            // 발견한다」는 이 앱의 전부가 버튼 한 번으로 사라진다.
+            sceneButton("🐞 바로 통과", filled: false) { vm.debugPassFinal() }
+            #endif
         case .clear:
             sceneButton("PLAY 종료", filled: true) { dismiss() }
         }
@@ -905,6 +972,21 @@ final class RunnerViewModel: ObservableObject {
         }
         finish()
     }
+
+    #if DEBUG
+    /// 개발 중 확인용 — 순서를 맞힌 것으로 치고 그대로 진행한다.
+    /// 정답 경로와 **같은 길**을 탄다(이야기가 있으면 이야기부터). 그래야
+    /// 이 버튼으로 넘어간 뒤에 보는 화면이 실제와 같다.
+    func debugPassFinal() {
+        wrongMessage = nil
+        if let story = play.final?.story {
+            pendingStory = story
+            phase = .story
+            return
+        }
+        finish()
+    }
+    #endif
 
     private func finish() {
         progress.finalCleared = true

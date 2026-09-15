@@ -216,6 +216,10 @@ struct PixelTypewriter: View {
     /// 글이 다 나왔는지 바깥에 알려준다. 화면이 이걸 보고 **다음 것을 띄운다** —
     /// 미션 칸이 말하는 도중에 떠 있으면 눈이 두 곳으로 갈린다 (2026-09-04).
     var isFinished: Binding<Bool>? = nil
+    /// 거짓이면 글자를 내보내지 않고 기다린다. 곱딱이 **목소리가 시작될 때** 글자도
+    /// 시작하게 하려는 것이다 (2026-09-11 조익준님 지적: 음성이 글자보다 늦게 나왔다).
+    /// 한 줄 안에서는 거짓 → 참으로만 바뀐다.
+    var isReady: Bool = true
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var shown = 0
@@ -238,7 +242,10 @@ struct PixelTypewriter: View {
             }
             .contentShape(Rectangle())
             .onTapGesture { finish() }
-            .task(id: text) { await type() }
+            .task(id: "\(isReady)|\(text)") {
+                guard isReady else { shown = 0; isFinished?.wrappedValue = false; return }
+                await type()
+            }
             .accessibilityLabel(text)
     }
 

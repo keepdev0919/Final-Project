@@ -37,21 +37,31 @@ logger = logging.getLogger(__name__)
 
 API_URL = "https://api.typecast.ai/v1/text-to-speech"
 
-# 곱닥이 목소리 — Jinseo (female/young_adult). 2026-08-20 조익준님 선택.
+# 곱닥이 목소리 — Toby. 2026-09-11 조익준님 선택.
 #
-# 590명 중 용도 태그로 좁혀 고른 것이다: 오디오북/스토리텔링 + 다큐멘터리가
-# 둘 다 붙어 있고 whisper 감정을 지원한다(절·유적지에서 톤을 낮출 수 있다).
-# 3분짜리 해설을 계속 듣는 게 이 앱의 기본 동작이라 해설 계열 목소리를 골랐다.
+# 곱딱이가 말하는 모든 대사(길안내·미션 질문·발견·이야기)를 자동으로 읽게 되면서
+# 목소리를 다시 골랐다. Moru·Toby 두 후보와 이전 목소리 Jinseo 를 성읍 실제 대사
+# 네 줄로 비교해 Toby 로 정했다. ssfm-v30 에서 감정 7종(whisper 포함)을 지원한다.
+#
+# 이전: Jinseo (tc_65bb3a1976b69213594357fc, 2026-08-20 선택). 그 목소리로 만든
+# 캐시 파일은 storage/tts_cache 에 그대로 남아 있다 — 캐시 키에 목소리 id 가
+# 들어가 있어 새 목소리와 섞이지 않는다.
 #
 # 바꾸려면 tests/test_tts.py도 함께 고친다. 목소리가 조용히 바뀌면
 # 앱 전체의 인격이 바뀌는데 화면은 멀쩡해서 아무도 모른다.
-VOICE_ID = "tc_65bb3a1976b69213594357fc"
+VOICE_ID = "tc_6080369d3211aa112ab131db"
 MODEL = "ssfm-v30"
 
 # 한 번에 보낼 수 있는 글자 수. Typecast 제한.
 MAX_CHARS = 2000
 
 CACHE_DIR = Path(__file__).parent.parent.parent / "storage" / "tts_cache"
+
+# 배포 이미지에 함께 싣는 **미리 만든 음성** (2026-09-11). 운영 서버의 CACHE_DIR 은
+# Railway 볼륨이라 처음엔 비어 있고, 그 첫 합성에 Typecast 크레딧이 든다. 개발 기기에서
+# 이미 만든 파일을 여기 두면 크레딧 없이 바로 나간다 — 첫 배포 날 크레딧이 바닥나
+# 운영 서버가 「CREDIT_INSUFFICIENT」로 음성을 못 만든 일이 있었다.
+SEED_DIR = Path(__file__).parent.parent.parent / "storage" / "tts_seed"
 
 
 class TtsError(RuntimeError):
@@ -114,6 +124,9 @@ def synth(text: str, *, emotion: str = "normal", intensity: float = 1.0,
     path = _path_for(key)
     if path.exists():
         return path.read_bytes(), True
+    seed = SEED_DIR / f"{key}.mp3"
+    if seed.exists():
+        return seed.read_bytes(), True
 
     body = {
         "text": text,

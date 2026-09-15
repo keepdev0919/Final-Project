@@ -23,18 +23,17 @@ from services import typecast
 
 
 def test_voice_is_pinned():
-    """곱닥이 목소리를 고정한다 — Jinseo (2026-08-20 조익준님 선택).
+    """곱닥이 목소리를 고정한다 — Toby (2026-09-11 조익준님 선택).
 
-    590명 중 용도 태그로 좁혀 고른 것이다: 오디오북/스토리텔링 + 다큐멘터리가
-    둘 다 붙고 whisper를 지원한다. 3분 해설을 계속 듣는 게 기본 동작이라
-    해설 계열을 골랐다.
+    곱딱이의 모든 대사를 자동으로 읽게 되면서 다시 골랐다. Moru·Toby 와 이전
+    목소리 Jinseo 를 성읍 실제 대사 네 줄(길안내·미션·발견·이야기)로 비교했다.
+
+    이전: Jinseo `tc_65bb3a1976b69213594357fc` (2026-08-20, 후보 11명 5초 샘플 비교).
 
     목소리가 **모르는 사이에 바뀌면 앱 전체의 인격이 바뀌는데 화면은 멀쩡하다.**
     바꿀 때는 이 테스트를 같이 고치면서 누가 왜 정했는지를 남긴다.
-
-    후보 11명을 5초 샘플로 비교해 골랐다 (샘플 파일은 선정 후 삭제).
     """
-    assert typecast.VOICE_ID == "tc_65bb3a1976b69213594357fc"
+    assert typecast.VOICE_ID == "tc_6080369d3211aa112ab131db"
     assert typecast.MODEL == "ssfm-v30"
 
 
@@ -95,3 +94,72 @@ def test_overlong_script_raises_instead_of_truncating():
 def test_empty_script_raises():
     with pytest.raises(typecast.TtsError):
         typecast.synth("   ")
+
+
+def test_line_resolver_speaks_exactly_what_the_screen_shows():
+    """곱딱이가 말하는 모든 말을 음성으로 읽는다 (2026-09-11 조익준님 결정).
+
+    음성은 화면 자막과 같은 문장이어야 한다. iOS 는 첫 Step 에서 미션 prompt 와
+    Step prompt 를 빈 줄로 이어 보여주므로 서버도 같은 규칙으로 문장을 만든다.
+    클라이언트가 보낸 문장은 절대 읽지 않으므로 열쇠로만 문장을 찾는다.
+    """
+    from routers.tts import resolve_line
+    from models.play import Play
+
+    play = Play.model_validate({
+        "id": "p", "place_key": "k", "title": "t",
+        "estimated_minutes_min": 10, "estimated_minutes_max": 20,
+        "distance_meters": 100, "difficulty": "쉬움",
+        "points": [{
+            "id": "pt1", "title": "대장간집", "objective": "경계의 흔적",
+            "navigation_text": "주차장에서 마을 안쪽으로",
+            "missions": [{
+                "id": "m1", "title": "정낭", "prompt": "대문 자리를 봐.",
+                "steps": [
+                    {"input_type": "NUMBER", "prompt": "막대가 몇 개야?", "answer": 3,
+                     "success_feedback": "맞아, 세 개!"},
+                    {"input_type": "CONFIRM", "prompt": "걸린 개수를 확인해 봐.", "answer": True},
+                ],
+                "discovery": {"title": "정낭", "body": "정낭은 집주인의 부재를 알리는 신호였어."},
+            }],
+        }],
+        "stories": [{"id": "s1", "script": "정낭 이야기", "unlock_after_mission": "m1"}],
+        "final": {"title": "복원", "prompt": "순서대로 이어봐.",
+                  "step": {"input_type": "CONFIRM", "prompt": "", "answer": True}},
+        "clear": {"title": "완료", "body": "집이 그냥 건물이 아니란 걸 알게 됐지?"},
+    })
+
+    assert resolve_line(play, "point:pt1") == "주차장에서 마을 안쪽으로"
+    assert resolve_line(play, "mission:m1:0") == "대문 자리를 봐.\n\n막대가 몇 개야?"
+    assert resolve_line(play, "mission:m1:1") == "걸린 개수를 확인해 봐."
+    assert resolve_line(play, "feedback:m1:0") == "맞아, 세 개!"
+    assert resolve_line(play, "discovery:m1") == "정낭은 집주인의 부재를 알리는 신호였어."
+    assert resolve_line(play, "story:s1") == "정낭 이야기"
+    assert resolve_line(play, "final") == "순서대로 이어봐."
+    assert resolve_line(play, "clear") == "집이 그냥 건물이 아니란 걸 알게 됐지?"
+
+    import pytest as _pytest
+    for bad in ("mission:m1:9", "story:none", "feedback:m1:1", "tell:me:anything", "point:x"):
+        with _pytest.raises(ValueError):
+            resolve_line(play, bad)
+
+
+def test_seed_audio_is_served_without_calling_typecast(tmp_path, monkeypatch):
+    """배포 이미지에 실은 미리 만든 음성은 Typecast 를 부르지 않고 나간다.
+
+    운영 서버 첫 배포 날 Typecast 크레딧이 바닥나 음성이 전부 502 가 났다
+    (2026-09-11). 개발 기기에서 만든 파일을 SEED_DIR 로 실어 보내 해결했다 —
+    이 길이 막히면 크레딧이 없는 날 앱이 조용히 소리를 잃는다.
+    """
+    monkeypatch.setattr(typecast, "CACHE_DIR", tmp_path / "cache")
+    monkeypatch.setattr(typecast, "SEED_DIR", tmp_path / "seed")
+    (tmp_path / "seed").mkdir()
+    key = typecast.cache_key("곱딱이 인사", emotion="normal", lang="kor")
+    (tmp_path / "seed" / f"{key}.mp3").write_bytes(b"ID3seed")
+
+    def boom(*a, **k):
+        raise AssertionError("Typecast 를 부르면 안 된다")
+    monkeypatch.setattr(typecast.requests, "post", boom)
+
+    audio, from_cache = typecast.synth("곱딱이 인사")
+    assert audio == b"ID3seed" and from_cache is True

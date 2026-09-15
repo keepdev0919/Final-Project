@@ -26,6 +26,9 @@ COPY backend/ /app/backend/
 #    이 COPY 가 실패한다. 배포하려면 추적 대상으로 바꿔 커밋해야 한다.
 COPY data/ /app/data/
 COPY storage/metadata.db /app/storage/metadata.db
+# 미리 만든 곱딱이 음성. storage/tts_cache 는 Railway 볼륨 자리라 이미지에 넣어도
+# 가려진다 — 그래서 옆 폴더에 둔다 (services/typecast.py SEED_DIR 참조).
+COPY storage/tts_seed/ /app/storage/tts_seed/
 
 # 경로 규칙: services/*.py 가 BASE_DIR = parent.parent.parent 로 /app 을 가리킨다.
 # 따라서 /app/data, /app/storage 위치가 그대로 맞다.

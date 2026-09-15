@@ -19,10 +19,7 @@
 **우리 Typecast 크레딧으로 아무 문장이나 읽게 되고**, 목소리 통제도 클라이언트로
 넘어간다. 읽을 수 있는 것은 우리 원고에 있는 문장뿐이다.
 
-## `/tts/odii` 는 남겨 둔 옛 경로다
-
-오디 대본 자동재생 구조를 폐기하면서(2026-09-02) 앱에서 부르는 곳이 없어졌다.
-`scripts/warm_tts_cache.py` 만 쓴다. 정리는 별도 작업.
+오디(Odii) 대본을 읽던 `/tts/odii` 는 2026-09-11 에 걷어냈다 — 앱에서 부르는 곳이 없었다.
 """
 from __future__ import annotations
 
@@ -45,48 +42,86 @@ logger = logging.getLogger(__name__)
 ALLOWED_EMOTIONS = {"normal", "happy", "sad", "angry", "whisper", "toneup", "tonedown"}
 
 
-@router.get("/story")
-@limiter.limit("60/minute")
-def tts_for_story(request: Request, play_id: str, story_id: str,
-                  emotion: str = "normal") -> Response:
-    """PLAY 원고의 Story 하나를 음성으로 돌려준다.
+def resolve_line(play, line: str) -> str:
+    """대사 열쇠 → 곱딱이가 읽을 문장. **화면 자막과 같은 문장**이어야 한다.
 
-    ⚠️ 읽을 문장을 **클라이언트가 보내지 않는다.** id 두 개만 받는다.
+    iOS `PlayRunnerView.speechSection` 이 단계마다 보여주는 말을 그대로 재현한다
+    (2026-09-11 조익준님 결정: 곱딱이가 말하는 모든 말을 음성으로).
+    열쇠 형식:
+
+        point:<point_id>              안내 — navigation_text, 없으면 objective
+        mission:<mission_id>:<step>   미션 — 첫 Step 은 mission.prompt + 빈 줄 + step.prompt
+        feedback:<mission_id>:<step>  정답 뒤 한마디 — step.success_feedback
+        discovery:<mission_id>        발견 — mission.discovery.body
+        story:<story_id>              이야기 — story.script (FINAL 뒤 이야기 포함)
+        final                         마지막 과제 — final.prompt
+        clear                         완주 — clear.body
+
+    모르는 열쇠·빈 문장은 ValueError. 클라이언트가 보낸 문장은 절대 읽지 않는다.
     """
-    if emotion not in ALLOWED_EMOTIONS:
-        raise HTTPException(status_code=400, detail=f"모르는 감정: {emotion}")
+    parts = line.split(":")
+    kind = parts[0]
 
-    from services import place_registry as registry
-    from services import play_loader
+    def mission_of(mid: str):
+        for pt in play.points:
+            for m in pt.missions:
+                if m.id == mid:
+                    return m
+        raise ValueError("그런 미션이 없습니다")
 
-    conn = get_db_connection()
-    registry.ensure_synced(conn)
+    def step_of(m, idx_s: str):
+        try:
+            idx = int(idx_s)
+        except ValueError:
+            raise ValueError("Step 번호가 아닙니다")
+        if not (0 <= idx < len(m.steps)):
+            raise ValueError("그런 Step 이 없습니다")
+        return idx, m.steps[idx]
 
-    play = play_loader.get(conn, play_id)
-    if play is None:
-        raise HTTPException(status_code=404, detail="그런 PLAY 가 없습니다")
+    if kind == "point" and len(parts) == 2:
+        pt = next((x for x in play.points if x.id == parts[1]), None)
+        if pt is None:
+            raise ValueError("그런 Point 가 없습니다")
+        text = pt.navigation_text or pt.objective
+    elif kind == "mission" and len(parts) == 3:
+        m = mission_of(parts[1]); idx, step = step_of(m, parts[2])
+        if idx == 0 and m.prompt:
+            text = m.prompt if not step.prompt else m.prompt + "\n\n" + step.prompt
+        else:
+            text = step.prompt or m.prompt
+    elif kind == "feedback" and len(parts) == 3:
+        m = mission_of(parts[1]); _, step = step_of(m, parts[2])
+        text = step.success_feedback
+    elif kind == "discovery" and len(parts) == 2:
+        m = mission_of(parts[1])
+        text = m.discovery.body if m.discovery else ""
+    elif kind == "story" and len(parts) == 2:
+        stories = list(play.stories)
+        if play.final is not None and play.final.story is not None:
+            stories.append(play.final.story)
+        st = next((x for x in stories if x.id == parts[1]), None)
+        if st is None:
+            raise ValueError("그런 이야기가 없습니다")
+        text = st.script
+    elif kind == "final" and len(parts) == 1:
+        text = play.final.prompt if play.final else ""
+    elif kind == "clear" and len(parts) == 1:
+        text = play.clear.body if play.clear else ""
+    else:
+        raise ValueError("모르는 대사 열쇠입니다")
 
-    # FINAL 뒤에 붙는 Story 도 읽을 수 있어야 한다.
-    stories = list(play.stories)
-    if play.final is not None and play.final.story is not None:
-        stories.append(play.final.story)
+    text = (text or "").strip()
+    if not text:
+        raise ValueError("읽을 문장이 없습니다")
+    return text
 
-    story = next((s for s in stories if s.id == story_id), None)
-    if story is None:
-        raise HTTPException(status_code=404, detail="그런 이야기가 없습니다")
 
-    script = (story.script or "").strip()
-    if not script:
-        raise HTTPException(status_code=404, detail="이 이야기에는 읽을 문장이 없습니다")
-
+def _synth_response(conn, text: str, emotion: str) -> Response:
     try:
-        audio, from_cache = typecast.synth(
-            script, emotion=emotion, lang="kor", conn=conn
-        )
+        audio, from_cache = typecast.synth(text, emotion=emotion, lang="kor", conn=conn)
     except typecast.TtsError as e:
         # 조용히 빈 응답을 주지 않는다. 재생이 안 되면 안 되는 이유가 보여야 한다.
         raise HTTPException(status_code=502, detail=str(e))
-
     # ⚠️ HTTP 헤더는 latin-1 만 담는다. 한글을 넣으면 500 이 난다(2026-08-20 실측).
     return Response(
         content=audio,
@@ -98,43 +133,50 @@ def tts_for_story(request: Request, play_id: str, story_id: str,
     )
 
 
-@router.get("/odii")
-@limiter.limit("60/minute")
-def tts_for_odii_place(request: Request, stid: str, lang: str = "ko",
-                       emotion: str = "normal") -> Response:
-    """오디 장소 하나의 대본을 음성으로 돌려준다.
+def _load_play(play_id: str):
+    from services import place_registry as registry
+    from services import play_loader
 
-    ⚠️ 좌표를 받지 않는다. `stid`만 받는다 (설계 v2 §2 — 위치정보법).
+    conn = get_db_connection()
+    registry.ensure_synced(conn)
+    play = play_loader.get(conn, play_id)
+    if play is None:
+        raise HTTPException(status_code=404, detail="그런 PLAY 가 없습니다")
+    return conn, play
+
+
+@router.get("/line")
+@limiter.limit("120/minute")
+def tts_for_line(request: Request, play_id: str, line: str,
+                 emotion: str = "normal") -> Response:
+    """PLAY 원고의 곱딱이 대사 한 줄을 음성으로 돌려준다.
+
+    ⚠️ 읽을 문장을 **클라이언트가 보내지 않는다.** PLAY id 와 대사 열쇠만 받는다
+    (열쇠 형식은 `resolve_line`). 그래야 우리 Typecast 크레딧으로 아무 문장이나
+    읽히는 일이 없다. 단계마다 자동 재생되므로 분당 한도를 이야기보다 넉넉히 둔다.
     """
     if emotion not in ALLOWED_EMOTIONS:
         raise HTTPException(status_code=400, detail=f"모르는 감정: {emotion}")
-
-    # 대본은 오디 라우터를 통해 가져온다. 그래야 KTO 호출 이력이 그쪽에 남고,
-    # 대본 획득 규칙(반경·유일성 판정)이 한 곳에만 있게 된다.
-    from routers.odii import fetch_story
-
-    story = fetch_story(stid, lang)
-    script = (story.get("script") or "").strip()
-    if not script:
-        raise HTTPException(status_code=404, detail="이 장소에는 대본이 없습니다")
-
-    tc_lang = {"ko": "kor", "en": "eng"}.get(lang, "kor")
+    conn, play = _load_play(play_id)
     try:
-        audio, from_cache = typecast.synth(
-            script, emotion=emotion, lang=tc_lang, conn=get_db_connection()
-        )
-    except typecast.TtsError as e:
-        # 조용히 빈 응답을 주지 않는다. 재생이 안 되면 안 되는 이유가 보여야 한다.
-        raise HTTPException(status_code=502, detail=str(e))
+        text = resolve_line(play, line)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    return _synth_response(conn, text, emotion)
 
-    # ⚠️ HTTP 헤더는 latin-1만 담을 수 있다. 한글을 넣으면
-    # UnicodeEncodeError로 500이 난다(2026-08-20에 실제로 겪음).
-    # 출처 표기는 `/odii/story` 응답 본문으로 이미 내려가고 화면이 그걸 쓴다.
-    return Response(
-        content=audio,
-        media_type="audio/mpeg",
-        headers={
-            "Cache-Control": "public, max-age=604800",
-            "X-Tts-Cache": "hit" if from_cache else "miss",
-        },
-    )
+
+@router.get("/story")
+@limiter.limit("60/minute")
+def tts_for_story(request: Request, play_id: str, story_id: str,
+                  emotion: str = "normal") -> Response:
+    """PLAY 원고의 Story 하나를 음성으로 돌려준다. `/tts/line?line=story:<id>` 와 같다 —
+    옛 클라이언트 호환용으로 남겨 둔다.
+    """
+    if emotion not in ALLOWED_EMOTIONS:
+        raise HTTPException(status_code=400, detail=f"모르는 감정: {emotion}")
+    conn, play = _load_play(play_id)
+    try:
+        text = resolve_line(play, f"story:{story_id}")
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    return _synth_response(conn, text, emotion)
