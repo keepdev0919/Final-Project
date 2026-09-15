@@ -64,7 +64,7 @@ def report_mission(request: Request, body: MissionReportRequest) -> dict:
     report_id = str(uuid.uuid7())
     conn = get_db_connection()
     conn.execute(
-        "INSERT INTO mission_reports "
+        "INSERT INTO records.mission_reports "
         "(id, play_id, mission_id, reason, note, reported_at) VALUES (?,?,?,?,?,?)",
         (report_id, body.play_id, body.mission_id or None,
          body.reason, body.note or None, time.time()),
@@ -88,12 +88,12 @@ def list_reports(request: Request, play_id: str = "", limit: int = 100) -> dict:
     conn = get_db_connection()
     if play_id:
         rows = conn.execute(
-            "SELECT * FROM mission_reports WHERE play_id = ? "
+            "SELECT * FROM records.mission_reports WHERE play_id = ? "
             "ORDER BY reported_at DESC LIMIT ?", (play_id, min(limit, 500)),
         ).fetchall()
     else:
         rows = conn.execute(
-            "SELECT * FROM mission_reports ORDER BY reported_at DESC LIMIT ?",
+            "SELECT * FROM records.mission_reports ORDER BY reported_at DESC LIMIT ?",
             (min(limit, 500),),
         ).fetchall()
     return {"reports": [dict(r) for r in rows], "total": len(rows)}

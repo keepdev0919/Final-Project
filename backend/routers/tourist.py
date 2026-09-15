@@ -61,7 +61,7 @@ def _log_call(service: str, operation: str, ok: bool, detail: str = "") -> None:
     try:
         conn = get_db_connection()
         conn.execute(
-            "INSERT INTO kto_call_log (service, operation, ok, detail, called_at) VALUES (?,?,?,?,?)",
+            "INSERT INTO records.kto_call_log (service, operation, ok, detail, called_at) VALUES (?,?,?,?,?)",
             (service, operation, 1 if ok else 0, detail[:200], time.time()),
         )
         conn.commit()
