@@ -10,8 +10,12 @@ settings:
   base:
     SWIFT_VERSION: "5.10"
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
-    MARKETING_VERSION: "1.0.0"
-    CURRENT_PROJECT_VERSION: "1"
+    # 앱스토어에 보이는 버전과 업로드마다 올려야 하는 빌드 번호.
+    # 1.0 (1) 을 2026-09-11 에 처음 올렸고, 같은 날 코스 탭 문구를 고쳐 1.0 (2) 를 올렸다.
+    # **다시 올릴 때마다 CURRENT_PROJECT_VERSION 을
+    # 하나씩 올린다** — 같은 번호는 App Store Connect 가 받지 않는다.
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "2"
 
 schemes:
   JejuFolklore:
@@ -68,14 +72,17 @@ targets:
         # 세로 전용이다. 아이패드까지 켜 두면 13인치 스크린샷과 아이패드 심사가 따라온다.
         TARGETED_DEVICE_FAMILY: "1"
         # 출시용 앱이 부를 서버 주소. 시뮬레이터·개발 기기는 Config.swift 가 따로 정한다.
-        # ⚠️ 운영 서버를 올린 뒤 실제 주소로 바꿀 것 — 2026-09-11 기준 이 도메인은 없다.
-        API_BASE_URL: https://api.jejufolklore.com
+        # Railway 프로젝트 nolmeongbopseo 의 무료 주소 (2026-09-11 배포, 조익준님 결정).
+        # 도메인을 사면 이 줄만 바꾸면 된다.
+        API_BASE_URL: https://nolmeongbopseo-production.up.railway.app
     entitlements:
       path: JejuFolklore/Resources/JejuFolklore.entitlements
     info:
       path: JejuFolklore/Resources/Info.plist
       properties:
         CFBundleDisplayName: 놀멍봅서
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         # 갈무리 픽셀 폰트 (SIL OFL 1.1). 등록이 빠지면 파일이 있어도 iOS가 못 찾고
         # 시스템 폰트로 조용히 폴백된다. tests/test_pixel_font_bundled.py 참조.
         UIAppFonts:
@@ -93,7 +100,7 @@ targets:
         #   백그라운드 위치: 화면을 끈 채로 도착을 감지하려면 필요하지만 심사에서 사유를
         #     강하게 요구받는다. 도착 감지는 앱을 켜 둔 동안만 동작하는 것으로 충분하다.
         #   마이크·음성인식: 쓰던 리뷰 기능이 사라졌다. 쓰지 않는 권한 선언은 리젝 사유다.
-        NSLocationWhenInUseUsageDescription: "현재 위치에서 관광지까지 남은 거리를 보여 주고, 코스를 따라 이동할 때 도착을 안내하기 위해 위치를 사용합니다. 위치는 기기 안에서만 확인하며 서버로 보내지 않습니다."
+        NSLocationWhenInUseUsageDescription: "현장 플레이 중 다음 지점까지 남은 거리를 보여 주기 위해 위치를 사용합니다. 위치는 기기 안에서만 확인하며 서버로 보내지 않습니다."
         UIBackgroundModes:
           - audio
         NSAppTransportSecurity:
