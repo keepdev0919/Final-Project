@@ -13,6 +13,21 @@ from pathlib import Path
 BASE_DIR = Path(__file__).parent.parent.parent
 DB_PATH = BASE_DIR / "storage" / "metadata.db"
 
+# 서버가 운영 중에 새로 적는 기록 — 미션 신고 · KTO 호출 기록 (2026-09-15).
+#
+# metadata.db 는 배포 이미지에 실려 가서 **재배포하면 맥에 있던 사본으로 되돌아간다.**
+# 코스·장소처럼 맥에서 만들어 올리는 데이터는 그래도 되지만, 서버가 운영 중에 적은
+# 신고와 호출 기록은 그때 같이 사라진다. 그래서 이 둘만 Railway 볼륨의 별도 파일에 적는다.
+#
+# 볼륨이 붙은 폴더가 storage/tts_cache 하나뿐이라 거기에 둔다 — 폴더 이름은 음성 캐시만
+# 있던 시절 그대로다. 볼륨 위치를 옮기면 운영 서버에 쌓인 음성 파일(다시 만들려면
+# Typecast 크레딧이 든다)이 엉뚱한 자리로 가서, 폴더를 바꾸지 않았다.
+#
+# metadata.db 안의 옛 kto_call_log · mission_reports 표는 그전까지의 기록으로 남겨 두고
+# 더 쓰지 않는다. 쿼리는 반드시 `records.` 를 붙인다 — 붙이지 않으면 SQLite 가 이름이
+# 같은 옛 표에 적는다.
+RECORDS_PATH = BASE_DIR / "storage" / "tts_cache" / "records.db"
+
 
 def _load_env() -> None:
     env_path = BASE_DIR / ".env"
@@ -81,7 +96,7 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
             conn.execute(f"ALTER TABLE place_detail_cache ADD COLUMN {col} TEXT")
     conn.execute(
         """
-        CREATE TABLE IF NOT EXISTS kto_call_log (
+        CREATE TABLE IF NOT EXISTS records.kto_call_log (
             id        INTEGER PRIMARY KEY AUTOINCREMENT,
             service   TEXT NOT NULL,
             operation TEXT NOT NULL,
@@ -91,7 +106,9 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
         )
         """
     )
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_kto_call_log_at ON kto_call_log(called_at)")
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS records.idx_kto_call_log_at ON kto_call_log(called_at)"
+    )
 
     # 홈 장소 카드 순위. 비짓제주 등장 빈도 × 오디 해설 유무를 미리 계산해 둔 것이다
     # (146,357 × 178 거리 계산을 매 요청마다 할 수 없다). 계산 규칙은
@@ -185,7 +202,7 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
     # 여기에 무엇을 더하려면 그 문구부터 고쳐야 한다.
     conn.execute(
         """
-        CREATE TABLE IF NOT EXISTS mission_reports (
+        CREATE TABLE IF NOT EXISTS records.mission_reports (
             id          TEXT PRIMARY KEY,
             play_id     TEXT NOT NULL,
             mission_id  TEXT,
@@ -196,7 +213,7 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
         """
     )
     conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_mission_reports_play "
+        "CREATE INDEX IF NOT EXISTS records.idx_mission_reports_play "
         "ON mission_reports(play_id, mission_id)"
     )
 
@@ -213,8 +230,15 @@ def get_db_connection() -> sqlite3.Connection:
     conn = getattr(_thread_local, "conn", None)
     if conn is not None:
         return conn
+    conn = _connect()
+    _thread_local.conn = conn
+    return conn
+
+
+def _connect() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
+    RECORDS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    conn.execute("ATTACH DATABASE ? AS records", (str(RECORDS_PATH),))
     _ensure_schema(conn)
-    _thread_local.conn = conn
     return conn
