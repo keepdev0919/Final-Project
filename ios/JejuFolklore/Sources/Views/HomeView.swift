@@ -1,4 +1,5 @@
 import SwiftUI
+import os
 
 /// 퀘스트 탭 — **게임으로 들어가는 화면**.
 ///
@@ -46,7 +47,14 @@ struct HomeView: View {
             PlaceDetailView(place: CoursePlace(name: pin.placeName, lat: pin.lat,
                                                lng: pin.lng, day: 0))
         }
-        .task { await vm.load() }
+        // ⚠️ `.task {}` 로 불러오지 않는다 (2026-09-11). `.task` 는 화면이 잠깐 다시
+        // 만들어지기만 해도 취소되는데, 실제로 켜자마자 요청이 시작 10ms 만에
+        // 「cancelled」로 끊기고 퀘스트 탭이 빈 채로 남는 일이 있었다. 뷰모델이 제
+        // 수명의 Task 로 부르면 화면이 흔들려도 요청은 끝까지 간다.
+        .onAppear {
+            HomeViewModel.lifecycle.info("HomeView appear")
+            vm.loadIfNeeded()
+        }
         .refreshable { await vm.load(force: true) }
     }
 
@@ -85,7 +93,7 @@ struct HomeView: View {
                                iconColor: PixelColor.primaryContainer,
                                underline: PixelSpacing.borderHeavy)
 
-            if vm.isLoading && vm.pins.isEmpty {
+            if vm.pins.isEmpty && !vm.failed {
                 loadingRow
             } else if vm.pins.isEmpty {
                 emptyRow
@@ -139,15 +147,51 @@ struct HomeView: View {
 
 @MainActor
 final class HomeViewModel: ObservableObject {
+    private static let log = Logger(subsystem: "com.keepdev.nolmeongbopseo", category: "home")
+    static let lifecycle = Logger(subsystem: "com.keepdev.nolmeongbopseo", category: "home.lifecycle")
     @Published var pins: [PlayMapPin] = []
     @Published var isLoading = false
+    /// 진짜로 실패했을 때만 참. 취소는 실패가 아니다 — 다시 시도한다.
+    @Published var failed = false
     private var progressLabels: [String: String] = [:]
+    private var loadTask: Task<Void, Never>?
+
+    /// 화면이 나타날 때마다 부른다. 이미 있으면 진행 문구만 새로 읽고, 비어 있으면
+    /// **뷰 수명과 무관한 Task** 로 불러온다.
+    func loadIfNeeded() {
+        if !pins.isEmpty { refreshProgress(); return }
+        if loadTask != nil { return }
+        loadTask = Task { [weak self] in
+            await self?.load()
+            self?.loadTask = nil
+        }
+    }
 
     func load(force: Bool = false) async {
         if !force && !pins.isEmpty { refreshProgress(); return }
         isLoading = true
         defer { isLoading = false }
-        let result = try? await PlayAPI.mapPins()
+        // 실패를 삼키지 않고 기록한다 — 「불러오지 못했어요」만 보이면 원인을 알 수 없다
+        // (2026-09-11 퀘스트 탭이 비었을 때 원인을 찾느라 겪음).
+        // 취소(-999)는 화면이 흔들린 것이지 서버 문제가 아니라, 짧게 기다려 두 번 더 해 본다.
+        var result: PlayAPI.MapPins?
+        for attempt in 0..<3 {
+            do {
+                result = try await PlayAPI.mapPins()
+                Self.log.info("map/pins 받음 \(result?.pins.count ?? 0)개 (시도 \(attempt + 1))")
+                break
+            } catch {
+                let cancelled = Task.isCancelled || Self.isCancellation(error)
+                Self.log.error("map/pins 실패: \(String(describing: error), privacy: .public) cancelled=\(cancelled) 시도=\(attempt + 1)")
+                if cancelled, attempt < 2 {
+                    try? await Task.sleep(for: .milliseconds(300))
+                    continue
+                }
+                result = nil
+                break
+            }
+        }
+        failed = (result == nil)
         // 지도에는 다 뜨지만 홈 퀘스트 카드는 `homeVisible` 인 곳만 —
         // 콘텐츠 제작에 아직 착수하지 않은 후보지까지 퀘스트로 보이면 안 된다.
         // 플레이할 수 있는 것부터. 같은 상태 안에서는 서버 순서를 지킨다.
@@ -155,6 +199,14 @@ final class HomeViewModel: ObservableObject {
             a.status == .active && b.status != .active
         }
         refreshProgress()
+    }
+
+    private static func isCancellation(_ error: Error) -> Bool {
+        if error is CancellationError { return true }
+        if case APIError.networkError(let inner) = error {
+            return (inner as? URLError)?.code == .cancelled || inner is CancellationError
+        }
+        return false
     }
 
     /// 카드 버튼에 쓸 문구. 손 안 댄 퀘스트는 nil 이라 「퀘스트 수락」이 뜬다.
