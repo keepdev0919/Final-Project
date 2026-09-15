@@ -1,0 +1,189 @@
+/* 퀘스트 탭 (홈) — HomeView.swift · PlayCard.swift */
+
+/* ScrollView > VStack(spacing: sectionGap) · 좌우 screenMargin · 위 xl · 아래 xxxl(탭바) */
+.home-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-section-gap, 32px);
+  padding: var(--px-xl) var(--px-screen-margin) var(--px-xxxl);
+}
+
+/* questSection — VStack(spacing: cardGap) */
+.home-quests {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-card-gap);
+}
+
+/* ═════════════ 비었을 때 (loadingRow · emptyRow) ═════════════ */
+
+.home-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--px-xxxl) 0;
+  text-align: center;
+}
+
+.home-status--loading {
+  gap: var(--px-m);
+}
+
+.home-status--empty {
+  gap: var(--px-s);
+}
+
+.home-status p {
+  margin: 0;
+}
+
+/* ═════════════ 퀘스트 카드 (PlayCard · PreparingPlaceCard) ═════════════ */
+
+/* VStack(alignment: .leading, spacing: l) + padding(cardPadding) */
+.home-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-l);
+  padding: var(--px-card-padding);
+}
+
+.home-card__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* 제목 왼쪽, 시간·거리 오른쪽 — HStack(spacing: l) { 제목 · Spacer(minLength: 0) · 메타 } */
+.home-card__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--px-l);
+  padding-bottom: var(--px-xl);
+  min-width: 0;
+}
+
+.home-card__title {
+  margin: 0;
+  min-width: 0;
+  flex: 0 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-card__spacer {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.home-card__meta {
+  display: flex;
+  gap: var(--px-l);
+  flex: none;
+}
+
+.home-card__meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--px-xs);
+  white-space: nowrap;
+}
+
+/* 준비 중 카드의 장소 이름 — lineLimit(1) + padding(.bottom, s) */
+.home-card__place {
+  margin: 0;
+  padding-bottom: var(--px-s);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-card__text {
+  margin: 0;
+}
+
+/* lineLimit(2) */
+.home-card__text--clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* 난이도 별 — HStack(spacing: xs) + padding(.bottom, s) */
+.home-stars {
+  display: flex;
+  gap: var(--px-xs);
+  padding-bottom: var(--px-s);
+}
+
+/* ═════════════ 카드 커버 (QuestCoverImage) ═════════════ */
+
+.home-cover {
+  position: relative;
+  height: 160px;
+  width: 100%;
+  flex: none;
+}
+
+/*
+ * pixelShadow(2) — Swift 는 **내용 뒤에 2px 어긋난 잉크 사각형**을 깐다(background + offset).
+ * CSS box-shadow 는 상자 밑에 그려지지 않는다. 준비 중 커버는 사진이 반투명(0.5)이라
+ * 그 뒤의 잉크가 비쳐 보인다 — iOS 와 같은 색이 나오도록 사각형으로 따로 깐다.
+ */
+.home-cover__shadow {
+  position: absolute;
+  left: var(--px-shadow-small);
+  top: var(--px-shadow-small);
+  width: 100%;
+  height: 100%;
+  background: var(--px-ink);
+}
+
+.home-cover__frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--px-secondary-container);
+}
+
+.home-cover__frame[data-locked='true'] {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+.home-cover__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-cover__lock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ═════════════ 카드 버튼 (QuestButton) ═════════════ */
+
+/* 높이 44 · 4px 테두리 · 4px 그림자. `.buttonStyle(.plain)` 이라 눌러도 가라앉지 않는다. */
+.home-quest-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 44px;
+  flex: none;
+}
+
+/* .plain 버튼은 누르는 동안 살짝 흐려진다 */
+.home-quest-button:active {
+  opacity: 0.75;
+}

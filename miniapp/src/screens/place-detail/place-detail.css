@@ -1,0 +1,441 @@
+/* 장소 상세 (PlaceDetailView.swift · PlaceInfoSections.swift) — 접두어 .plc- */
+
+/* 탭바도 하단 CTA 도 없는 화면이라 맨 아래 글이 홈 인디케이터에 걸리지 않게만 둔다
+   (iOS ScrollView 가 safe area 만큼 알아서 띄우는 것과 같다). */
+.plc-screen {
+  padding-bottom: var(--px-safe-inset-bottom);
+}
+
+.plc-p,
+.plc-h {
+  margin: 0;
+}
+
+/* SwiftUI Text 는 \n 을 줄바꿈으로 그린다 */
+.plc-pre {
+  white-space: pre-line;
+}
+
+.plc-clamp2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* ── Hero: 높이 260, 가로 가득, 넘치는 건 자른다 ── */
+.plc-hero {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 260px;
+  overflow: hidden;
+  flex: none;
+}
+
+/* 크기를 정하는 것은 **색**이다 — 그림은 그 위에 얹힌다 (Swift 주석의 ZStack 사고). */
+.plc-hero__placeholder {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+}
+
+.plc-hero__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── 이름 · 주소 · 전화 ── */
+.plc-title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-s);
+  padding: var(--px-l) var(--px-xl);
+}
+
+.plc-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* ── 탭 ── */
+.plc-tabs {
+  display: flex;
+  padding: 0 var(--px-xl) var(--px-l);
+}
+
+/* Swift 높이 40 → 앱인토스 터치 타깃 44 */
+.plc-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+/* ── 소개글 탭 ── */
+.plc-overview {
+  padding: var(--px-l) var(--px-xl);
+}
+
+.plc-strip {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* 가로 넘기기는 이 줄 안에서만 — 세로 스크롤은 화면이 받는다 */
+  touch-action: pan-x pan-y;
+}
+
+.plc-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.plc-strip__row {
+  display: flex;
+  gap: var(--px-s);
+  padding: 0 var(--px-xl);
+  width: max-content;
+}
+
+.plc-strip__photo {
+  width: 150px;
+  height: 110px;
+  flex: none;
+  overflow: hidden;
+  display: block;
+}
+
+.plc-strip__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.plc-attribution {
+  padding: var(--px-l) var(--px-xl) 28px;
+}
+
+/* ── 장소 정보 탭 ── */
+.plc-map-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-m);
+  padding: 0 var(--px-xl) var(--px-l);
+}
+
+.plc-map {
+  height: 150px;
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.plc-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-m);
+  padding: var(--px-l) var(--px-xl);
+}
+
+/* PixelWrap — 칩을 왼쪽부터 채우고 넘치면 다음 줄로 */
+.plc-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--px-s);
+  padding-top: var(--px-xs);
+}
+
+.plc-usage-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-s);
+  padding: var(--px-m);
+  background: var(--px-surface);
+}
+
+.plc-usage-card__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.plc-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--px-xs);
+}
+
+.plc-group__header {
+  padding: 3px 6px;
+}
+
+/* 가격표 — 값 열 폭 72, 칸 사이 4 */
+.plc-price {
+  display: flex;
+  flex-direction: column;
+}
+
+.plc-price__head,
+.plc-price__row {
+  display: flex;
+  gap: 4px;
+}
+
+.plc-price__head {
+  align-items: center;
+  padding: 6px 0;
+  /* 위 2px 잉크 · 아래 2px 옅은 선 — Swift overlay 처럼 높이를 먹지 않는다 */
+  box-shadow: inset 0 var(--px-border) 0 0 var(--px-ink), inset 0 calc(-1 * var(--px-border)) 0 0 var(--px-outline-variant);
+}
+
+.plc-price__row {
+  align-items: flex-start;
+  padding: var(--px-s) 0;
+}
+
+.plc-price__row--rule {
+  box-shadow: inset 0 calc(-1 * var(--px-border)) 0 0 var(--px-outline-variant);
+}
+
+.plc-price__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+}
+
+.plc-price__col {
+  flex: none;
+  width: 72px;
+  text-align: right;
+}
+
+/* 무장애 타일 — 네 칸 격자 */
+.plc-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--px-s);
+  padding-top: var(--px-xs);
+}
+
+.plc-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 72px;
+  padding: 10px 4px;
+  background: var(--px-surface);
+}
+
+.plc-notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-m);
+  padding: var(--px-m);
+  background: var(--px-surface-low);
+}
+
+.plc-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--px-s);
+}
+
+.plc-note__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* 주변 시설 */
+.plc-facility-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-s);
+}
+
+.plc-facility {
+  display: flex;
+  align-items: center;
+  gap: var(--px-s);
+  width: 100%;
+  padding: var(--px-m);
+  background: var(--px-surface);
+  text-align: left;
+}
+
+.plc-facility__badge {
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plc-facility__badge-fill {
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+}
+
+.plc-facility__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* 출처 */
+.plc-sources {
+  padding: var(--px-xxl) var(--px-xl) 28px;
+}
+
+.plc-sources__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: var(--px-l);
+}
+
+.plc-sources__title {
+  padding-bottom: var(--px-xs);
+}
+
+/* 불러오는 중 · 실패 */
+.plc-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+}
+
+.plc-skeleton__bar {
+  height: 16px;
+  opacity: 0.12;
+}
+
+.plc-failed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px;
+}
+
+/* ── 사진 전체 화면 (PhotoViewer) ── */
+.plc-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #000;
+}
+
+.plc-viewer__pager {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+
+.plc-viewer__pager::-webkit-scrollbar {
+  display: none;
+}
+
+.plc-viewer__slide {
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 좌우 넘기기만 브라우저에 맡기고, 두 손가락 확대는 직접 받는다 */
+  touch-action: pan-x;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* scaledToFit — 작은 사진도 화면에 맞춰 키운다 */
+.plc-viewer__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  -webkit-user-drag: none;
+}
+
+.plc-viewer__status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.plc-viewer__bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--px-s) + var(--px-safe-top)) var(--px-xl) 0;
+  pointer-events: none;
+}
+
+.plc-viewer__bar > * {
+  pointer-events: auto;
+}
+
+/* 보이는 버튼은 36, 누르는 자리는 44 — 넘치는 4px 씩은 투명 여백 */
+.plc-viewer__close {
+  width: 44px;
+  height: 44px;
+  margin: -4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plc-viewer__chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  background: var(--px-surface);
+}
+
+.plc-viewer__chip--square {
+  width: 36px;
+}
+
+.plc-viewer__count {
+  padding: 0 var(--px-s);
+}

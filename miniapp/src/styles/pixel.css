@@ -1,0 +1,612 @@
+/**
+ * 놀멍봅서 픽셀 디자인 토큰 + 공용 부품 스타일.
+ *
+ * 값의 정본은 iOS 앱이다 — 여기 숫자를 바꾸기 전에 Swift 쪽을 먼저 본다.
+ *   색     ios/JejuFolklore/Sources/Views/DesignSystem/PixelColor.swift   (라이트 값만)
+ *   글자   …/PixelFont.swift
+ *   간격   …/PixelSpacing.swift
+ *   부품   …/PixelComponents.swift · PixelTabBar.swift
+ *
+ * 같은 값을 TS 에서 쓰려면 `src/ui/tokens.ts` 의 PixelColor·PixelSpacing·PixelFont 를 쓴다
+ * (CSS 변수 문자열을 돌려주므로 값이 두 군데로 갈라지지 않는다).
+ *
+ * 앱인토스 토큰(`tokens.css`)과 이름이 겹치지 않게 전부 `--px-` 로 시작한다.
+ * 라이트 모드만 있다 (앱인토스 규칙).
+ */
+
+/* ── 글꼴: 갈무리11 두 벌 (Regular 400 · Bold 700). 500·600 은 쓰지 않는다. ── */
+@font-face {
+  font-family: 'Galmuri11';
+  src: url('../assets/fonts/Galmuri11.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Galmuri11';
+  src: url('../assets/fonts/Galmuri11-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* ── 면 (표면 단계) ── */
+  --px-background: #fbf8ff;
+  --px-surface: #ffffff;
+  --px-surface-low: #f4f2ff;
+  --px-surface-mid: #edecff;
+  --px-surface-high: #e6e6fd;
+  --px-surface-variant: #e1e1f7;
+  --px-surface-dim: #d8d8ef;
+
+  /* ── 글자 ── */
+  --px-ink: #181a2a;
+  --px-ink-weak: #3d4a3f;
+
+  /* ── 선 ── */
+  --px-outline: #6d7b6e;
+  --px-outline-variant: #bccabc;
+
+  /* ── 주색 (초록) ── */
+  --px-primary: #006d39;
+  --px-on-primary: #ffffff;
+  --px-primary-container: #38cc77;
+  --px-on-primary-container: #005129;
+
+  /* ── 보조색 (파랑) ── */
+  --px-secondary: #0062a2;
+  --px-on-secondary: #ffffff;
+  --px-secondary-container: #54abfd;
+  --px-on-secondary-container: #003e69;
+
+  /* ── 삼차색 (금색) ── */
+  --px-tertiary: #735c00;
+  --px-on-tertiary: #ffffff;
+  --px-tertiary-container: #ffc61a;
+  --px-on-tertiary-container: #554400;
+  --px-tertiary-fixed: #ffe085;
+  --px-on-tertiary-fixed: #231b00;
+
+  /* ── 오류 ── */
+  --px-error: #ba1a1a;
+  --px-on-error: #ffffff;
+
+  /* ── 권역 (앱 전체에서 같은 색) ── */
+  --px-region-east: #ff9e3d;
+  --px-on-region-east: #4a2200;
+  --px-region-west: #a98bff;
+  --px-on-region-west: #2e1065;
+  --px-region-south: #3ecfd5;
+  --px-on-region-south: #00363a;
+
+  /* ── 의미 별칭 — 화면은 「무슨 색」이 아니라 「무슨 뜻」으로 쓴다 ── */
+  --px-sunk: var(--px-surface-mid);
+  --px-accent: var(--px-tertiary-container);
+  --px-on-accent: var(--px-on-tertiary-container);
+  --px-done: var(--px-primary-container);
+  --px-on-done: var(--px-on-primary-container);
+  --px-locked: var(--px-error);
+  --px-on-locked: var(--px-on-error);
+  --px-region-north: var(--px-secondary-container);
+  --px-on-region-north: var(--px-on-secondary-container);
+  --px-region-all: var(--px-ink);
+  --px-on-region-all: var(--px-background);
+
+  /* ── 간격 (4의 배수) ── */
+  --px-xs: 4px;
+  --px-s: 8px;
+  --px-m: 12px;
+  --px-l: 16px;
+  --px-xl: 20px;
+  --px-xxl: 32px;
+  --px-xxxl: 48px;
+  --px-card-padding: 16px;
+  --px-card-gap: 16px;
+  --px-section-gap: 32px;
+  --px-screen-margin: 20px;
+  --px-button-height: 48px;
+  --px-tab-bar-height: 80px;
+
+  /* ── 테두리·그림자 — 테두리는 얇고 그림자는 크다 ── */
+  --px-border: 2px;
+  --px-border-heavy: 4px;
+  --px-shadow-card: 4px;
+  --px-shadow-small: 2px;
+  --px-shadow-strong: 8px;
+  --px-shadow-button: 4px;
+
+  /* ── 글꼴 ──
+   * ⚠️ 갈무리를 **Tossface 보다 앞에** 둔다. Tossface 는 unicode-range 에 숫자(0-9)·#·*·©·® 를
+   * 포함하고 있어서, 앞에 두면 「60~75분」의 숫자가 Tossface 글리프로 찍힌다(흐린 회색).
+   * 갈무리에는 그림 이모지(U+1F000~)가 없어 이모지는 그대로 Tossface 로 떨어진다.
+   * 기호형 이모지(☕ ⭐ 등 U+2600~2BFF)는 갈무리가 흑백 도트로 그리므로, 본문에 이모지를
+   * 넣어야 하면 `<span className="tf">` 로 감싼다. */
+  --px-font: 'Galmuri11', 'Tossface', -apple-system, system-ui, sans-serif;
+  /* 읽는 글꼴 — 두 줄 넘는 설명문 (PixelFont.reading). 시스템 서체 → 이모지만 Tossface. */
+  --px-font-reading: -apple-system, system-ui, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Tossface', sans-serif;
+  /* SwiftUI 기본 줄높이 = 폰트 (ascent + descent + lineGap) / em = 1600 / 1200 */
+  --px-line: 1.3333;
+
+  /* ── 하단 safe area ──
+   * 앱인토스 하드 규칙: 하단 CTA 는 safe area 34px.
+   * `--ait-safe-bottom` 은 main.tsx 가 SafeArea SDK 값으로 채운다.
+   * iOS 는 기기 값(34 안팎)을 쓰지만, 웹은 규칙대로 최소 34px 를 보장한다. */
+  --px-safe-bottom: max(34px, env(safe-area-inset-bottom, 0px), var(--ait-safe-bottom, 0px));
+  /* 하단 CTA·탭바가 **없는** 화면의 바닥 여백 — 기기 값 그대로(최소 34 없음). iOS ScrollView 가
+   * 홈 인디케이터만큼 알아서 띄우는 것과 같다 (장소 상세처럼 끝까지 스크롤하는 화면). */
+  --px-safe-inset-bottom: max(env(safe-area-inset-bottom, 0px), var(--ait-safe-bottom, 0px));
+  /* 위쪽 safe area — 화면 맨 위에 겹쳐 뜨는 것(토스트·전체 화면 사진 보기)이 쓴다.
+   * ⚠️ 토스 WebView 에서 이 값이 네비게이션 바를 포함하는지는 실기기로 확인해야 한다 — 바뀌면 여기 하나만 고친다. */
+  --px-safe-top: env(safe-area-inset-top, 0px);
+}
+
+/* ═════════════════════════ 글자 (PixelFont) ═════════════════════════ */
+
+.px-t-screen-title { font-family: var(--px-font); font-size: 28px; font-weight: 700; line-height: var(--px-line); }
+.px-t-section-title { font-family: var(--px-font); font-size: 24px; font-weight: 700; line-height: var(--px-line); }
+.px-t-body-large { font-family: var(--px-font); font-size: 18px; font-weight: 400; line-height: var(--px-line); }
+.px-t-body-large-bold { font-family: var(--px-font); font-size: 18px; font-weight: 700; line-height: var(--px-line); }
+.px-t-body { font-family: var(--px-font); font-size: 16px; font-weight: 400; line-height: var(--px-line); }
+.px-t-body-small { font-family: var(--px-font); font-size: 14px; font-weight: 400; line-height: var(--px-line); }
+.px-t-label { font-family: var(--px-font); font-size: 14px; font-weight: 700; line-height: var(--px-line); }
+.px-t-label-small { font-family: var(--px-font); font-size: 12px; font-weight: 700; line-height: var(--px-line); }
+.px-t-reading { font-family: var(--px-font-reading); font-size: 14px; font-weight: 400; line-height: 1.5; }
+.px-t-logo { font-family: var(--px-font); font-size: 22px; font-weight: 700; line-height: var(--px-line); }
+
+/* ═════════════════════ 테두리·그림자 (pixelBorder · pixelShadow) ═════════════════════
+ *
+ * SwiftUI 의 `.pixelBorder()` 는 **내용 위에 겹쳐 그리는** 선이다 — 안쪽 여백을 먹지 않는다.
+ * CSS `border` 로 옮기면 상자가 4~8px 커지고 안쪽 여백이 달라진다. 그래서 ::after 로 겹친다.
+ * ⚠️ 이 클래스를 단 요소의 ::after 는 테두리가 쓴다. 다른 장식에 ::after 를 쓰지 말 것.
+ */
+.px-border,
+.px-border-heavy,
+.px-double-border {
+  position: relative;
+}
+
+.px-border::after,
+.px-border-heavy::after,
+.px-double-border::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: var(--px-border) solid var(--px-border-color, var(--px-ink));
+  pointer-events: none;
+  z-index: 1;
+}
+
+.px-border-heavy::after,
+.px-double-border::after {
+  border-width: var(--px-border-heavy);
+}
+
+/* 이중 테두리 — 겉 4px + 안쪽 4px 띄워 2px. 화면에서 가장 중요한 상자 하나에만. */
+.px-double-border::before {
+  content: '';
+  position: absolute;
+  inset: var(--px-xs);
+  border: var(--px-border) solid var(--px-ink);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 어긋난 단색 그림자 — 번지지 않는다. 오른쪽 아래 대각선. */
+.px-shadow-small { box-shadow: var(--px-shadow-small) var(--px-shadow-small) 0 0 var(--px-ink); }
+.px-shadow-card { box-shadow: var(--px-shadow-card) var(--px-shadow-card) 0 0 var(--px-ink); }
+.px-shadow-strong { box-shadow: var(--px-shadow-strong) var(--px-shadow-strong) 0 0 var(--px-ink); }
+
+/* 누르면 그림자 속으로 가라앉는다 (PixelPressStyle). 레이블을 이미 다 그린 버튼·링크에 쓴다. */
+.px-press {
+  box-shadow: var(--px-press-offset, 4px) var(--px-press-offset, 4px) 0 0 var(--px-ink);
+  transition: none;
+  cursor: pointer;
+}
+
+.px-press:active:not(:disabled),
+.px-press[data-pressed='true'] {
+  transform: translate(var(--px-press-offset, 4px), var(--px-press-offset, 4px));
+  box-shadow: none;
+}
+
+/* 픽셀아트는 보간하지 않는다 — 도트가 뭉개진다. 실사 사진에는 쓰지 않는다. */
+.px-pixelated {
+  /* crisp-edges 는 pixelated 를 모르는 브라우저용 대비책. 뒤의 pixelated 가 이긴다. */
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+/* 버튼 기본값 걷기 — :where() 로 무게를 0 으로 둔다. 같이 다는 화면 클래스의 padding·background 가
+ * CSS 불러오는 순서와 상관없이 늘 이긴다. */
+:where(.px-reset-button) {
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ═════════════════════════ PixelButton ═════════════════════════ */
+
+.px-button {
+  appearance: none;
+  margin: 0;
+  border: 0;
+  width: 100%;
+  min-height: var(--px-button-height);
+  height: var(--px-button-height);
+  padding: 0 var(--px-l);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--px-s);
+  background: var(--px-btn-fill, var(--px-primary));
+  color: var(--px-btn-label, var(--px-on-primary));
+  font-family: var(--px-font);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: var(--px-line);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* PixelButtonStyle — 레이블을 직접 그린 버튼. 폭은 내용만큼. */
+.px-button-style {
+  appearance: none;
+  margin: 0;
+  border: 0;
+  padding: var(--px-m) var(--px-l);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--px-xs);
+  background: var(--px-btn-fill, var(--px-primary));
+  color: var(--px-btn-label, var(--px-on-primary));
+  font-family: var(--px-font);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: var(--px-line);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.px-button:disabled,
+.px-button-style:disabled {
+  cursor: default;
+}
+
+/* ═════════════════════════ PixelCard ═════════════════════════ */
+
+.px-card {
+  background: var(--px-surface);
+}
+
+/* ═════════════════════════ PixelChip · Badge · Sticker ═════════════════════════ */
+
+.px-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--px-xs);
+  padding: 6px var(--px-m);
+  font-family: var(--px-font);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: var(--px-line);
+  white-space: nowrap;
+}
+
+.px-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--px-xs);
+  padding: var(--px-xs) var(--px-s);
+  font-family: var(--px-font);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: var(--px-line);
+  white-space: nowrap;
+}
+
+.px-sticker {
+  display: inline-block;
+  padding: var(--px-xs) var(--px-s);
+  font-family: var(--px-font);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: var(--px-line);
+  color: var(--px-on-accent);
+  transform: rotate(3deg);
+  white-space: nowrap;
+}
+
+/* ═════════════════════════ PixelMeter · PixelProgressBar ═════════════════════════ */
+
+.px-meter {
+  position: relative;
+  width: 100%;
+  background: var(--px-ink);
+  overflow: hidden;
+}
+
+.px-meter__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+}
+
+.px-meter__caption {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #000000;
+  font-family: var(--px-font);
+  font-size: 14px;
+  font-weight: 700;
+  z-index: 2;
+}
+
+.px-progress {
+  display: flex;
+  gap: var(--px-xs);
+  width: 100%;
+}
+
+.px-progress__cell {
+  flex: 1 1 0;
+  height: var(--px-xl);
+}
+
+/* ═════════════════════════ PixelSectionHeader ═════════════════════════ */
+
+.px-section-header__row {
+  display: flex;
+  align-items: center;
+  gap: var(--px-s);
+  padding-bottom: var(--px-s);
+}
+
+.px-section-header__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+/* ═════════════════════════ PixelIntroCard ═════════════════════════ */
+
+.px-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-l);
+  padding: 24px;
+}
+
+.px-intro__icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--px-ink);
+}
+
+.px-intro__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-s);
+}
+
+.px-intro__title {
+  margin: 0;
+  color: var(--px-ink);
+}
+
+.px-intro__message {
+  margin: 0;
+  color: var(--px-ink-weak);
+  /* Swift: 기본 줄높이 + lineSpacing(7) */
+  line-height: calc(18px * var(--px-line) + 7px);
+}
+
+/* ═════════════════════════ PixelTopBar ═════════════════════════ */
+
+.px-top-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--px-s);
+  padding: var(--px-m) var(--px-screen-margin);
+  background: var(--px-background);
+  border-bottom: var(--px-border-heavy) solid var(--px-ink);
+}
+
+.px-top-bar__title {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+/* ═════════════════════════ PixelTabBar ═════════════════════════ */
+
+.px-tab-bar {
+  display: flex;
+  padding: var(--px-s) var(--px-s) calc(var(--px-s) + var(--px-safe-bottom));
+  background: var(--px-surface-mid);
+  /* 위 테두리 4px + 위쪽으로만 던지는 4px 그림자 */
+  border-top: var(--px-border-heavy) solid var(--px-ink);
+  box-shadow: 0 calc(-1 * var(--px-shadow-card)) 0 0 var(--px-ink);
+  position: relative;
+  z-index: 10;
+}
+
+.px-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--px-xs);
+  padding: var(--px-s) 0;
+  color: var(--px-ink-weak);
+}
+
+.px-tab[aria-selected='true'] {
+  background: var(--px-primary);
+  color: var(--px-on-primary);
+}
+
+/* ═════════════════════════ PixelBottomBar (하단 고정 CTA 바) ═════════════════════════ */
+
+.px-bottom-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  padding: var(--px-l) var(--px-l) calc(var(--px-l) + var(--px-safe-bottom));
+  background: var(--px-surface);
+  border-top: var(--px-border-heavy) solid var(--px-ink);
+}
+
+/* ═════════════════════════ 당겨서 새로고침 (PullToRefresh.tsx) ═════════════════════════ */
+
+.px-ptr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex: none;
+}
+
+.px-ptr[data-dragging='false'] {
+  transition: height 0.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .px-ptr[data-dragging='false'] { transition: none; }
+}
+
+/* ═════════════════════════ 움직임 ═════════════════════════ */
+
+/* PixelBob — 제자리에서 통통 떠다닌다 */
+@keyframes px-bob {
+  from { transform: translateY(var(--px-bob-distance, 3px)); }
+  to { transform: translateY(calc(-1 * var(--px-bob-distance, 3px))); }
+}
+
+.px-bob {
+  display: inline-block;
+  animation: px-bob var(--px-bob-half, 0.9s) ease-in-out var(--px-bob-delay, 0s) infinite alternate;
+}
+
+/* PixelBlink — 1초 보이고 1초 사라진다. 서서히 흐려지지 않는다. */
+@keyframes px-blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.px-blink {
+  animation: px-blink 2s steps(1, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .px-blink { animation: none; }
+}
+
+/* ═════════════════════════ 앱 셸 ═════════════════════════ */
+
+.px-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--px-background);
+  color: var(--px-ink);
+  font-family: var(--px-font);
+  line-height: var(--px-line);
+}
+
+/* 화면이 스크롤하는 곳은 이 상자 하나다. 탭바는 그 아래에 붙는다. */
+.px-app__main {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  position: relative;
+}
+
+/* 화면 하나의 바닥. 배경이 뷰포트를 다 채운다. */
+.px-screen {
+  min-height: 100%;
+  background: var(--px-background);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ═════════════════════════ 확인창·시트 (Overlays.tsx) ═════════════════════════ */
+
+.px-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  background: var(--dim);
+  font-family: var(--px-font);
+  color: var(--px-ink);
+}
+
+.px-overlay--center {
+  align-items: center;
+  justify-content: center;
+  padding: var(--px-xl);
+}
+
+.px-overlay--bottom {
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.px-sheet {
+  width: 100%;
+  max-width: 480px;
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--px-background);
+  border-top: var(--px-border-heavy) solid var(--px-ink);
+  box-shadow: 0 calc(-1 * var(--px-shadow-card)) 0 0 var(--px-ink);
+}
+
+.px-sheet__head {
+  display: flex;
+  align-items: center;
+  gap: var(--px-s);
+  padding: var(--px-s) var(--px-s) var(--px-s) var(--px-l);
+  border-bottom: var(--px-border) solid var(--px-ink);
+  background: var(--px-surface-mid);
+}
+
+.px-sheet__close {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.px-sheet__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--px-l) var(--px-l) calc(var(--px-l) + var(--px-safe-bottom));
+}

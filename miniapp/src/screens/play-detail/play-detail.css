@@ -1,0 +1,182 @@
+/* PLAY 상세 전용 — 값은 PlayDetailView.swift 그대로. 색·크기 토큰은 pixel.css 의 --px-* */
+
+/* 화면 본문 — 카드 바깥 여백 (좌우 16 · 위 12 · 아래 32). 짧아도 아래 고정 바를 바닥으로 민다. */
+.pd-body {
+  flex: 1 0 auto;
+  padding: var(--px-m) var(--px-l) var(--px-xxl);
+}
+
+/* 큰 카드 안 — 세로로 16 간격, 안쪽 여백 16 */
+.pd-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-l);
+  padding: var(--px-card-padding);
+}
+
+/* ── 머리: 커버 + 가운데 걸친 제목 카드 ── */
+.pd-hero {
+  position: relative;
+  width: 100%;
+  /* 시안 1.34 → 첫 화면에 스탯 4개까지 들어오게 1.75 로 눌렀다 */
+  aspect-ratio: 1.75;
+  background: var(--px-secondary-container);
+}
+
+.pd-hero__cover {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--px-secondary-container);
+}
+
+.pd-hero__cover > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* .px-border 가 position: relative 를 주므로 한 단계 더 구체적으로 덮는다 */
+.pd-hero .pd-hero__title {
+  position: absolute;
+  left: var(--px-m);
+  right: var(--px-m);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--px-s);
+  padding: var(--px-m);
+  background: var(--px-surface);
+}
+
+.pd-badge {
+  padding: var(--px-xs) var(--px-s);
+  background: var(--px-surface-low);
+  color: var(--px-primary);
+}
+
+/* ── 설명 · 경로 상자 (종이 안의 상자 = surfaceLow) ── */
+.pd-box {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--px-l);
+  padding: var(--px-card-padding);
+  background: var(--px-surface-low);
+}
+
+.pd-objective {
+  margin: 0;
+  color: var(--px-ink);
+}
+
+/* ── 스탯 2×2 ── */
+.pd-stats {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--px-m);
+}
+
+.pd-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--px-xs);
+  min-width: 0;
+  padding: var(--px-s);
+  background: var(--px-surface);
+  text-align: center;
+}
+
+/* ── 경로 안내 머리 (아이콘만 초록, 제목·밑줄은 잉크) ── */
+.pd-route-head {
+  display: flex;
+  align-items: center;
+  gap: var(--px-s);
+  padding-bottom: var(--px-m);
+  border-bottom: var(--px-border) solid var(--px-ink);
+}
+
+.pd-route-head h2 {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--px-ink);
+}
+
+.pd-route-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-s);
+}
+
+/* ── 장소 정보 문 (파랑 채움 · 버튼 문법) ── */
+.pd-place-button {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: var(--px-m);
+  background: var(--px-secondary);
+  color: var(--px-on-secondary);
+}
+
+/* ── 아래 고정 바 ── */
+.pd-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 시안 button.w-full.bg-primary.py-3.border-4 — 글자 24 라 PixelButton(48·14)을 쓰지 않는다 */
+.pd-start {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: var(--px-m) 0;
+  background: var(--px-primary);
+  color: var(--px-on-primary);
+}
+
+.pd-start__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--px-s);
+  max-width: 100%;
+  min-width: 0;
+}
+
+.pd-start__text {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+ * 「처음부터 다시 하기」 — 글자는 12 로 작지만 누르는 자리는 44 를 확보한다(앱인토스 규칙).
+ * Swift 는 버튼과 8 떨어진 글자 한 줄이다. 위 8 은 그 간격을, 아래 20 은 바의 아래 여백을
+ * 투명하게 빌려 쓴다 — 보이는 배치는 Swift 와 같다.
+ */
+.pd-reset {
+  background: none;
+  min-height: 44px;
+  padding: var(--px-s) var(--px-l) 20px;
+  margin-bottom: -20px;
+  color: var(--px-ink-weak);
+}
+
+/* ── 불러오는 중 · 실패 ── */
+.pd-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--px-s);
+  width: 100%;
+  padding: var(--px-xxxl);
+  text-align: center;
+}

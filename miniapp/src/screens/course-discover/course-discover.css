@@ -1,0 +1,333 @@
+/*
+ * 코스 탭 — TasteDiscoveryView.swift · CourseListView.swift 의 화면 전용 값.
+ * 공용 토큰(--px-*)만 쓴다. 클래스는 전부 `.cd-` 로 시작한다.
+ */
+
+/* ═════════════════════════ 코스 찾기 첫 화면 (TasteDiscoveryView) ═════════════════════════ */
+
+.cd-screen {
+  position: relative;
+}
+
+.cd-discover {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-section-gap);
+  /* .padding(.horizontal, screenMargin) · .padding(.top, xl) · .padding(.bottom, xxxl) */
+  padding: var(--px-xl) var(--px-screen-margin) var(--px-xxxl);
+}
+
+.cd-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-card-gap);
+}
+
+/* ── 픽셀 제주 지도 (JejuOverworldPicker) ── */
+
+.cd-overworld {
+  position: relative;
+  width: 100%;
+  /* 그림 원본 1500×1000 — 비율이 어긋나면 버튼이 엉뚱한 데 붙는다 */
+  aspect-ratio: 3 / 2;
+}
+
+.cd-overworld__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 버튼이 앉는 자리 — 가운데가 (x, y) 비율 지점에 온다 (SwiftUI .position) */
+.cd-spot {
+  position: absolute;
+  /* 네 버튼의 너비를 묶는다 — 화면 폭의 21% */
+  width: 21%;
+  transform: translate(-50%, -50%);
+}
+
+.cd-spot__button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: 100%;
+  /* 앱인토스 터치 타깃 44px (Swift 는 36pt 안팎) */
+  min-height: 44px;
+  padding: var(--px-xs) 0;
+  text-align: center;
+}
+
+.cd-spot__label {
+  font-family: var(--px-font);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: var(--px-line);
+}
+
+/* Swift `.system(size: 9, weight: .semibold)` — 앱인토스 최소 12px 로 올렸다 */
+.cd-spot__sublabel {
+  font-family: var(--px-font-reading);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* ── 기간 칩 2×2 ── */
+
+.cd-durations {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--px-s);
+}
+
+.cd-duration {
+  height: var(--px-button-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--px-font);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: var(--px-line);
+}
+
+/* ── 코스 찾기 버튼 ── */
+
+.cd-search {
+  width: 100%;
+  height: var(--px-button-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--px-font);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: var(--px-line);
+}
+
+.cd-search[aria-disabled='true'] {
+  cursor: default;
+}
+
+/* ── 「다른 코스」 — 보이는 상자는 작고, 누르는 자리는 44px ── */
+
+.cd-refresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  /* 보이는 상자(약 24px)보다 커진 만큼 줄 높이를 먹지 않게 되돌린다 */
+  margin: -10px 0;
+}
+
+.cd-refresh:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.cd-refresh__box {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--px-xs);
+  padding: var(--px-xs) var(--px-s);
+  background: var(--px-surface);
+  color: var(--px-ink);
+  font-family: var(--px-font);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: var(--px-line);
+  white-space: nowrap;
+}
+
+.cd-featured-empty {
+  width: 100%;
+  padding: var(--px-xl) 0;
+  color: var(--px-ink-weak);
+}
+
+.cd-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-card-gap);
+}
+
+/* ═════════════════════════ 추천 결과 목록 (CourseListView) ═════════════════════════ */
+
+.cd-state {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cd-state__box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--px-m);
+  padding: var(--px-xxl);
+  text-align: center;
+}
+
+.cd-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--px-xl);
+}
+
+.cd-loading__image {
+  display: block;
+  width: 128px;
+  height: 128px;
+}
+
+/* 헤더는 스크롤해도 위에 붙어 있다 (Swift: 헤더가 ScrollView 바깥) */
+.cd-list-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-xs);
+  /* Swift 위 여백 xxxl + s(56) 은 떠 있는 뒤로가기(36) 자리를 포함한다 — 버튼을 그리지 않으니 그만큼 줄였다 */
+  padding: var(--px-xl) 24px var(--px-m);
+  background: var(--px-background);
+}
+
+.cd-list-header__title {
+  margin: 0;
+  color: var(--px-ink);
+}
+
+.cd-list-header__subtitle {
+  margin: 0;
+  color: var(--px-ink-weak);
+}
+
+.cd-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0 24px 24px;
+}
+
+/* ═════════════════════════ 코스 카드 (CourseCard) ═════════════════════════ */
+
+.cd-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-m);
+  width: 100%;
+  padding: var(--px-card-padding);
+  background: var(--px-surface);
+  text-align: left;
+}
+
+.cd-card__cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+}
+
+.cd-card__cover-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cd-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.cd-card__badge {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 5px;
+  font-family: var(--px-font);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: var(--px-line);
+  white-space: nowrap;
+}
+
+/* 순위 2·3 은 파랑을 옅게 깐다 — 글자는 흐리지 않게 바탕만 따로 */
+.cd-card__badge-fill {
+  position: absolute;
+  inset: 0;
+}
+
+.cd-card__badge-text {
+  position: relative;
+}
+
+.cd-card__titles {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cd-card__title {
+  color: var(--px-ink);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.cd-card__days {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--px-ink-weak);
+}
+
+.cd-card__chevron {
+  flex: 0 0 auto;
+  color: var(--px-ink-weak);
+}
+
+.cd-card__chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cd-card__chip {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 5px var(--px-s);
+  background: var(--px-surface-low);
+  color: var(--px-ink);
+  --px-border-color: var(--px-outline-variant);
+}
+
+.cd-card__more {
+  flex: 0 0 auto;
+  padding: 0 var(--px-s);
+  color: var(--px-ink-weak);
+  white-space: nowrap;
+}

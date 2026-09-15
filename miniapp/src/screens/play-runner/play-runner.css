@@ -1,0 +1,439 @@
+/* PLAY 진행 화면 — PlayRunnerView.swift · PixelScene.swift · MissionStepInput.swift · MissionReportSheet.swift
+ * 값은 Swift 그대로. 접두어 .pr- */
+
+/* ── 화면 뼈대: 배경 위에 HUD(고정) + 아래 붙은 대화 영역(길면 이 안에서 스크롤) ── */
+.pr-root {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background: var(--px-surface-dim);
+}
+
+.pr-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--px-surface-dim);
+}
+
+.pr-bg__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 아래가 어두워야 그림 위에 얹힌 것들이 읽힌다 — PixelColor.ink(#181a2a) 75% → 가운데에서 투명 */
+.pr-bg__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(24, 26, 42, 0.75) 0%, rgba(24, 26, 42, 0) 50%);
+}
+
+.pr-hud {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--px-s);
+  padding: var(--px-s) var(--px-xl) 0;
+}
+
+.pr-hud__right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--px-s);
+}
+
+.pr-scroll {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 내용이 짧으면 아래에 붙고, 길면 위로 자라며 스크롤한다 */
+.pr-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--px-m);
+  padding: var(--px-xl) var(--px-l) calc(var(--px-xl) + var(--px-safe-bottom));
+}
+
+/* ── HUD ── */
+.pr-hud-btn {
+  width: 44px;
+  height: 44px;
+  margin: -4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.pr-hud-btn__face {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--px-surface-mid);
+  box-shadow: var(--px-shadow-small) var(--px-shadow-small) 0 0 var(--px-ink);
+}
+
+.pr-hud-btn:active .pr-hud-btn__face {
+  transform: translate(var(--px-shadow-small), var(--px-shadow-small));
+  box-shadow: none;
+}
+
+.pr-hud-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--px-s);
+  height: 36px;
+  padding: 0 var(--px-s);
+  background: var(--px-surface);
+  white-space: nowrap;
+}
+
+.pr-hud-progress__cells {
+  display: flex;
+  gap: 2px;
+}
+
+.pr-hud-progress__cells > span {
+  width: 8px;
+  height: 8px;
+  display: block;
+}
+
+/* 「AI 음성」 — Typecast 생성 음성 표시 (앱인토스 생성형 AI 표시 의무) */
+.pr-ai-tag {
+  padding: 2px 6px;
+  background: var(--px-surface);
+  color: var(--px-ink);
+  font-family: var(--px-font);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: var(--px-line);
+  white-space: nowrap;
+}
+
+/* ── 대화상자 ── */
+.pr-dialogue {
+  position: relative;
+  padding: var(--px-card-padding);
+  background: var(--px-surface);
+}
+
+.pr-dialogue__next {
+  position: absolute;
+  right: var(--px-xs);
+  bottom: var(--px-xs);
+  z-index: 2;
+  display: block;
+}
+
+.pr-speech {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--px-l);
+}
+
+.pr-speech__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-s);
+}
+
+.pr-portrait {
+  flex: none;
+  display: block;
+  background: var(--px-surface-high);
+}
+
+.pr-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* 타이핑 — 다 나온 글을 투명하게 깔아 높이를 먼저 잡는다. lineSpacing(6) */
+.pr-typewriter {
+  position: relative;
+  font-family: var(--px-font);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: calc(18px * var(--px-line) + 6px);
+  color: var(--px-ink);
+  white-space: pre-wrap;
+  cursor: pointer;
+}
+
+.pr-typewriter__ghost {
+  visibility: hidden;
+  display: block;
+}
+
+.pr-typewriter__shown {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.pr-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── 정보판 ── */
+.pr-info {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--px-m);
+  padding: var(--px-card-padding);
+  background: var(--px-surface-low);
+}
+
+.pr-info__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--px-s);
+}
+
+.pr-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--px-s);
+}
+
+.pr-box {
+  padding: var(--px-m);
+  background: var(--px-surface);
+}
+
+.pr-badge {
+  align-self: flex-start;
+  padding: var(--px-xs) var(--px-s);
+}
+
+.pr-hint-tag {
+  flex: none;
+  padding: 2px var(--px-xs);
+  background: var(--px-accent);
+  color: var(--px-on-accent);
+}
+
+/* 막히면 나갈 길 — 작은 글자 버튼. 누르는 자리는 44 */
+.pr-escape {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--px-l);
+}
+
+.pr-escape > button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--px-ink-weak);
+}
+
+.pr-stats {
+  display: flex;
+  gap: var(--px-m);
+}
+
+.pr-stat {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--px-s) 0;
+  background: var(--px-surface);
+  text-align: center;
+}
+
+/* ── 장면 버튼 (sectionTitle 24 · 위아래 12) ── */
+.pr-scene-btn {
+  appearance: none;
+  margin: 0;
+  border: 0;
+  width: 100%;
+  padding: var(--px-m) var(--px-s);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--px-font);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: var(--px-line);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pr-scene-btn__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── 입력 ── */
+.pr-stack-s,
+.pr-stack-m,
+.pr-stack-l {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.pr-stack-s { gap: var(--px-s); }
+.pr-stack-m { gap: var(--px-m); }
+.pr-stack-l { gap: var(--px-l); }
+
+.pr-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--px-m);
+  padding: var(--px-card-padding);
+  text-align: left;
+}
+
+.pr-option__image {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  display: block;
+  background: var(--px-surface-high);
+}
+
+.pr-option__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.pr-direction {
+  display: flex;
+  gap: var(--px-m);
+}
+
+.pr-direction__btn {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--px-xs);
+  padding: var(--px-xl) 0;
+  background: var(--px-surface);
+  color: var(--px-ink);
+  font-family: var(--px-font);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: var(--px-line);
+}
+
+.pr-field {
+  display: block;
+  padding: var(--px-l);
+  background: var(--px-surface);
+}
+
+.pr-field__input {
+  appearance: none;
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--px-ink);
+  text-align: center;
+}
+
+.pr-field__input::placeholder {
+  color: var(--px-outline);
+  opacity: 1;
+}
+
+.pr-field__textarea {
+  resize: none;
+  min-height: calc(16px * var(--px-line) * 3);
+}
+
+.pr-match {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--px-m);
+}
+
+.pr-match > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.pr-chip-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--px-xs);
+  padding: var(--px-m);
+  text-align: left;
+}
+
+/* ── 신고 시트 (시트 본문 16 + 4 = Swift screenMargin 20) ── */
+.pr-report {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--px-l);
+  padding: var(--px-xs);
+}
+
+.pr-report--sent {
+  align-items: center;
+  padding-top: var(--px-xxl);
+}
+
+/* ── 불러오기 · 실패 ── */
+.pr-status {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--px-s);
+  padding: var(--px-xxxl);
+  background: var(--px-background);
+  text-align: center;
+}

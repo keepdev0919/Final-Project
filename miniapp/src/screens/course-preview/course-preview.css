@@ -1,0 +1,282 @@
+/* 코스 상세 — Views/CoursePreviewView.swift 의 값 그대로. 접두어 .cpv- */
+
+/* ── 제목 (header) ──
+ * Swift: VStack(spacing: m) · 좌우 xxxl+s(56) · 위 s+36+m · 아래 l.
+ * 떠 있는 뒤로가기(36)를 버렸으니 위 여백은 s+m(20)으로 줄였다. */
+.cpv-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--px-m);
+  padding: calc(var(--px-s) + var(--px-m)) calc(var(--px-xxxl) + var(--px-s)) var(--px-l);
+}
+
+.cpv-title {
+  margin: 0;
+  text-align: center;
+  color: var(--px-ink);
+  overflow-wrap: anywhere;
+}
+
+.cpv-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--px-s);
+}
+
+/* 제목 아래 칩 — 테두리 2 + 작은 그림자, 높이 28, 좌우 s+2 */
+.cpv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--px-xs);
+  height: 28px;
+  padding: 0 calc(var(--px-s) + 2px);
+  white-space: nowrap;
+}
+
+/* ── Day 칩 ──
+ * Swift: 가로 스크롤 · 칩 사이 8 · 좌우 16 · 위 l(16). 칩은 좌우 14 위아래 7 (높이 30).
+ * 터치 타깃 44 를 위해 버튼은 44 로 두고, 늘어난 7px 씩은 바깥 여백에서 도로 뺀다 —
+ * 그래서 보이는 간격은 Swift 와 같다. */
+.cpv-days {
+  margin-top: calc(var(--px-l) - 7px);
+  margin-bottom: -7px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cpv-days::-webkit-scrollbar {
+  display: none;
+}
+
+.cpv-days__row {
+  display: flex;
+  gap: 8px;
+  width: max-content;
+  padding: 0 16px;
+}
+
+.cpv-days__row > .cpv-day {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cpv-day__chip {
+  position: relative;
+  display: block;
+  padding: 7px 14px;
+  color: var(--px-primary);
+  white-space: nowrap;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* primary.opacity(0.1) — 색을 새로 만들지 않고 주색을 10% 로 깐다 */
+.cpv-day__chip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--px-primary);
+  opacity: 0.1;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.cpv-day__chip > span {
+  position: relative;
+}
+
+.cpv-day__chip.is-selected {
+  color: var(--px-on-primary);
+}
+
+.cpv-day__chip.is-selected::before {
+  opacity: 1;
+}
+
+/* ── 고른 하루 (DaySectionView) ── 위 m · 아래 xxl */
+.cpv-section {
+  /* 장소가 적은 날에도 하단 바가 화면 바닥에 붙도록 남는 높이를 이 칸이 먹는다 */
+  flex: 1 0 auto;
+  padding: var(--px-m) 0 var(--px-xxl);
+}
+
+.cpv-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--px-xs);
+  padding: 0 var(--px-xl) var(--px-m);
+  color: var(--px-ink-weak);
+}
+
+.cpv-place-wrap {
+  padding: 0 var(--px-xl) var(--px-m);
+}
+
+/* PlaceCard — HStack(top, 12) · 안쪽 m · 흰 면 · 테두리 2. 누르면 2px 그림자 속으로 가라앉는다. */
+.cpv-place {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: var(--px-m);
+  background: var(--px-surface);
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* NumberedMarker — 28×28 주색 · 흰 글자 · 2px 잉크 테두리 */
+.cpv-num {
+  flex: none;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--px-primary);
+  color: var(--px-on-primary);
+  border: var(--px-border) solid var(--px-ink);
+}
+
+.cpv-place__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cpv-place__name {
+  color: var(--px-ink);
+  overflow-wrap: anywhere;
+}
+
+/* ── 하단 고정 바 (actionButtons) ── VStack(spacing: 12) */
+.cpv-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.cpv-actions__row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.cpv-actions__row > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* ── 토스트 ── 위 s+s (떠 있는 뒤로가기 36 을 뺐다) · 좌우 20 위아래 10 · body */
+.cpv-toast-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  padding: calc(var(--px-s) + var(--px-s) + var(--px-safe-top)) var(--px-l) 0;
+  pointer-events: none;
+}
+
+.cpv-toast {
+  padding: 10px 20px;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(calc(-100% - 16px));
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.1),
+    opacity 0.3s ease,
+    visibility 0s linear 0.3s;
+}
+
+.cpv-toast.is-on {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.1),
+    opacity 0.3s ease,
+    visibility 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cpv-toast,
+  .cpv-toast.is-on {
+    transform: none;
+  }
+  .cpv-day__chip,
+  .cpv-day__chip::before {
+    transition: none;
+  }
+}
+
+/* ── 이름 변경 시트 ── */
+.cpv-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-s);
+}
+
+.cpv-input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 48px;
+  padding: 0 var(--px-m);
+  border: var(--px-border) solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-surface);
+  color: var(--px-ink);
+  /* 16 이상이어야 iOS 가 입력칸을 누를 때 화면을 확대하지 않는다 */
+  font-family: var(--px-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: var(--px-line);
+  appearance: none;
+}
+
+.cpv-input::placeholder {
+  color: var(--px-ink-weak);
+}
+
+.cpv-input:focus {
+  outline: 2px solid var(--px-primary);
+  outline-offset: 2px;
+}
+
+.cpv-sheet-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: var(--px-xl);
+}
+
+.cpv-sheet-actions > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* ── 다시 받아야 할 때 (새로고침·딥링크로 들어와 코스를 못 받았을 때) ── */
+.cpv-center {
+  align-items: center;
+  justify-content: center;
+}
+
+.cpv-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px;
+  text-align: center;
+}

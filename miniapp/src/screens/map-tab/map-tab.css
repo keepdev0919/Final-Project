@@ -1,0 +1,189 @@
+/* 지도 탭 — MapTabView.swift · PlayMapCard · PlayPinMap.swift */
+
+/* 화면이 뷰포트 높이를 채우고, 지도가 남은 높이를 다 먹는다 (Swift VStack + 지도). */
+.maptab {
+  height: 100%;
+}
+
+/* ── 머리말 카드 ── .padding(.horizontal, 20) .padding(.top, 12) .padding(.bottom, 16) */
+.maptab-intro {
+  padding: var(--px-m) var(--px-screen-margin) var(--px-l);
+}
+
+/*
+ * 권역 칩은 눈에 보이는 높이가 약 31px(위아래 6 + 14px 글자)이라 앱인토스 터치 기준(44px)에 모자란다.
+ * 버튼만 44px 로 키우고, 늘어난 만큼 위아래 여백을 줄여 **보이는 간격은 Swift 그대로** 둔다.
+ *   slack = (44 - 칩 높이) / 2
+ */
+.maptab {
+  --maptab-chip-slack: calc((44px - 12px - 14px * var(--px-line)) / 2);
+}
+
+/* ── 범례 ── HStack(spacing: 16) · .padding(.horizontal, 20) .padding(.bottom, 8) */
+.maptab-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--px-l);
+  padding: 0 var(--px-screen-margin) calc(var(--px-s) - var(--maptab-chip-slack));
+}
+
+/* HStack(spacing: 4) */
+.maptab-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--px-xs);
+  color: var(--px-ink-weak);
+}
+
+/* 12×12 사각형 + 잉크 2px 선. SwiftUI stroke 는 선이 가장자리를 반씩 걸친다 → outline-offset -1px */
+.maptab-legend__swatch {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  outline: var(--px-border) solid var(--px-ink);
+  outline-offset: -1px;
+}
+
+/* ── 권역 칩 ── 가로 스크롤 · 스크롤바 숨김 */
+.maptab-chips {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  flex: none;
+}
+
+.maptab-chips::-webkit-scrollbar {
+  display: none;
+}
+
+/* HStack(spacing: 8) · .padding(.horizontal, 20) .padding(.bottom, 12) */
+.maptab-chips__row {
+  display: flex;
+  gap: var(--px-s);
+  width: max-content;
+  padding: 0 var(--px-screen-margin) calc(var(--px-m) - var(--maptab-chip-slack));
+}
+
+.maptab-chip {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* ── 지도 + 미니 카드 ── */
+.maptab-map {
+  flex: 1 1 auto;
+  /* 화면이 아주 낮아도 지도가 사라지지 않게 (웹 전용 하한) */
+  min-height: 240px;
+  overflow: hidden;
+}
+
+/* ZStack(alignment: .bottom) 의 카드 자리. .padding(12) */
+.maptab-card-slot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: var(--px-m);
+  /* .transition(.move(edge: .bottom)) + .animation(.default) */
+  animation: maptab-card-in 350ms cubic-bezier(0.42, 0, 0.58, 1) both;
+}
+
+.maptab-card-slot--instant {
+  animation: none;
+}
+
+.maptab-card-slot--leaving {
+  animation: maptab-card-out 350ms cubic-bezier(0.42, 0, 0.58, 1) both;
+  pointer-events: none;
+}
+
+@keyframes maptab-card-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes maptab-card-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* 움직임 없이 바로 — 사라질 때도 animationend 가 오도록 아주 짧게 */
+  .maptab-card-slot,
+  .maptab-card-slot--leaving {
+    animation-duration: 1ms;
+  }
+}
+
+/* PixelCard 안: .padding(16) · VStack(alignment: .leading, spacing: 12) */
+.maptab-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-m);
+  padding: var(--px-card-padding);
+}
+
+/* HStack(alignment: .top, spacing: 12) */
+.maptab-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--px-m);
+}
+
+/* 72×72 · surfaceHigh · clipped · pixelBorder */
+.maptab-card__thumb {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+  background: var(--px-surface-high);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.maptab-card__thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* VStack(alignment: .leading, spacing: 4) + Spacer(minLength: 0) */
+.maptab-card__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--px-xs);
+}
+
+.maptab-card__text p,
+.maptab-card__text h2 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* 닫기 — 그림은 24px, 누르는 자리는 44px (늘어난 만큼 음수 여백으로 자리는 24px 그대로) */
+.maptab-card__close {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin: -10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

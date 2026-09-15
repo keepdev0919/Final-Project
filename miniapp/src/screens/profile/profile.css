@@ -1,0 +1,114 @@
+/* 프로필 탭 — Views/ProfileTabView.swift + MyCourseListView.swift */
+
+/* PixelTopBar 는 Swift 에서 ScrollView 바깥에 있어 스크롤해도 제자리다.
+   웹의 스크롤 상자는 셸의 .px-app__main 하나라서 sticky 로 붙인다. */
+.profile-top {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* ScrollView 안 VStack(alignment: .leading, spacing: sectionGap)
+   .padding(.horizontal, screenMargin) .padding(.top, xxl) .padding(.bottom, xxxl) */
+.profile-body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--px-section-gap);
+  padding: var(--px-xxl) var(--px-screen-margin) var(--px-xxxl);
+}
+
+/* VStack(alignment: .leading, spacing: cardGap) — 섹션 머리 + 목록 */
+.profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-card-gap);
+}
+
+/* ── 빈 상태: VStack(spacing: s) .frame(maxWidth: .infinity) .padding(.vertical, xxl) ── */
+.profile-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--px-s);
+  padding: var(--px-xxl) 0;
+  text-align: center;
+}
+
+.profile-empty__title,
+.profile-empty__message {
+  margin: 0;
+}
+
+/* ── 담아 둔 코스 목록: LazyVStack(spacing: cardGap) ── */
+.profile-course-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--px-card-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 행 카드: SavedCourseRow .padding(.vertical, 4) → .padding(cardPadding)
+   .background(surface) .pixelBorder() .pixelShadow(shadowCard) */
+.profile-course-card {
+  display: block;
+  width: 100%;
+  padding: calc(var(--px-card-padding) + 4px) var(--px-card-padding);
+  background: var(--px-surface);
+  color: var(--px-ink);
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* .buttonStyle(.plain) — 누르는 동안 살짝 흐려진다(iOS plain 버튼의 눌림 표시). */
+.profile-course-card:active {
+  opacity: 0.7;
+}
+
+/* VStack(alignment: .leading, spacing: 6) */
+.profile-course-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-course-row__title {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* HStack { Label · Label } — 기본 간격 8 */
+.profile-course-row__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--px-s);
+  color: var(--px-ink-weak);
+}
+
+.profile-course-row__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── 개인정보 처리방침: 제목 없는 조용한 한 줄 ──
+   글자는 12px 한 줄(약 16px)이라 눌리는 면을 44px 로 넓히되,
+   음수 여백으로 되돌려 글자 자리는 Swift 와 같게 둔다. */
+.profile-privacy {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  margin: -14px -12px;
+  color: var(--px-ink-weak);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-privacy:active {
+  opacity: 0.6;
+}
