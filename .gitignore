@@ -85,3 +85,6 @@ ios/DerivedData/
 
 # Office 가 문서를 열어 둔 동안 만드는 잠금 파일
 ~$*
+
+# 운영 서버에서 꺼낸 신고·KTO 호출 기록 백업 (2026-09-15~). 서버 이미지와 무관하다.
+storage/backups/
