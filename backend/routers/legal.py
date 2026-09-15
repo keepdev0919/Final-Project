@@ -12,11 +12,22 @@ from fastapi.responses import HTMLResponse
 
 router = APIRouter(tags=["legal"])
 
-_PRIVACY_HTML = (
-    Path(__file__).resolve().parent.parent / "static" / "privacy.html"
-).read_text(encoding="utf-8")
+_STATIC = Path(__file__).resolve().parent.parent / "static"
+_PRIVACY_HTML = (_STATIC / "privacy.html").read_text(encoding="utf-8")
+# App Store Connect 의 필수 항목 「지원 URL」. 비어 있으면 앱 등록 자체가 저장되지 않는다.
+_SUPPORT_HTML = (_STATIC / "support.html").read_text(encoding="utf-8")
 
 
 @router.get("/privacy", response_class=HTMLResponse)
 def privacy_policy() -> HTMLResponse:
     return HTMLResponse(_PRIVACY_HTML)
+
+
+@router.get("/support", response_class=HTMLResponse)
+def support_page() -> HTMLResponse:
+    return HTMLResponse(_SUPPORT_HTML)
+
+
+@router.get("/support", response_class=HTMLResponse)
+def support_page() -> HTMLResponse:
+    return HTMLResponse(_SUPPORT_HTML)
