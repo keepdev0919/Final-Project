@@ -7,7 +7,8 @@ name: 서버 테스트
 
 on:
   push:
-    branches: [main, miniapp]
+    # 브랜치 이름 = 배포되는 곳 (2026-09-16): appstore → production, apps-in-toss → apps-in-toss
+    branches: [appstore, apps-in-toss]
   pull_request:
 
 jobs:

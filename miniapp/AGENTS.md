@@ -59,10 +59,11 @@
 
 | Railway 환경 | 주소 | 누가 부르나 |
 |---|---|---|
-| `production` | nolmeongbopseo-production.up.railway.app | 앱스토어 iOS 1.0 (2) — GitHub `main` 브랜치에서 자동 배포 |
+| `production` | nolmeongbopseo-production.up.railway.app | 앱스토어 iOS 1.0 (2) — GitHub `appstore` 브랜치에서 자동 배포 |
 | `apps-in-toss` | nolmeongbopseo-apps-in-toss.up.railway.app | 이 미니앱 (`src/api/config.ts`) |
 
 - 둘 다 같은 `../backend/` 코드다. 출시본 iOS 코드는 git 태그 `ios-1.0-build2` 에 있다.
-- 배포는 GitHub push 로 자동이다 (2026-09-15~): `miniapp` 브랜치 → apps-in-toss, `main` → production.
+- 배포는 GitHub push 로 자동이다 (2026-09-15~): `apps-in-toss` 브랜치 → apps-in-toss, `appstore` → production.
+  (2026-09-16 `miniapp`·`main` 에서 이름을 바꿨다 — 브랜치 이름 = 배포되는 곳.)
   서버 테스트(파이썬 3.12)가 통과해야 배포되고, 서버에 들어가는 파일이 바뀐 커밋만 배포된다.
-  **서버 코드를 `main` 에 합치면 앱스토어 앱의 서버가 바뀐다.** `railway up` 은 쓰지 않는다.
+  **서버 코드를 `appstore` 에 합치면 앱스토어 앱의 서버가 바뀐다.** `railway up` 은 쓰지 않는다.
