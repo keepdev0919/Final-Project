@@ -786,6 +786,12 @@ final class RunnerViewModel: ObservableObject {
     /// 이미 CLEAR 한 기록은 이어받지 않는다 — 「다시 하기」는 처음부터가 맞다.
     /// 이어받을 때는 **완료한 미션 다음**에서 시작한다. 지금 하던 미션의 Step·힌트는
     /// 저장하지 않으므로 그 미션은 처음부터 다시 푼다.
+    ///
+    /// **미션을 다 끝냈는데 CLEAR 전이면 FINAL 부터 연다** (2026-09-15 조익준님 결정).
+    /// FINAL 에서 나간 경우다. 전에는 마지막 Point 도착 안내부터 마지막 미션을 다시
+    /// 풀게 했다. 저장 형식은 그대로다 — `completedMissionIds` 만 보고 판단하므로
+    /// 이미 기기에 저장된 진행도 그대로 읽힌다. `missionIndex` 는 마지막 미션에 둔다 —
+    /// 처음부터 풀어 FINAL 에 닿았을 때(`advance()`)와 같은 자리다.
     init(play: Play) {
         self.play = play
         self.flat = play.orderedMissions
@@ -794,6 +800,11 @@ final class RunnerViewModel: ObservableObject {
             self.progress = saved
             self.missionIndex = flat.firstIndex { !saved.completedMissionIds.contains($0.mission.id) }
                 ?? max(flat.count - 1, 0)
+            let allMissionsDone = !flat.isEmpty
+                && flat.allSatisfy { saved.completedMissionIds.contains($0.mission.id) }
+            if allMissionsDone, play.final != nil {
+                self.phase = .finalStage
+            }
         } else {
             self.progress = PlayProgress(play: play)
         }
