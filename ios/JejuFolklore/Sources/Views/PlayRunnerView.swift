@@ -795,12 +795,17 @@ final class RunnerViewModel: ObservableObject {
     /// 풀게 했다. 저장 형식은 그대로다 — `completedMissionIds` 만 보고 판단하므로
     /// 이미 기기에 저장된 진행도 그대로 읽힌다. `missionIndex` 는 마지막 미션에 둔다 —
     /// 처음부터 풀어 FINAL 에 닿았을 때(`advance()`)와 같은 자리다.
+    ///
+    /// **끝낸 미션의 발견·이야기(또는 FINAL 이야기)를 보다가 나갔으면 그 자리부터 연다**
+    /// (2026-09-15, `PlayProgress.pendingReveal`). 원고가 바뀌어 그 발견·이야기를 못 찾으면
+    /// 위 규칙대로 연다.
     init(play: Play) {
         self.play = play
         self.flat = play.orderedMissions
 
         if let saved = PlayProgressStore.shared.load(playId: play.id), !saved.isFinished {
             self.progress = saved
+            if resumePendingReveal(saved) { return }
             self.missionIndex = flat.firstIndex { !saved.completedMissionIds.contains($0.mission.id) }
                 ?? max(flat.count - 1, 0)
             let allMissionsDone = !flat.isEmpty
@@ -810,6 +815,46 @@ final class RunnerViewModel: ObservableObject {
             }
         } else {
             self.progress = PlayProgress(play: play)
+        }
+    }
+
+    /// 보다 만 발견·이야기로 되돌아간다. 원고에서 못 찾으면 false — 그때는 `init` 의
+    /// 원래 규칙(완료한 미션 다음 / FINAL)대로 연다.
+    ///
+    /// 끊김 없이 진행했을 때와 **같은 상태**를 만든다. 그래서 그 미션의 발견 다음엔 그
+    /// 미션의 이야기가, 그다음엔 원래대로 다음 미션·FINAL 이 온다. 두 가지만 다르다 —
+    /// 막 얻은 기록 칸 축하(`justEarnedRecord`)는 이미 본 것이라 다시 띄우지 않고,
+    /// 「정답」 배지(`lastSkipped`)는 저장된 건너뛴 미션으로 판단한다.
+    private func resumePendingReveal(_ saved: PlayProgress) -> Bool {
+        switch saved.pendingReveal {
+        case .afterFinal:
+            guard let story = play.final?.story else { return false }
+            missionIndex = max(flat.count - 1, 0)
+            pendingStory = story
+            storyIsFinal = true
+            phase = .story
+            return true
+        case let .afterMission(missionId, stage):
+            guard let i = flat.firstIndex(where: { $0.mission.id == missionId }) else { return false }
+            let (point, mission) = flat[i]
+            let story = play.story(after: missionId)
+            if stage == .discovery, let discovery = mission.discovery {
+                pendingDiscovery = discovery
+                phase = .discovery
+            } else if story != nil {
+                phase = .story
+            } else {
+                return false
+            }
+            missionIndex = i
+            pendingStory = story
+            lastSkipped = saved.skippedMissionIds.contains(missionId)
+            // 이 Point 는 이미 안내를 마쳤다 — 같은 Point 의 다음 미션에서 도착 안내를
+            // 다시 띄우지 않는다. 끊김 없이 왔다면 여기서 이미 [도착했어요] 를 눌렀다.
+            introducedPointIds.insert(point.id)
+            return true
+        case nil:
+            return false
         }
     }
 
@@ -927,6 +972,15 @@ final class RunnerViewModel: ObservableObject {
         }
         pendingDiscovery = mission.discovery
         pendingStory = play.story(after: mission.id)
+        // 뒤에 볼 발견·이야기가 있으면 그 자리도 같이 적는다 — 보다가 나가도 이어서 할 때
+        // 거기부터 다시 연다. 없으면 비운다 (바로 다음 미션으로 간다).
+        if pendingDiscovery != nil {
+            progress.pendingReveal = .afterMission(missionId: mission.id, stage: .discovery)
+        } else if pendingStory != nil {
+            progress.pendingReveal = .afterMission(missionId: mission.id, stage: .story)
+        } else {
+            progress.pendingReveal = nil
+        }
         hintLevel = 0
         stepIndex = 0
         PlayProgressStore.shared.save(progress)
@@ -943,7 +997,14 @@ final class RunnerViewModel: ObservableObject {
     }
 
     func afterDiscovery() {
-        if pendingStory != nil { phase = .story } else { advance() }
+        guard pendingStory != nil else { advance(); return }
+        // 보다 만 자리를 「이야기」로 옮겨 저장한다 — 이야기 중에 나가도 발견을 다시
+        // 보지 않고 이야기부터 연다.
+        if let mission = currentMission {
+            progress.pendingReveal = .afterMission(missionId: mission.id, stage: .story)
+            PlayProgressStore.shared.save(progress)
+        }
+        phase = .story
     }
 
     func afterStory() {
@@ -962,6 +1023,11 @@ final class RunnerViewModel: ObservableObject {
         pendingDiscovery = nil
         pendingStory = nil
         justEarnedRecord = nil
+        // 발견·이야기를 다 봤다 — 이어서 할 때 다시 보여줄 것이 없다.
+        if progress.pendingReveal != nil {
+            progress.pendingReveal = nil
+            PlayProgressStore.shared.save(progress)
+        }
 
         if missionIndex + 1 < flat.count {
             missionIndex += 1
@@ -991,23 +1057,25 @@ final class RunnerViewModel: ObservableObject {
             }
             return
         }
-        wrongMessage = nil
-        if let story = final.story {
-            pendingStory = story
-            storyIsFinal = true
-            phase = .story
-            return
-        }
-        finish()
+        passFinal()
     }
 
     #if DEBUG
     /// 개발 중 확인용 — 순서를 맞힌 것으로 치고 그대로 진행한다.
-    /// 정답 경로와 **같은 길**을 탄다(이야기가 있으면 이야기부터). 그래야
+    /// 정답 경로와 **같은 길**(`passFinal()`)을 탄다(이야기가 있으면 이야기부터). 그래야
     /// 이 버튼으로 넘어간 뒤에 보는 화면이 실제와 같다.
     func debugPassFinal() {
+        passFinal()
+    }
+    #endif
+
+    /// FINAL 을 맞혔을 때. 이야기가 있으면 이야기부터, 없으면 바로 CLEAR.
+    private func passFinal() {
         wrongMessage = nil
         if let story = play.final?.story {
+            // FINAL 은 맞혔다 — 이야기 중에 나가도 FINAL 을 다시 풀지 않고 이야기부터 연다.
+            progress.pendingReveal = .afterFinal
+            PlayProgressStore.shared.save(progress)
             pendingStory = story
             storyIsFinal = true
             phase = .story
@@ -1015,10 +1083,10 @@ final class RunnerViewModel: ObservableObject {
         }
         finish()
     }
-    #endif
 
     private func finish() {
         progress.finalCleared = true
+        progress.pendingReveal = nil
         // CLEAR 기록을 남긴다 — 홈 카드가 「다시 하기」로 바뀌는 근거다.
         PlayProgressStore.shared.save(progress)
         phase = .clear

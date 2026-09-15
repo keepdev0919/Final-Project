@@ -9,7 +9,8 @@ import Foundation
 /// 현장에서 전화·배터리로 앱이 내려가면 대장간집부터 다시 해야 하는 문제가 커서
 /// 되살렸다. `RunnerViewModel` 이 완료한 미션이 바뀔 때마다 `save(_:)` 를 부른다 —
 /// **Step 단위가 아니라 미션 단위로 저장한다.** 나가기 확인창의 문구가 그 정도를
-/// 정확히 말한다 (`PlayRunnerView` 참조).
+/// 정확히 말한다 (`PlayRunnerView` 참조). 끝낸 미션의 발견·이야기를 보는 동안
+/// 어디까지 봤는지(`PlayProgress.pendingReveal`)가 바뀔 때도 부른다 (2026-09-15).
 @MainActor
 final class PlayProgressStore {
     static let shared = PlayProgressStore()
