@@ -82,3 +82,9 @@ data/exports/오디_원본_API응답.csv
 # Xcode 빌드 산출물 — 빌드할 때마다 다시 생기고 593MB 나간다.
 # `git add .` 한 번에 통째로 딸려 들어가면 되돌리기 번거로우므로 막아 둔다.
 ios/DerivedData/
+
+# Office 가 문서를 열어 둔 동안 만드는 잠금 파일
+~$*
+
+# 운영 서버에서 꺼낸 신고·KTO 호출 기록 백업 (2026-09-15~). 서버 이미지와 무관하다.
+storage/backups/

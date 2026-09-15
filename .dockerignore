@@ -15,3 +15,4 @@ data/exports/
 data/processed/
 *.md
 .env
+storage/backups/

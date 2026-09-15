@@ -12,3 +12,9 @@ storage/tts_cache/
 data/exports/
 data/processed/
 data/raw/
+
+# 앱인토스 미니앱(웹) — 서버 이미지와 무관하고 node_modules 가 커서 업로드에서 뺀다.
+miniapp/
+
+# 운영 서버에서 꺼낸 기록 백업 — 서버에 다시 올리지 않는다.
+storage/backups/
