@@ -902,6 +902,10 @@ final class RunnerViewModel: ObservableObject {
         // 발견을 준비하는 경우가 있다 (콘텐츠.md §13).
         justEarnedRecord = nil
         pendingSuccess = nil
+        // 오답을 내고 「정답과 이야기 보기」로 넘어간 미션의 문구가 다음 미션·FINAL 에
+        // 남지 않게 한다. 같은 Point 의 다음 미션은 도착 안내(`arrivedAtPoint`)를
+        // 거치지 않아서, 여기서 안 비우면 풀기도 전에 「또 틀렸나?」로 읽힌다.
+        wrongMessage = nil
         if let reward = mission.progressReward,
            !progress.discoveredRecordIds.contains(reward) {
             progress.discoveredRecordIds.append(reward)
