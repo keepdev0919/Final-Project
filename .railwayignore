@@ -1,0 +1,14 @@
+# Railway 업로드에서 뺀다 — 서버 이미지에 들어가지 않는 것 (.dockerignore 와 같은 기준).
+# 업로드가 가벼워져 배포가 빨라진다.
+ios/
+docs/
+submissions/
+scripts/
+tests/
+backend/tests/
+backend/venv/
+storage/vector_db/
+storage/tts_cache/
+data/exports/
+data/processed/
+data/raw/
