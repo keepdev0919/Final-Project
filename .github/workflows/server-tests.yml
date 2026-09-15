@@ -1,0 +1,25 @@
+# 서버 테스트 — push 할 때마다 서버와 같은 파이썬으로 테스트를 돌린다 (2026-09-15).
+#
+# 개발 맥은 파이썬 3.14, 서버(Dockerfile)는 3.12 다. 맥에서만 테스트하다가 3.14 에만 있는
+# 함수(uuid.uuid7) 때문에 미션 신고가 출시부터 서버에서만 실패한 일이 있었다.
+# Railway 는 「Wait for CI」로 이 검사가 통과한 커밋만 배포한다.
+name: 서버 테스트
+
+on:
+  push:
+    branches: [main, miniapp]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"  # Dockerfile 의 FROM python:3.12 와 같아야 한다 (tests/test_server_python.py 가 확인)
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      # 서버 의존성 + 테스트 도구. fonttools 는 iOS 픽셀 폰트 테스트용
+      - run: pip install -r backend/requirements.txt pytest httpx fonttools
+      - run: pytest -q
