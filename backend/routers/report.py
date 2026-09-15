@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import logging
 import time
-import uuid
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
@@ -30,6 +29,7 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from services.db import get_db_connection
+from services.ids import uuid7
 
 router = APIRouter(prefix="/report", tags=["report"])
 limiter = Limiter(key_func=get_remote_address)
@@ -61,7 +61,7 @@ def report_mission(request: Request, body: MissionReportRequest) -> dict:
     if body.reason not in ALLOWED_REASONS:
         raise HTTPException(status_code=400, detail=f"모르는 사유: {body.reason}")
 
-    report_id = str(uuid.uuid7())
+    report_id = uuid7()
     conn = get_db_connection()
     conn.execute(
         "INSERT INTO records.mission_reports "

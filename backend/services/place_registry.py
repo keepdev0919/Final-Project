@@ -21,7 +21,7 @@ Odii `stid` 를 열쇠로 쓰는 안도 잠깐 썼다가 걷어냈다. **오디�
 
 ## 왜 uuid7 인가
 
-Python 3.14 표준 라이브러리에 `uuid.uuid7()` 이 있다. 의존성이 늘지 않고,
+의존성이 늘지 않고(`services/ids.py` — 표준 `uuid.uuid7()` 은 3.14 부터라 서버 3.12 에 없다),
 ULID 의 장점인 **시간순 정렬**이 되며, 형식이 표준 UUID 라 나중에 다른 DB 로
 옮겨도 통한다.
 
@@ -41,8 +41,9 @@ from __future__ import annotations
 
 import json
 import time
-import uuid
 from pathlib import Path
+
+from services.ids import uuid7
 
 BASE_DIR = Path(__file__).parent.parent.parent
 PLACES_FILE = BASE_DIR / "data" / "places.json"
@@ -65,7 +66,7 @@ KNOWN_STATUSES = frozenset({STATUS_LIVE, STATUS_PLANNED, STATUS_CANDIDATE})
 
 def new_place_id() -> str:
     """새 Place ID. 시간순으로 정렬되는 uuid7."""
-    return str(uuid.uuid7())
+    return uuid7()
 
 
 # ── 조회 ──────────────────────────────────────────────────────────────────────
