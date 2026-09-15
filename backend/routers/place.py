@@ -2,10 +2,14 @@
 from __future__ import annotations
 
 import math
+import re
 import difflib
 import json as _json
 import logging
+import os
 import time
+import urllib.parse
+import urllib.request
 from fastapi import APIRouter, HTTPException, Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -28,36 +32,26 @@ logger = logging.getLogger(__name__)
 SIGHT_CONTENT_TYPES = frozenset({"12", "14", "25", "28", "38"})
 
 
-def _find_content_id(
+def _nearby_content_id(
     name: str,
     lat: float,
     lng: float,
-    radius: int = 500,
-    require_name_match: bool = False,
-    allowed_types: frozenset[str] | None = None,
+    radius: int,
+    allowed_types: frozenset[str] | None,
 ) -> tuple[str, str] | None:
-    """GPS 반경 검색으로 (contentId, contentTypeId) 반환.
+    """좌표 반경 검색으로 (contentId, contentTypeId). **이름이 맞는 것만** 준다.
 
-    ## 반경을 넓힐 때 함께 조여야 하는 것
+    전에는 이름이 하나도 안 맞으면 **가장 가까운 것을 대신 썼다.** 그래서
+    `해녀의부엌 종달점`을 물으면 KTO 에 없으니 바로 옆 `종달리해변` 사진과 설명이
+    붙었다 (2026-09-10 실측). 화면은 멀쩡해 보여서 눌러봐도 안 잡힌다.
+    **틀린 정보가 붙는 것보다 없는 게 낫다** — 그 폴백은 없앴다.
 
-    `radius`를 넓히면 못 찾던 장소가 잡히지만 **엉뚱한 곳이 잡힌다.**
+    ## 반경을 넓힐 때 종류도 같이 조여야 하는 이유
+
     성산일출봉 좌표에서 반경 2km를 부르면 후보 10개 중 9개가 식당·펜션이고,
-    이름 유사도로 고르면 `성산흑돼지두루치기 성산일출봉점`(음식점)이
-    `성산일출봉 [유네스코 세계자연유산]`(관광지)을 **이긴다** — 뒤에 붙은
-    `[유네스코 세계자연유산]`이 길어서 유사도가 떨어지기 때문이다(2026-08-22 실측).
-
-    그래서 두 개를 같이 준다.
-
-    - `allowed_types` — 관광지·문화시설만 받는다(`SIGHT_CONTENT_TYPES`).
-      ⚠️ **기본값은 None(제한 없음)이다.** 코스에는 식당·카페가 들어 있고
-      `/place/detail`은 그것들도 보여줘야 한다. 제한하면 코스 장소 상세가 빈다.
-    - `require_name_match` — 이름이 안 맞으면 아무것도 돌려주지 않는다.
-      틀린 사진이 붙는 것보다 없는 게 낫다.
-
-    ## 이름 고르는 순서
-
-    유사도보다 **포함 관계를 먼저 본다.** `성산일출봉`으로 찾을 때
-    `성산일출봉 [유네스코 세계자연유산]`은 이름으로 시작하므로 유사도와 무관하게 이긴다.
+    `성산흑돼지두루치기 성산일출봉점`(음식점)이 이름 포함으로 잡힐 수 있다.
+    관광지를 찾는 자리(홈·PLAY)는 `allowed_types=SIGHT_CONTENT_TYPES` 로 막는다.
+    코스 장소 상세는 식당·카페도 보여줘야 하므로 `None`(제한 없음)으로 부른다.
     """
     try:
         data = _kto_get("KorService2", "locationBasedList2", {
@@ -79,17 +73,12 @@ def _find_content_id(
                 it for it in item_list
                 if str(it.get("contenttypeid", "")) in allowed_types
             ]
-            if not item_list:
-                return None
-
         best = _pick_by_name(name, item_list)
         if best is None:
-            if require_name_match:
-                return None
-            best = item_list[0]
+            return None
         return best["contentid"], str(best.get("contenttypeid", "12"))
     except Exception as e:
-        logger.warning("KTO _find_content_id failed for %s: %s", name, e)
+        logger.warning("KTO _nearby_content_id failed for %s: %s", name, e)
         return None
 
 
@@ -202,10 +191,125 @@ def _fetch_intro(content_id: str, content_type_id: str) -> dict:
         item = data["response"]["body"]["items"]["item"]
         if isinstance(item, list):
             item = item[0]
-        return {name: _pick(item, prefixes) for name, prefixes in _INTRO_FIELDS.items()}
+        # 반복정보·무장애와 같은 정리를 거친다. 전에는 이 네 칸만 빠져 있어서
+        # 성산일출봉 운영시간에 `<br>` 이 글자로 찍혔다 (2026-09-10 발견).
+        return {name: _clean_text(_pick(item, prefixes)) for name, prefixes in _INTRO_FIELDS.items()}
     except Exception as e:
         logger.error("KTO _fetch_intro 실패 content_id=%s type=%s: %s", content_id, content_type_id, e)
         return empty
+
+
+def _clean_text(value) -> str:
+    """KTO 값의 `<br>`·줄바꿈을 정리하고, **붙어서 온 줄을 다시 끊는다.**
+
+    KTO 는 같은 칸을 장소마다 다르게 준다 (2026-09-10 실측):
+
+    - 성산일출봉 운영시간: `- 1~2월 …<br>- 3~4월 …` — `<br>` 로 줄이 나뉜다.
+    - 카멜리아힐 운영시간: `[하절기]- 08:30~18:30- 입장 마감 17:30[동절기]- …`
+      — 줄바꿈이 **아예 없다.** 원래 줄이었던 것이 붙어서 온다.
+
+    그래서 `<br>` 만 바꾸지 않고 `[머리]` 앞과 `- 항목` 앞에서도 줄을 끊는다.
+    `10:00 - 18:00` 처럼 앞에 공백이 있는 `-` 는 범위 표시라 건드리지 않는다.
+    """
+    text = str(value or "")
+    for br in ("<br>", "<br/>", "<br />", "<BR>"):
+        text = text.replace(br, "\n")
+    # 줄이 **하나도 없는** 값만 되살린다. `<br>` 로 이미 나뉜 값은 그대로 둔다 —
+    # 거기서 `- ` 를 다시 끊으면 「안내 가능- 시간 : …」 같은 문장이 반만 갈라진다.
+    if "\n" not in text:
+        # `17:30[동절기]- ` · `17:00 [3월/…] - ` → 머리 앞에서 끊는다.
+        # 뒤에 항목 표시 `-` 나 끝이 올 때만 머리다 — `성산일출봉입구[서] 정류장` 의
+        # `[서]` 는 방향 표기라 두어야 한다.
+        text = re.sub(r"(?<=\S)\s*(\[[^\]\n]{1,24}\])(?=\s*-|\s*$)", r"\n\1", text)
+        # `]- 08:30` · `17:30- 입장 마감` · `가능- 시간` → 항목 앞에서 끊는다.
+        # `09:00- 18:00` 처럼 숫자 사이에 낀 것은 범위 표시라 둔다.
+        text = re.sub(r"(?<=[^\s\d])\s*- (?=\S)", "\n- ", text)
+        text = re.sub(r"(?<=\d)\s*- (?=[^\s\d])", "\n- ", text)
+    return "\n".join(line.strip() for line in text.split("\n") if line.strip())
+
+
+def _reclean_rows(rows: list[dict]) -> list[dict]:
+    """캐시에 원문 그대로 남은 반복정보·무장애 줄도 지금 규칙으로 다시 정리한다."""
+    return [{**row, "value": _clean_text(row.get("value", ""))} for row in rows]
+
+
+def _fetch_info(content_id: str, content_type_id: str) -> list[dict]:
+    """반복정보(detailInfo2) — 화장실·주차요금·해설 안내처럼 장소마다 다른 항목.
+
+    관광지(12)는 `입 장 료`·`화장실`·`주차요금`·`한국어안내서비스` 같은 것이 오고,
+    시장·카페는 대개 비어 있다 (2026-09-10 실측). 이름표는 KTO 가 띄어 쓴 그대로
+    (`입 장 료`)라 공백을 지운다.
+    """
+    try:
+        data = _kto_get("KorService2", "detailInfo2", {
+            "contentId": content_id,
+            "contentTypeId": content_type_id,
+            "numOfRows": 20,
+        })
+        items = data["response"]["body"].get("items") or {}
+        raw = items.get("item") if isinstance(items, dict) else None
+        if not raw:
+            return []
+        rows = raw if isinstance(raw, list) else [raw]
+        out = []
+        for it in rows:
+            label = str(it.get("infoname", "")).replace(" ", "").strip()
+            value = _clean_text(it.get("infotext", ""))
+            if label and value:
+                out.append({"label": label, "value": value})
+        return out
+    except Exception as e:
+        logger.warning("KTO _fetch_info failed for content_id=%s: %s", content_id, e)
+        return []
+
+
+# 무장애 여행정보(KorWithService2 detailWithTour2)의 칸 이름 → 화면 이름표.
+# contentId 는 일반 관광정보와 **같은 번호**를 쓴다 (2026-09-10 실측: 협재 127490).
+# 값은 자유 서술이고 뒤에 `_무장애 편의시설` 같은 꼬리가 붙는다 — 떼고 보여준다.
+_ACCESSIBILITY_FIELDS = (
+    ("parking",            "장애인 주차"),
+    ("route",              "접근로"),
+    ("publictransport",    "대중교통"),
+    ("ticketoffice",       "매표소"),
+    ("exit",               "출입구"),
+    ("elevator",           "엘리베이터"),
+    ("restroom",           "장애인 화장실"),
+    ("wheelchair",         "휠체어 대여"),
+    ("stroller",           "유모차 대여"),
+    ("braileblock",        "점자블록"),
+    ("brailepromotion",    "점자 안내물"),
+    ("audioguide",         "음성 안내"),
+    ("videoguide",         "수어·영상 안내"),
+    ("guidehuman",         "안내 인력"),
+    ("helpdog",            "안내견 동반"),
+    ("lactationroom",      "수유실"),
+    ("infantsfamilyetc",   "유아 편의"),
+    ("blindhandicapetc",   "시각장애 편의"),
+    ("hearinghandicapetc", "청각장애 편의"),
+    ("handicapetc",        "기타 편의"),
+)
+
+
+def _fetch_accessibility(content_id: str) -> list[dict]:
+    """무장애 정보. 등록 안 된 장소는 빈 목록 — 제주는 181곳이 등록돼 있다 (2026-09-10)."""
+    try:
+        data = _kto_get("KorWithService2", "detailWithTour2", {"contentId": content_id})
+        items = data["response"]["body"].get("items") or {}
+        raw = items.get("item") if isinstance(items, dict) else None
+        if not raw:
+            return []
+        item = raw[0] if isinstance(raw, list) else raw
+        out = []
+        for key, label in _ACCESSIBILITY_FIELDS:
+            value = _clean_text(item.get(key, ""))
+            if "_" in value:
+                value = value.split("_", 1)[0].strip()
+            if value:
+                out.append({"label": label, "value": value})
+        return out
+    except Exception as e:
+        logger.warning("KTO _fetch_accessibility failed for content_id=%s: %s", content_id, e)
+        return []
 
 
 @router.get("/detail")
@@ -233,17 +337,23 @@ def get_place_detail(request: Request, name: str, lat: float, lng: float):
             "images":           all_to_https(_json.loads(cached["images"] or "[]")),
             "address":          cached["address"] or "",
             "tel":              cached["tel"] or "",
-            "open_time":        cached["open_time"] or "",
-            "rest_date":        cached["rest_date"] or "",
-            "use_fee":          cached["use_fee"] or "",
-            "parking":          cached["parking"] or "",
+            # 정리 규칙이 바뀌기 전에 캐시된 줄도 있어, 나갈 때 한 번 더 정리한다.
+            "open_time":        _clean_text(cached["open_time"]),
+            "rest_date":        _clean_text(cached["rest_date"]),
+            "use_fee":          _clean_text(cached["use_fee"]),
+            "parking":          _clean_text(cached["parking"]),
+            "info":             _reclean_rows(_json.loads(cached["info"] or "[]")),
+            "accessibility":    _reclean_rows(_json.loads(cached["accessibility"] or "[]")),
         }
 
-    result = _find_content_id(name, lat, lng)
+    # 종류 제한 없음 — 코스에는 식당·카페가 들어 있다. 이름이 안 맞으면 None 이다.
+    result = find_content_id(name, lat, lng)
     if not result:
-        # KTO DB에 없는 장소(공항 등)는 빈 필드로 200 반환 — iOS는 있는 정보만 표시
+        # KTO 에 없는 장소(공항·작은 가게 등)는 빈 필드로 200 반환 — iOS 는 있는 정보만
+        # 표시한다. 옆 관광지 정보를 대신 붙이지 않는다.
         return {"name": name, "overview": "", "images": [], "address": "",
-                "tel": "", "open_time": "", "rest_date": "", "use_fee": "", "parking": ""}
+                "tel": "", "open_time": "", "rest_date": "", "use_fee": "", "parking": "",
+                "info": [], "accessibility": []}
     content_id, content_type_id = result
 
     detail  = _fetch_detail(content_id)
@@ -252,6 +362,8 @@ def get_place_detail(request: Request, name: str, lat: float, lng: float):
     if first and first not in images:
         images = [first] + images
     intro   = _fetch_intro(content_id, content_type_id)
+    info    = _fetch_info(content_id, content_type_id)
+    access  = _fetch_accessibility(content_id)
 
     overview = detail.get("overview", "")
     address  = detail.get("addr1", "")
@@ -262,12 +374,14 @@ def get_place_detail(request: Request, name: str, lat: float, lng: float):
     conn.execute(
         """INSERT OR REPLACE INTO place_detail_cache
            (name, lat, lng, overview, images, address, tel,
-            open_time, rest_date, use_fee, parking, content_type_id, cached_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            open_time, rest_date, use_fee, parking, content_type_id, cached_at,
+            info, accessibility)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (name, _lat, _lng, overview, _json.dumps(images, ensure_ascii=False),
          address, tel,
          intro["open_time"], intro["rest_date"], intro["use_fee"], intro["parking"],
-         content_type_id, time.time()),
+         content_type_id, time.time(),
+         _json.dumps(info, ensure_ascii=False), _json.dumps(access, ensure_ascii=False)),
     )
     conn.commit()
 
@@ -281,6 +395,8 @@ def get_place_detail(request: Request, name: str, lat: float, lng: float):
         "rest_date": intro["rest_date"],
         "use_fee":   intro["use_fee"],
         "parking":   intro["parking"],
+        "info":      info,
+        "accessibility": access,
     }
 
 
@@ -321,8 +437,13 @@ def _search_by_keyword(name: str) -> list[dict]:
         return []
 
 
-def find_sight_content_id(name: str, lat: float, lng: float) -> tuple[str, str] | None:
-    """관광지 하나의 (contentId, contentTypeId). 못 찾으면 None.
+def find_content_id(
+    name: str,
+    lat: float,
+    lng: float,
+    allowed_types: frozenset[str] | None = None,
+) -> tuple[str, str] | None:
+    """장소 하나의 (contentId, contentTypeId). 못 찾으면 None.
 
     좌표 검색만으로는 부족하고 이름 검색만으로도 부족하다. **둘 다 쓴다.**
 
@@ -332,11 +453,14 @@ def find_sight_content_id(name: str, lat: float, lng: float) -> tuple[str, str] 
     | 좌표 검색 | 이름이 데이터와 다른 곳(`오설록티뮤지엄`↔`오설록 티뮤지엄`) | 주변에 식당이 많으면 관광지가 10개 안에 안 들어온다 |
 
     그래서 **이름으로 먼저 찾고 거리로 검증**하고, 없으면 좌표로 찾는다.
-    둘 다 관광지 계열(`SIGHT_CONTENT_TYPES`)만 받는다 — 안 그러면 성산일출봉 카드에
-    `성산흑돼지두루치기 성산일출봉점` 사진이 붙는다.
+    어느 길로 가든 **이름이 맞는 것만** 받는다 — 안 맞으면 None 이다.
+
+    `allowed_types` 로 종류를 좁힌다. 홈·PLAY 처럼 관광지를 찾는 자리는
+    `SIGHT_CONTENT_TYPES`(`find_sight_content_id`), 코스 장소 상세처럼 식당·카페도
+    보여줘야 하는 자리는 None.
     """
     for item in _search_by_keyword(name):
-        if str(item.get("contenttypeid", "")) not in SIGHT_CONTENT_TYPES:
+        if allowed_types is not None and str(item.get("contenttypeid", "")) not in allowed_types:
             continue
         try:
             item_lat, item_lng = float(item["mapy"]), float(item["mapx"])
@@ -349,10 +473,156 @@ def find_sight_content_id(name: str, lat: float, lng: float) -> tuple[str, str] 
         return item["contentid"], str(item.get("contenttypeid", "12"))
 
     for radius in (500, 2000):
-        found = _find_content_id(
-            name, lat, lng, radius=radius,
-            require_name_match=True, allowed_types=SIGHT_CONTENT_TYPES,
-        )
+        found = _nearby_content_id(name, lat, lng, radius, allowed_types)
         if found:
             return found
     return None
+
+
+def find_sight_content_id(name: str, lat: float, lng: float) -> tuple[str, str] | None:
+    """관광지 계열만 받는 `find_content_id`. 홈·PLAY 가 쓴다 — 안 그러면 성산일출봉
+    카드에 `성산흑돼지두루치기 성산일출봉점` 사진이 붙는다."""
+    return find_content_id(name, lat, lng, allowed_types=SIGHT_CONTENT_TYPES)
+
+
+# =============================================================================
+# 주변 시설 — 공중화장실(제주시) · 버스정류장(국토교통부 TAGO)
+# =============================================================================
+#
+# 젠트립이 관광지 상세에서 보여주는 「주변 화장실·정류장」과 같은 자리
+# (2026-09-10 조익준님 결정). 가이드 없이 혼자 다니는 여행자가 현장에서 실제로
+# 찾는 것이라 장소 정보 탭에 둔다.
+#
+# ⚠️ **조회 기준은 관광지 좌표다.** 사용자 위치를 서버로 보내지 않는다 —
+# 그 순간 개인위치정보를 다루는 위치기반서비스사업이 되어 신고 대상이 된다.
+#
+# | 데이터 | 출처 | 방식 |
+# |---|---|---|
+# | 공중화장실 | 제주특별자치도 제주시 (data.go.kr 15109235) | 반경 조회가 없어 415곳 전체를 하루 한 번 받아 두고 거리로 거른다. **제주시 관할만** 있다 — 서귀포시는 공공데이터포털에 API 가 없다 (2026-09-10) |
+# | 버스정류장 | 국토교통부 TAGO (data.go.kr 15098534) | 좌표 기준 근접 정류소(반경 500m). 제주 도시코드 39 |
+#
+# 전국공중화장실표준데이터는 2025년 2월부터 좌표가 빠져 쓸 수 없다.
+
+PUBLIC_KEY = os.getenv("KTO_API_KEY", "")   # 공공데이터포털 계정 하나로 같은 키를 쓴다
+TOILET_URL = "https://apis.data.go.kr/6510000/publicToiletService/getPublicToiletInfoList"
+BUS_URL = "https://apis.data.go.kr/1613000/BusSttnInfoInqireService/getCrdntPrxmtSttnList"
+NEARBY_RADIUS_M = 1000.0
+NEARBY_LIMIT = 5
+TOILET_LIST_TTL = 24 * 3600
+NEARBY_TTL = 3600
+
+_toilet_cache: dict = {"items": [], "at": 0.0}
+_nearby_cache: dict[tuple[float, float], tuple[float, dict]] = {}
+
+
+def _public_get(url: str, params: dict) -> dict:
+    params = dict(params, serviceKey=PUBLIC_KEY)
+    with urllib.request.urlopen(f"{url}?{urllib.parse.urlencode(params)}", timeout=15) as r:
+        return _json.loads(r.read())
+
+
+def _float(value) -> float | None:
+    """`126..42388329` 처럼 깨진 좌표가 섞여 있다 (2026-09-10 실측 6건). 못 읽으면 None."""
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _jeju_toilets() -> list[dict]:
+    """제주시 공중화장실 전체. 하루 한 번만 받는다."""
+    now = time.time()
+    if _toilet_cache["items"] and now - _toilet_cache["at"] < TOILET_LIST_TTL:
+        return _toilet_cache["items"]
+    try:
+        data = _public_get(TOILET_URL, {"pageNo": 1, "numOfRows": 500, "type": "json"})
+        raw = data["response"]["body"]["items"]["item"]
+        items = raw if isinstance(raw, list) else [raw]
+    except Exception as e:  # noqa: BLE001
+        logger.warning("제주시 화장실 목록 실패: %s", e)
+        return _toilet_cache["items"]
+    _toilet_cache.update(items=items, at=now)
+    return items
+
+
+def _toilets_near(lat: float, lng: float) -> list[dict]:
+    out = []
+    for it in _jeju_toilets():
+        t_lat, t_lng = _float(it.get("laCrdnt")), _float(it.get("loCrdnt"))
+        if t_lat is None or t_lng is None:
+            continue
+        dist = _haversine_m(lat, lng, t_lat, t_lng)
+        if dist > NEARBY_RADIUS_M:
+            continue
+        accessible = any(
+            (_float(it.get(k)) or 0) > 0
+            for k in ("maleDspsnClosetCnt", "femaleDspsnClosetCnt")
+        )
+        out.append({
+            "name": str(it.get("toiletNm", "")).strip(),
+            "distance_m": int(dist),
+            "lat": t_lat, "lng": t_lng,
+            "open_time": str(it.get("opnTimeInfo", "")).strip(),
+            "accessible": accessible,
+        })
+    return _closest_unique(out)
+
+
+def _bus_stops_near(lat: float, lng: float) -> list[dict]:
+    try:
+        data = _public_get(BUS_URL, {"gpsLati": lat, "gpsLong": lng, "numOfRows": 30, "_type": "json"})
+        items = data["response"]["body"].get("items") or {}
+        raw = items.get("item") if isinstance(items, dict) else None
+        if not raw:
+            return []
+        rows = raw if isinstance(raw, list) else [raw]
+    except Exception as e:  # noqa: BLE001
+        logger.warning("TAGO 정류장 실패 lat=%s lng=%s: %s", lat, lng, e)
+        return []
+    out = []
+    for it in rows:
+        s_lat, s_lng = _float(it.get("gpslati")), _float(it.get("gpslong"))
+        if s_lat is None or s_lng is None:
+            continue
+        out.append({
+            "name": str(it.get("nodenm", "")).strip(),
+            "distance_m": int(_haversine_m(lat, lng, s_lat, s_lng)),
+            "lat": s_lat, "lng": s_lng,
+        })
+    return _closest_unique(out)
+
+
+def _closest_unique(rows: list[dict]) -> list[dict]:
+    """가까운 순으로, **같은 이름은 하나만**, 최대 `NEARBY_LIMIT`.
+
+    정류장은 길 양쪽에 같은 이름으로 두 개씩 있고(`용마로` ×2), 해수욕장 관리센터
+    화장실은 같은 이름으로 세 개가 등록돼 있다. 다 늘어놓으면 다섯 줄이 두 이름이다.
+    """
+    rows = sorted(rows, key=lambda r: r["distance_m"])
+    seen: set[str] = set()
+    out = []
+    for r in rows:
+        if r["name"] in seen:
+            continue
+        seen.add(r["name"])
+        out.append(r)
+        if len(out) >= NEARBY_LIMIT:
+            break
+    return out
+
+
+@router.get("/nearby")
+@limiter.limit("30/minute")
+def get_place_nearby(request: Request, lat: float, lng: float):
+    """관광지 좌표 주변 1km 의 공중화장실과 정류장. 좌표별 1시간 캐시."""
+    key = (round(lat, 4), round(lng, 4))
+    now = time.time()
+    hit = _nearby_cache.get(key)
+    if hit and now - hit[0] < NEARBY_TTL:
+        return hit[1]
+    result = {
+        "toilets": _toilets_near(lat, lng),
+        "bus_stops": _bus_stops_near(lat, lng),
+    }
+    _nearby_cache[key] = (now, result)
+    return result

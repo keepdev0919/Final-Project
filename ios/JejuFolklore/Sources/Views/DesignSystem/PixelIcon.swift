@@ -30,6 +30,9 @@ struct PixelIcon: View {
         case star, quest, bang, walk, compass
         /// 현장 진행 화면 — 소리 켜기·끄기, 다음 표시
         case sound, soundOff, caret
+        /// 장소 정보 — 이용 정보 칩(휴무·화장실·입장료)과 무장애 타일
+        case wc, ticket, dayOpen, info, snow, parkingSign
+        case wheelchair, wheelchairForward, stroller, nursing, bus, hearing, eye
 
         /// Material Icons 글리프. 주석은 원래 아이콘 이름이다.
         var codepoint: String {
@@ -80,6 +83,19 @@ struct PixelIcon: View {
             case .sound:     return "\u{e050}"  // volume_up
             case .soundOff:  return "\u{e04f}"  // volume_off
             case .caret:     return "\u{e5c5}"  // arrow_drop_down
+            case .wc:        return "\u{e63d}"  // wc
+            case .ticket:    return "\u{e638}"  // confirmation_number
+            case .dayOpen:   return "\u{e614}"  // event_available
+            case .info:      return "\u{e88e}"  // info
+            case .snow:      return "\u{eb3b}"  // ac_unit
+            case .parkingSign: return "\u{e54f}" // local_parking
+            case .wheelchair: return "\u{e914}" // accessible
+            case .wheelchairForward: return "\u{e934}" // accessible_forward
+            case .stroller:  return "\u{eb41}"  // child_friendly
+            case .nursing:   return "\u{f19b}"  // baby_changing_station
+            case .bus:       return "\u{e530}"  // directions_bus
+            case .hearing:   return "\u{e023}"  // hearing
+            case .eye:       return "\u{e8f4}"  // visibility
             }
         }
     }

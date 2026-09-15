@@ -54,12 +54,14 @@ def test_no_route_takes_user_coordinates():
     경로 문자열 하나만 막으면 `/pins/search?lat=&lng=` 같은 다른 경로로
     부활할 수 있다. 라우트 테이블 전체를 훑어야 의도가 지켜진다.
 
-    `/place/detail`은 예외다 — 받는 lat/lng가 사용자 위치가 아니라 **관광지
-    자체의 좌표**다(PlaceDetailView가 place.lat/place.lng를 넘긴다).
+    `/place/detail`·`/place/nearby`는 예외다 — 받는 lat/lng가 사용자 위치가 아니라
+    **관광지 자체의 좌표**다(PlaceDetailView가 place.lat/place.lng를 넘긴다).
+    `/place/nearby` 는 관광지 주변 화장실·정류장을 찾는데, 기준을 사용자 위치로
+    바꾸고 싶어지는 자리다 (2026-09-10). 그 순간 신고 대상이 된다 — 바꾸지 말 것.
     """
     from main import app
 
-    ALLOWED = {"/place/detail"}  # 관광지 좌표만 받는 경로
+    ALLOWED = {"/place/detail", "/place/nearby"}  # 관광지 좌표만 받는 경로
 
     # ⚠️ 이 검사는 app.routes를 훑는다. FastAPI 0.141부터 include_router가
     # 라우트를 펼치지 않고 감싸므로, 그 버전에서는 훑어도 **아무것도 안 나온다.**

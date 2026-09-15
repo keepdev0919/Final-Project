@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).parent.parent.parent
 DB_PATH = BASE_DIR / "storage" / "metadata.db"
 sys.path.insert(0, str(BASE_DIR / "backend"))
 
-from routers.place import _fetch_detail, _fetch_images, _find_content_id  # noqa: E402
+from routers.place import _fetch_detail, _fetch_images, find_content_id  # noqa: E402
 from services.course_thumbnail import lead_place_name  # noqa: E402
 
 # KTO 를 몰아치지 않으려고 조회 사이에 쉰다. 265곳이면 전체 4분 남짓이다.
@@ -74,7 +74,8 @@ def main() -> None:
     ok = miss = fail = 0
     for i, (name, lat, lng) in enumerate(todo, 1):
         try:
-            found = _find_content_id(name, lat, lng)
+            # 이름이 맞는 것만 받는다 — 대표 장소가 식당일 수도 있어 종류는 안 좁힌다.
+            found = find_content_id(name, lat, lng)
             if not found:
                 miss += 1
                 print(f"  [{i}/{len(todo)}] {name} — KTO 에 없음")

@@ -138,15 +138,13 @@ def test_every_place_has_a_playable_story(db_conn):
         assert place["story_seconds"] > 0, place
 
 
-def test_wide_radius_requires_a_name_match(monkeypatch):
-    """넓은 반경에서는 이름이 맞아야만 받아들인다.
+def test_nearby_search_never_substitutes_the_closest_place(monkeypatch):
+    """이름이 안 맞으면 **어느 반경에서도** 아무것도 주지 않는다.
 
-    카드 사진을 찾을 때 반경 500m로는 섭지코지·우도·카멜리아힐이 안 잡힌다 —
-    비짓제주 평균 좌표가 실제 관광지에서 그만큼 벗어나 있다. 그래서 2km로 다시 부른다.
-
-    그런데 `_find_content_id`에는 **이름이 하나도 안 맞으면 가장 가까운 것을 쓰는**
-    폴백이 있다. 2km에서 그 폴백이 살아 있으면 섭지코지 카드에 근처 카페 사진이 붙는다.
-    화면은 멀쩡하고 사진도 예쁘게 나오므로 **눌러봐도 절대 안 잡힌다.**
+    전에는 반경 500m 에서 이름이 하나도 안 맞으면 가장 가까운 것을 대신 썼다.
+    그래서 코스에서 `해녀의부엌 종달점`을 누르면 KTO 에 없으니 바로 옆
+    `종달리해변`의 사진과 설명이 붙었다 (2026-09-10 실측). 화면은 멀쩡해 보여서
+    눌러봐도 절대 안 잡힌다.
 
     사진이 없는 것보다 틀린 사진이 붙는 게 나쁘다.
     """
@@ -157,18 +155,35 @@ def test_wide_radius_requires_a_name_match(monkeypatch):
     def fake_kto_get(service, operation, params):
         calls.append(params["radius"])
         return {"response": {"body": {"items": {"item": [
-            {"title": "전혀 다른 카페", "contentid": "99999", "contenttypeid": "39"},
+            {"title": "종달리해변", "contentid": "99999", "contenttypeid": "12"},
         ]}}}}
 
     monkeypatch.setattr(place, "_kto_get", fake_kto_get)
+    monkeypatch.setattr(place, "_search_by_keyword", lambda name: [])
 
-    # 좁은 반경: 이름이 안 맞아도 가장 가까운 것을 쓴다 (기존 동작 유지)
-    assert place._find_content_id("섭지코지", 33.42, 126.93) == ("99999", "39")
-    # 넓은 반경: 이름이 안 맞으면 아무것도 안 준다
-    assert place._find_content_id(
-        "섭지코지", 33.42, 126.93, radius=2000, require_name_match=True
-    ) is None
+    assert place.find_content_id("해녀의부엌 종달점", 33.49, 126.91) is None
     assert calls == [500, 2000]
+
+
+def test_course_place_detail_accepts_restaurants_when_name_matches(monkeypatch):
+    """코스 장소 상세는 식당·카페도 찾아야 한다.
+
+    홈·PLAY 는 관광지 계열만 받지만(`find_sight_content_id`), 코스에는 빵집·식당이
+    들어 있다. 종류를 좁히지 않은 `find_content_id` 는 이름이 맞는 음식점(39)을
+    그대로 준다 — 이걸 막으면 코스 장소 상세가 텅 빈다.
+    """
+    from routers import place
+
+    monkeypatch.setattr(place, "_search_by_keyword", lambda name: [{
+        "title": "해녀의부엌 종달점", "contentid": "4242", "contenttypeid": "39",
+        "mapy": "33.49", "mapx": "126.91",
+    }])
+
+    assert place.find_content_id("해녀의부엌 종달점", 33.49, 126.91) == ("4242", "39")
+    # 같은 후보라도 관광지만 받는 자리에서는 버린다.
+    monkeypatch.setattr(place, "_kto_get",
+                        lambda *a, **k: {"response": {"body": {"items": ""}}})
+    assert place.find_sight_content_id("해녀의부엌 종달점", 33.49, 126.91) is None
 
 
 def test_thumbnail_warming_targets_the_top_ranks(db_conn):
@@ -263,7 +278,7 @@ def test_name_search_result_must_be_nearby(monkeypatch):
         }]
 
     monkeypatch.setattr(place, "_search_by_keyword", fake_search)
-    monkeypatch.setattr(place, "_find_content_id", lambda *a, **k: None)
+    monkeypatch.setattr(place, "_nearby_content_id", lambda *a, **k: None)
 
     # 제주 우도 좌표로 물어보면 전남 결과는 버려진다
     assert place.find_sight_content_id("가우도", 33.50, 126.95) is None
@@ -292,3 +307,153 @@ def test_screens_never_claim_a_number_of_people():
             if "여행자" in line and "명" in line:
                 offenders.append(f"{path.name}:{lineno} {line.strip()}")
     assert not offenders, "사람 수를 주장하는 문구가 있다:\n" + "\n".join(offenders)
+
+
+def test_accessibility_rows_drop_kto_suffix_and_empty_fields(monkeypatch):
+    """무장애 정보는 **있는 항목만, 꼬리표 없이** 준다.
+
+    KTO 는 `장애인 전용 주차구역 있음(3대)_무장애 편의시설` 처럼 값 뒤에 분류
+    꼬리표를 붙여 보낸다 (2026-09-10 협재 실측). 그대로 보여주면 화면에
+    `_무장애 편의시설` 이 글자로 찍힌다. 빈 칸은 목록에서 빠져야 한다 —
+    스무 칸을 다 늘어놓으면 「없음」이 「있음」을 묻는다.
+    """
+    from routers import place
+
+    monkeypatch.setattr(place, "_kto_get", lambda *a, **k: {"response": {"body": {"items": {"item": [{
+        "contentid": "127490",
+        "parking": "장애인 전용 주차구역 있음(3대,공영주차장)_무장애 편의시설",
+        "restroom": "장애인 전용화장실 있음",
+        "wheelchair": "",
+        "elevator": None,
+    }]}}}})
+
+    rows = place._fetch_accessibility("127490")
+    assert rows == [
+        {"label": "장애인 주차", "value": "장애인 전용 주차구역 있음(3대,공영주차장)"},
+        {"label": "장애인 화장실", "value": "장애인 전용화장실 있음"},
+    ]
+
+
+def test_info_rows_tidy_kto_labels(monkeypatch):
+    """반복정보의 이름표는 KTO 가 `입 장 료` 처럼 띄어 보낸다. 붙여서 준다."""
+    from routers import place
+
+    monkeypatch.setattr(place, "_kto_get", lambda *a, **k: {"response": {"body": {"items": {"item": [
+        {"infoname": "입 장 료", "infotext": "무료"},
+        {"infoname": "화장실", "infotext": "있음<br>주차장 옆"},
+        {"infoname": "비어있음", "infotext": ""},
+    ]}}}})
+
+    assert place._fetch_info("1", "12") == [
+        {"label": "입장료", "value": "무료"},
+        {"label": "화장실", "value": "있음\n주차장 옆"},
+    ]
+
+
+def test_nearby_facilities_skip_broken_coords_and_collapse_duplicates(monkeypatch):
+    """주변 시설은 **깨진 좌표는 건너뛰고, 같은 이름은 하나만, 가까운 순**이다.
+
+    제주시 화장실 데이터에는 `126..42388329` 같은 좌표가 6건 섞여 있고
+    (2026-09-10 실측), 해수욕장 관리센터 화장실은 같은 이름으로 세 개가 등록돼
+    있다. 정류장은 길 양쪽이 같은 이름이다. 그대로 두면 다섯 줄이 두 이름으로 찬다.
+    """
+    from routers import place
+
+    place._toilet_cache.update(items=[
+        {"toiletNm": "관리센터", "laCrdnt": "33.5435", "loCrdnt": "126.6696", "opnTimeInfo": "연중무휴",
+         "maleDspsnClosetCnt": "1", "femaleDspsnClosetCnt": "0"},
+        {"toiletNm": "관리센터", "laCrdnt": "33.5440", "loCrdnt": "126.6700", "opnTimeInfo": "연중무휴"},
+        {"toiletNm": "깨진좌표", "laCrdnt": "126..4238", "loCrdnt": "33.5"},
+        {"toiletNm": "먼곳", "laCrdnt": "33.60", "loCrdnt": "126.70", "opnTimeInfo": ""},
+    ], at=9e12)
+
+    toilets = place._toilets_near(33.5434, 126.6695)
+    assert [t["name"] for t in toilets] == ["관리센터"]
+    assert toilets[0]["accessible"] is True
+    assert toilets[0]["distance_m"] < 100
+
+    monkeypatch.setattr(place, "_public_get", lambda url, params: {"response": {"body": {"items": {"item": [
+        {"nodenm": "용마로", "gpslati": "33.5152", "gpslong": "126.5062"},
+        {"nodenm": "용마로", "gpslati": "33.5148", "gpslong": "126.5059"},
+        {"nodenm": "용마마을", "gpslati": "33.5168", "gpslong": "126.5037"},
+    ]}}}})
+    stops = place._bus_stops_near(33.5160, 126.5059)
+    assert [s["name"] for s in stops] == ["용마로", "용마마을"]
+    assert stops[0]["distance_m"] <= stops[1]["distance_m"]
+
+
+def test_intro_fields_get_the_same_cleanup_as_info_rows(monkeypatch):
+    """운영시간·휴무·입장료·주차도 `<br>` 을 줄바꿈으로 바꿔 준다.
+
+    반복정보와 무장애는 정리를 거치는데 이 네 칸만 빠져 있어서, 성산일출봉
+    운영시간에 `<br>` 이 **글자로 찍혔다** (2026-09-10 발견, 캐시 204곳 중 10곳).
+    """
+    from routers import place
+
+    monkeypatch.setattr(place, "_kto_get", lambda *a, **k: {"response": {"body": {"items": {"item": [{
+        "usetime": "- 1~2월 06:00~18:00 (매표마감 17:00)<br>\n- 3~4월 05:00~19:00",
+        "restdate": "연중무휴",
+        "parking": "가능",
+    }]}}}})
+
+    intro = place._fetch_intro("126486", "12")
+    assert intro["open_time"] == "- 1~2월 06:00~18:00 (매표마감 17:00)\n- 3~4월 05:00~19:00"
+    assert intro["rest_date"] == "연중무휴"
+
+
+def test_clean_text_restores_lines_kto_squashed_together():
+    """줄바꿈 없이 붙어서 온 운영시간을 원래 줄로 되돌린다.
+
+    카멜리아힐은 KTO 원문 자체가 `[하절기]- 08:30~18:30- 입장 마감 17:30[동절기]…`
+    처럼 한 줄이다 (2026-09-10 실측). 이대로 보여주면 「…17:30[동절기…」로 읽힌다.
+    범위 표시 `10:00 - 18:00` 의 `-` 는 항목 표시가 아니므로 끊지 않는다.
+    """
+    from routers.place import _clean_text
+
+    squashed = "[하절기/간절기(3월~11월)]- 08:30~18:30- 입장 마감 17:30[동절기(11월~2월)]- 08:30~18:00- 입장 마감 17:00"
+    assert _clean_text(squashed).split("\n") == [
+        "[하절기/간절기(3월~11월)]",
+        "- 08:30~18:30",
+        "- 입장 마감 17:30",
+        "[동절기(11월~2월)]",
+        "- 08:30~18:00",
+        "- 입장 마감 17:00",
+    ]
+    assert _clean_text("10:00 - 18:00") == "10:00 - 18:00"
+    assert _clean_text("[개인]\n- 성인 12,000원\n[단체]\n- 성인 10,000원").split("\n") == [
+        "[개인]", "- 성인 12,000원", "[단체]", "- 성인 10,000원",
+    ]
+
+
+def test_clean_text_leaves_real_sentences_and_ranges_alone():
+    """줄을 되살리는 규칙이 **다른 장소의 진짜 문장을 망가뜨리지 않는다.**
+
+    성산일출봉 실측값(2026-09-10)으로 잡는다:
+    - `성산일출봉입구[서] 정류장` 의 `[서]` 는 정류장 방향이지 머리가 아니다.
+    - `안내 가능- 시간 : 09:00~17:00- 대기장소 : …` 는 세 군데 **모두** 끊어야 한다.
+      숫자 앞에서만 끊으면 한 문장이 반만 갈라져 전보다 더 이상하다.
+    - `[11월~2월] - 06:00~18:00 - 매표 마감 17:00 [3월/…]` 처럼 양쪽 공백이 있어도 끊는다.
+    - `<br>` 로 이미 줄이 나뉜 값은 손대지 않는다.
+    """
+    from routers.place import _clean_text
+
+    assert _clean_text("대중교통 이용가능 : 성산일출봉입구[서] 정류장저상버스 없음.") == \
+        "대중교통 이용가능 : 성산일출봉입구[서] 정류장저상버스 없음."
+
+    guide = "자연유산해설사 안내 가능- 시간 : 09:00~17:00- 대기장소 : 탐방안내소- 문의처 : 064-710-7923"
+    assert _clean_text(guide).split("\n") == [
+        "자연유산해설사 안내 가능",
+        "- 시간 : 09:00~17:00",
+        "- 대기장소 : 탐방안내소",
+        "- 문의처 : 064-710-7923",
+    ]
+
+    spaced = "[11월~2월] - 06:00~18:00 - 매표 마감 17:00 [3월/4월] - 05:00~19:00"
+    assert _clean_text(spaced).split("\n") == [
+        "[11월~2월]", "- 06:00~18:00", "- 매표 마감 17:00", "[3월/4월]", "- 05:00~19:00",
+    ]
+
+    assert _clean_text("09:00- 18:00") == "09:00- 18:00"
+    assert _clean_text("2024-12-01 ~ 2025-02-28") == "2024-12-01 ~ 2025-02-28"
+    already = "- 안내 가능- 시간 : 09:00<br>- 문의 064-1"
+    assert _clean_text(already) == "- 안내 가능- 시간 : 09:00\n- 문의 064-1"
