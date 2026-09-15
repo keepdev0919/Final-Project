@@ -83,6 +83,7 @@ def _row_to_place(conn, row) -> dict:
         "lat": row["lat"],
         "lng": row["lng"],
         "status": row["status"],
+        "home_visible": bool(row["home_visible"]),
         "external_ids": [
             {"source": e["source"], "external_id": e["external_id"]} for e in externals
         ],
@@ -157,7 +158,7 @@ def link_external(conn, place_id: str, source: str, external_id: str) -> None:
 
 
 def ensure_by_key(conn, *, place_key: str, display_name: str, lat: float, lng: float,
-                  status: str = STATUS_CANDIDATE) -> str:
+                  status: str = STATUS_CANDIDATE, home_visible: bool = True) -> str:
     """자체 키로 Place 를 찾고, 없으면 발급한다. **몇 번 불러도 같은 id.**
 
     이미 있으면 이름·좌표·상태만 최신으로 맞춘다. 이름은 identity 가 아니므로
@@ -171,16 +172,18 @@ def ensure_by_key(conn, *, place_key: str, display_name: str, lat: float, lng: f
     ).fetchone()
     if row is not None:
         conn.execute(
-            "UPDATE places SET display_name = ?, lat = ?, lng = ?, status = ? WHERE id = ?",
-            (display_name, lat, lng, status, row["id"]),
+            "UPDATE places SET display_name = ?, lat = ?, lng = ?, status = ?, "
+            "home_visible = ? WHERE id = ?",
+            (display_name, lat, lng, status, int(home_visible), row["id"]),
         )
         return row["id"]
 
     place_id = new_place_id()
     conn.execute(
-        "INSERT INTO places (id, place_key, display_name, lat, lng, status, created_at) "
-        "VALUES (?,?,?,?,?,?,?)",
-        (place_id, place_key, display_name, lat, lng, status, time.time()),
+        "INSERT INTO places (id, place_key, display_name, lat, lng, status, "
+        "home_visible, created_at) VALUES (?,?,?,?,?,?,?,?)",
+        (place_id, place_key, display_name, lat, lng, status,
+         int(home_visible), time.time()),
     )
     return place_id
 
@@ -218,6 +221,7 @@ def sync_from_file(conn) -> dict[str, int]:
             lat=entry["lat"],
             lng=entry["lng"],
             status=entry.get("status", STATUS_CANDIDATE),
+            home_visible=entry.get("home_visible", True),
         )
         for ext in entry.get("external_ids", []):
             link_external(conn, place_id, ext["source"], ext["external_id"])

@@ -22,7 +22,15 @@
     "  LIVE      실제로 플레이할 수 있다. 지도에 활성 핀",
     "  PLANNED   제작 대상. 지도에 「준비 중」 핀",
     "  CANDIDATE 후속 검토. **지도에 띄우지 않는다** (데이터.md §11)",
-    "  선정 상태의 정본은 docs/기획/콘텐츠후보지.md 다."
+    "  선정 상태의 정본은 docs/기획/콘텐츠후보지.md 다.",
+    "",
+    "home_visible 이 무엇인가 (2026-09-07) —",
+    "  지도와 홈이 보여주는 범위가 다르다. 지도는 PLANNED 전부를 보여주지만,",
+    "  홈 「수행 가능한 퀘스트」는 아직 제작 착수 전인 후보지까지 퀘스트 카드처럼",
+    "  보이면 안 된다. 생략하면 true — 홈에도 뜬다.",
+    "  false 로 적은 곳은 콘텐츠후보지.md 의 '강한 후속 후보'다: 지도에는",
+    "  「준비 중」으로 알리지만, 실제 제작 순번이 오기 전까지는 홈에서 뺀다.",
+    "  아래 만장굴부터 산방산·용머리해안까지 8곳이 여기 해당한다."
   ],
 
   "places": [
@@ -74,6 +82,95 @@
       "status": "PLANNED",
       "external_ids": [
         { "source": "odii", "external_id": "1011", "note": "콘텐츠 조사 출처 · 임시 사진 앵커" }
+      ]
+    },
+
+    {
+      "key": "manjanggul-cave",
+      "name": "만장굴",
+      "lat": 33.528472,
+      "lng": 126.771444,
+      "status": "PLANNED",
+      "home_visible": false,
+      "external_ids": [
+        { "source": "odii", "external_id": "974", "note": "콘텐츠 조사 출처 · 임시 사진 앵커" }
+      ]
+    },
+    {
+      "key": "alttreu-airfield",
+      "name": "알뜨르비행장",
+      "lat": 33.206584,
+      "lng": 126.272832,
+      "status": "PLANNED",
+      "home_visible": false,
+      "external_ids": [
+        { "source": "odii", "external_id": "2103", "note": "콘텐츠 조사 출처 · 임시 사진 앵커" }
+      ]
+    },
+    {
+      "key": "jeju-chusa-museum",
+      "name": "제주추사관",
+      "lat": 33.250306,
+      "lng": 126.278333,
+      "status": "PLANNED",
+      "home_visible": false,
+      "external_ids": [
+        { "source": "odii", "external_id": "998", "note": "콘텐츠 조사 출처 · 임시 사진 앵커" }
+      ]
+    },
+    {
+      "key": "yakcheonsa-temple",
+      "name": "약천사",
+      "lat": 33.245838,
+      "lng": 126.44935,
+      "status": "PLANNED",
+      "home_visible": false,
+      "external_ids": [
+        { "source": "odii", "external_id": "1110", "note": "해설 7건 묶음 중심점 · 임시 사진 앵커" }
+      ]
+    },
+    {
+      "key": "gwaneumsa-temple",
+      "name": "관음사",
+      "lat": 33.423968,
+      "lng": 126.558394,
+      "status": "PLANNED",
+      "home_visible": false,
+      "external_ids": [
+        { "source": "odii", "external_id": "1105", "note": "해설 10건 묶음 중심점 · 임시 사진 앵커" }
+      ]
+    },
+    {
+      "key": "hangpaduri-fortress",
+      "name": "항파두리",
+      "lat": 33.452278,
+      "lng": 126.408,
+      "status": "PLANNED",
+      "home_visible": false,
+      "external_ids": [
+        { "source": "odii", "external_id": "970", "note": "콘텐츠 조사 출처 · 임시 사진 앵커" }
+      ]
+    },
+    {
+      "key": "seongsan-ilchulbong",
+      "name": "성산일출봉",
+      "lat": 33.461861,
+      "lng": 126.938694,
+      "status": "PLANNED",
+      "home_visible": false,
+      "external_ids": [
+        { "source": "odii", "external_id": "969", "note": "콘텐츠 조사 출처 · 임시 사진 앵커" }
+      ]
+    },
+    {
+      "key": "sanbangsan-yongmeori",
+      "name": "산방산·용머리해안",
+      "lat": 33.238056,
+      "lng": 126.313056,
+      "status": "PLANNED",
+      "home_visible": false,
+      "external_ids": [
+        { "source": "odii", "external_id": "973", "note": "콘텐츠 조사 출처 · 임시 사진 앵커" }
       ]
     }
   ]
