@@ -2,7 +2,16 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "DOCKERFILE",
-    "dockerfilePath": "Dockerfile"
+    "dockerfilePath": "Dockerfile",
+    "watchPatterns": [
+      "backend/**",
+      "data/**",
+      "storage/metadata.db",
+      "storage/tts_seed/**",
+      "Dockerfile",
+      ".dockerignore",
+      "railway.json"
+    ]
   },
   "deploy": {
     "healthcheckPath": "/privacy",
