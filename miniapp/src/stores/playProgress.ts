@@ -10,6 +10,7 @@
  * 러너가 **미션을 하나 끝낼 때마다** `save()` 한다. 나갔다 들어오면 **마지막으로 완료한
  * 미션 다음**부터 시작하고, 진행 중이던 미션의 Step·힌트는 되살아나지 않는다.
  * (나가기 확인창 문구: 「나가기 (완료한 지점까지 저장돼요)」)
+ * 단, 끝낸 미션의 발견·이야기를 보던 중이었으면 그 자리부터 다시 연다 — `pendingReveal`.
  *
  * ## 다른 곳이 읽는 것
  *   홈 카드      inProgress() → 「이어서 하기」, completed() → 「다시 하기」
@@ -26,6 +27,18 @@ import type { KeyValueBackend } from './kv';
 
 export const PLAY_PROGRESS_KEY = 'play_progress_v1';
 
+/**
+ * 미션은 끝냈지만 **아직 다 못 본** 발견·이야기 (2026-09-15).
+ *
+ * 진행은 미션을 끝내는 순간 저장된다. 그 뒤에 나오는 발견·이야기를 보다가 앱을 내리면
+ * 예전에는 이어서 할 때 그걸 건너뛰고 다음 미션으로 갔다 — 방금 찾은 것의 의미를 못 듣고
+ * 지나가는 셈이다. 그래서 무엇을 보던 중이었는지 같이 적어 두고, 이어서 할 때 거기부터 연다.
+ */
+export type PendingReveal =
+  | { after: 'mission'; missionId: string; stage: 'discovery' | 'story' }
+  /** FINAL 을 맞힌 뒤 FINAL 이야기를 듣던 중. 끝나면 CLEAR 다. */
+  | { after: 'final' };
+
 /** 이번 판의 상태. */
 export interface PlayProgress {
   playId: string;
@@ -38,6 +51,8 @@ export interface PlayProgress {
   /** 건너뛴 미션. 진행은 되지만 **직접 발견한 것은 아니다** — CLEAR 에서 구분해 보여준다. */
   skippedMissionIds: string[];
   finalCleared: boolean;
+  /** 아직 다 못 본 발견·이야기. 없으면 null. 이 필드가 생기기 전 저장값에는 없다(= null 로 읽는다). */
+  pendingReveal?: PendingReveal | null;
   /** epoch ms */
   startedAt: number;
   /** epoch ms. save() 가 채운다. */
@@ -58,6 +73,7 @@ export function createPlayProgress(play: Play, now: number = Date.now()): PlayPr
     discoveredRecordIds: [],
     skippedMissionIds: [],
     finalCleared: false,
+    pendingReveal: null,
     startedAt: now,
     updatedAt: now,
   };
@@ -127,13 +143,27 @@ function isPlayProgress(v: unknown): v is PlayProgress {
   );
 }
 
+/**
+ * 못 읽는 pendingReveal 은 null 로 본다. 이것 때문에 진행 전체를 버리지는 않는다 —
+ * 없어도 「완료한 미션 다음부터」로 이어갈 수 있다.
+ */
+function readPendingReveal(v: unknown): PendingReveal | null {
+  if (typeof v !== 'object' || v === null) return null;
+  const r = v as Record<string, unknown>;
+  if (r.after === 'final') return { after: 'final' };
+  if (r.after === 'mission' && typeof r.missionId === 'string' && (r.stage === 'discovery' || r.stage === 'story')) {
+    return { after: 'mission', missionId: r.missionId, stage: r.stage };
+  }
+  return null;
+}
+
 /** 하나라도 못 읽으면 통째로 버린다 — iOS 가 `[String: PlayProgress]` 디코딩 실패 때 그러듯이. */
 function parseProgressMap(raw: unknown): ProgressMap | null {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) return null;
   const out: ProgressMap = {};
   for (const [k, v] of Object.entries(raw)) {
     if (!isPlayProgress(v)) return null;
-    out[k] = v;
+    out[k] = { ...v, pendingReveal: readPendingReveal((v as unknown as Record<string, unknown>).pendingReveal) };
   }
   return out;
 }

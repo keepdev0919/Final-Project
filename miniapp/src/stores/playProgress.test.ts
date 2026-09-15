@@ -118,6 +118,26 @@ describe('PLAY 진행 저장소', () => {
     expect(store2.all()).toEqual({});
   });
 
+  it('보다 만 발견·이야기 자리(pendingReveal)도 앱을 다시 켜면 남아 있다', async () => {
+    const backend = createMemoryBackend();
+    const store = await relaunch(backend);
+    store.save({ ...createPlayProgress(makePlay('a'), 0), pendingReveal: { after: 'mission', missionId: 'M02', stage: 'story' } });
+    await store.whenIdle();
+    expect((await relaunch(backend)).load('a')?.pendingReveal).toEqual({ after: 'mission', missionId: 'M02', stage: 'story' });
+  });
+
+  it('pendingReveal 이 생기기 전 저장값도 읽고, 이상한 pendingReveal 때문에 진행 전체를 버리지 않는다', async () => {
+    // 이미 폰에 있는 진행을 새 필드 때문에 날리면 사용자는 처음부터 다시 해야 한다.
+    const { pendingReveal: _omit, ...old } = { ...createPlayProgress(makePlay('a'), 0), completedMissionIds: ['M01'] };
+    const odd = { ...createPlayProgress(makePlay('b'), 0), completedMissionIds: ['M03'], pendingReveal: { after: '???' } };
+    const backend = createMemoryBackend({ [PLAY_PROGRESS_KEY]: JSON.stringify({ a: old, b: odd }) });
+    const store = await relaunch(backend);
+    expect(store.load('a')?.completedMissionIds).toEqual(['M01']);
+    expect(store.load('a')?.pendingReveal).toBeNull();
+    expect(store.load('b')?.completedMissionIds).toEqual(['M03']);
+    expect(store.load('b')?.pendingReveal).toBeNull();
+  });
+
   it('저장소 쓰기가 실패해도 메모리의 진행은 남아 있다 — 이번 판은 끝까지 간다', async () => {
     const backend = createMemoryBackend();
     const store = await relaunch(backend);

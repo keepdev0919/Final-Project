@@ -11,6 +11,8 @@
  * - **Mission 하나 때문에 관광이 막히지 않는다.** 힌트 2단계 → 건너뛰기가 항상 있다.
  * - **미션 단위로 저장한다.** 미션을 끝낼 때와 CLEAR 때 progress 가 새 객체로 바뀐다 —
  *   화면은 그걸 보고 저장한다. 풀던 미션의 Step·힌트는 저장하지 않는다.
+ *   끝낸 미션 뒤 발견 → 이야기로 넘어갈 때, 다 보고 다음으로 갈 때도 저장한다 — 보다 만
+ *   발견·이야기 자리(`pendingReveal`)를 적고 지우기 위해서다.
  */
 import { failureText, isCorrect, missionCount, orderedMissions, partialCorrectCount, storyAfter } from '../../api/models';
 import type {
@@ -74,7 +76,10 @@ const flatOf = (play: Play) => orderedMissions(play);
  * 처음부터가 맞다. 이어받을 때는 **완료한 미션 다음**의 Point 안내부터 시작한다.
  *
  * 미션을 전부 끝냈는데 CLEAR 전(FINAL 에서 나감)이면 **FINAL 부터** 다시 연다 — 공용
- * `resumeMissionIndex` 계약(「러너가 FINAL 로 넘긴다」). Swift 는 마지막 미션을 다시 풀게 한다.
+ * `resumeMissionIndex` 계약(「러너가 FINAL 로 넘긴다」). (2026-09-15 iOS 도 같게 고침)
+ *
+ * 끝낸 미션의 발견·이야기(또는 FINAL 이야기)를 보다가 나갔으면 **그 자리부터** 다시 연다
+ * (`progress.pendingReveal`, 2026-09-15). 원고가 바뀌어 그 발견·이야기를 못 찾으면 위 규칙대로.
  */
 export function initRunner(play: Play, saved: PlayProgress | null, now: number = Date.now()): RunnerState {
   const base = {
@@ -91,6 +96,8 @@ export function initRunner(play: Play, saved: PlayProgress | null, now: number =
   };
   if (saved && !isFinished(saved)) {
     const flat = flatOf(play);
+    const reveal = resumeReveal(play, saved);
+    if (reveal) return { ...base, ...reveal, progress: saved };
     const allDone = flat.length > 0 && flat.every(({ mission }) => saved.completedMissionIds.includes(mission.id));
     return {
       ...base,
@@ -100,6 +107,37 @@ export function initRunner(play: Play, saved: PlayProgress | null, now: number =
     };
   }
   return { ...base, phase: 'pointIntro', missionIndex: 0, progress: createPlayProgress(play, now) };
+}
+
+/** 보다 만 발견·이야기로 되돌아갈 상태 조각. 원고에서 못 찾으면 null. */
+function resumeReveal(
+  play: Play,
+  saved: PlayProgress,
+): (Partial<RunnerState> & Pick<RunnerState, 'phase' | 'missionIndex'>) | null {
+  const pending = saved.pendingReveal;
+  if (!pending) return null;
+  const flat = flatOf(play);
+  if (pending.after === 'final') {
+    const story = play.final?.story;
+    if (!story) return null;
+    return { phase: 'story', pendingStory: story, storyIsFinal: true, missionIndex: Math.max(flat.length - 1, 0) };
+  }
+  const missionIndex = flat.findIndex(({ mission }) => mission.id === pending.missionId);
+  if (missionIndex < 0) return null;
+  const { point, mission } = flat[missionIndex];
+  const story = storyAfter(play, mission.id) ?? null;
+  const common = {
+    missionIndex,
+    pendingStory: story,
+    lastSkipped: saved.skippedMissionIds.includes(mission.id),
+    // 이 Point 는 이미 안내를 마쳤다 — 같은 Point 의 다음 미션에서 도착 안내를 다시 띄우지 않는다.
+    introducedPointIds: [point.id],
+  };
+  if (pending.stage === 'discovery' && mission.discovery) {
+    return { ...common, phase: 'discovery', pendingDiscovery: mission.discovery };
+  }
+  if (story) return { ...common, phase: 'story' };
+  return null;
 }
 
 // ═══════════════════════════════ 조회 ═══════════════════════════════
@@ -190,8 +228,13 @@ export function reduceRunner(play: Play, s: RunnerState, action: RunnerAction): 
         : [...s.progress.skippedMissionIds, mission.id];
       return completeMission(play, { ...s, progress: { ...s.progress, skippedMissionIds: skipped } }, mission, true);
     }
-    case 'afterDiscovery':
-      return s.pendingStory ? { ...s, phase: 'story' } : advance(play, s);
+    case 'afterDiscovery': {
+      if (!s.pendingStory) return advance(play, s);
+      // 보다 만 자리를 「이야기」로 옮겨 저장한다 — 이야기 중에 나가도 이야기부터 다시 연다.
+      const pending = s.progress.pendingReveal;
+      const progress = pending?.after === 'mission' ? { ...s.progress, pendingReveal: { ...pending, stage: 'story' as const } } : s.progress;
+      return { ...s, progress, phase: 'story' };
+    }
     case 'afterStory':
       return s.storyIsFinal ? finish({ ...s, pendingStory: null, storyIsFinal: false }) : advance(play, s);
     case 'submitFinal': {
@@ -216,7 +259,11 @@ export function reduceRunner(play: Play, s: RunnerState, action: RunnerAction): 
 
 function passFinal(play: Play, s: RunnerState): RunnerState {
   const story = play.final?.story;
-  if (story) return { ...s, pendingStory: story, storyIsFinal: true, phase: 'story' };
+  if (story) {
+    // FINAL 은 맞혔다 — 이야기 중에 나가도 FINAL 을 다시 풀지 않고 이야기부터 연다.
+    const progress = { ...s.progress, pendingReveal: { after: 'final' as const } };
+    return { ...s, progress, pendingStory: story, storyIsFinal: true, phase: 'story' };
+  }
   return finish(s);
 }
 
@@ -252,8 +299,17 @@ function completeMission(play: Play, s: RunnerState, mission: Mission, skipped: 
     storyIsFinal: false,
     hintLevel: 0,
     stepIndex: 0,
-    // 새 객체 → 화면이 저장한다 (미션 단위 저장).
-    progress: { ...s.progress, completedMissionIds: completed, discoveredRecordIds: discovered },
+    // 새 객체 → 화면이 저장한다 (미션 단위 저장). 뒤에 볼 발견·이야기가 있으면 그 자리도 같이.
+    progress: {
+      ...s.progress,
+      completedMissionIds: completed,
+      discoveredRecordIds: discovered,
+      pendingReveal: pendingDiscovery
+        ? { after: 'mission', missionId: mission.id, stage: 'discovery' }
+        : pendingStory
+          ? { after: 'mission', missionId: mission.id, stage: 'story' }
+          : null,
+    },
   };
   // Discovery 가 없는 미션이 있다 — 다음 미션의 발견을 준비하는 것이다. 그때는 발견 화면을 건너뛴다.
   if (pendingDiscovery) return { ...next, phase: 'discovery' };
@@ -264,7 +320,9 @@ function completeMission(play: Play, s: RunnerState, mission: Mission, skipped: 
 /** 다음 미션으로. 같은 Point 면 바로 미션, 다른 Point 면 도착 안내부터. */
 function advance(play: Play, s: RunnerState): RunnerState {
   const flat = flatOf(play);
-  const cleared = { ...s, pendingDiscovery: null, pendingStory: null, justEarnedRecord: null, storyIsFinal: false, wrongMessage: null };
+  // 발견·이야기를 다 봤다 — 보다 만 자리 기록을 지운다 (바뀔 때만 새 객체 = 저장).
+  const progress = s.progress.pendingReveal ? { ...s.progress, pendingReveal: null } : s.progress;
+  const cleared = { ...s, progress, pendingDiscovery: null, pendingStory: null, justEarnedRecord: null, storyIsFinal: false, wrongMessage: null };
   if (s.missionIndex + 1 < flat.length) {
     const missionIndex = s.missionIndex + 1;
     const nextPoint = flat[missionIndex].point;
@@ -282,7 +340,7 @@ function advance(play: Play, s: RunnerState): RunnerState {
 
 /** CLEAR 기록을 남긴다 — 홈 카드가 「다시 하기」로 바뀌는 근거다. */
 function finish(s: RunnerState): RunnerState {
-  return { ...s, progress: { ...s.progress, finalCleared: true }, phase: 'clear' };
+  return { ...s, progress: { ...s.progress, finalCleared: true, pendingReveal: null }, phase: 'clear' };
 }
 
 // ═══════════════════════════════ 곱딱이 대사 ═══════════════════════════════

@@ -248,7 +248,7 @@ describe('막히지 않는다', () => {
 });
 
 describe('저장 시점과 이어하기', () => {
-  it('progress 는 미션을 끝낼 때와 CLEAR 때만 새 객체가 된다 (= 그때만 저장한다)', () => {
+  it('풀던 미션의 힌트·오답·성공 문구는 저장하지 않고, 미션을 끝내야 저장한다', () => {
     const play = seongeup();
     const s0 = run(play, initRunner(play, null, 0), { type: 'arrived' });
     const s1 = run(play, s0, { type: 'showHint' }, { type: 'submit', answer: 'wrong' });
@@ -272,6 +272,119 @@ describe('저장 시점과 이어하기', () => {
     const play = seongeup();
     const saved = { ...createPlayProgress(play, 5), completedMissionIds: ['m01', 'm02', 'm03'] };
     expect(initRunner(play, saved).phase).toBe('finalStage');
+  });
+
+  // 발견·이야기는 방금 찾은 것의 의미를 알려주는 단계다. 현장에서 전화가 와 앱을 내렸다고
+  // 그걸 건너뛰면 사용자는 찾기만 하고 의미는 못 들은 채 다음 집으로 간다.
+  describe('발견·이야기를 보다가 나가면 그 자리부터 다시 연다', () => {
+    it('발견을 보다 나가면 → 발견부터, 이어서 그 미션의 이야기, 그다음 원래 흐름', () => {
+      const play = seongeup();
+      let s = run(play, initRunner(play, null, 0), { type: 'arrived' }, { type: 'submit', answer: 'no' }, { type: 'afterStepFeedback' });
+      s = run(play, s, { type: 'submit', answer: null }, { type: 'submit', answer: 'pole' });
+      expect(s.phase).toBe('discovery');
+      expect(s.progress.pendingReveal).toEqual({ after: 'mission', missionId: 'm02', stage: 'discovery' });
+
+      // 여기서 나갔다가 다시 들어온다
+      let r = initRunner(play, s.progress, 999);
+      expect(r.phase).toBe('discovery');
+      expect(r.pendingDiscovery?.body).toBe('정주석이야');
+      expect(r.justEarnedRecord).toBeNull(); // 기록 칸 축하는 다시 띄우지 않는다
+      r = run(play, r, { type: 'afterDiscovery' });
+      expect(r.phase).toBe('story');
+      expect(r.pendingStory?.id).toBe('s01');
+      r = run(play, r, { type: 'afterStory' });
+      expect(r.phase).toBe('pointIntro');
+      expect(currentMission(play, r)?.id).toBe('m03');
+      expect(r.progress.pendingReveal).toBeNull();
+    });
+
+    it('이야기를 듣다 나가면 → 발견을 다시 거치지 않고 이야기부터', () => {
+      const play = seongeup();
+      let s = run(play, initRunner(play, null, 0), { type: 'arrived' }, { type: 'submit', answer: 'no' }, { type: 'afterStepFeedback' });
+      s = run(play, s, { type: 'submit', answer: null }, { type: 'submit', answer: 'pole' }, { type: 'afterDiscovery' });
+      expect(s.phase).toBe('story');
+      expect(s.progress.pendingReveal).toEqual({ after: 'mission', missionId: 'm02', stage: 'story' });
+
+      const r = initRunner(play, s.progress, 999);
+      expect(r.phase).toBe('story');
+      expect(currentLine(play, r)).toBe('story:s01');
+    });
+
+    it('마지막 미션의 발견을 보다 나가면 → 발견부터, 끝나면 FINAL', () => {
+      const play = seongeup();
+      const saved = {
+        ...createPlayProgress(play, 5),
+        completedMissionIds: ['m01', 'm02', 'm03'],
+        pendingReveal: { after: 'mission' as const, missionId: 'm03', stage: 'discovery' as const },
+      };
+      let r = initRunner(play, saved, 999);
+      expect(r.phase).toBe('discovery');
+      expect(r.pendingDiscovery?.body).toBe('올레야');
+      r = run(play, r, { type: 'afterDiscovery' });
+      expect(r.phase).toBe('finalStage');
+    });
+
+    it('건너뛴 미션의 발견은 다시 열어도 「정답」 배지로 보인다', () => {
+      const play = seongeup();
+      const saved = {
+        ...createPlayProgress(play, 5),
+        completedMissionIds: ['m01', 'm02'],
+        skippedMissionIds: ['m02'],
+        pendingReveal: { after: 'mission' as const, missionId: 'm02', stage: 'discovery' as const },
+      };
+      expect(initRunner(play, saved, 999).lastSkipped).toBe(true);
+    });
+
+    it('같은 Point 의 다음 미션으로 갈 때 도착 안내를 다시 띄우지 않는다', () => {
+      const base = seongeup();
+      // m01 에 이야기를 붙여, 이야기 뒤 같은 Point 의 m02 로 가는 길을 만든다
+      const play: Play = { ...base, stories: [...base.stories, { id: 's00', title: '', script: '대문 이야기', sources: [], unlockAfterMission: 'm01' }] };
+      const saved = {
+        ...createPlayProgress(play, 5),
+        completedMissionIds: ['m01'],
+        pendingReveal: { after: 'mission' as const, missionId: 'm01', stage: 'story' as const },
+      };
+      const r = run(play, initRunner(play, saved, 999), { type: 'afterStory' });
+      expect(r.phase).toBe('mission');
+      expect(currentMission(play, r)?.id).toBe('m02');
+    });
+
+    it('FINAL 을 맞히고 FINAL 이야기를 듣다 나가면 → FINAL 을 다시 풀지 않고 이야기부터, 끝나면 CLEAR', () => {
+      const base = seongeup();
+      const play: Play = { ...base, final: { ...base.final!, story: { id: 'sf', title: '', script: '끝 이야기', sources: [], unlockAfterMission: '' } } };
+      let s = initRunner(play, { ...createPlayProgress(play, 5), completedMissionIds: ['m01', 'm02', 'm03'] }, 10);
+      expect(s.phase).toBe('finalStage');
+      s = run(play, s, { type: 'submitFinal', answer: ['a', 'b', 'c'] });
+      expect(s.progress.pendingReveal).toEqual({ after: 'final' });
+
+      let r = initRunner(play, s.progress, 999);
+      expect(r.phase).toBe('story');
+      expect(currentLine(play, r)).toBe('story:sf');
+      r = run(play, r, { type: 'afterStory' });
+      expect(r.phase).toBe('clear');
+      expect(r.progress.finalCleared).toBe(true);
+      expect(r.progress.pendingReveal).toBeNull();
+    });
+
+    it('원고가 바뀌어 그 발견·이야기를 못 찾으면 예전 규칙(완료한 미션 다음)대로', () => {
+      const play = seongeup();
+      const saved = {
+        ...createPlayProgress(play, 5),
+        completedMissionIds: ['m01', 'm02'],
+        pendingReveal: { after: 'mission' as const, missionId: 'gone', stage: 'story' as const },
+      };
+      const r = initRunner(play, saved, 999);
+      expect(r.phase).toBe('pointIntro');
+      expect(currentMission(play, r)?.id).toBe('m03');
+    });
+
+    it('이 기능 전에 저장된 진행(pendingReveal 없음)은 예전과 똑같이 이어받는다', () => {
+      const play = seongeup();
+      const { pendingReveal: _omit, ...old } = { ...createPlayProgress(play, 5), completedMissionIds: ['m01', 'm02'] };
+      const r = initRunner(play, old, 999);
+      expect(r.phase).toBe('pointIntro');
+      expect(currentMission(play, r)?.id).toBe('m03');
+    });
   });
 
   it('이미 CLEAR 한 기록은 이어받지 않는다 — 「다시 하기」는 처음부터', () => {
